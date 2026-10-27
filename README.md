@@ -28,12 +28,12 @@ python3 -m http.server 8000
 
 ## Publier sur GitHub Pages
 
-1. Créer un dépôt dans l'organisation `SoCraTes-MA`, par exemple `meetups`.
+1. Dépôt : `bzinoun/moroccan-software-crafters`.
 2. Pousser le contenu de ce dossier sur la branche `main`.
 3. Dans le dépôt : Settings → Pages → Source « Deploy from a branch », branche `main`, dossier `/ (root)`.
-4. Le site est servi sur `https://socrates-ma.github.io/meetups/`. Les chemins sont relatifs, il fonctionne aussi sur un domaine personnalisé.
+4. Le site est servi sur `https://bzinoun.github.io/moroccan-software-crafters/`. Les chemins sont relatifs, il fonctionne aussi sur un domaine personnalisé.
 
-Les balises `og:image` et `og:url` pointent vers `https://socrates-ma.github.io/meetups/` : à mettre à jour en cas de changement de domaine.
+Les balises `og:image` et `og:url` pointent vers `https://bzinoun.github.io/moroccan-software-crafters/` : à mettre à jour en cas de changement de domaine.
 
 ## Brancher le formulaire
 
