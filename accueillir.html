@@ -16,19 +16,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="host">
   <a class="skip-link" href="#funnel">Aller au formulaire</a>
 
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="./">
-        <img src="assets/img/logo.png" alt="" width="44" height="44">
-        <span><strong>Moroccan Software Crafters</strong><small>Association à but non lucratif</small></span>
-      </a>
-      <nav class="nav-simple" aria-label="Navigation principale">
-        <a href="./#historique">Éditions passées</a>
-        <a href="./#offres">Formules</a>
+      <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="44" height="44"><span><strong data-cms="site.name">Moroccan Software Crafters</strong><small data-cms="site.tagline">Association à but non lucratif</small></span></a>
+      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="meetup.html">Le meetup</a>
+        <a href="index.html#historique">Éditions</a>
+        <a href="socrates.html">SoCraTes</a>
+        <a href="actualites.html">Actualités</a>
+        <a href="association.html">L'association</a>
       </nav>
+      <a class="btn btn-ghost" href="index.html#offres">Les formules</a>
     </div>
   </header>
 
@@ -50,9 +52,10 @@
           <li><b>4</b><div><strong>Le jour J</strong><span>On accueille, on anime, on publie le récap avec photos.</span></div></li>
         </ol>
         <div class="proof">
-          <img src="assets/img/meetups/2026-10-sg-gscm-5.jpg" alt="Participants du meetup chez Société Générale GSCM" loading="lazy">
-          <p><strong>Dernière édition :</strong> Société Générale GSCM, 24 octobre 2026. 110 inscrits, après InnovX (119) et AXA Assurance Maroc.</p>
+          <img src="assets/img/meetups/2026-10-sg-gscm-5.jpg" alt="Participants du dernier meetup" loading="lazy">
+          <p id="proof-text"><strong>Dernière édition :</strong> Société Générale GSCM, 24 octobre 2026, 110 inscrits.</p>
         </div>
+        <p style="margin-top:20px;font-size:.9rem;color:var(--muted)">Vous voulez d'abord comprendre le format ? <a href="meetup.html">Le déroulé d'un meetup, étape par étape.</a></p>
       </aside>
 
       <div class="funnel" id="funnel">
@@ -60,7 +63,6 @@
           <div class="progress" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
           <p class="progress-label" id="progress-label" aria-live="polite"></p>
 
-          <!-- Étape 1 : formule -->
           <fieldset class="step" data-step="1">
             <legend>Quelle formule vous intéresse ?</legend>
             <p class="hint">Vous pourrez en changer lors de notre échange.</p>
@@ -68,7 +70,6 @@
             <div class="field" data-name="formule"><p class="error">Choisissez une formule pour continuer.</p></div>
           </fieldset>
 
-          <!-- Étape 2 : l'événement -->
           <fieldset class="step" data-step="2" hidden>
             <legend>L'événement</legend>
             <p class="hint">Les meetups communautaires ont lieu le samedi de 9 h à 13 h.</p>
@@ -115,7 +116,7 @@
               <span class="label" id="equip-label">Sur place <span class="opt">(cochez ce qui est disponible)</span></span>
               <div class="pills" role="group" aria-labelledby="equip-label">
                 <label class="pill"><input type="checkbox" name="equipements" value="Salle plénière"><span>Salle plénière</span></label>
-                <label class="pill"><input type="checkbox" name="equipements" value="Salles pour les cercles"><span>Salles pour les cercles</span></label>
+                <label class="pill"><input type="checkbox" name="equipements" value="Salles pour les tables rondes"><span>Salles pour les tables rondes</span></label>
                 <label class="pill"><input type="checkbox" name="equipements" value="Écran ou projecteur"><span>Écran ou projecteur</span></label>
                 <label class="pill"><input type="checkbox" name="equipements" value="Wifi invités"><span>Wifi invités</span></label>
                 <label class="pill"><input type="checkbox" name="equipements" value="Café et petit-déjeuner"><span>Café et petit-déjeuner</span></label>
@@ -128,7 +129,6 @@
             </div>
           </fieldset>
 
-          <!-- Étape 3 : entreprise -->
           <fieldset class="step" data-step="3" hidden>
             <legend>Votre entreprise</legend>
             <p class="hint">Pour préparer l'annonce et l'accès au bâtiment.</p>
@@ -175,7 +175,6 @@
             </div>
           </fieldset>
 
-          <!-- Étape 4 : contact -->
           <fieldset class="step" data-step="4" hidden>
             <legend>Comment vous joindre ?</legend>
             <p class="hint">Nous utilisons ces informations uniquement pour vous recontacter au sujet de ce meetup.</p>
@@ -240,7 +239,7 @@
           <div class="postit green">Merci ! On vous rappelle vite.</div>
           <h2>Demande bien reçue.</h2>
           <p id="success-text">Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.</p>
-          <p><a class="btn btn-ghost" href="./#historique">Revoir les éditions passées</a></p>
+          <p><a class="btn btn-ghost" href="index.html#historique">Revoir les éditions passées</a></p>
         </div>
       </div>
     </div>
@@ -248,17 +247,13 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="52" height="52"><span><strong>Moroccan Software Crafters</strong><small>Stimuler et promouvoir les valeurs du Software Craftsmanship</small></span></a>
-      <nav aria-label="Liens de pied de page">
-        <a href="./">Accueil</a>
-        <a href="https://www.linkedin.com/company/moroccansoftwarecrafters/" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://socrates-ma.github.io/" target="_blank" rel="noopener">SoCraTes Maroc</a>
-      </nav>
-      <p class="legal">Moroccan Software Crafters, association à but non lucratif.</p>
+      <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="52" height="52"><span><strong data-cms="site.name">Moroccan Software Crafters</strong><small data-cms="site.mission">Stimuler et promouvoir les valeurs du Software Craftsmanship</small></span></a>
+      <nav aria-label="Liens de pied de page" id="footer-nav"></nav>
+      <p class="legal" data-cms="site.footer.legal">Moroccan Software Crafters, association à but non lucratif.</p>
     </div>
   </footer>
 
-  <script src="assets/js/config.js"></script>
+  <script src="assets/js/cms.js"></script>
   <script src="assets/js/funnel.js"></script>
 </body>
 </html>

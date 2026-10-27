@@ -1,0 +1,39 @@
+{
+  "name": "Moroccan Software Crafters",
+  "shortName": "MSC",
+  "tagline": "Association à but non lucratif",
+  "mission": "Stimuler et promouvoir les valeurs du Software Craftsmanship au Maroc",
+  "description": "Depuis 2019, Moroccan Software Crafters réunit développeurs, testeurs et ops un samedi matin chez une entreprise hôte à Casablanca, et organise chaque année SoCraTes Maroc.",
+  "baseUrl": "https://bzinoun.github.io/moroccan-software-crafters",
+  "since": 2019,
+  "linkedinFollowers": 3666,
+  "links": {
+    "linkedin": "https://www.linkedin.com/company/moroccansoftwarecrafters/",
+    "socrates": "https://socrates-ma.github.io/",
+    "github": "https://github.com/bzinoun/moroccan-software-crafters"
+  },
+  "contact": {
+    "email": ""
+  },
+  "form": {
+    "endpoint": "",
+    "extraFields": {}
+  },
+  "nav": [
+    { "label": "Le meetup", "href": "meetup.html" },
+    { "label": "Éditions", "href": "index.html#historique" },
+    { "label": "SoCraTes", "href": "socrates.html" },
+    { "label": "Actualités", "href": "actualites.html" },
+    { "label": "L'association", "href": "association.html" }
+  ],
+  "cta": { "label": "Accueillir un meetup", "href": "accueillir.html" },
+  "footer": {
+    "links": [
+      { "label": "Accueillir un meetup", "href": "accueillir.html" },
+      { "label": "Sponsoriser SoCraTes", "href": "socrates.html#sponsoring" },
+      { "label": "LinkedIn", "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/" },
+      { "label": "Site SoCraTes Maroc", "href": "https://socrates-ma.github.io/" }
+    ],
+    "legal": "Moroccan Software Crafters, association à but non lucratif. Une communauté ouverte, sans sexisme, sans élitisme et sans contrainte technologique."
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "eyebrow": "Ils nous font confiance",
+  "title": "Les entreprises qui ont ouvert leurs portes ou soutenu la communauté.",
+  "lead": "En accueillant un meetup un samedi matin, ou en finançant une édition de SoCraTes Maroc.",
+  "items": [
+    {
+      "id": "sg-gscm",
+      "name": "Société Générale GSCM",
+      "display": "SG Global Solution Centre Morocco",
+      "logo": "sg-gscm.png",
+      "linkedin": ""
+    },
+    {
+      "id": "axa",
+      "name": "AXA Assurance Maroc",
+      "display": "AXA Assurance Maroc",
+      "logo": "axa.png",
+      "linkedin": "https://www.linkedin.com/company/axa-assurance-maroc/"
+    },
+    {
+      "id": "innovx",
+      "name": "InnovX",
+      "display": "InnovX",
+      "logo": "innovx.png",
+      "linkedin": "https://www.linkedin.com/company/innovx1/"
+    },
+    {
+      "id": "jobzyn",
+      "name": "Jobzyn",
+      "display": "Jobzyn",
+      "logo": "jobzyn.png",
+      "linkedin": "https://www.linkedin.com/company/jobzyn/"
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle MADC",
+      "display": "Oracle Morocco (MADC)",
+      "logo": "oracle.png",
+      "linkedin": "https://www.linkedin.com/company/oracle/"
+    },
+    {
+      "id": "renault",
+      "name": "Renault Digital Maroc",
+      "display": "Renault Digital Maroc",
+      "logo": "renault.png",
+      "linkedin": "https://www.linkedin.com/company/renault-digital-maroc/"
+    },
+    {
+      "id": "labelvie",
+      "name": "LabelVie",
+      "display": "Label'Vie",
+      "logo": "labelvie.png",
+      "linkedin": "https://www.linkedin.com/company/label%27vie/"
+    },
+    {
+      "id": "sg-ats",
+      "name": "Société Générale ATS",
+      "display": "SG African Business Services (ex-ATS)",
+      "logo": "sg-ats.png",
+      "linkedin": "https://www.linkedin.com/company/sg-abs/"
+    },
+    {
+      "id": "maltem",
+      "name": "Maltem Africa",
+      "display": "Maltem Africa",
+      "logo": "maltem.png",
+      "linkedin": "https://www.linkedin.com/company/maltem-africa/"
+    },
+    {
+      "id": "nimbleways",
+      "name": "Nimbleways",
+      "display": "Nimbleways (Theodo Morocco)",
+      "logo": "nimbleways.png",
+      "linkedin": "https://www.linkedin.com/company/nimble-ways/"
+    },
+    {
+      "id": "mckinsey",
+      "name": "McKinsey & Company",
+      "display": "McKinsey & Company",
+      "logo": "mckinsey.png",
+      "linkedin": "https://www.linkedin.com/company/mckinsey/"
+    },
+    {
+      "id": "inwi",
+      "name": "inwi",
+      "display": "inwi",
+      "logo": "inwi.png",
+      "linkedin": "https://www.linkedin.com/company/inwi/"
+    },
+    {
+      "id": "bdsi",
+      "name": "BDSI Maroc",
+      "display": "BDSI",
+      "logo": "",
+      "linkedin": ""
+    },
+    {
+      "id": "keiken",
+      "name": "Keiken",
+      "display": "Keiken digital solutions",
+      "logo": "keiken.png",
+      "linkedin": "https://www.linkedin.com/company/keiken-digital-solutions/"
+    },
+    {
+      "id": "gemography",
+      "name": "Gemography",
+      "display": "Gemography",
+      "logo": "gemography.png",
+      "linkedin": "https://www.linkedin.com/company/gemography/"
+    },
+    {
+      "id": "zenika",
+      "name": "Zenika",
+      "display": "Zenika",
+      "logo": "zenika.png",
+      "linkedin": "https://www.linkedin.com/company/zenika/"
+    },
+    {
+      "id": "done",
+      "name": "Done",
+      "display": "Done",
+      "logo": "done.png",
+      "linkedin": "https://www.linkedin.com/company/donedotma/"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "title": "Le meetup, expliqué · Moroccan Software Crafters",
+    "description": "Comment se déroule un meetup Moroccan Software Crafters : accueil, lightning talks, bubble topics, tables rondes et rétrospective. Un samedi matin, quatre heures, en open space."
+  },
+  "hero": {
+    "eyebrow": "Le meetup, expliqué",
+    "title": "Une matinée, quatre heures, <em>zéro</em> slide obligatoire.",
+    "lead": "Le meetup est gratuit, se tient un samedi matin chez une entreprise hôte, et ne ressemble pas à une conférence : personne n'est invité à parler, tout le monde peut le faire. Voici comment ça se passe, étape par étape.",
+    "photo": "2026-10-sg-gscm-2",
+    "facts": [
+      { "value": "9 h → 13 h", "label": "un samedi, toutes les 6 à 8 semaines" },
+      { "value": "~100", "label": "inscrits par édition" },
+      { "value": "50", "label": "places retenues sur place" },
+      { "value": "0 MAD", "label": "pour les participants" }
+    ]
+  },
+  "who": {
+    "eyebrow": "Pour qui",
+    "title": "Celles et ceux qui livrent du logiciel, quel que soit le langage.",
+    "text": "Développeurs, testeurs, ops, data, tech leads, étudiants en fin de cursus : le seul prérequis est de se soucier de la qualité de ce qu'on construit. Les débutants sont les bienvenus et les discussions se tiennent en français, en darija ou en anglais, selon la table.",
+    "items": [
+      { "title": "Vous codez", "text": "Backend, front, mobile, data, infra : le craft ne dépend pas de la stack." },
+      { "title": "Vous testez", "text": "Les testeurs sont là depuis le premier jour, et le « T » de SoCraTes, c'est eux." },
+      { "title": "Vous encadrez", "text": "Leads, managers, CTO : venez écouter ce que vos équipes n'osent pas dire en réunion." },
+      { "title": "Vous apprenez", "text": "Étudiants et juniors : une matinée ici vaut plusieurs semaines de veille." }
+    ]
+  },
+  "steps": {
+    "eyebrow": "Le déroulé",
+    "title": "Cinq temps, toujours dans le même ordre.",
+    "items": [
+      {
+        "id": "accueil",
+        "time": "9 h 00 → 9 h 45",
+        "title": "Accueil et networking",
+        "kicker": "On commence par le café",
+        "photo": "2026-10-sg-gscm-7",
+        "text": "L'hôte ouvre ses portes, l'équipe d'organisation pointe les inscrits Luma et distribue les post-its. On fait connaissance autour du petit-déjeuner, l'hôte présente ses locaux et son équipe en dix minutes, pas plus.",
+        "tips": ["Arrivez à l'heure : l'accès au bâtiment ferme souvent après 9 h 30.", "Venez avec une question que vous vous posez en ce moment : elle finira sur un post-it."]
+      },
+      {
+        "id": "lightning",
+        "time": "9 h 45 → 10 h 30",
+        "title": "Lightning talks",
+        "kicker": "Cinq à dix minutes, chrono en main",
+        "photo": "2026-10-sg-gscm-3",
+        "text": "Quatre à six prises de parole courtes, sur le sujet de son choix : une techno découverte, un retour d'expérience, une erreur dont on a appris, un side project. Une ou deux slides tout au plus, souvent aucune. Les questions viennent après, dans le couloir ou dans une table ronde.",
+        "tips": ["Un bon lightning talk tient en une idée.", "Les talks s'annoncent le matin même : il suffit de s'inscrire sur le tableau à l'accueil."]
+      },
+      {
+        "id": "bubble",
+        "time": "10 h 30 → 11 h 00",
+        "title": "Bubble topics",
+        "kicker": "La marketplace des sujets",
+        "photo": "2026-03-innovx-3",
+        "text": "C'est le cœur du format. Chacun écrit sur un post-it le sujet dont il voudrait parler, puis le présente en trente secondes devant le mur. Pas de pitch, une phrase suffit : « comment vous testez vos prompts ? », « monorepo, vous êtes revenus ? ». Les post-its se regroupent par bulles, et tout le monde vote.",
+        "tips": ["Les sujets formulés comme une question attirent plus de votes.", "Un sujet peut être un problème concret que vous avez au bureau : c'est souvent le meilleur."]
+      },
+      {
+        "id": "tables",
+        "time": "11 h 00 → 12 h 30",
+        "title": "Tables rondes",
+        "kicker": "Trois cercles, la loi des deux pieds",
+        "photo": "2026-05-axa-2",
+        "text": "Les trois sujets les plus votés ouvrent trois tables rondes en parallèle, dans trois espaces. La personne qui a proposé le sujet lance la discussion, un membre de l'équipe facilite et prend des notes. On tourne quand on veut : si vous n'apprenez rien et n'apportez rien, changez de table, personne ne s'en offusque.",
+        "tips": ["Les cercles de 8 à 15 personnes fonctionnent le mieux.", "Les notes des tables servent au récap publié sur LinkedIn."]
+      },
+      {
+        "id": "retro",
+        "time": "12 h 30 → 13 h 00",
+        "title": "Rétrospective",
+        "kicker": "Et on se dit à dans six semaines",
+        "photo": "2026-05-axa-4",
+        "text": "Tout le monde se retrouve en plénière. Chaque table restitue ses trois points clés, puis on fait la rétro du meetup lui-même : ce qui a marché, ce qu'on change. On annonce le prochain hôte s'il est connu, et on prend la photo de groupe.",
+        "tips": ["Les retours de la rétro changent réellement le format : les bubble topics en sont nés.", "Restez pour la photo : elle finit sur la page LinkedIn et sur ce site."]
+      }
+    ]
+  },
+  "marketplace": {
+    "eyebrow": "Zoom",
+    "title": "Comment naissent les trois tables rondes",
+    "photo": "2026-05-axa-3",
+    "steps": [
+      { "title": "Un post-it par idée", "text": "Pendant les lightning talks, les post-its circulent. Une idée, un post-it, votre prénom en bas." },
+      { "title": "Trente secondes de pitch", "text": "Chacun colle son post-it au mur et le présente en une phrase. Les sujets proches se regroupent en bulles." },
+      { "title": "Un vote par personne et par bulle", "text": "Trois gommettes chacun. On vote pour les bulles où l'on veut passer l'heure suivante, pas pour celles qui font bien." },
+      { "title": "Trois cercles, trois espaces", "text": "Les trois bulles les plus votées deviennent trois tables rondes. Les autres sujets continuent souvent autour du café." }
+    ]
+  },
+  "propose": {
+    "eyebrow": "Participer",
+    "title": "Proposer un lightning talk ou un sujet.",
+    "items": [
+      { "title": "Pas besoin de préparer des slides", "text": "Un lightning talk se raconte. Si vous avez besoin d'un support, une démo ou une capture d'écran suffit." },
+      { "title": "Le retour d'expérience bat le tutoriel", "text": "Ce que vous avez essayé, ce qui a cassé, ce que vous referiez autrement : c'est ce que la salle veut entendre." },
+      { "title": "Les sujets qui marchent", "text": "Les questions ouvertes (« qui est responsable quand l'IA écrit le code ? »), les problèmes concrets (« notre legacy en Java 8 »), les débats (« les estimations servent-elles encore ? »)." },
+      { "title": "Comment s'inscrire", "text": "Le matin même, sur le tableau à l'accueil, ou en nous écrivant sur LinkedIn avant l'édition si vous voulez être sûr d'avoir un créneau." }
+    ]
+  },
+  "rules": {
+    "eyebrow": "Les règles du jeu",
+    "title": "Simples, et les mêmes depuis 2019.",
+    "items": [
+      { "title": "Gratuit, sur inscription", "text": "L'événement est publié sur Luma trois à quatre semaines avant. Les places sont limitées par la salle de l'hôte, et les inscriptions validées dans l'ordre d'arrivée." },
+      { "title": "La communauté fixe l'agenda", "text": "Ni l'hôte ni l'organisation ne choisissent les sujets des tables rondes. Les votes décident." },
+      { "title": "Pas de pitch commercial", "text": "L'hôte se présente en dix minutes. Le reste de la matinée appartient aux participants : pas de démo produit, pas de recrutement dans les cercles." },
+      { "title": "Un environnement sûr", "text": "Bienveillance et respect, quels que soient le niveau, le genre, le langage ou l'employeur. Le code de conduite de SoCraTes s'applique." },
+      { "title": "Photos", "text": "Des photos sont prises pour le récap LinkedIn. Signalez-le à l'accueil si vous ne souhaitez pas y figurer." }
+    ]
+  },
+  "topicsWall": {
+    "eyebrow": "Ce qu'on y a discuté",
+    "title": "Le mur des sujets, depuis 2019."
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Avant de venir",
+    "items": [
+      { "q": "Je ne connais personne, est-ce que je vais rester dans mon coin ?", "a": "Non. Le format est conçu pour ça : le networking du début, les post-its et les cercles obligent tout le monde à parler. Une édition suffit pour repartir avec des contacts." },
+      { "q": "Faut-il apporter son ordinateur ?", "a": "Pas nécessaire pour un meetup, sauf si vous faites une démo en lightning talk. Les ateliers avec clavier, c'est à SoCraTes." },
+      { "q": "Comment suis-je prévenu du prochain meetup ?", "a": "Sur la page LinkedIn de l'association, et sur Luma si vous vous êtes déjà inscrit à une édition." },
+      { "q": "Mon entreprise peut-elle accueillir ?", "a": "Oui, c'est même comme ça que tout fonctionne. Il faut une salle de 40 à 80 places un samedi matin, du café et du wifi. Le détail est sur la page « Accueillir un meetup »." }
+    ]
+  },
+  "cta": {
+    "title": "Le prochain meetup est annoncé sur LinkedIn.",
+    "text": "Suivez la page pour recevoir l'annonce, ou proposez vos locaux pour l'édition suivante.",
+    "primary": { "label": "Suivre l'association", "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/" },
+    "secondary": { "label": "Accueillir un meetup", "href": "accueillir.html" }
+  }
+}

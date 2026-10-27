@@ -1,0 +1,96 @@
+{
+  "nextEdition": {
+    "label": "5e édition",
+    "year": "",
+    "dates": "",
+    "venue": "",
+    "city": "",
+    "capacity": 60,
+    "status": "En préparation"
+  },
+  "eyebrow": "Devenir partenaire",
+  "title": "Financez quatre jours qui font avancer le craft au Maroc.",
+  "lead": "SoCraTes Maroc est un événement à but non lucratif : le prix payé par les participants couvre à peine l'hébergement. Ce sont les partenaires qui rendent l'édition possible, et qui la vivent de l'intérieur.",
+  "arguments": [
+    {
+      "title": "Des profils rares, en immersion",
+      "text": "50 à 60 crafters sélectionnés : développeurs seniors, testeurs, ops, tech leads, venus du Maroc, de France et d'Allemagne. Quatre jours, repas et soirées compris, à parler métier."
+    },
+    {
+      "title": "Une présence, pas un stand",
+      "text": "Vos ingénieurs participent comme tout le monde : ils proposent des sessions, animent des discussions, partagent leurs pratiques. C'est là que se joue votre crédibilité technique."
+    },
+    {
+      "title": "Une marque employeur qui dure",
+      "text": "Logo sur les supports, remerciements dans l'annonce et le récap LinkedIn, visuels dédiés. Les photos et les conversations continuent de circuler longtemps après l'édition."
+    },
+    {
+      "title": "Un soutien lisible",
+      "text": "Vous financez un événement ouvert, organisé par une association, sans élitisme ni contrainte technologique. Les comptes de l'édition sont partagés avec les partenaires."
+    }
+  ],
+  "trust": {
+    "title": "Cinq entreprises ont soutenu chacune des quatre éditions depuis 2022.",
+    "ids": ["mckinsey", "maltem", "inwi", "keiken", "gemography"]
+  },
+  "packages": [
+    {
+      "id": "supporter",
+      "name": "Supporter",
+      "price": "15 000 MAD",
+      "tagline": "Pour marquer votre soutien à la communauté.",
+      "includes": [
+        "Logo sur le site et les visuels de l'édition",
+        "1 place participant pour un membre de votre équipe",
+        "Remerciement dans l'annonce et le récap LinkedIn"
+      ]
+    },
+    {
+      "id": "partenaire",
+      "name": "Partenaire",
+      "price": "35 000 MAD",
+      "highlight": true,
+      "badge": "Le niveau historique",
+      "tagline": "Le format choisi par la plupart des partenaires depuis 2022.",
+      "includes": [
+        "Tout le niveau Supporter",
+        "3 places participant",
+        "5 minutes de prise de parole à l'ouverture",
+        "Logo sur les badges et l'écran de la plénière",
+        "Un visuel LinkedIn dédié à votre participation",
+        "Vos goodies dans le kit des participants"
+      ]
+    },
+    {
+      "id": "principal",
+      "name": "Partenaire principal",
+      "price": "70 000 MAD",
+      "limit": "Un seul par édition",
+      "tagline": "Votre nom associé à l'édition entière.",
+      "includes": [
+        "Tout le niveau Partenaire",
+        "6 places participant",
+        "La soirée du samedi à votre nom",
+        "Le coding kata du dimanche animé avec vos crafters",
+        "Logo en tête de tous les supports et du site",
+        "Un mot de votre direction dans le récap de l'édition"
+      ]
+    }
+  ],
+  "inKind": {
+    "title": "Partenariat en nature",
+    "text": "Transport des participants, captation photo ou vidéo, goodies, impression des supports : tout ce qui améliore l'expérience des participants compte, et donne droit aux mêmes contreparties qu'un niveau équivalent."
+  },
+  "note": "Tarifs indicatifs hors taxes. Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
+  "faq": [
+    { "q": "Peut-on envoyer plusieurs collaborateurs ?", "a": "Oui, dans la limite des places incluses dans votre niveau. Au-delà, vos collaborateurs s'inscrivent comme les autres participants, en priorité." },
+    { "q": "Y a-t-il des stands ou des présentations commerciales ?", "a": "Non. SoCraTes est une unconference : il n'y a ni stand ni créneau commercial. Les partenaires sont présents par leurs crafters, leur logo, leur mot d'ouverture et leurs goodies." },
+    { "q": "Quand faut-il s'engager ?", "a": "Idéalement trois mois avant l'édition, pour figurer sur l'annonce, les visuels et les badges. Les partenaires engagés tôt ont la priorité sur le niveau principal." },
+    { "q": "Comment est utilisé le budget ?", "a": "Hébergement et repas des participants, location des salles, matériel d'open space, transport et impression. L'association partage le bilan de l'édition avec ses partenaires." }
+  ],
+  "form": {
+    "title": "Parlons de la prochaine édition",
+    "lead": "Laissez-nous vos coordonnées et le niveau qui vous intéresse. Nous revenons vers vous sous 48 heures avec le dossier de partenariat.",
+    "success": "Merci ! Nous vous envoyons le dossier de partenariat sous 48 heures."
+  }
+}

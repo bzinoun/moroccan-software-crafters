@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "title": "SoCraTes Maroc · La conférence Software Craft & Testing",
+    "description": "SoCraTes Maroc est une unconference : quatre jours d'open space entre crafters, sans programme imposé. Quatre éditions depuis 2022. Découvrez le format, les règles de l'open space et devenez partenaire de la prochaine édition."
+  },
+  "hero": {
+    "eyebrow": "International Conference for Software Craft & Testing · édition marocaine depuis 2022",
+    "title": "Quatre jours entre crafters, <em>sans programme</em>.",
+    "lead": "SoCraTes Maroc est une unconference : pas de conférenciers invités, pas d'agenda fixé à l'avance. Une cinquantaine de personnes qui aiment le logiciel bien fait se retrouvent dans un lieu en retrait de la ville et construisent le programme ensemble, chaque matin.",
+    "photo": "2022-03-socrates-groupe",
+    "primary": { "label": "Devenir partenaire", "href": "#sponsoring" },
+    "secondary": { "label": "Site de l'édition", "href": "https://socrates-ma.github.io/" },
+    "facts": [
+      { "value": "4", "label": "éditions depuis 2022" },
+      { "value": "30 → 50", "label": "participants par édition" },
+      { "value": "11", "label": "entreprises partenaires" },
+      { "value": "3 pays", "label": "Maroc, France, Allemagne" }
+    ]
+  },
+  "about": {
+    "eyebrow": "Une unconference",
+    "title": "Ce n'est pas une conférence. C'est une retraite de travail.",
+    "lead": "Le format vient de SoCraTes Allemagne, né en 2011 : réunir pendant un long week-end celles et ceux qui se soucient du code, des tests et de la qualité, et les laisser décider de quoi parler.",
+    "pillars": [
+      { "title": "Des personnes", "text": "Tous ceux qui se soucient de code, de tests, de qualité et de craft : développeurs, testeurs, ops, leads. Débutants bienvenus, experts aussi, sans hiérarchie ni badge « speaker »." },
+      { "title": "De l'action", "text": "Un événement à but non lucratif et à bas coût, qui ressemble à une retraite. On reste ensemble du jeudi au dimanche pour travailler, partager et apprendre." },
+      { "title": "Du plaisir", "text": "On passe les journées ensemble, et aussi les soirées : jeux, balades, musique, code à minuit. Et, croyez-le ou non, les programmeurs sont d'excellente compagnie." }
+    ]
+  },
+  "openspace": {
+    "eyebrow": "Les règles de la non-conférence",
+    "title": "Un seul principe : l'agenda vous appartient.",
+    "lead": "Chaque matin, la marketplace. Qui veut proposer une session se lève, la présente en une phrase et la colle sur la grille : un sujet, une salle, un créneau. Puis chacun va où il veut. Quatre principes et une loi suffisent à faire tenir le tout.",
+    "laws": [
+      { "title": "Qui que soient les gens qui viennent, ce sont les bonnes personnes.", "text": "Une session à trois peut être la meilleure du week-end. On ne court pas après l'audience." },
+      { "title": "Quoi qu'il arrive, c'est la seule chose qui pouvait arriver.", "text": "Pas de plan à respecter, pas de slides à finir : on suit ce qui émerge de la conversation." },
+      { "title": "Ça commence quand ça commence.", "text": "Et ça finit quand c'est fini. Le créneau est un cadre, pas une contrainte. Une session peut déborder sur la terrasse." },
+      { "title": "La loi des deux pieds.", "text": "Si vous n'apprenez rien et n'apportez rien là où vous êtes, levez-vous et changez de session. Personne ne s'en offusque : c'est la règle, et c'est elle qui garde les discussions vivantes." }
+    ],
+    "formats": {
+      "title": "Ce qu'on trouve sur la grille",
+      "items": [
+        { "title": "Discussion", "text": "Une question, un cercle de chaises, un facilitateur improvisé. Le format le plus courant." },
+        { "title": "Atelier ou kata", "text": "Clavier ouvert : mob programming, TDD, refactoring d'un legacy que quelqu'un a apporté." },
+        { "title": "Retour d'expérience", "text": "Vingt minutes de récit sur un projet, une migration, un échec, puis les questions." },
+        { "title": "« J'ai besoin d'aide »", "text": "Vous venez avec votre problème, les autres avec leurs idées. Souvent la session la plus utile." }
+      ]
+    }
+  },
+  "schedule": {
+    "eyebrow": "Déroulé type",
+    "title": "Du jeudi après-midi au dimanche midi.",
+    "days": [
+      { "day": "Jeudi", "title": "Arrivée et World Café", "text": "Installation, premier dîner ensemble, puis un World Café pour faire connaissance et faire émerger les sujets qui nous occupent cette année." },
+      { "day": "Vendredi", "title": "Open space, jour 1", "text": "Marketplace à 9 h, sessions jusqu'en fin d'après-midi, rétrospective de la journée. Soirée libre : jeux, musique, code." },
+      { "day": "Samedi", "title": "Open space, jour 2", "text": "Nouvelle marketplace, nouveaux sujets. Les fils de la veille continuent, d'autres naissent. La soirée du samedi est la plus longue." },
+      { "day": "Dimanche", "title": "Rétrospective et coding kata", "text": "Rétrospective de l'édition, coding kata collectif, puis chacun repart avec ses notes et quelques numéros en plus." }
+    ],
+    "note": "Le contenu exact est décidé par les participants. Sur les éditions passées : arrivée le jeudi à 15 h, départ le dimanche à 13 h."
+  },
+  "editions": {
+    "eyebrow": "Les éditions",
+    "title": "De trente à cinquante crafters.",
+    "items": [
+      { "year": "2022", "edition": "1re édition", "city": "Marrakech", "venue": "Palais Ronsard", "dates": "25 → 27 mars", "participants": 30, "partners": 8, "photo": "2022-03-socrates-groupe", "text": "La première unconference Software Craft & Testing au Maroc. Trente crafters, huit partenaires, et la preuve que le format tient aussi ici." },
+      { "year": "2023", "edition": "2e édition", "city": "Bouznika", "venue": "", "dates": "10 → 12 mars", "participants": 45, "partners": 10, "photo": "2022-03-socrates-open-space", "text": "Dix partenaires, McKinsey en knowledge partner, et un coding kata pour clore l'édition." },
+      { "year": "2024", "edition": "3e édition", "city": "Bouznika", "venue": "The View Bouznika", "dates": "12 → 15 septembre", "participants": 50, "partners": 6, "photo": "", "text": "Passage à quatre jours et à la rentrée de septembre. Des participants venus du Maroc, de France et d'Allemagne." },
+      { "year": "2025", "edition": "4e édition", "city": "Bouznika", "venue": "The View Bouznika", "dates": "4 → 7 septembre", "participants": 50, "partners": 6, "photo": "", "text": "Une quatrième édition complète, avec six partenaires, dont cinq présents depuis la première." }
+    ]
+  },
+  "family": {
+    "eyebrow": "Une famille internationale",
+    "title": "SoCraTes existe dans une dizaine de pays.",
+    "text": "La première « Software Craft and Testing (un)conference » est née en Allemagne et se tient chaque année depuis 2011. D'autres éditions ont suivi : Royaume-Uni, France, Belgique, Italie, Canaries, Suisse, et des cousines comme CodeFreeze en Finlande ou I T.A.K.E. en Roumanie. Le Maroc a rejoint la famille en 2022.",
+    "items": [
+      { "id": "socrates-de", "name": "SoCraTes", "country": "Allemagne" },
+      { "id": "socrates-fr", "name": "SoCraTes FR", "country": "France" },
+      { "id": "socrates-uk", "name": "SoCraTes UK", "country": "Royaume-Uni" },
+      { "id": "socrates-be", "name": "SoCraTes BE", "country": "Belgique" },
+      { "id": "socrates-it", "name": "SoCraTes IT", "country": "Italie" },
+      { "id": "socrates-canaries", "name": "SoCraTes Canaries", "country": "Espagne" },
+      { "id": "socrates-day-ch", "name": "SoCraTes Day", "country": "Suisse" },
+      { "id": "codefreeze", "name": "CodeFreeze", "country": "Finlande" },
+      { "id": "itake", "name": "I T.A.K.E.", "country": "Roumanie" }
+    ]
+  },
+  "values": {
+    "eyebrow": "Valeurs et code de conduite",
+    "title": "Un environnement sûr pour tout le monde.",
+    "items": [
+      { "title": "Inclusif", "text": "L'objectif premier de SoCraTes est d'accueillir le plus grand nombre de contributeurs possible, aux parcours les plus variés possible." },
+      { "title": "Bienveillant", "text": "Un environnement amical, sûr et accueillant pour tous, quels que soient le genre, l'orientation, le langage de programmation, les capacités, l'origine, la situation sociale ou la religion." },
+      { "title": "Respectueux", "text": "On ne sera pas toujours d'accord, et le désaccord n'excuse ni la grossièreté ni l'attaque personnelle. Pas d'insultes, pas de rabaissement, pas de harcèlement." },
+      { "title": "Attentif", "text": "Chacun mesure l'effet de ses mots sur les autres. Le code de conduite s'applique à la conférence et à tous ses espaces numériques." }
+    ]
+  },
+  "sponsorsWall": {
+    "eyebrow": "Ils ont soutenu SoCraTes Maroc",
+    "title": "Onze entreprises, quatre éditions."
+  }
+}

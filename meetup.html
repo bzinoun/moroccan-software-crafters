@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Le meetup, expliqué · Moroccan Software Crafters</title>
+  <meta name="description" content="Comment se déroule un meetup Moroccan Software Crafters : accueil, lightning talks, bubble topics, tables rondes et rétrospective. Un samedi matin, quatre heures, en open space.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Le meetup, expliqué · Moroccan Software Crafters">
+  <meta property="og:description" content="Lightning talks, bubble topics, tables rondes : le déroulé d'un samedi matin chez les Moroccan Software Crafters.">
+  <meta property="og:image" content="https://bzinoun.github.io/moroccan-software-crafters/assets/img/meetups/2026-03-innovx-3.jpg">
+  <meta property="og:url" content="https://bzinoun.github.io/moroccan-software-crafters/meetup.html">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="meetup">
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="44" height="44"><span><strong data-cms="site.name">Moroccan Software Crafters</strong><small data-cms="site.tagline">Association à but non lucratif</small></span></a>
+      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="meetup.html">Le meetup</a>
+        <a href="index.html#historique">Éditions</a>
+        <a href="socrates.html">SoCraTes</a>
+        <a href="actualites.html">Actualités</a>
+        <a href="association.html">L'association</a>
+      </nav>
+      <a class="btn btn-primary" href="accueillir.html" data-cms="site.cta.label">Accueillir un meetup</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="wrap">
+        <div>
+          <p class="eyebrow" data-cms="meetup.hero.eyebrow">Le meetup, expliqué</p>
+          <h1 data-cms="meetup.hero.title" data-cms-html>Une matinée, quatre heures, <em>zéro</em> slide obligatoire.</h1>
+          <p class="lead" data-cms="meetup.hero.lead">Le meetup est gratuit, se tient un samedi matin chez une entreprise hôte, et ne ressemble pas à une conférence.</p>
+          <ul class="facts" id="facts"></ul>
+        </div>
+        <figure>
+          <img id="hero-photo" src="assets/img/meetups/2026-10-sg-gscm-2.jpg" alt="Participants en cercle pendant un meetup" width="800" height="600">
+          <div class="postit">Vous fixez l'agenda.</div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="pour-qui">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-cms="meetup.who.eyebrow">Pour qui</p>
+          <h2 data-cms="meetup.who.title">Celles et ceux qui livrent du logiciel.</h2>
+          <p class="lead" data-cms="meetup.who.text"></p>
+        </div>
+        <div class="cards c4" id="who"></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="deroule">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-cms="meetup.steps.eyebrow">Le déroulé</p>
+          <h2 data-cms="meetup.steps.title">Cinq temps, toujours dans le même ordre.</h2>
+        </div>
+        <div id="steps"></div>
+      </div>
+    </section>
+
+    <section class="section" id="marketplace">
+      <div class="wrap zoom">
+        <img id="zoom-photo" src="assets/img/meetups/2026-05-axa-3.jpg" alt="Un participant devant le mur de post-its" loading="lazy" width="800" height="771">
+        <div>
+          <p class="eyebrow" data-cms="meetup.marketplace.eyebrow">Zoom</p>
+          <h2 data-cms="meetup.marketplace.title">Comment naissent les trois tables rondes</h2>
+          <ol class="numbered" id="zoom-steps"></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="proposer">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-cms="meetup.propose.eyebrow">Participer</p>
+          <h2 data-cms="meetup.propose.title">Proposer un lightning talk ou un sujet.</h2>
+        </div>
+        <div class="cards c4" id="propose-items"></div>
+      </div>
+    </section>
+
+    <section class="section" id="regles">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-cms="meetup.rules.eyebrow">Les règles du jeu</p>
+          <h2 data-cms="meetup.rules.title">Simples, et les mêmes depuis 2019.</h2>
+        </div>
+        <div class="cards c3" id="rules"></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="sujets">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-cms="meetup.topicsWall.eyebrow">Ce qu'on y a discuté</p>
+          <h2 data-cms="meetup.topicsWall.title">Le mur des sujets, depuis 2019.</h2>
+        </div>
+        <div class="topic-wall board" id="topic-board"></div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head center"><p class="eyebrow" data-cms="meetup.faq.eyebrow">Questions fréquentes</p><h2 data-cms="meetup.faq.title">Avant de venir</h2></div>
+        <div class="faq" id="faq-list"></div>
+      </div>
+    </section>
+
+    <section class="section tight">
+      <div class="wrap">
+        <div class="cta-band green">
+          <div>
+            <h2 data-cms="meetup.cta.title">Le prochain meetup est annoncé sur LinkedIn.</h2>
+            <p data-cms="meetup.cta.text">Suivez la page pour recevoir l'annonce.</p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://www.linkedin.com/company/moroccansoftwarecrafters/" target="_blank" rel="noopener" data-cms="meetup.cta.primary.label" data-cms-attr="href:meetup.cta.primary.href">Suivre l'association</a>
+            <a class="btn btn-ghost" href="accueillir.html" data-cms="meetup.cta.secondary.label" data-cms-attr="href:meetup.cta.secondary.href">Accueillir un meetup</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="52" height="52"><span><strong data-cms="site.name">Moroccan Software Crafters</strong><small data-cms="site.mission">Stimuler et promouvoir les valeurs du Software Craftsmanship</small></span></a>
+      <nav aria-label="Liens de pied de page" id="footer-nav"></nav>
+      <p class="legal" data-cms="site.footer.legal">Moroccan Software Crafters, association à but non lucratif.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/cms.js"></script>
+  <script src="assets/js/pages.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "title": "Actualités · Moroccan Software Crafters",
+    "description": "Récaps des meetups, annonces et appels à partenaires de Moroccan Software Crafters."
+  },
+  "eyebrow": "Actualités",
+  "title": "Récaps, annonces, appels.",
+  "lead": "Ce qui s'est dit dans les tables rondes, et ce qui se prépare.",
+  "items": [
+    {
+      "slug": "appel-partenaires-socrates-5e-edition",
+      "date": "2026-10-27",
+      "kind": "Annonce",
+      "title": "SoCraTes Maroc, 5e édition : l'appel à partenaires est ouvert",
+      "cover": "2022-03-socrates-open-space",
+      "excerpt": "Quatre éditions, de trente à cinquante crafters, onze entreprises partenaires. La cinquième se prépare, et nous cherchons les entreprises qui la rendront possible.",
+      "tags": ["SoCraTes", "Partenariat"],
+      "body": "Depuis 2022, SoCraTes Maroc réunit chaque année une cinquantaine de crafters pendant quatre jours d'open space, dans un lieu en retrait de la ville. L'événement est à but non lucratif : le prix payé par les participants couvre l'hébergement, et ce sont les partenaires qui financent le reste.\n\nCinq entreprises ont soutenu chacune des quatre éditions. Pour la cinquième, nous ouvrons trois niveaux de partenariat, de 15 000 à 70 000 MAD, et un partenariat en nature pour le transport, la captation ou les goodies.\n\n## Ce que vivent les partenaires\n\n- Leurs ingénieurs participent à l'open space comme tout le monde : ils proposent des sessions, animent des discussions, apportent leurs pratiques.\n- Leur logo figure sur les supports de l'édition, et leur nom dans l'annonce et le récap LinkedIn.\n- Au niveau Partenaire et au-delà : cinq minutes de prise de parole à l'ouverture, un visuel dédié, des goodies dans le kit des participants.\n\nIl n'y a ni stand ni créneau commercial : c'est une unconference, et c'est précisément ce qui fait la qualité des conversations.\n\n[Les formules et le formulaire de contact](socrates.html#sponsoring) sont sur la page SoCraTes. Nous revenons vers vous sous 48 heures avec le dossier de partenariat."
+    },
+    {
+      "slug": "sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code",
+      "date": "2026-10-24",
+      "kind": "Récap",
+      "event": "2026-10-sg-gscm",
+      "title": "Qui est responsable quand l'IA écrit le code ?",
+      "cover": "2026-10-sg-gscm-5",
+      "excerpt": "Chez Société Générale GSCM, 110 inscrits et une question au centre de la marketplace : l'IA écrit de plus en plus de code, mais quelqu'un clique toujours sur « merge ».",
+      "tags": ["IA", "Responsabilité", "Sécurité"],
+      "body": "Ce samedi, les Moroccan Software Crafters étaient reçus par Société Générale Global Solution Centre Morocco. Merci à l'équipe de SG GSCM d'avoir ouvert ses portes, et à tous ceux qui ont pitché un sujet à la marketplace. Trois idées sont restées.\n\n## La vitesse est un multiplicateur\n\nL'IA livre plus vite, et la vitesse multiplie ce que la codebase est déjà. Une codebase propre produit du code propre plus vite. Une codebase en désordre produit du désordre plus vite. Les fondations passent donc en premier : tests, documentation, architecture lisible.\n\n## La responsabilité ne va pas à l'outil\n\nL'IA écrit le code, et plus personne ne lit chaque ligne. Mais le code part toujours en production, et quelqu'un clique toujours sur « merge ». La responsabilité reste à la personne qui a écrit le prompt et approuvé le résultat.\n\n## Le problème n'est pas l'outil, c'est le jugement\n\nLes outils vont changer. Ce qui reste, c'est la capacité à juger ce qui sort : savoir lire, savoir tester, savoir dire non. Le rôle humain ne disparaît pas, il se déplace : moins d'exécution, plus de jugement, de pensée critique, de créativité et de responsabilité.\n\nLes autres sujets de la matinée : l'« AI factory » et l'inflation des fonctionnalités, la sécurité du vibe coding, le coût réel des tokens. Environ la moitié des participants découvraient le meetup."
+    },
+    {
+      "slug": "axa-craftsmanship-a-l-ere-de-l-ia",
+      "date": "2026-05-23",
+      "kind": "Récap",
+      "event": "2026-05-axa",
+      "title": "Craftsmanship à l'ère de l'IA : toute la stack passée en revue",
+      "cover": "2026-05-axa-1",
+      "excerpt": "Chez AXA Assurance Maroc, les tables rondes ont parcouru le cloud, l'infra, la data et la sécurité, avec une question en filigrane : où l'IA s'insère-t-elle vraiment ?",
+      "tags": ["IA", "Cloud", "Sécurité"],
+      "body": "Ce samedi, les Moroccan Software Crafters se sont retrouvés chez AXA Assurance Maroc autour d'une question : le craftsmanship à l'ère de l'IA. Merci à AXA pour l'accueil et le soutien à l'écosystème tech local.\n\n## Côté applicatif\n\nLa conversation a traversé toute la stack : cloud, infrastructure, data, et la place que l'IA y prend ou n'y prend pas. Modèle maison ou modèle sur étagère ? Le coût des tokens change-t-il l'architecture ? Les réponses dépendaient du contexte, et c'est ce qui a rendu la table intéressante.\n\n## Côté sécurité\n\nLe constat était simple : les vulnérabilités ont toujours été là. Les attaquants ont juste trouvé une nouvelle motivation, et de nouveaux outils. Le code généré ne dispense ni de la revue, ni des tests, ni de la modélisation des menaces.\n\n## Le reste de la matinée\n\nLightning talks, bubble topics, puis trois cercles en parallèle et une rétrospective en plénière. 51 inscriptions validées pour une salle pleine."
+    },
+    {
+      "slug": "innovx-l-impact-reel-de-l-ia",
+      "date": "2026-03-28",
+      "kind": "Récap",
+      "event": "2026-03-innovx",
+      "title": "L'impact réel de l'IA sur la façon dont on construit du logiciel",
+      "cover": "2026-03-innovx-1",
+      "excerpt": "Première édition de 2026 chez InnovX : 119 inscrits, et des conversations sur ce que l'IA change vraiment, pour les développeurs comme pour leurs managers.",
+      "tags": ["IA", "Management", "Tests"],
+      "body": "Ce samedi, nous avons rejoint InnovX pour le premier meetup Software Craftsmanship de l'année. Merci à l'équipe d'InnovX d'avoir rendu cette édition possible, et de pousser les conversations toujours un peu plus loin.\n\nCe qui a rendu la matinée particulière, ce sont les conversations. On a parlé de ce qui compte :\n\n- l'IA et son impact réel sur la façon dont on construit du logiciel, au-delà des démos ;\n- le changement qu'elle demande au management : estimer, planifier, évaluer le travail autrement ;\n- les process qui doivent rattraper la manière dont on code désormais ;\n- les tests et ce que « production-grade » veut dire quand le code est en partie généré.\n\nPlus d'une centaine d'inscriptions pour une cinquantaine de places : le rendez-vous suivant s'est tenu chez AXA Assurance Maroc en mai."
+    }
+  ]
+}

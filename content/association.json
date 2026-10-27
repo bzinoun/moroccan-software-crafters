@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "title": "L'association · Moroccan Software Crafters",
+    "description": "Moroccan Software Crafters est une association à but non lucratif qui stimule et promeut les valeurs du Software Craftsmanship au Maroc : meetups, SoCraTes Maroc, une communauté ouverte à tous depuis 2019."
+  },
+  "hero": {
+    "eyebrow": "L'association",
+    "title": "Une communauté, <em>pas</em> une marque.",
+    "lead": "Moroccan Software Crafters est une association à but non lucratif. Son objet : stimuler, créer et promouvoir un écosystème favorable à l'expression et au développement de la communauté des développeurs, testeurs et ops, sans sexisme, sans élitisme, ni contrainte technologique.",
+    "photo": "2026-03-innovx-1"
+  },
+  "mission": {
+    "eyebrow": "Ce qu'on fait",
+    "title": "Deux rendez-vous, un même fil.",
+    "items": [
+      { "title": "Le meetup", "text": "Un samedi matin toutes les six à huit semaines, chez une entreprise hôte à Casablanca. Gratuit, en open space : lightning talks, bubble topics, tables rondes.", "href": "meetup.html", "label": "Le déroulé" },
+      { "title": "SoCraTes Maroc", "text": "L'édition marocaine de la conférence internationale Software Craft and Testing : quatre jours d'unconference, chaque année depuis 2022, financés par des entreprises partenaires.", "href": "socrates.html", "label": "La conférence" },
+      { "title": "Les Code Snacks", "text": "À l'origine, en 2019 : des sessions courtes de présentations, de pitchs et de challenges de code. Le format a grandi pour devenir le meetup d'aujourd'hui.", "href": "index.html#historique", "label": "L'historique" }
+    ]
+  },
+  "principles": {
+    "eyebrow": "Nos principes",
+    "title": "Ce qui ne change pas d'une édition à l'autre.",
+    "items": [
+      { "title": "Ouvert à tous", "text": "Débutants et experts, toutes les stacks, tous les employeurs. Le seul critère est de s'intéresser au logiciel bien fait." },
+      { "title": "La communauté fixe l'agenda", "text": "Les sujets sont proposés et votés par les participants, le matin même. Ni l'hôte ni l'organisation ne les choisissent." },
+      { "title": "Gratuit pour les participants", "text": "Le meetup est gratuit. SoCraTes est facturé au prix coûtant de l'hébergement, le reste étant couvert par les partenaires." },
+      { "title": "Sans contrainte technologique", "text": "On parle de pratiques, pas de produits : tests, architecture, legacy, IA, organisation du travail." },
+      { "title": "Hébergé par les entreprises", "text": "Chaque meetup se tient dans les locaux d'une entreprise qui ouvre ses portes. Treize l'ont fait depuis 2019." },
+      { "title": "À but non lucratif", "text": "Les formules payantes et les partenariats financent les éditions, pas une structure. L'association partage ses bilans avec ses partenaires." }
+    ]
+  },
+  "timeline": {
+    "eyebrow": "Notre histoire",
+    "title": "De 2019 à aujourd'hui.",
+    "items": [
+      { "year": "2019", "title": "Les Code Snacks", "text": "Deux Code Snacks au printemps, puis un premier meetup chez BDSI en septembre : présentations, cercles de discussion, challenges de refactoring." },
+      { "year": "2021", "title": "Depuis chez soi", "text": "Un meetup en ligne pendant la pandémie, pour garder le fil." },
+      { "year": "2022", "title": "SoCraTes arrive au Maroc", "text": "Première édition à Marrakech en mars, trente crafters et huit partenaires. Les meetups reprennent en présentiel chez Maltem Africa et inwi." },
+      { "year": "2023", "title": "Le rythme s'installe", "text": "Deuxième SoCraTes à Bouznika, 45 crafters. Quatre meetups dans l'année : McKinsey, Nimbleways, Maltem Africa, Société Générale ATS." },
+      { "year": "2024", "title": "Quatre jours", "text": "SoCraTes passe à quatre jours, en septembre, avec des participants venus de France et d'Allemagne. Meetups chez LabelVie et Renault Digital Maroc." },
+      { "year": "2025", "title": "Cent inscrits", "text": "Les inscriptions passent sur Luma : 157 inscrits chez Oracle, 89 chez Jobzyn. Quatrième SoCraTes à Bouznika." },
+      { "year": "2026", "title": "Le craft à l'ère de l'IA", "text": "Trois meetups, chez InnovX, AXA Assurance Maroc et Société Générale GSCM, autour d'une même question : qui est responsable quand l'IA écrit le code ?" }
+    ]
+  },
+  "contribute": {
+    "eyebrow": "Contribuer",
+    "title": "Quatre façons de donner un coup de main.",
+    "items": [
+      { "title": "Accueillir un meetup", "text": "Une salle de 40 à 80 places, un samedi matin, du café. On s'occupe du reste.", "href": "accueillir.html", "label": "Proposer une date" },
+      { "title": "Sponsoriser SoCraTes", "text": "Trois niveaux de partenariat et un partenariat en nature. Les partenaires vivent l'édition de l'intérieur.", "href": "socrates.html#sponsoring", "label": "Voir les formules" },
+      { "title": "Proposer un lightning talk", "text": "Cinq à dix minutes sur le sujet de votre choix, sans slides si vous préférez.", "href": "meetup.html#proposer", "label": "Comment faire" },
+      { "title": "Rejoindre l'organisation", "text": "Accueil, photos, facilitation des tables rondes, relations avec les hôtes : il y a toujours de la place.", "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/", "label": "Nous écrire" }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Nous écrire",
+    "text": "Le plus simple est un message à la page LinkedIn de l'association. Pour les entreprises, les formulaires d'hébergement et de partenariat arrivent directement à l'équipe."
+  }
+}
