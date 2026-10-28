@@ -50,9 +50,11 @@
       { "value": "socrates", "label": "SoCraTes Maroc" },
       { "value": "codesnack", "label": "Code Snacks" },
       { "value": "online", "label": "En ligne" }
-    ]
+    ],
+    "limit": 6,
+    "more": "Voir les {n} événements"
   },
-  "gallery": { "eyebrow": "Galerie", "title": "Dans la salle." },
+  "gallery": { "eyebrow": "Galerie", "title": "Dans la salle.", "limit": 8, "more": "Voir toutes les photos" },
   "socrates": {
     "eyebrow": "La conférence",
     "title": "SoCraTes Maroc, l'unconference annuelle.",

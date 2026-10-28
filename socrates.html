@@ -30,6 +30,7 @@
         <a href="socrates.html">SoCraTes</a>
         <a href="actualites.html">Actualités</a>
         <a href="association.html">L'association</a>
+        <a class="btn btn-primary nav-cta" href="#sponsoring">Devenir partenaire</a>
       </nav>
       <a class="btn btn-primary" href="#sponsoring">Devenir partenaire</a>
     </div>
@@ -40,13 +41,14 @@
       <div class="bg" id="hero-bg" style="background-image:url('assets/img/meetups/2022-03-socrates-groupe.jpg')"></div>
       <div class="wrap">
         <div class="hero-text">
-          <p class="eyebrow" data-cms="socrates.hero.eyebrow">International Conference for Software Craft & Testing · édition marocaine depuis 2022</p>
+          <p class="eyebrow" data-cms="socrates.hero.eyebrow">Software Craft & Testing · édition marocaine depuis 2022</p>
           <h1 data-cms="socrates.hero.title" data-cms-html>Quatre jours entre crafters, <em>sans programme</em>.</h1>
           <p class="lead" data-cms="socrates.hero.lead">SoCraTes Maroc est une unconference : pas de conférenciers invités, pas d'agenda fixé à l'avance.</p>
           <div class="btn-row">
             <a class="btn btn-primary" href="#sponsoring" data-cms="socrates.hero.primary.label" data-cms-attr="href:socrates.hero.primary.href">Devenir partenaire</a>
             <a class="btn btn-ghost" href="https://socrates-ma.github.io/" target="_blank" rel="noopener" data-cms="socrates.hero.secondary.label" data-cms-attr="href:socrates.hero.secondary.href">Site de l'édition</a>
           </div>
+          <p class="status-chip" data-cms="socrates.hero.status">Prochaine édition&#8239;: après le Ramadan 2027, Bouznika</p>
         </div>
         <ul class="facts" id="facts"></ul>
       </div>
@@ -167,7 +169,7 @@
                 <div class="field">
                   <label for="s-tel">Téléphone</label>
                   <input type="tel" id="s-tel" name="telephone" autocomplete="tel" placeholder="+212 6 12 34 56 78" required>
-                  <p class="error">Numéro invalide.</p>
+                  <p class="error" data-empty="Indiquez votre numéro.">Numéro invalide.</p>
                 </div>
               </div>
               <div class="field">
