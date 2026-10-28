@@ -188,11 +188,11 @@
     "city": "Casablanca"
   },
   {
-    "id": "2023-09-sg-ats",
+    "id": "2023-09-sg-gscm",
     "date": "2023-09-16",
     "type": "meetup",
-    "title": "Meetup @ Société Générale ATS",
-    "host": "Société Générale ATS",
+    "title": "Meetup @ Société Générale GSCM",
+    "host": "Société Générale GSCM",
     "city": "Casablanca"
   },
   {
@@ -226,7 +226,7 @@
     "city": "Bouznika",
     "participants": 45,
     "sponsors": [
-      "Société Générale ATS",
+      "Société Générale GSCM",
       "Maltem Africa",
       "McKinsey & Company",
       "inwi",
