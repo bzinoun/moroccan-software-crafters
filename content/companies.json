@@ -2,6 +2,10 @@
   "eyebrow": "Ils nous font confiance",
   "title": "Les entreprises qui ont ouvert leurs portes ou soutenu la communauté.",
   "lead": "En accueillant un meetup un samedi matin, ou en finançant une édition de SoCraTes Maroc.",
+  "sticker": {
+    "host": { "title": "Votre logo ici ?", "text": "Recevez 40 crafters un samedi matin. On s'occupe du reste.", "label": "Accueillir un meetup", "href": "accueillir.html" },
+    "sponsor": { "title": "Votre logo ici ?", "text": "Soutenez SoCraTes Maroc 2027 et passez trois jours avec 60 crafters.", "label": "Devenir partenaire", "href": "#sponsor-funnel" }
+  },
   "items": [
     {
       "id": "sg-gscm",

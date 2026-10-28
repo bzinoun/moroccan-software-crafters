@@ -129,6 +129,16 @@ window.MSC = (function () {
     return (words.length > 1 ? words[0][0] + words[1][0] : name.slice(0, 2)).toUpperCase();
   }
 
+  // Post-it « Votre logo ici ? » en fin de mur (opts.sticker : { title, text, label, href }).
+  function stickerTile(s, id) {
+    if (!s) return "";
+    return `<a class="logo-tile sticker" href="${esc(s.href)}" aria-labelledby="${id}-t ${id}-l" aria-describedby="${id}-d">
+        <span class="sticker-title" id="${id}-t">${esc(s.title)}</span>
+        <span class="sticker-text" id="${id}-d">${esc(s.text)}</span>
+        <span class="sticker-cta"><span id="${id}-l">${esc(s.label)}</span>&nbsp;<span aria-hidden="true">→</span></span>
+      </a>`;
+  }
+
   // Mur de logos. Si l'image manque, on affiche un monogramme à la place.
   function renderLogoWall(el, companies, events, opts) {
     opts = opts || {};
@@ -141,11 +151,11 @@ window.MSC = (function () {
       const tag = c.linkedin ? "a" : "div";
       const href = c.linkedin ? ` href="${esc(c.linkedin)}" target="_blank" rel="noopener"` : "";
       return `<${tag} class="logo-tile"${href} title="${esc(c.display || c.name)}${label ? " · " + esc(label) : ""}">
-        <span class="logo-box">${c.logo ? `<img src="assets/img/logos/${esc(c.logo)}" alt="${esc(c.display || c.name)}" loading="lazy" width="120" height="120">` : ""}<span class="monogram" aria-hidden="true">${esc(monogram(c.display || c.name))}</span></span>
+        <span class="logo-box${c.logo ? "" : " missing"}">${c.logo ? `<img src="assets/img/logos/${esc(c.logo)}" alt="${esc(c.display || c.name)}" loading="lazy" width="120" height="120">` : ""}<span class="monogram" aria-hidden="true">${esc(monogram(c.display || c.name))}</span></span>
         <span class="logo-name">${esc(c.display || c.name)}</span>
         ${label ? `<span class="logo-role">${esc(label)}</span>` : ""}
       </${tag}>`;
-    }).join("");
+    }).join("") + stickerTile(opts.sticker, `${el.id}-sticker`);
     el.querySelectorAll("img").forEach((im) => {
       im.addEventListener("error", () => im.closest(".logo-box").classList.add("missing"));
       if (im.complete && im.naturalWidth === 0) im.closest(".logo-box").classList.add("missing");
@@ -272,6 +282,27 @@ window.MSC = (function () {
     if (meta.title) document.title = meta.title;
     const d = document.querySelector('meta[name="description"]');
     if (d && meta.description) d.setAttribute("content", meta.description);
+  }
+
+  /* Typographie française : l'espace devant ? ! : ; devient une espace fine insécable
+     (U+202F), pour que la ponctuation ne passe jamais seule à la ligne. On ne touche
+     qu'aux nœuds texte (jamais aux attributs ni aux URL), et seulement là où une espace
+     existe déjà. Un observateur traite aussi le texte rendu plus tard par les scripts. */
+  function frenchSpacing(node) {
+    if (node.nodeType === 3) {
+      const p = node.parentElement;
+      if (!p || p.closest("script, style, code, pre, textarea")) return;
+      const v = node.data.replace(/[  ]([?!:;])/g, " $1");
+      if (v !== node.data) node.data = v;
+    } else if (node.nodeType === 1) {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+      for (let t = walker.nextNode(); t; t = walker.nextNode()) frenchSpacing(t);
+    }
+  }
+  if (document.body && "MutationObserver" in window) {
+    frenchSpacing(document.body);
+    new MutationObserver((records) => records.forEach((r) => r.addedNodes.forEach(frenchSpacing)))
+      .observe(document.body, { childList: true, subtree: true });
   }
 
   return { load, esc, get, bind, md, fmtDate, img, place, photoItems, stats, companyStats, roleLabel, renderLogoWall, lightbox, initNav, initReveal, sendLead, setMeta, TYPE_LABEL };

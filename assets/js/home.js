@@ -76,8 +76,13 @@
     if (btn) lightbox.open(photoItems(events.find((x) => x.id === btn.dataset.event)), 0);
   });
 
-  function renderTimeline(filter) {
-    const list = events.filter((e) => filter === "all" || e.type === filter);
+  // Frise : les plus récents d'abord (home.history.limit), le reste sur demande.
+  const tlLimit = home.history.limit || 6;
+  const tlMore = $("#timeline-more");
+  let tlFilter = home.history.filters[0].value;
+  function renderTimeline(showAll) {
+    const all = events.filter((e) => tlFilter === "all" || e.type === tlFilter);
+    const list = showAll ? all : all.slice(0, tlLimit);
     const byYear = new Map();
     list.forEach((e) => { const y = e.date.slice(0, 4); if (!byYear.has(y)) byYear.set(y, []); byYear.get(y).push(e); });
     $("#timeline").innerHTML = [...byYear.entries()].map(([year, items]) => `
@@ -87,32 +92,50 @@
           return `<li class="tl-item">
             <time datetime="${esc(e.date)}">${fmtDate(e.date, { day: false })}</time>
             <div><h4>${esc(e.title)}</h4><div class="where">${esc(place(e))}${extra.length ? " · " + esc(extra.join(" · ")) : ""}</div>${tagsHtml(e.topics, 6)}</div>
-            <span class="badge ${esc(e.type)}">${TYPE_LABEL[e.type] || e.type}</span>
+            <span class="badge badge--${esc(e.type)}">${TYPE_LABEL[e.type] || e.type}</span>
           </li>`;
         }).join("")}
       </ol></section>`).join("");
+    tlMore.hidden = list.length === all.length;
+    tlMore.querySelector("button").textContent = (home.history.more || "Voir les {n} événements").replace("{n}", all.length);
   }
   $("#filters").innerHTML = home.history.filters.map((f, i) => `<button class="chip" data-filter="${esc(f.value)}" aria-pressed="${i === 0}">${esc(f.label)}</button>`).join("");
   const chips = document.querySelectorAll("#filters .chip");
   chips.forEach((chip) => chip.addEventListener("click", () => {
     chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
-    renderTimeline(chip.dataset.filter);
+    tlFilter = chip.dataset.filter;
+    renderTimeline(false);
   }));
-  renderTimeline(home.history.filters[0].value);
+  renderTimeline(false);
+  // Après dépliage, le focus passe au premier événement ajouté.
+  tlMore.querySelector("button").addEventListener("click", () => {
+    renderTimeline(true);
+    const first = document.querySelectorAll("#timeline .tl-item")[tlLimit];
+    if (first) { first.tabIndex = -1; first.focus(); }
+  });
 
-  /* Galerie */
+  /* Galerie : les premières photos, les autres sur demande (la lightbox parcourt toujours tout). */
   const items = events.flatMap(photoItems);
-  $("#gallery").innerHTML = items.map((it, i) => `
+  const galLimit = home.gallery.limit || 8;
+  const galMore = $("#gallery-more");
+  const galleryItem = (it, i) => `
     <button type="button" data-i="${i}" aria-label="Agrandir : ${esc(it.caption)}">
       <img src="${img(it.photo)}" alt="${esc(it.caption)}" loading="lazy"><span class="cap">${esc(it.caption)}</span>
-    </button>`).join("");
+    </button>`;
+  $("#gallery").innerHTML = items.slice(0, galLimit).map(galleryItem).join("");
+  galMore.hidden = items.length <= galLimit;
+  galMore.querySelector("button").addEventListener("click", () => {
+    $("#gallery").insertAdjacentHTML("beforeend", items.slice(galLimit).map((it, i) => galleryItem(it, galLimit + i)).join(""));
+    galMore.hidden = true;
+    $("#gallery").querySelectorAll("[data-i]")[galLimit].focus();
+  });
   $("#gallery").addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-i]");
     if (btn) lightbox.open(items, Number(btn.dataset.i));
   });
 
   /* Entreprises */
-  renderLogoWall($("#logo-wall"), companies.items, events);
+  renderLogoWall($("#logo-wall"), companies.items, events, { sticker: companies.sticker && companies.sticker.host });
 
   /* SoCraTes */
   $("#socrates-editions").innerHTML = events.filter((e) => e.type === "socrates").reverse().map((e, i) =>

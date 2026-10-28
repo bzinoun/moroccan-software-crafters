@@ -23,6 +23,8 @@
     const fieldOf = (el) => el.closest(".field");
     const setInvalid = (f, v) => { if (f) { f.classList.toggle("invalid", v); f.querySelectorAll("input,select,textarea").forEach((i) => i.setAttribute("aria-invalid", String(v))); } };
     const validPhone = (v) => { const p = v.replace(/[\s.\-()]/g, ""); return /^0[5-7]\d{8}$/.test(p) || /^(\+|00)\d{8,15}$/.test(p); };
+    // Message d'erreur adapté : « data-empty » si le champ est vide, texte d'origine si le format est faux.
+    const setErrorText = (el, empty) => { const err = fieldOf(el).querySelector(".error[data-empty]"); if (!err) return; if (!err.dataset.bad) err.dataset.bad = err.textContent; err.textContent = empty ? err.dataset.empty : err.dataset.bad; };
     form.addEventListener("input", (ev) => { const f = fieldOf(ev.target); if (f && f.classList.contains("invalid")) setInvalid(f, false); });
     form.addEventListener("submit", async (ev) => {
       ev.preventDefault();
@@ -31,10 +33,10 @@
       const fail = (el) => { setInvalid(fieldOf(el), true); if (!bad) bad = el; };
       form.querySelectorAll(".field").forEach((f) => setInvalid(f, false));
       form.querySelectorAll("[required]").forEach((el) => {
-        if (el.type === "checkbox" ? !el.checked : !el.value.trim()) fail(el);
+        if (el.type === "checkbox" ? !el.checked : !el.value.trim()) { setErrorText(el, true); fail(el); }
       });
       if (form.email && form.email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.value.trim())) fail(form.email);
-      if (form.telephone && form.telephone.value && !validPhone(form.telephone.value)) fail(form.telephone);
+      if (form.telephone && form.telephone.value.trim() && !validPhone(form.telephone.value)) { setErrorText(form.telephone, false); fail(form.telephone); }
       if (bad) { bad.focus(); return; }
       if (form.website_hp && form.website_hp.value) { opts.onDone("none"); return; }
       const data = opts.collect(form);
@@ -111,7 +113,8 @@
     });
     renderLogoWall($("#sponsors-wall"), companies.items, events, {
       filter: (c, st) => st.sponsored > 0,
-      label: (c, st) => st.years.join(" · ")
+      label: (c, st) => st.years.join(" · "),
+      sticker: companies.sticker && companies.sticker.sponsor
     });
     simpleForm($("#sponsor-form"), site, {
       type: "Sponsoring SoCraTes",
@@ -173,11 +176,11 @@
       { value: st.socrates, label: "éditions de SoCraTes Maroc" },
       { value: st.followers, label: "abonnés LinkedIn" }
     ]);
-    $("#mission").innerHTML = a.mission.items.map(card).join("");
+    $("#mission-cards").innerHTML = a.mission.items.map(card).join("");
     $("#principles").innerHTML = a.principles.items.map(card).join("");
     $("#history").innerHTML = a.timeline.items.map((t) => `<li><span class="yr">${esc(t.year)}</span><div><h3>${esc(t.title)}</h3><p>${esc(t.text)}</p></div></li>`).join("");
     $("#contribute").innerHTML = a.contribute.items.map(card).join("");
-    renderLogoWall($("#logo-wall"), companies.items, events);
+    renderLogoWall($("#logo-wall"), companies.items, events, { sticker: companies.sticker && companies.sticker.host });
     const li = $("#contact-linkedin"); if (li) li.href = site.links.linkedin;
   }
 

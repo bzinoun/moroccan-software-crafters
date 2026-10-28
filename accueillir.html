@@ -29,6 +29,7 @@
         <a href="socrates.html">SoCraTes</a>
         <a href="actualites.html">Actualités</a>
         <a href="association.html">L'association</a>
+        <a class="btn btn-ghost nav-cta" href="index.html#offres">Les formules</a>
       </nav>
       <a class="btn btn-ghost" href="index.html#offres">Les formules</a>
     </div>
@@ -72,7 +73,7 @@
 
           <fieldset class="step" data-step="2" hidden>
             <legend>L'événement</legend>
-            <p class="hint">Les meetups communautaires ont lieu le samedi de 9 h à 13 h.</p>
+            <p class="hint">Les meetups communautaires ont lieu le samedi de 9 h 30 à 14 h.</p>
             <div class="row">
               <div class="field">
                 <label for="date">Date souhaitée</label>
@@ -177,6 +178,7 @@
 
           <fieldset class="step" data-step="4" hidden>
             <legend>Comment vous joindre ?</legend>
+            <div class="recap" id="recap"></div>
             <p class="hint">Nous utilisons ces informations uniquement pour vous recontacter au sujet de ce meetup.</p>
             <div class="row">
               <div class="field">
@@ -198,7 +200,7 @@
               <div class="field">
                 <label for="telephone">Téléphone</label>
                 <input type="tel" id="telephone" name="telephone" autocomplete="tel" placeholder="+212 6 12 34 56 78" required>
-                <p class="error">Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78).</p>
+                <p class="error" data-empty="Indiquez votre numéro.">Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78).</p>
               </div>
             </div>
             <div class="field">
@@ -224,7 +226,6 @@
               <label for="website_hp">Ne pas remplir</label>
               <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
             </div>
-            <div class="recap" id="recap"></div>
           </fieldset>
 
           <div class="form-alert" id="form-alert" role="alert"></div>

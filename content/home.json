@@ -27,12 +27,12 @@
   "format": {
     "eyebrow": "Le format",
     "title": "Pas de conférenciers vedettes, des conversations.",
-    "lead": "Un samedi matin, de 9 h à 13 h, en open space. Chacun peut proposer un sujet, et les sujets les plus demandés deviennent des tables rondes.",
+    "lead": "Un samedi, de 9 h 30 à 14 h, en open space. Chacun peut proposer un sujet, et les sujets les plus demandés deviennent des tables rondes.",
     "steps": [
-      { "time": "9 h 00", "title": "Networking", "text": "Café, présentations, et on fait connaissance avec l'équipe qui nous accueille.", "photo": "2026-10-sg-gscm-7" },
-      { "time": "9 h 45", "title": "Lightning talks", "text": "5 à 10 minutes chacun, sur le sujet de son choix : une techno, un retour d'expérience, un projet.", "photo": "2026-10-sg-gscm-3" },
-      { "time": "10 h 30", "title": "Bubble topics", "text": "Chacun pitche un sujet en quelques secondes sur un post-it. On vote, les trois sujets les plus demandés ouvrent trois tables rondes.", "photo": "2026-03-innovx-3" },
-      { "time": "12 h 30", "title": "Rétrospective", "text": "Ce qu'on retient, ce qu'on change pour la prochaine fois, et à qui le tour d'accueillir.", "photo": "2026-05-axa-4" }
+      { "time": "9 h 30", "title": "Networking", "text": "Café, présentations, et on fait connaissance avec l'équipe qui nous accueille.", "photo": "2026-10-sg-gscm-7" },
+      { "time": "10 h 15", "title": "Lightning talks", "text": "5 à 10 minutes chacun, sur le sujet de son choix : une techno, un retour d'expérience, un projet.", "photo": "2026-10-sg-gscm-3" },
+      { "time": "11 h 00", "title": "Bubble topics", "text": "Chacun pitche un sujet en quelques secondes sur un post-it. On vote, les trois sujets les plus demandés ouvrent trois tables rondes.", "photo": "2026-03-innovx-3" },
+      { "time": "13 h 15", "title": "Rétrospective", "text": "Ce qu'on retient, ce qu'on change pour la prochaine fois, et à qui le tour d'accueillir.", "photo": "2026-05-axa-4" }
     ],
     "more": { "label": "Le déroulé détaillé, étape par étape", "href": "meetup.html" }
   },
@@ -50,9 +50,11 @@
       { "value": "socrates", "label": "SoCraTes Maroc" },
       { "value": "codesnack", "label": "Code Snacks" },
       { "value": "online", "label": "En ligne" }
-    ]
+    ],
+    "limit": 6,
+    "more": "Voir les {n} événements"
   },
-  "gallery": { "eyebrow": "Galerie", "title": "Dans la salle." },
+  "gallery": { "eyebrow": "Galerie", "title": "Dans la salle.", "limit": 8, "more": "Voir toutes les photos" },
   "socrates": {
     "eyebrow": "La conférence",
     "title": "SoCraTes Maroc, l'unconference annuelle.",

@@ -81,6 +81,14 @@
   const validPhone = (v) => { const p = normalizePhone(v); return /^0[5-7]\d{8}$/.test(p) || /^(\+|00)\d{8,15}$/.test(p); };
   const fieldOf = (el) => el.closest(".field");
 
+  // Message d'erreur adapté : « data-empty » si le champ est vide, texte d'origine si le format est faux.
+  function setErrorText(el, empty) {
+    const err = fieldOf(el).querySelector(".error[data-empty]");
+    if (!err) return;
+    if (!err.dataset.bad) err.dataset.bad = err.textContent;
+    err.textContent = empty ? err.dataset.empty : err.dataset.bad;
+  }
+
   function setInvalid(field, invalid) {
     if (!field) return;
     field.classList.toggle("invalid", invalid);
@@ -108,7 +116,7 @@
     if (n === 4) {
       if (!form.nom.value.trim()) fail(fieldOf(form.nom), form.nom);
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.value.trim())) fail(fieldOf(form.email), form.email);
-      if (!validPhone(form.telephone.value)) fail(fieldOf(form.telephone), form.telephone);
+      if (!validPhone(form.telephone.value)) { setErrorText(form.telephone, !form.telephone.value.trim()); fail(fieldOf(form.telephone), form.telephone); }
       if (!form.consent.checked) fail(fieldOf(form.consent), form.consent);
     }
     if (firstBad) firstBad.focus();
@@ -143,7 +151,7 @@
       ["Sur place", d.equipements],
       ["Entreprise", [d.entreprise, d.secteur, d.taille && "équipe tech : " + d.taille].filter(Boolean).join(" · ")]
     ].filter(([, v]) => v);
-    document.getElementById("recap").innerHTML = "<dl>" + rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("") + "</dl>";
+    document.getElementById("recap").innerHTML = '<p class="recap-title">Votre demande</p><dl>' + rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("") + "</dl>";
   }
 
   function show(n) {
@@ -151,7 +159,7 @@
     steps.forEach((s, i) => { s.hidden = i !== n - 1; });
     bars.forEach((b, i) => b.classList.toggle("done", i < n));
     progressLabel.textContent = `Étape ${n} sur ${TOTAL} · ${STEP_TITLES[n - 1]}`;
-    prevBtn.style.visibility = n === 1 ? "hidden" : "visible";
+    prevBtn.hidden = n === 1;
     nextBtn.textContent = n === TOTAL ? "Envoyer ma demande" : "Continuer";
     if (n === TOTAL) renderRecap();
     alertBox.classList.remove("show");

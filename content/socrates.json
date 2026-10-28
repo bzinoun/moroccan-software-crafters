@@ -4,7 +4,8 @@
     "description": "SoCraTes Maroc est une unconference : quatre jours d'open space entre crafters, sans programme imposé. Quatre éditions depuis 2022. Découvrez le format, les règles de l'open space et devenez partenaire de la prochaine édition."
   },
   "hero": {
-    "eyebrow": "International Conference for Software Craft & Testing · édition marocaine depuis 2022",
+    "eyebrow": "Software Craft & Testing · édition marocaine depuis 2022",
+    "status": "Prochaine édition\u202f: après le Ramadan 2027, Bouznika",
     "title": "Quatre jours entre crafters, <em>sans programme</em>.",
     "lead": "SoCraTes Maroc est une unconference : pas de conférenciers invités, pas d'agenda fixé à l'avance. Une cinquantaine de personnes qui aiment le logiciel bien fait se retrouvent dans un lieu en retrait de la ville et construisent le programme ensemble, chaque matin.",
     "photo": "2022-03-socrates-groupe",
