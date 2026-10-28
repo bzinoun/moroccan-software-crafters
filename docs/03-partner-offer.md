@@ -71,7 +71,7 @@ Rules:
 
 ## Who already partners
 
-List from the Notion Companies database with roles and years. Active partners: AXA Assurance Maroc (sponsor 2022, host 2026), Done (sponsor 2025), Gemography (sponsor 2022 to 2025), InnovX (sponsor 2024, host 2026), inwi (sponsor 2022 to 2025, host 2022), Keiken (sponsor 2022 to 2025), Maltem Africa / Valkima (sponsor 2022 to 2025, host 2022 and 2023), McKinsey (knowledge partner 2022 to 2025, host 2023), Société Générale ATS (sponsor 2023, host 2023), Société Générale GSCM (host 2026). Past hosts: BDSI, Theodo Maroc, LabelVie, Renault Digital, Oracle MADC, Jobzyn. Past sponsor: Zenika (2023).
+List from the Notion Companies database with roles and years. Active partners: AXA Assurance Maroc (sponsor 2022, host 2026), Done (sponsor 2025), Gemography (sponsor 2022 to 2025), InnovX (sponsor 2024, host 2026), inwi (sponsor 2022 to 2025, host 2022), Keiken (sponsor 2022 to 2025), Maltem Africa / Valkima (sponsor 2022 to 2025, host 2022 and 2023), McKinsey (knowledge partner 2022 to 2025, host 2023), Société Générale GSCM, ex-ATS (sponsor 2023, host 2023 and 2026). Past hosts: BDSI Maroc (BNP Paribas), Theodo Maroc, LabelVie, Renault Digital, Oracle MADC, Jobzyn. Past sponsor: Zenika (2023).
 
 Show the logo only with the company's permission. Ask in the November call.
 

@@ -11,8 +11,8 @@ The whole team runs the meetups and SoCraTes Maroc together. No one organizer ru
 - **Houssam Fakih**: SoCraTes facilitator.
 
 ## Partner contacts
-- **Mohammed Boukhlouf** (Société Générale GSCM / ATS): proposed and hosted the 24 Oct 2026 meetup; wants ATS to sponsor the next SoCraTes; needed budget data for the ATS "tech networking" roadmap.
-- **Abdelhadi** (ATS / Société Générale): on the sponsoring call; planned the meetup that became SG GSCM.
+- **Mohammed Boukhlouf** (SG GSCM, ex-ATS): proposed and hosted the 24 Oct 2026 meetup; wants SG GSCM to sponsor the next SoCraTes; needed budget data for the SG GSCM "tech networking" roadmap.
+- **Abdelhadi** (SG GSCM, ex-ATS): on the sponsoring call; planned the meetup that became SG GSCM.
 - **Abdelhaq** (InnovX): co-hosted the 28 March 2026 meetup.
 - **Othmane Smyej** (Chief Data & AI Officer, AXA Afrique Atlantique): received the 14 April 2026 proposal that led to the AXA meetup.
 - **Insaf Azzaoui** (AXA Assurance Maroc communication): approved the visual and LinkedIn page for the 23 May 2026 meetup.

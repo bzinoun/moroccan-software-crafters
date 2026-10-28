@@ -38,7 +38,7 @@
 - Principle: companies pay, crafters never pay for access.
 - Model 1, main product, Meetup clé en main: base 10,000 MAD (orga, content, com, catering, recap post, logo, 5 min recruitment slot, job offers on the site, 30 to 40 devs; the company gives the room). Option A +5,000: talent list and insight notes. Option B +5,000: MSCA brings the room. Replaces Host/Host+/Full service.
 - Model 2, annual company membership: one guaranteed meetup, logo on the site all year, job offers, priority in the host queue; second step after 3 paid meetups.
-- Model 3, sponsor bundle: base meetup included in a SoCraTes sponsor pack, options stay paid. Compromise for ATS and long-term partners.
+- Model 3, sponsor bundle: base meetup included in a SoCraTes sponsor pack, options stay paid. Compromise for SG GSCM (ex-ATS) and long-term partners.
 - Model 4, workshop/kata at the company for its own team, paid per session; legal check needed (close to a training service).
 - Model 5, BBL: 45 min lunch talk at the company for a small fee.
 - Model 6, free lane: meetup as today for startups, schools and partners that cannot pay.
@@ -48,9 +48,11 @@
 - Group chat views (26-27 Oct): Badr-Eddine wants a small fee per meetup paid by companies, pitched as "meetup clé en main, 30 to 40 devs, X DHS", plus a lead-capture site. Mehdi wants an offer beyond the room. Sallah agrees to test but warns against becoming a "boîte d'intérim" and notes hosts already pay catering. Rachid proposes a monthly fee with a promise list, cites societiz.com, and raises the legal question (company vs association).
 
 ## Sponsors and partners
-- Past meetup hosts: McKinsey, Inwi, Maltem, Oracle, LabelVie, Theodo Maroc, Société Générale, Jobzyn, BDSI, Renault Digital, InnovX, AXA, SG GSCM.
+- Past meetup hosts: McKinsey, Inwi, Maltem, Oracle, LabelVie, Theodo Maroc, Jobzyn, BDSI Maroc, Renault Digital, InnovX, AXA, SG GSCM.
+- SG ATS is now SG Global Solution Centre Morocco (SG GSCM). Treat them as one company, with the SG GSCM logo.
+- BDSI Maroc (Banque Détail et Système Informatique): Moroccan IT services and consulting subsidiary, founded in 2004 by BNP Paribas. The site uses the BNP Paribas logo for it.
 - InnovX: long-term supporter and venue host.
-- ATS / Société Générale (Mohammed Boukhlouf, Abdelhadi, Khay Mohamed) want to sponsor the next SoCraTes edition and a meetup. Follow-up email sent with the old sponsoring brochure.
+- SG GSCM, ex-ATS (Mohammed Boukhlouf, Abdelhadi, Khay Mohamed) want to sponsor the next SoCraTes edition and a meetup. Follow-up email sent with the old sponsoring brochure.
 - Sponsors usually need: quote (HT/TTC), association statutes, RIB, ICE/IF certificate, PV de désignation, board CIN copies.
 - Theodo Foundation selected SoCraTes Maroc for possible support.
 

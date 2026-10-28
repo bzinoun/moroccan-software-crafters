@@ -10,7 +10,7 @@ A site that sells the partner packs, fills the events, and shows seven years of 
 - Values: software craftsmanship, TDD, clean architecture, technical excellence, community building.
 - Since 2019: 2 Code Snacks, 1 online event, 14 meetups, 4 SoCraTes editions.
 - Editions: 2022 Marrakech (Palais Ronsard, 30 people), 2023 Bouznika (45), 2024 Bouznika (50), 2025 Bouznika (50). The View Bouznika hosted 2023 to 2025.
-- Meetup hosts: BDSI, Maltem Africa, inwi, McKinsey, Theodo Maroc (Nimbleways), SG ATS, LabelVie, Renault Digital, Oracle MADC, Jobzyn, InnovX, AXA Assurance Maroc, SG GSCM.
+- Meetup hosts: BDSI Maroc (BNP Paribas), Maltem Africa, inwi, McKinsey, Theodo Maroc (Nimbleways), LabelVie, Renault Digital, Oracle MADC, Jobzyn, InnovX, AXA Assurance Maroc, SG GSCM (ex-SG ATS).
 - Sponsors who renewed four times: Gemography, Keiken, Maltem Africa / Valkima, inwi, McKinsey (knowledge partner).
 - Recent meetups: 110 to 157 registrations on Luma for about 50 approved seats. Demand is 2 to 3 times the capacity.
 - Part of the SoCraTes family: Germany (since 2011), France, UK, Canaries, Switzerland, Belgium, Italy.

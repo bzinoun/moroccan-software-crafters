@@ -108,7 +108,7 @@ Past editions (this is a timeline, so dated):
 
 - 2025, 4th edition, The View Bouznika, 50 people, facilitator Houssam Fakih. Sponsors: Gemography, Keiken, Maltem Africa / Valkima, inwi, McKinsey, Done.
 - 2024, 3rd edition, The View Bouznika, 50 people. Sponsors: Gemography, Keiken, Maltem Africa, inwi, InnovX, McKinsey.
-- 2023, 2nd edition, Bouznika, 45 people. Sponsors: SG ATS, Gemography, inwi, Keiken, Maltem Africa, McKinsey, Nimbleways, Zenika.
+- 2023, 2nd edition, Bouznika, 45 people. Sponsors: SG GSCM (ex-SG ATS), Gemography, inwi, Keiken, Maltem Africa, McKinsey, Nimbleways, Zenika.
 - 2022, 1st edition, Palais Ronsard, Marrakech, 30 people. Sponsors: AXA, Gemography, inwi, Keiken, Maltem Africa, Nimbleways, McKinsey.
 
 The SoCraTes family: Germany since 2011, France, UK, Canaries, Switzerland, Belgium, Italy, Finland (CodeFreeze), Romania, Crete. Keep the links from the current site.
@@ -131,7 +131,7 @@ This page is the brochure in web form. Full content in `03-partner-offer.md`. St
 
 - The association: MSCA, founded by Sallah Kokaina, non-profit, Mohammedia registration. What the association does with the money: the conference, the meetups, the facilitator.
 - The team: the founder Sallah Kokaina, the organizers Iliass JABALI, Badr-Eddine Zinoun, Mehdi Fracso and Rachid Baaziz, and the SoCraTes facilitator Houssam Fakih. Photo, role in the community, LinkedIn. Say that the whole team runs the meetups and SoCraTes Maroc together.
-- History: 2019 Code Snacks at BDSI; 2021 online during the pandemic; 2022 first SoCraTes in Marrakech; 2023 to 2025 Bouznika; 2026 three meetups and the 2027 plan.
+- History: 2019 Code Snacks at BDSI Maroc; 2021 online during the pandemic; 2022 first SoCraTes in Marrakech; 2023 to 2025 Bouznika; 2026 three meetups and the 2027 plan.
 - How to help: propose a lightning talk, host a meetup, join the organizers. Three mailto links with subject lines.
 
 ## Code of conduct (/code-of-conduct)
