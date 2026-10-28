@@ -9,7 +9,7 @@
     "lead": "Le meetup est gratuit, se tient un samedi matin chez une entreprise hôte, et ne ressemble pas à une conférence : personne n'est invité à parler, tout le monde peut le faire. Voici comment ça se passe, étape par étape.",
     "photo": "2026-10-sg-gscm-2",
     "facts": [
-      { "value": "9 h → 13 h", "label": "un samedi, toutes les 6 à 8 semaines" },
+      { "value": "9 h 30 → 14 h", "label": "un samedi, toutes les 6 à 8 semaines" },
       { "value": "~100", "label": "inscrits par édition" },
       { "value": "50", "label": "places retenues sur place" },
       { "value": "0 MAD", "label": "pour les participants" }
@@ -32,16 +32,16 @@
     "items": [
       {
         "id": "accueil",
-        "time": "9 h 00 → 9 h 45",
+        "time": "9 h 30 → 10 h 15",
         "title": "Accueil et networking",
         "kicker": "On commence par le café",
         "photo": "2026-10-sg-gscm-7",
         "text": "L'hôte ouvre ses portes, l'équipe d'organisation pointe les inscrits Luma et distribue les post-its. On fait connaissance autour du petit-déjeuner, l'hôte présente ses locaux et son équipe en dix minutes, pas plus.",
-        "tips": ["Arrivez à l'heure : l'accès au bâtiment ferme souvent après 9 h 30.", "Venez avec une question que vous vous posez en ce moment : elle finira sur un post-it."]
+        "tips": ["Arrivez à l'heure : l'accès au bâtiment ferme souvent 30 minutes après le début.", "Venez avec une question que vous vous posez en ce moment : elle finira sur un post-it."]
       },
       {
         "id": "lightning",
-        "time": "9 h 45 → 10 h 30",
+        "time": "10 h 15 → 11 h 00",
         "title": "Lightning talks",
         "kicker": "Cinq à dix minutes, chrono en main",
         "photo": "2026-10-sg-gscm-3",
@@ -50,7 +50,7 @@
       },
       {
         "id": "bubble",
-        "time": "10 h 30 → 11 h 00",
+        "time": "11 h 00 → 11 h 30",
         "title": "Bubble topics",
         "kicker": "La marketplace des sujets",
         "photo": "2026-03-innovx-3",
@@ -59,7 +59,7 @@
       },
       {
         "id": "tables",
-        "time": "11 h 00 → 12 h 30",
+        "time": "11 h 30 → 13 h 15",
         "title": "Tables rondes",
         "kicker": "Trois cercles, la loi des deux pieds",
         "photo": "2026-05-axa-2",
@@ -68,7 +68,7 @@
       },
       {
         "id": "retro",
-        "time": "12 h 30 → 13 h 00",
+        "time": "13 h 15 → 14 h 00",
         "title": "Rétrospective",
         "kicker": "Et on se dit à dans six semaines",
         "photo": "2026-05-axa-4",
