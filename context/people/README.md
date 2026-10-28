@@ -1,6 +1,8 @@
 # People
 
 ## Organizers
+The whole team runs the meetups and SoCraTes Maroc together. No one organizer runs an event alone.
+
 - **Iliass JABALI**: co-organizer
 - **Sallah Kokaina**: founder of the community (Code Snacks 2019, SoCraTes 2022).
 - **Badr-Eddine Zinoun**: co-organizer; wants a per-meetup company fee and a lead-capture site.

@@ -5,7 +5,8 @@
 - Community email: socrates.maroc@gmail.com
 - Registered address in 2021 records: Maison de jeunes El Arabi, Av Moulay Youssef, Mohammedia
 - Values: software craftsmanship, TDD, clean architecture, technical excellence, community building
-- Founder: Sallah Kokaina. Organizers: Iliass JABALI, Badr-Eddine Zinoun, Mehdi Fracso, Rachid Baaziz
+- Founder: Sallah Kokaina. Organizers: Iliass JABALI, Badr-Eddine Zinoun, Mehdi Fracso, Rachid Baaziz. SoCraTes facilitator: Houssam Fakih.
+- The whole team runs the meetups and SoCraTes Maroc together. No one organizer runs an event alone.
 
 ## Formats
 - Meetup: Saturday morning, about every two months, hosted by a partner company, about 30 to 50 people; topics technical, agile, DevOps, data, cloud, methodology.

@@ -8,9 +8,9 @@ Owners are placeholders until the next organizer meeting. One organizer owns the
 
 | Phase | Dates | Output | Owner |
 |---|---|---|---|
-| 0. Approve | 26 Oct to 1 Nov | Brief, sitemap, partner offer corrected and approved in the WhatsApp group | Iliass |
+| 0. Approve | 26 Oct to 1 Nov | Brief, sitemap, partner offer corrected and approved in the WhatsApp group | Organizer team |
 | 1. Foundation | 2 to 8 Nov | Repo, Astro setup, tokens, fonts, layout, header, footer, deploy pipeline live with a placeholder home | Site owner |
-| 2. Partners first | 2 to 8 Nov | Partners page with both tables, the process, the FAQ, the form. Brochure PDF from the same content | Iliass + site owner |
+| 2. Partners first | 2 to 8 Nov | Partners page with both tables, the process, the FAQ, the form. Brochure PDF from the same content | Organizer team + site owner |
 | 3. Events | 9 to 15 Nov | Meetups page, SoCraTes 2027 page, event files for all 14 meetups and 4 editions from Notion | Site owner + one organizer |
 | 4. Community | 9 to 15 Nov | About, code of conduct, contact, 404. Organizer photos and bios | Each organizer sends own bio and photo |
 | 5. Assets | 9 to 22 Nov | Logo SVGs, zellige and khatam SVGs, partner logos with consent, event photos with consent, OG images | Design owner |
@@ -41,7 +41,7 @@ Events:
 - Build the SoCraTes page with the tickets table and the four past editions.
 
 Community:
-- About page with the six people (five organizers and the founder).
+- About page with the whole team, six people: the founder, the four organizers and the SoCraTes facilitator.
 - Code of conduct with the report path added.
 - Contact page with the Luma calendar embed.
 

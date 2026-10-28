@@ -4,7 +4,7 @@ Context pack exported from the claude.ai Project "Moroccan software crafters" on
 
 ## What this project is
 
-Iliass is an organizer of the Moroccan Software Crafters Association (MSCA). MSCA runs two brands: Moroccan Software Crafters (meetups, Casablanca, about every two months) and SoCraTes Maroc (annual open-space conference, Bouznika). The current task is a new community website to replace the one-page Hugo site at `socrates-ma.github.io` (repo `SoCraTes-MA/socrates-ma.github.io`). Target: version 1 live on 1 December 2026, the day the 2027 partner offers go out.
+A volunteer team runs the Moroccan Software Crafters Association (MSCA): Sallah Kokaina (founder), Iliass JABALI, Badr-Eddine Zinoun, Mehdi Fracso and Rachid Baaziz (organizers), and Houssam Fakih (SoCraTes facilitator). The whole team runs the meetups and SoCraTes Maroc together. MSCA runs two brands: Moroccan Software Crafters (meetups, Casablanca, about every two months) and SoCraTes Maroc (annual open-space conference, Bouznika). The current task is a new community website to replace the one-page Hugo site at `socrates-ma.github.io` (repo `SoCraTes-MA/socrates-ma.github.io`). Target: version 1 live on 1 December 2026, the day the 2027 partner offers go out.
 
 ## Files in this pack
 
@@ -47,3 +47,4 @@ Notion API notes: use data source ids (not database ids) for `/data_sources/{id}
 - Show partner logos and photos only with consent (`logoConsent`, photo consent in Notion).
 - Never commit secrets (Notion token, Formspree id). Use GitHub secrets.
 - Organizer ideas in the group chat are proposals, not decisions, unless the docs or this file say "decided".
+- Credit the whole team for the meetups and SoCraTes Maroc. Never write that one organizer runs them alone.

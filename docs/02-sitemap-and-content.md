@@ -130,7 +130,7 @@ This page is the brochure in web form. Full content in `03-partner-offer.md`. St
 ## About (/about)
 
 - The association: MSCA, founded by Sallah Kokaina, non-profit, Mohammedia registration. What the association does with the money: the conference, the meetups, the facilitator.
-- The organizers: Iliass, Badr-Eddine Zinoun, Mehdi Fracso, Rachid Baaziz. Photo, role in the community, LinkedIn. Add Sallah Kokaina as founder.
+- The team: the founder Sallah Kokaina, the organizers Iliass JABALI, Badr-Eddine Zinoun, Mehdi Fracso and Rachid Baaziz, and the SoCraTes facilitator Houssam Fakih. Photo, role in the community, LinkedIn. Say that the whole team runs the meetups and SoCraTes Maroc together.
 - History: 2019 Code Snacks at BDSI; 2021 online during the pandemic; 2022 first SoCraTes in Marrakech; 2023 to 2025 Bouznika; 2026 three meetups and the 2027 plan.
 - How to help: propose a lightning talk, host a meetup, join the organizers. Three mailto links with subject lines.
 
