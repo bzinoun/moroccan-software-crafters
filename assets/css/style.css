@@ -63,7 +63,7 @@ p { margin: 0 0 1em; }
 
 /* Soulignement « au feutre » des mots en italique dans les titres */
 h1 em, h2 em {
-  font-style: italic; color: var(--green);
+  font-style: italic; color: var(--red);
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 9 C 40 2, 80 11, 120 6 S 180 4, 198 8' fill='none' stroke='%23a9bba3' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left bottom / 100% .32em;
 }
 
@@ -72,7 +72,7 @@ h1 em, h2 em {
 .eyebrow {
   display: inline-flex; align-items: center; gap: .5rem;
   font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--green);
+  color: var(--red);
   margin-bottom: 1rem;
 }
 /* Le filet rouge de l'eyebrow est l'un des rares usages du rouge autorisés par la charte */
@@ -93,9 +93,9 @@ h1 em, h2 em {
   transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
 .btn:hover { transform: translateY(-1px); }
-/* Bouton principal : vert plein, texte blanc (charte). .btn-green est un alias conservé pour les cartes d'offre. */
-.btn-primary, .btn-green { background: var(--green); color: #fff; box-shadow: 0 6px 18px rgba(27, 107, 58, .28); }
-.btn-primary:hover, .btn-green:hover { background: var(--green-dark); color: #fff; }
+/* Bouton principal : rouge plein, texte blanc. .btn-green est un alias conservé pour les cartes d'offre. */
+.btn-primary, .btn-green { background: var(--red); color: #fff; box-shadow: 0 6px 18px rgba(193, 39, 45, .28); }
+.btn-primary:hover, .btn-green:hover { background: var(--red-dark); color: #fff; }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
 .btn-ghost:hover { background: var(--ink); color: #fff; }
 .btn[disabled] { opacity: .55; cursor: not-allowed; transform: none; }
@@ -245,7 +245,7 @@ h1 em, h2 em {
 .section.dark h2, .section.dark h3 { color: #fff; }
 .section.dark h2 em { color: var(--sage); }
 .section.dark .eyebrow { color: var(--sage); }
-.section.dark .btn-primary, .hero-dark .btn-primary { border-color: var(--sage); box-shadow: none; }
+.section.dark .btn-primary, .hero-dark .btn-primary { box-shadow: none; }
 .section.dark :focus-visible, .hero-dark :focus-visible, .site-footer :focus-visible { outline-color: var(--sage); }
 .section-head { max-width: 760px; margin-bottom: 44px; }
 .section-head.center { margin-inline: auto; text-align: center; }
@@ -260,7 +260,7 @@ h1 em, h2 em {
 .agenda .shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
 .agenda li:hover .shot img { transform: scale(1.04); }
 .agenda .body { padding: 18px 22px 22px; }
-.agenda .body::before { counter-increment: step; content: "0" counter(step); font-family: var(--font-display); font-size: 1.9rem; color: var(--green); font-weight: 600; display: block; margin-bottom: .2rem; line-height: 1; }
+.agenda .body::before { counter-increment: step; content: "0" counter(step); font-family: var(--font-display); font-size: 1.9rem; color: var(--red); font-weight: 600; display: block; margin-bottom: .2rem; line-height: 1; }
 .agenda h3 { font-size: 1.15rem; margin-bottom: .35rem; }
 .agenda p { font-size: .95rem; color: var(--ink-soft); margin: 0; }
 .agenda .time { font-size: .78rem; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: .06em; }
@@ -573,8 +573,8 @@ a.logo-tile:hover, a.logo-tile:focus-visible { transform: translateY(-3px); box-
 .cta-band h2 { color: #fff; }
 .cta-band p { color: #d9efe2; margin: 0; }
 .cta-band .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; }
-.cta-band .btn-primary { background: #fff; color: var(--green); box-shadow: none; }
-.cta-band .btn-primary:hover { background: var(--paper); color: var(--green-dark); }
+.cta-band .btn-primary { background: #fff; color: var(--red); box-shadow: none; }
+.cta-band .btn-primary:hover { background: var(--paper); color: var(--red-dark); }
 .cta-band .btn-ghost { color: #fff; border-color: #fff; }
 .cta-band .btn-ghost:hover { background: #fff; color: var(--green); }
 .cta-band.green { background: var(--green); }
