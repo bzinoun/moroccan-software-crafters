@@ -53,13 +53,6 @@
       "linkedin": "https://www.linkedin.com/company/label%27vie/"
     },
     {
-      "id": "sg-ats",
-      "name": "Société Générale ATS",
-      "display": "SG African Business Services (ex-ATS)",
-      "logo": "sg-ats.png",
-      "linkedin": "https://www.linkedin.com/company/sg-abs/"
-    },
-    {
       "id": "maltem",
       "name": "Maltem Africa",
       "display": "Maltem Africa",
@@ -90,8 +83,8 @@
     {
       "id": "bdsi",
       "name": "BDSI Maroc",
-      "display": "BDSI",
-      "logo": "",
+      "display": "BDSI Maroc (BNP Paribas)",
+      "logo": "bdsi.svg",
       "linkedin": ""
     },
     {
