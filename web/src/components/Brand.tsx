@@ -11,7 +11,8 @@ const brand = tv({
   slots: {
     root: "flex items-center gap-[0.7rem] no-underline",
     logo: "",
-    name: "font-display text-[1.05rem] leading-[1.1]",
+    // The old <strong> asked for 700, but only the 600 face loaded, so the name was 600 wide.
+    name: "font-display text-[1.05rem] leading-[1.1] font-semibold",
     line: "block text-[0.72rem] font-medium tracking-[0.02em] max-sm:hidden",
   },
   variants: {
