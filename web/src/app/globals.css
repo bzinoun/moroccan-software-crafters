@@ -128,12 +128,16 @@
   }
 
   /* Hand-drawn marker underline under the italic words in headings.
-     The weight is 500 because the old site only loaded Fraunces italic 500;
-     the browser faked the heavier weight and kept the 500 letter widths. */
+     The old site loaded only Fraunces italic 500 and the browser drew a
+     synthetic bold on it for the 600 heading: 500 letter widths, strokes about
+     15 percent heavier (ink of "vraiment" at 62 px: 3648 px at 500, 4179 px
+     with the faux bold). The variable font here has real weights, so 590 gives
+     97 percent of that ink (4054 px) at +2.7 percent width (249.4 px against
+     242.8 px at 1280 px). 600 would be closer in ink but 3.0 percent wider. */
   h1 em,
   h2 em {
     font-style: italic;
-    font-weight: 500;
+    font-weight: 590;
     color: var(--color-red);
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 9 C 40 2, 80 11, 120 6 S 180 4, 198 8' fill='none' stroke='%23a9bba3' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E")
       no-repeat left bottom / 100% 0.32em;
