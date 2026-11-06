@@ -1,5 +1,6 @@
 /* Moroccan Software Crafters, Tailwind v4 foundation.
-   Token values come from .claude/skills/msca-design/TOKENS.md. */
+   This file is the single source of the design tokens; the design skill
+   file TOKENS.md documents it and follows it. */
 
 /* source(none) turns off automatic scanning (it crashes Turbopack on
    unrelated folders), so the scan is listed explicitly below. */

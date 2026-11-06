@@ -4,7 +4,7 @@ import type { VariantProps } from "tailwind-variants/config";
 import { cn, tv } from "@/lib/cn";
 import { isExternal } from "@/lib/routes";
 
-// Values come from the "Buttons" section of msca-design/COMPONENTS.md.
+// Spec: the "Button" entry under "Built" in msca-design/COMPONENTS.md.
 // Hover lifts the button by 1px; a disabled button stays flat.
 export const buttonStyles = tv({
   base: [

@@ -96,7 +96,7 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 
 ### FactList
 - Role: row of numbered facts. Props: `items: { value, label }[]`, `tone: "light" | "dark"`.
-- Layout: two columns by default, four columns from `md`; always two inside `PageHero`. Cell: white, `border border-line`, `rounded-sm`, number `font-display` 1.6rem green `whitespace-nowrap`, label `0.84rem text-ink-soft`. Dark: `bg-white/7`, sage numbers.
+- Layout: two columns by default, four columns from `sm`; always two inside `PageHero`. Cell: white, `border border-line`, `rounded-sm`, number `font-display` 1.6rem green `whitespace-nowrap`, label `0.84rem text-ink-soft`. Dark: `bg-white/7`, sage numbers.
 - Content: association facts come from stats helpers (events count, distinct hosts, SoCraTes editions, followers formatted `fr-FR`).
 - Pages: meetup, association, socrates.
 - Old site reference: `.facts`.
@@ -144,7 +144,7 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 ### EventTimeline, YearGroup, TimelineItem, EventBadge
 - Role: events grouped by year with a "show all" button. Client component for the button state.
 - Props: `EventBadge` (`kind: "meetup" | "socrates" | "codesnack" | "online"`, labels Meetup, SoCraTes, Code Snack, En ligne); `TimelineItem` (`event`).
-- Layout: year group is one column; from `md` a `120px 1fr` grid with a top `border-line`; year `font-display` 2rem green, sticky at 90px from `md`. Item: white, `border border-line`, `rounded-sm`, grid `92px 1fr auto` from `md`, stacked below. Title Inter 1.02rem 600. Badge: pill `0.72rem` 700 uppercase, colors from the badge colors in `TOKENS.md`.
+- Layout: year group is one column; from `sm` a `120px 1fr` grid with a top `border-line`; year `font-display` 2rem green, sticky at 90px from `sm`. Item: white, `border border-line`, `rounded-sm`, grid `92px 1fr auto` from `sm`, stacked below. Title Inter 1.02rem 600. Badge: pill `0.72rem` 700 uppercase, colors from the badge colors in `TOKENS.md`.
 - Behavior: shows the first `home.history.limit` events of the active filter; the "more" button shows all, moves focus to the first newly shown item (`tabIndex={-1}`), and disappears when nothing is hidden. Button has `aria-controls` and `aria-expanded`.
 - Pages: home (`#historique`).
 - Old site reference: `.timeline`, `.year-group`, `.tl-item`, `.badge--*`.
@@ -181,7 +181,7 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 
 ### SocratesTeaser, EditionChips, SponsorCall
 - Role: dark home section about SoCraTes, with edition chips and a sponsor call box.
-- Layout: two columns `lg:grid-cols-[1.05fr_0.95fr]`, `gap-14`, inside `Section variant="dark"`. Photo 4/3, `object-position: center 75%`, heavy shadow. Edition chips in two columns: translucent border, year in `font-display` white; text "{year} · {city}" and "1re édition · {n} crafters" (editions oldest first). Sponsor call: `rounded-card`, sage tinted fill and border, `px-6.5 py-6`, contains eyebrow, `h3`, text, `LogoRow`, ghost button. `SponsorCall` also appears on the SoCraTes page with `my-10`.
+- Layout: two columns `md:grid-cols-[1.05fr_0.95fr]`, `gap-14`, inside `Section variant="dark"`. Photo 4/3, `object-position: center 75%`, heavy shadow. Edition chips in two columns: translucent border, year in `font-display` white; text "{year} · {city}" and "1re édition · {n} crafters" (editions oldest first). Sponsor call: `rounded-card`, sage tinted fill and border, `px-6.5 py-6`, contains eyebrow, `h3`, text, `LogoRow`, ghost button. `SponsorCall` also appears on the SoCraTes page with `my-10`.
 - Pages: home (`#socrates`), socrates.
 - Old site reference: `.socrates`, `.editions`, `.sponsor-call`.
 
@@ -201,13 +201,13 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 
 ### StepRows, StepRow, TipList
 - Role: meetup schedule rows with a photo, a time tag and tips.
-- Layout: two equal columns from `lg` (`gap-12`, `py-11`, top `border-line` except the first); even rows put the media on the right (`lg:order-*`); one column with media first below. Image 4/3, `rounded-card`, `shadow-lift`. Time tag: ink pill at the top left. Kicker `font-hand` 1.6rem green; `h3` 1.8rem. Tips: mini post-its, yellow (even green), `font-hand` 1.25rem, `w-fit`, rotation `-0.6deg` and `0.8deg`.
+- Layout: two equal columns from `md` (`gap-12`, `py-11`, top `border-line` except the first); even rows put the media on the right (`md:order-*`); one column with media first below. Image 4/3, `rounded-card`, `shadow-lift`. Time tag: ink pill at the top left. Kicker `font-hand` 1.6rem green; `h3` 1.8rem. Tips: mini post-its, yellow (even green), `font-hand` 1.25rem, `w-fit`, rotation `-0.6deg` and `0.8deg`.
 - Pages: meetup (`#deroule`).
 - Old site reference: `.step-row`, `.time-tag`, `.kicker`, `.tips`.
 
 ### ZoomSplit, NumberedList
 - Role: photo beside a numbered list.
-- Layout: two columns `lg:grid-cols-[1fr_1.1fr]`, `gap-12`; image 4/3 at `-1.5deg` with `shadow-lift`. List item `grid-cols-[44px_1fr]`; counter in a 40px green-outlined circle, `font-display`, rotated `-6deg`.
+- Layout: two columns `md:grid-cols-[1fr_1.1fr]`, `gap-12`; image 4/3 at `-1.5deg` with `shadow-lift`. List item `grid-cols-[44px_1fr]`; counter in a 40px green-outlined circle, `font-display`, rotated `-6deg`.
 - Native HTML: `<ol>`.
 - Pages: meetup (`#marketplace`).
 - Old site reference: `.zoom`, `.numbered`.
@@ -264,7 +264,7 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 
 ### CtaBand
 - Role: green call-to-action block. Props: `variant: "default" | "green"`, title, text, two actions.
-- Layout: `bg-green`, `rounded-[22px]`, `px-6 py-10` below `lg`, `px-12 py-14` from `lg`; one column, then `lg:grid-cols-[1.4fr_1fr]`. White `h2`, `#d9efe2` text. Buttons: primary inverted (white fill, red text, hover paper then red-dark), ghost white outline (hover white fill, green text). `green` variant gives the primary green text.
+- Layout: `bg-green`, `rounded-[22px]`, `px-6 py-10` below `md`, `px-12 py-14` from `md`; one column, then `md:grid-cols-[1.4fr_1fr]`. White `h2`, `#d9efe2` text. Buttons: primary inverted (white fill, red text, hover paper then red-dark), ghost white outline (hover white fill, green text). `green` variant gives the primary green text.
 - Pages: home, meetup (green), association.
 - Old site reference: `.cta-band`.
 
