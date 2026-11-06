@@ -93,7 +93,7 @@ Update this list in the same commit as each finished page.
 - `tailwind-merge` drops an earlier `leading-*` when a later `text-*` size follows. Repeat `leading-*` after the size in a `tv` variant (the `Button` `sm` size does).
 - The three fonts are variable fonts loaded without a `weight` option, so any weight renders. The old site loaded only Fraunces 500 and 600 and the browser faked bold on the italic: the hero emphasis is weight 590 (measured: 97 percent of the old ink, +2.7 percent width) and the brand name is 600 (the old `<strong>` asked for 700 but rendered 600). Measure before you change either.
 - Tailwind transforms are separate properties: transition `translate`, `rotate`, `scale`, not `transform`.
-- Old breakpoints that are not Tailwind defaults map to the true nearest default (table in `TOKENS.md`, a proposal the owner confirms): nav at `lg`, hero grid at `lg`, tagline `max-sm`. A layout may switch up to about 120 px away from the old query width, one-pixel edge differences at exactly 640 and 1024 px included, and the owner confirms the proposal.
+- Old breakpoints that are not Tailwind defaults map to the true nearest default (table in `TOKENS.md`, a proposal the owner confirms): nav at `lg`, hero grid at `lg`, tagline `max-sm`. A layout may switch up to about 160 px away from the old query width, one-pixel edge differences at exactly 640 and 1024 px included, and the owner confirms the proposal.
 
 ## Done means
 
