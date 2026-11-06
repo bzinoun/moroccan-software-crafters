@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SkipLink } from "@/components/SkipLink";
 import { loadHome, loadSite } from "@/content/load";
 import type { PageId } from "@/content/types";
+import { assetUrl } from "@/lib/routes";
 import { fonts } from "./fonts";
 import "./globals.css";
 
@@ -19,8 +20,9 @@ export const metadata: Metadata = {
   title: home.meta.title,
   description: home.meta.description,
   icons: {
-    icon: "/assets/img/favicon.png",
-    apple: "/assets/img/apple-touch-icon.png",
+    // Metadata URLs do not get the base path from Next, so add it here.
+    icon: assetUrl("/assets/img/favicon.png"),
+    apple: assetUrl("/assets/img/apple-touch-icon.png"),
   },
 };
 

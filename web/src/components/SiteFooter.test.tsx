@@ -49,7 +49,6 @@ describe("SiteFooter", () => {
   it("renders the brand with the name and the mission", () => {
     render(<SiteFooter site={site} />);
     const brand = screen.getByRole("link", { name: /Moroccan Software Crafters/ });
-    expect(brand).toHaveClass("brand");
     expect(brand).toHaveAttribute("href", "/");
     expect(within(brand).getByText(site.mission)).toBeInTheDocument();
     expect(within(brand).getByRole("presentation")).toHaveAttribute("width", "52");
@@ -85,7 +84,8 @@ describe("SiteFooter", () => {
   it("renders the legal line", () => {
     render(<SiteFooter site={site} />);
     const legal = screen.getByText(site.footer.legal);
-    expect(legal).toHaveClass("legal");
+    expect(legal.tagName).toBe("P");
+    expect(legal).toHaveClass("border-t");
   });
 
   it("applies the French narrow space before a colon in the legal line", () => {
@@ -93,6 +93,6 @@ describe("SiteFooter", () => {
     const { container } = render(
       <SiteFooter site={{ ...site, footer: { ...site.footer, legal: "Contact : bientôt." } }} />,
     );
-    expect(container.querySelector("p.legal")?.textContent).toBe("Contact : bientôt.");
+    expect(container.querySelector("p")?.textContent).toBe("Contact : bientôt.");
   });
 });

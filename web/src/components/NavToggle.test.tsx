@@ -16,15 +16,14 @@ describe("NavToggle", () => {
   it("starts closed", () => {
     renderNav();
     const nav = screen.getByRole("navigation", { name: "Navigation principale" });
-    expect(nav).toHaveClass("nav");
-    expect(nav).not.toHaveClass("open");
+    expect(nav).not.toHaveAttribute("data-open", "true");
     expect(screen.getByRole("button", { name: "Ouvrir le menu" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
   });
 
-  it("opens on a click: aria-expanded true and the open class on the nav", async () => {
+  it("opens on a click: aria-expanded true on the button and data-open on the nav", async () => {
     const user = userEvent.setup();
     renderNav();
     await user.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
@@ -32,7 +31,10 @@ describe("NavToggle", () => {
       "aria-expanded",
       "true",
     );
-    expect(screen.getByRole("navigation", { name: "Navigation principale" })).toHaveClass("open");
+    expect(screen.getByRole("navigation", { name: "Navigation principale" })).toHaveAttribute(
+      "data-open",
+      "true",
+    );
   });
 
   it("closes again on a second click", async () => {
@@ -42,7 +44,10 @@ describe("NavToggle", () => {
     await user.click(toggle);
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByRole("navigation", { name: "Navigation principale" })).not.toHaveClass("open");
+    expect(screen.getByRole("navigation", { name: "Navigation principale" })).not.toHaveAttribute(
+      "data-open",
+      "true",
+    );
   });
 
   it("closes when a link inside the nav is clicked", async () => {
@@ -52,6 +57,9 @@ describe("NavToggle", () => {
     await user.click(toggle);
     await user.click(screen.getByRole("link", { name: "SoCraTes" }));
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.getByRole("navigation", { name: "Navigation principale" })).not.toHaveClass("open");
+    expect(screen.getByRole("navigation", { name: "Navigation principale" })).not.toHaveAttribute(
+      "data-open",
+      "true",
+    );
   });
 });

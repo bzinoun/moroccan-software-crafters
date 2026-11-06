@@ -50,7 +50,6 @@ describe("SiteHeader", () => {
     render(<SiteHeader site={site} page="home" />);
     const brand = screen.getByRole("link", { name: /Moroccan Software Crafters/ });
     expect(brand).toHaveAttribute("href", "/");
-    expect(brand).toHaveClass("brand");
     expect(within(brand).getByText("Association à but non lucratif")).toBeInTheDocument();
   });
 
@@ -73,11 +72,11 @@ describe("SiteHeader", () => {
     const ctas = screen.getAllByRole("link", { name: "Accueillir un meetup" });
     expect(ctas).toHaveLength(2);
     const [inNav, trailing] = ctas;
-    expect(inNav).toHaveClass("btn", "btn-primary", "nav-cta");
+    expect(inNav).toHaveClass("bg-red", "lg:hidden");
     expect(inNav).toHaveAttribute("href", "/accueillir/");
     expect(mainNav()).toContainElement(inNav as HTMLElement);
-    expect(trailing).toHaveClass("btn", "btn-primary");
-    expect(trailing).not.toHaveClass("nav-cta");
+    expect(trailing).toHaveClass("bg-red", "max-lg:hidden");
+    expect(trailing).not.toHaveClass("lg:hidden");
     expect(trailing).toHaveAttribute("href", "/accueillir/");
   });
 
@@ -100,7 +99,7 @@ describe("SiteHeader", () => {
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) {
       expect(cta).toHaveAttribute("href", "#sponsoring");
-      expect(cta).toHaveClass("btn-primary");
+      expect(cta).toHaveClass("bg-red");
     }
     expect(screen.queryByRole("link", { name: "Accueillir un meetup" })).not.toBeInTheDocument();
   });
@@ -111,15 +110,14 @@ describe("SiteHeader", () => {
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) {
       expect(cta).toHaveAttribute("href", "/#offres");
-      expect(cta).toHaveClass("btn", "btn-ghost");
-      expect(cta).not.toHaveClass("btn-primary");
+      expect(cta).toHaveClass("bg-transparent", "border-ink");
+      expect(cta).not.toHaveClass("bg-red");
     }
   });
 
   it("renders the burger button closed and bound to the nav", () => {
     render(<SiteHeader site={site} page="home" />);
     const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
-    expect(toggle).toHaveClass("nav-toggle");
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(toggle).toHaveAttribute("aria-controls", "nav");
   });
