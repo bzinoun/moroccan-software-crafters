@@ -80,4 +80,18 @@ describe("Button", () => {
     expect(link).toHaveClass("px-8", "mt-4");
     expect(link).not.toHaveClass("px-[1.35rem]");
   });
+
+  it.each([
+    ["primary", "md"],
+    ["primary", "sm"],
+    ["ghost", "md"],
+    ["ghost", "sm"],
+  ] as const)("keeps line-height 1 for %s %s", (variant, size) => {
+    render(
+      <Button href="/" variant={variant} size={size}>
+        Libelle
+      </Button>,
+    );
+    expect(screen.getByRole("link", { name: "Libelle" })).toHaveClass("leading-none");
+  });
 });

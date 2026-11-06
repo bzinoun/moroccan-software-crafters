@@ -21,7 +21,9 @@ export const buttonStyles = tv({
     },
     size: {
       md: "px-[1.35rem] py-[0.85rem]",
-      sm: "px-[1.05rem] py-[0.6rem] text-[0.92rem]",
+      // tailwind-merge drops an earlier leading-* when a later text-* size follows,
+      // so the small size repeats leading-none after its own font size.
+      sm: "px-[1.05rem] py-[0.6rem] text-[0.92rem] leading-none",
     },
   },
   defaultVariants: { variant: "primary", size: "md" },
