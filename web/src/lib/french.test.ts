@@ -9,7 +9,9 @@ describe("frenchSpacing", () => {
     expect(frenchSpacing("Prochain hôte : votre entreprise ?")).toBe(
       `Prochain hôte${NNBSP}: votre entreprise${NNBSP}?`,
     );
-    expect(frenchSpacing("Oui ! Non ; peut-être")).toBe(`Oui${NNBSP}! Non${NNBSP}; peut-être`);
+    expect(frenchSpacing("Oui ! Non ; peut-être")).toBe(
+      `Oui${NNBSP}! Non${NNBSP}; peut-être`,
+    );
   });
 
   it("replaces a no-break space too", () => {
@@ -17,9 +19,13 @@ describe("frenchSpacing", () => {
   });
 
   it("leaves text without a space before the punctuation unchanged", () => {
-    expect(frenchSpacing("https://example.org/?q=1")).toBe("https://example.org/?q=1");
-    expect(frenchSpacing("Moroccan Software Crafters, association à but non lucratif.")).toBe(
-      "Moroccan Software Crafters, association à but non lucratif.",
+    expect(frenchSpacing("https://example.org/?q=1")).toBe(
+      "https://example.org/?q=1",
     );
+    expect(
+      frenchSpacing(
+        "Moroccan Software Crafters, association à but non lucratif.",
+      ),
+    ).toBe("Moroccan Software Crafters, association à but non lucratif.");
   });
 });

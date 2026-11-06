@@ -43,4 +43,5 @@ export type Home = {
 };
 
 /** Page ids used by the root site in `<body data-page>`. */
-export type PageId = "home" | "meetup" | "socrates" | "news" | "association" | "host";
+export type PageId =
+  "home" | "meetup" | "socrates" | "news" | "association" | "host";

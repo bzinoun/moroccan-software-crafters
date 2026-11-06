@@ -13,9 +13,17 @@ type HeaderCta = Cta & { variant: "primary" | "ghost" };
 function headerCta(page: PageId, siteCta: Cta): HeaderCta {
   switch (page) {
     case "socrates":
-      return { label: "Devenir partenaire", href: "#sponsoring", variant: "primary" };
+      return {
+        label: "Devenir partenaire",
+        href: "#sponsoring",
+        variant: "primary",
+      };
     case "host":
-      return { label: "Les formules", href: "index.html#offres", variant: "ghost" };
+      return {
+        label: "Les formules",
+        href: "index.html#offres",
+        variant: "ghost",
+      };
     default:
       return { ...siteCta, variant: "primary" };
   }
@@ -32,7 +40,8 @@ export function SiteHeader({ site, page }: { site: Site; page: PageId }) {
         <Brand site={site} />
         <NavToggle>
           {site.nav.map((link) => {
-            const active = !link.href.includes("#") && toRoute(link.href) === current;
+            const active =
+              !link.href.includes("#") && toRoute(link.href) === current;
             return (
               <Link
                 key={link.href}
@@ -45,11 +54,20 @@ export function SiteHeader({ site, page }: { site: Site; page: PageId }) {
             );
           })}
           {/* The panel copy of the header button: full width at the bottom of the open menu. */}
-          <Button className="mt-4 lg:hidden" variant={cta.variant} href={ctaRoute}>
+          <Button
+            className="mt-4 lg:hidden"
+            variant={cta.variant}
+            href={ctaRoute}
+          >
             {frenchSpacing(cta.label)}
           </Button>
         </NavToggle>
-        <Button className="max-lg:hidden" variant={cta.variant} size="sm" href={ctaRoute}>
+        <Button
+          className="max-lg:hidden"
+          variant={cta.variant}
+          size="sm"
+          href={ctaRoute}
+        >
           {frenchSpacing(cta.label)}
         </Button>
       </Container>

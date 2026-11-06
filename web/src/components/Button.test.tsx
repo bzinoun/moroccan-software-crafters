@@ -65,14 +65,20 @@ describe("Button", () => {
         </Button>
       </>,
     );
-    expect(screen.getByRole("link", { name: "Moyen" })).toHaveClass("px-[1.35rem]");
-    expect(screen.getByRole("link", { name: "Petit" })).toHaveClass("px-[1.05rem]");
-    expect(screen.getByRole("link", { name: "Petit" })).not.toHaveClass("px-[1.35rem]");
+    expect(screen.getByRole("link", { name: "Moyen" })).toHaveClass(
+      "px-[1.35rem]",
+    );
+    expect(screen.getByRole("link", { name: "Petit" })).toHaveClass(
+      "px-[1.05rem]",
+    );
+    expect(screen.getByRole("link", { name: "Petit" })).not.toHaveClass(
+      "px-[1.35rem]",
+    );
   });
 
   it("lets a caller className with a conflicting padding win over the default", () => {
     render(
-      <Button href="/" className="px-8 mt-4">
+      <Button href="/" className="mt-4 px-8">
         Large
       </Button>,
     );
@@ -92,6 +98,8 @@ describe("Button", () => {
         Libelle
       </Button>,
     );
-    expect(screen.getByRole("link", { name: "Libelle" })).toHaveClass("leading-none");
+    expect(screen.getByRole("link", { name: "Libelle" })).toHaveClass(
+      "leading-none",
+    );
   });
 });

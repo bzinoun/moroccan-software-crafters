@@ -29,7 +29,8 @@ export function isExternal(href: string): boolean {
 export function toRoute(href: string): string {
   if (isExternal(href) || href.startsWith("#")) return href;
   const [file, hash] = href.split("#");
-  const route = file === "" || file === "./" ? "/" : (PAGE_FILES[file] ?? `/${file}`);
+  const route =
+    file === "" || file === "./" ? "/" : (PAGE_FILES[file] ?? `/${file}`);
   return hash === undefined ? route : `${route}#${hash}`;
 }
 

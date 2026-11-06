@@ -41,7 +41,10 @@ describe("tv", () => {
   });
 
   it("merges conflicting custom tokens", () => {
-    const card = tv({ base: "shadow-card", variants: { lift: { yes: "shadow-lift" } } });
+    const card = tv({
+      base: "shadow-card",
+      variants: { lift: { yes: "shadow-lift" } },
+    });
     expect(card({ lift: "yes" })).toBe("shadow-lift");
   });
 });

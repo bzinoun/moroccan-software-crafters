@@ -22,7 +22,9 @@ describe("toRoute", () => {
 
 describe("isExternal", () => {
   it("is true for http and https hrefs only", () => {
-    expect(isExternal("https://www.linkedin.com/company/moroccansoftwarecrafters/")).toBe(true);
+    expect(
+      isExternal("https://www.linkedin.com/company/moroccansoftwarecrafters/"),
+    ).toBe(true);
     expect(isExternal("http://example.org")).toBe(true);
     expect(isExternal("accueillir.html")).toBe(false);
     expect(isExternal("#sponsoring")).toBe(false);
@@ -52,6 +54,8 @@ describe("assetUrl", () => {
 
   it("prefixes the base path when it is set", () => {
     vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/moroccan-software-crafters");
-    expect(assetUrl("/assets/img/logo.png")).toBe("/moroccan-software-crafters/assets/img/logo.png");
+    expect(assetUrl("/assets/img/logo.png")).toBe(
+      "/moroccan-software-crafters/assets/img/logo.png",
+    );
   });
 });

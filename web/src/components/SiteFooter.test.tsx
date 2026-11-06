@@ -8,7 +8,8 @@ const site: Site = {
   name: "Moroccan Software Crafters",
   shortName: "MSC",
   tagline: "Association à but non lucratif",
-  mission: "Stimuler et promouvoir les valeurs du Software Craftsmanship au Maroc",
+  mission:
+    "Stimuler et promouvoir les valeurs du Software Craftsmanship au Maroc",
   description:
     "Depuis 2019, Moroccan Software Crafters réunit développeurs, testeurs et ops un samedi matin chez une entreprise hôte à Casablanca, et organise chaque année SoCraTes Maroc.",
   baseUrl: "https://bzinoun.github.io/moroccan-software-crafters",
@@ -33,7 +34,10 @@ const site: Site = {
     links: [
       { label: "Accueillir un meetup", href: "accueillir.html" },
       { label: "Sponsoriser SoCraTes", href: "socrates.html#sponsoring" },
-      { label: "LinkedIn", href: "https://www.linkedin.com/company/moroccansoftwarecrafters/" },
+      {
+        label: "LinkedIn",
+        href: "https://www.linkedin.com/company/moroccansoftwarecrafters/",
+      },
       { label: "Site SoCraTes Maroc", href: "https://socrates-ma.github.io/" },
     ],
     legal:
@@ -48,10 +52,15 @@ function footerNav() {
 describe("SiteFooter", () => {
   it("renders the brand with the name and the mission", () => {
     render(<SiteFooter site={site} />);
-    const brand = screen.getByRole("link", { name: /Moroccan Software Crafters/ });
+    const brand = screen.getByRole("link", {
+      name: /Moroccan Software Crafters/,
+    });
     expect(brand).toHaveAttribute("href", "/");
     expect(within(brand).getByText(site.mission)).toBeInTheDocument();
-    expect(within(brand).getByRole("presentation")).toHaveAttribute("width", "52");
+    expect(within(brand).getByRole("presentation")).toHaveAttribute(
+      "width",
+      "52",
+    );
   });
 
   it("renders the 4 footer links with mapped hrefs", () => {
@@ -73,12 +82,19 @@ describe("SiteFooter", () => {
     render(<SiteFooter site={site} />);
     const nav = footerNav();
     const linkedin = within(nav).getByRole("link", { name: "LinkedIn" });
-    expect(linkedin).toHaveAttribute("href", "https://www.linkedin.com/company/moroccansoftwarecrafters/");
+    expect(linkedin).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/company/moroccansoftwarecrafters/",
+    );
     expect(linkedin).toHaveAttribute("target", "_blank");
     expect(linkedin).toHaveAttribute("rel", "noopener");
-    const socrates = within(nav).getByRole("link", { name: "Site SoCraTes Maroc" });
+    const socrates = within(nav).getByRole("link", {
+      name: "Site SoCraTes Maroc",
+    });
     expect(socrates).toHaveAttribute("target", "_blank");
-    expect(within(nav).getByRole("link", { name: "Accueillir un meetup" })).not.toHaveAttribute("target");
+    expect(
+      within(nav).getByRole("link", { name: "Accueillir un meetup" }),
+    ).not.toHaveAttribute("target");
   });
 
   it("renders the legal line", () => {
@@ -91,8 +107,15 @@ describe("SiteFooter", () => {
   it("applies the French narrow space before a colon in the legal line", () => {
     // Testing Library's text matcher folds U+202F into a plain space, so read textContent.
     const { container } = render(
-      <SiteFooter site={{ ...site, footer: { ...site.footer, legal: "Contact : bientôt." } }} />,
+      <SiteFooter
+        site={{
+          ...site,
+          footer: { ...site.footer, legal: "Contact : bientôt." },
+        }}
+      />,
     );
-    expect(container.querySelector("p")?.textContent).toBe("Contact : bientôt.");
+    expect(container.querySelector("p")?.textContent).toBe(
+      "Contact : bientôt.",
+    );
   });
 });

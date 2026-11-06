@@ -28,9 +28,19 @@ export function NavToggle({ children }: { children: ReactNode }) {
         aria-controls="nav"
         onClick={() => setOpen((value) => !value)}
       >
-        <span className={cn(bar, "group-aria-expanded:translate-y-[7px] group-aria-expanded:rotate-45")}></span>
+        <span
+          className={cn(
+            bar,
+            "group-aria-expanded:translate-y-[7px] group-aria-expanded:rotate-45",
+          )}
+        ></span>
         <span className={cn(bar, "group-aria-expanded:opacity-0")}></span>
-        <span className={cn(bar, "group-aria-expanded:-translate-y-[7px] group-aria-expanded:-rotate-45")}></span>
+        <span
+          className={cn(
+            bar,
+            "group-aria-expanded:-translate-y-[7px] group-aria-expanded:-rotate-45",
+          )}
+        ></span>
       </button>
       <nav
         className="flex gap-[1.4rem] max-lg:absolute max-lg:inset-x-0 max-lg:top-18 max-lg:hidden max-lg:flex-col max-lg:gap-0 max-lg:border-b max-lg:border-line max-lg:bg-paper max-lg:px-4 max-lg:pt-2 max-lg:pb-4 max-lg:shadow-lift max-lg:data-[open=true]:flex lg:ml-auto"

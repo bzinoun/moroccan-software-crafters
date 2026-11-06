@@ -26,9 +26,16 @@ export const siteSchema = z.object({
   baseUrl: z.string(),
   since: z.number(),
   linkedinFollowers: z.number(),
-  links: z.object({ linkedin: z.string(), socrates: z.string(), github: z.string() }),
+  links: z.object({
+    linkedin: z.string(),
+    socrates: z.string(),
+    github: z.string(),
+  }),
   contact: z.object({ email: z.string() }),
-  form: z.object({ endpoint: z.string(), extraFields: z.record(z.string(), z.string()) }),
+  form: z.object({
+    endpoint: z.string(),
+    extraFields: z.record(z.string(), z.string()),
+  }),
   nav: z.array(navLinkSchema),
   cta: ctaSchema,
   footer: z.object({ links: z.array(navLinkSchema), legal: z.string() }),
@@ -49,11 +56,18 @@ export const homeSchema = z.object({
 // Compile-time check: each schema and its hand-written type in types.ts describe one shape.
 type Equal<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 type Check<T extends true> = T;
-export type SiteSchemaMatchesType = Check<Equal<z.infer<typeof siteSchema>, Site>>;
-export type HomeSchemaMatchesType = Check<Equal<z.infer<typeof homeSchema>, Home>>;
+export type SiteSchemaMatchesType = Check<
+  Equal<z.infer<typeof siteSchema>, Site>
+>;
+export type HomeSchemaMatchesType = Check<
+  Equal<z.infer<typeof homeSchema>, Home>
+>;
 
 // Resolved from this module, so the same path works in Vitest and in `next build`.
-const contentDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../content");
+const contentDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../content",
+);
 
 function readJson(file: string): unknown {
   return JSON.parse(readFileSync(path.join(contentDir, file), "utf8"));

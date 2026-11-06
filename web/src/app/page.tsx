@@ -22,9 +22,13 @@ export default function Home() {
           <h1>
             <HeroEm text={hero.title} />
           </h1>
-          <p className="mb-[1.8rem] max-w-[60ch] text-[1.15rem] text-ink-soft">{frenchSpacing(hero.lead)}</p>
+          <p className="mb-[1.8rem] max-w-[60ch] text-[1.15rem] text-ink-soft">
+            {frenchSpacing(hero.lead)}
+          </p>
           <div className="flex flex-wrap gap-[0.8rem]">
-            <Button href={toRoute(hero.primary.href)}>{frenchSpacing(hero.primary.label)}</Button>
+            <Button href={toRoute(hero.primary.href)}>
+              {frenchSpacing(hero.primary.label)}
+            </Button>
             <Button variant="ghost" href={toRoute(hero.secondary.href)}>
               {frenchSpacing(hero.secondary.label)}
             </Button>

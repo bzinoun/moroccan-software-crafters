@@ -16,7 +16,8 @@ export const buttonStyles = tv({
   ],
   variants: {
     variant: {
-      primary: "bg-red text-white shadow-[0_6px_18px_rgba(193,39,45,0.28)] hover:bg-red-dark",
+      primary:
+        "bg-red text-white shadow-[0_6px_18px_rgba(193,39,45,0.28)] hover:bg-red-dark",
       ghost: "border-ink bg-transparent text-ink hover:bg-ink hover:text-white",
     },
     size: {
@@ -50,5 +51,11 @@ export function Button(props: ButtonProps) {
     );
   }
   const { variant, size, className, type = "button", ...rest } = props;
-  return <button className={cn(buttonStyles({ variant, size }), className)} type={type} {...rest} />;
+  return (
+    <button
+      className={cn(buttonStyles({ variant, size }), className)}
+      type={type}
+      {...rest}
+    />
+  );
 }
