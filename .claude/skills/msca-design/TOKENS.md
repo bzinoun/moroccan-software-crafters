@@ -144,14 +144,13 @@ Tailwind defaults, mobile first. No custom breakpoints and no `max-[Npx]:` value
 | `lg` | 1024px |
 | `xl` | 1280px |
 
-Proposal, owner to confirm: map each query of the old site to the true nearest default breakpoint and accept the few pixels of difference; note it in the commit or the report. Precedent already built: header nav (old max 1024) is `lg`; the hero two-column grid (old 900) is `lg`; the brand tagline (old 640) is `max-sm:hidden`. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel).
+Proposal, owner to confirm: map each query of the old site to the true nearest default breakpoint and accept that a layout may switch up to about 120 px away from the old query width (one-pixel edge differences at exactly 640 and 1024 px included); note it in the commit or the report. Precedent already built: header nav (old max 1024) is `lg`; the hero two-column grid (old 900) is `lg`; the brand tagline (old 640) is `max-sm:hidden`. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel).
 
 | Old query | Use (proposal, owner to confirm) |
 |---|---|
 | 960, 900 | `lg` (columns from `lg`, one column below) |
 | 860, 800, 760 | `md` |
-| 700, 640, 600 | `sm` |
-| 560, 520, 480 | base styles (the mobile default), `sm` when a step is needed |
+| 700, 640, 600, 560, 520, 480 | `sm` (one column below 640, the `sm:` form applies from 640) |
 
 ## Motion
 
