@@ -79,8 +79,11 @@
     display: block;
   }
 
+  /* Tailwind's reset strips the underline; the old site kept the browser
+     default, and the links that must not have one carry no-underline. */
   a {
     color: var(--color-green);
+    text-decoration: underline;
   }
 
   a:hover {
