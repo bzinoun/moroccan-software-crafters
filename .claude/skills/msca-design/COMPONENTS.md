@@ -32,7 +32,7 @@ Conventions for every component:
 
 ### SiteHeader and NavToggle
 `SiteHeader.tsx` (server): props `site`, `page`. `NavToggle.tsx` (client): props `children` (the nav links), owns the open state.
-- Header: `sticky top-0 z-50`, `bg-paper/90` with `backdrop-blur`, `border-b border-line`, row `h-18` inside `Container`. Contains `Brand`, `NavToggle` with the links, and a small header `Button`.
+- Header: `sticky top-0 z-50`, `bg-paper/90 backdrop-blur-[10px] backdrop-saturate-[1.4]`, `border-b border-line`, row `h-18` inside `Container`. Contains `Brand`, `NavToggle` with the links, and a small header `Button`.
 - Per-page CTA (`headerCta`), shown twice (panel copy and header copy): `home`, `meetup`, `association`, `news` give the primary `site.cta`; `socrates` gives primary "Devenir partenaire" to `#sponsoring`; `host` gives ghost "Les formules" to `index.html#offres`.
 - Active link: `aria-current="page"` when the link has no `#` and its route equals the current page route. Home has no active link.
 - Nav links: `text-[0.95rem] font-medium text-ink-soft no-underline hover:text-red`; active red text on mobile, ink text with a red `border-b-2` from `lg`.

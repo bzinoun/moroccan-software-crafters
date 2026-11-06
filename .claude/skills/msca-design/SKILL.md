@@ -31,6 +31,6 @@ The design system of the Next.js app in `web/`: Tailwind v4 tokens in `web/src/a
 4. **Build mobile first on the default breakpoints** (`sm`, `md`, `lg`, `xl`). Add no custom breakpoint and no `max-[Npx]:` value.
 5. **Use native HTML for interactive parts**: `<details>` for the FAQ, `<dialog>` for the lightbox, `<button>` for actions, `<a>` for navigation, `<fieldset>` and `<legend>` for form steps.
 6. **Keep the accessibility contracts.** Same `aria-*` states (`aria-current`, `aria-expanded`, `aria-pressed`, `aria-live`), a 3px green focus ring (sage on dark surfaces), empty `alt` on decorative photos, `loading="lazy"` below the fold, a skip link, a visible label on every form control.
-7. **Keep the motion budget.** Hover lifts, image zooms and the reveal fade-in, each behind `motion-safe:`.
+7. **Keep the motion budget.** Hover lifts, image zooms and the reveal fade-in. Put every transition and animation behind `motion-safe:`; the hover offset itself (`hover:-translate-y-px`) always applies, as in `Button`.
 8. **Show partner logos and photos only with consent.** An empty `logo` renders the monogram.
 9. **Check each finished page in a browser** at 375, 768 and 1280 px against the old site, with computed styles (done criterion in `web/CLAUDE.md`).
