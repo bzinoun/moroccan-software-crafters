@@ -2,8 +2,8 @@
 
 This repo holds two versions of the community site:
 
-- **Root (live):** plain HTML, `assets/css/style.css`, `assets/js/*.js`, served as is by GitHub Pages from `main`. See `README.md`.
-- **`web/` (in progress):** the Next.js port. Its own `web/CLAUDE.md` has the status, commands and gotchas. Work on the port from there.
+- **Root (live):** plain HTML with its own CSS and JS in `assets/`, served as is by GitHub Pages from `main`. See `README.md`.
+- **`web/` (in progress):** the Next.js port, styled with Tailwind v4. Its own `web/CLAUDE.md` has the structure, status, commands and gotchas. Work on the port from there.
 
 `content/*.json` is the single source of truth for both versions. A content edit there shows on both.
 
@@ -18,4 +18,5 @@ This repo holds two versions of the community site:
 
 ## Skills in `.claude/skills/`
 
-`msca-design` (look and components), `msca-nextjs` (the port), and two Vercel React skills listed in `.claude/skills/THIRD_PARTY.md`.
+- `msca-design`: the design system of the `web/` app (`SKILL.md` principles and rules, `TOKENS.md` the `@theme` table, `TAILWIND.md` Tailwind rules with doc links, `COMPONENTS.md` built and planned components).
+- `vercel-composition-patterns`: React composition rules, third party, listed in `.claude/skills/THIRD_PARTY.md`.
