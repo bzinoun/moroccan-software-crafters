@@ -108,6 +108,19 @@ describe("SiteHeader", () => {
     ).not.toHaveAttribute("aria-current");
   });
 
+  it.each([
+    ["meetup", "Le meetup"],
+    ["socrates", "SoCraTes"],
+    ["news", "Actualités"],
+    ["association", "L'association"],
+  ] as const)("marks exactly the %s link as current", (page, label) => {
+    render(<SiteHeader site={site} page={page} />);
+    const current = within(mainNav())
+      .getAllByRole("link")
+      .filter((a) => a.getAttribute("aria-current") === "page");
+    expect(current.map((a) => a.textContent)).toEqual([label]);
+  });
+
   it("marks no link on home because the Éditions href has a hash", () => {
     render(<SiteHeader site={site} page="home" />);
     const links = within(mainNav()).getAllByRole("link");

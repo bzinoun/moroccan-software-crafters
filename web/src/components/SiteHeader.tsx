@@ -10,7 +10,7 @@ import { NavToggle } from "./NavToggle";
 type HeaderCta = Cta & { variant: "primary" | "ghost" };
 
 // Per-page CTA rule from the design inventory (COMPONENTS.md, site header).
-function headerCta(page: PageId, siteCta: Cta): HeaderCta {
+function headerCta(page: PageId | undefined, siteCta: Cta): HeaderCta {
   switch (page) {
     case "socrates":
       return {
@@ -29,8 +29,8 @@ function headerCta(page: PageId, siteCta: Cta): HeaderCta {
   }
 }
 
-export function SiteHeader({ site, page }: { site: Site; page: PageId }) {
-  const current = pageRoute(page);
+export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
+  const current = page === undefined ? undefined : pageRoute(page);
   const cta = headerCta(page, site.cta);
   const ctaRoute = toRoute(cta.href);
 

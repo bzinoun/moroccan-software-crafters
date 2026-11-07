@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SkipLink } from "@/components/SkipLink";
 import { loadHome, loadSite } from "@/content/load";
-import type { PageId } from "@/content/types";
 import { assetUrl } from "@/lib/routes";
 import { fonts } from "./fonts";
 import "./globals.css";
 
 const site = loadSite();
 const home = loadHome();
-
-// TODO: set the page id per route (meetup, socrates, news, association, host)
-// once those pages exist. Two CSS selectors depend on `<body data-page>`.
-const page: PageId = "home";
 
 // Social tags need absolute URLs. `site.baseUrl` already carries the GitHub
 // Pages base path, so build them from it: `assetUrl` would add the path twice.
@@ -49,12 +41,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="fr"
       className={`${fonts.fraunces.variable} ${fonts.inter.variable} ${fonts.caveat.variable}`}
     >
-      <body data-page={page}>
-        <SkipLink />
-        <SiteHeader site={site} page={page} />
-        <main id="main">{children}</main>
-        <SiteFooter site={site} />
-      </body>
+      {/* The shell (skip link, header, main, footer) comes from each route
+          segment layout through PageFrame, which knows the page id. */}
+      <body>{children}</body>
     </html>
   );
 }
