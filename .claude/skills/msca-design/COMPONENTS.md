@@ -77,6 +77,51 @@ Conventions for every component:
 - Tests: jsdom has no `showModal()` or `close()`; the test file stubs both on `HTMLDialogElement.prototype`. A closed dialog is not in the accessibility tree: query it by tag.
 - Pages: home (gallery, feature cards), news. Old site reference: `lightbox` in `assets/js/cms.js`, `.lightbox`, `.lb-close`, `.lb-prev`, `.lb-next`.
 
+### FactList
+`src/components/FactList.tsx`. Exports `FactList`, `factListStyles` (a `tv` with slots `list`, `item`, `value`, `label`) and the type `Fact = { value: string; label: string }`.
+- Props: `items: readonly Fact[]`, `tone: "light" | "dark"` (default light), native `<ul>` props. Renders nothing for an empty list. `ul role="list"` with `li` cells holding a `<b>` value and a `<span>` label; strings go through `frenchSpacing()`.
+- Classes that matter: list `grid grid-cols-2 gap-3.5 sm:grid-cols-4` (old query 700px is `sm`). Cell `rounded-sm border px-4 py-3.5`; light `border-line bg-card`, value `font-display text-[1.6rem] font-semibold whitespace-nowrap text-green`, label `text-[0.84rem] text-ink-soft`. Dark: `border-white/16 bg-white/7`, sage value, label `text-[#cfc7bb]`.
+- Inside `PageHero` the list gets `mt-8 sm:grid-cols-2` through `className` (two columns at every width); in `DarkHero` it gets `mt-12`.
+- Pages: meetup, association, socrates. Old site reference: `.facts`.
+
+### PageHero
+`src/components/PageHero.tsx`. Props: `eyebrow`, `title` (may hold one `<em>`), `lead`, `facts?: readonly Fact[]`, `image: { src; alt; width?; height? }` (`src` is a final URL: `meetupPhotoUrl(name)` or `assetUrl(...)`; the photo loads at once, 800 by 600 by default), `postit?: { color?; text }`, `titleId?` (sets the `h1` id and `aria-labelledby` on the section).
+- Server component. `<section className="zellige-corner pt-16 pb-10">` holding a `Container` grid `items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]` (old query 900px is `lg`; the photo stacks under the text below). Left: `Eyebrow`, `h1` through `HeroEm`, `Lead`, `FactList`. Right: `<figure className="relative m-0">` with the photo `aspect-[4/3] w-full rotate-[1.5deg] rounded-card object-cover shadow-lift` and the `PostIt` `absolute -bottom-4 -left-3.5 rotate-[-4deg]`.
+- Pages: meetup (yellow post-it "Vous fixez l'agenda."), association (green, "Depuis 2019"). Old site reference: `.page-hero`.
+
+### DarkHero, StatusChip
+`src/components/DarkHero.tsx`. Exports `DarkHero` and `StatusChip`.
+- `DarkHero` props: `photo` (final URL), `eyebrow`, `title` (may hold one `<em>`), `lead`, `actions?: ReactNode` (the buttons, in a `flex flex-wrap gap-[0.8rem]` row: use `Button` `primary-flat` and `ghost-on-dark`), `status?: string`, `facts?: readonly Fact[]`, `titleId?`.
+- Section: `zellige-corner overflow-hidden bg-green-deep pt-30 pb-18 text-cream **:focus-visible:outline-sage`. Photo layer (`data-hero-photo`, `aria-hidden`, inline `background-image`): `absolute inset-0 bg-cover bg-[center_35%] opacity-45 saturate-85`, then a gradient layer `rgba(15,63,35,0.45)` to `0.78` at 60 percent to `green-deep`. Content in a `Container` `relative z-1`; text block `max-w-[820px]`. Eyebrow `tone="cream" marker="khatam"`. `h1`: `text-[clamp(2.6rem,6vw,4.8rem)] text-white`, emphasis sage with no underline (`[&_em]:bg-none [&_em]:text-sage`). Lead: `Lead tone="dark"` with `max-w-[64ch] text-[1.2rem] text-[#e4ddd2]`. Facts: `FactList tone="dark"` with `mt-12`.
+- `StatusChip` props: native `<p>` props. `mt-[1.4rem] inline-flex items-center gap-[0.55rem] rounded-[18px]`, fill `rgba(15,63,35,0.85)`, border `rgba(169,187,163,0.55)`, cream `0.92rem` text with `text-balance`, 14px sage khatam as `before:` (clip-path). `leading-[1.3]` follows the size on purpose.
+- Pages: socrates. Old site reference: `.hero-dark`, `.status-chip`.
+
+### CardGrid, Card
+`src/components/CardGrid.tsx`. Exports `CardGrid`, `Card` and the type `CardItem = { title; text; href?; label? }`.
+- `CardGrid` props: `items: readonly CardItem[]`, `columns: 2 | 3 | 4`, `tone: "light" | "dark"` (default light), `className`. `Card` props: a `CardItem` plus `tone`, `className`; use `Card` alone for a single card (the in-kind card of the sponsoring section).
+- Columns, mobile first (old 960 is `lg`, old 600 is `sm`): one column; `columns=2` two from `sm`; `columns=4` two from `sm`, four from `lg`; `columns=3` two from `sm` (a lone last card takes the whole row, `sm:max-lg:[&>:last-child:nth-child(odd)]:col-span-full`) and six tracks from `lg` where each card spans two, so an incomplete last row is centered (`lg:*:col-span-2`, last card `col-start-3`, second to last `col-start-2`).
+- Card: `Reveal as="article"`, `rounded-card border border-line bg-card px-5.5 py-6`; `h3` `text-[1.15rem] mb-[0.4rem]`; text `m-0 text-[0.95rem] text-ink-soft`. Dark: `border-white/14 bg-white/5`, white title, `text-on-dark` text. Link (only with `href`): `mt-3 inline-block text-[0.9rem] font-semibold`, text "{label} →" (label defaults to "En savoir plus"); an internal `href` goes through `toRoute()` and `next/link`, an external one is a plain `<a target="_blank" rel="noopener">`.
+- Pages: meetup, socrates, association. Old site reference: `.cards`, `.card`, `.more`, `card()` in `assets/js/pages.js`.
+
+### StepRows, StepRow, TipList
+`src/components/StepRows.tsx`. Exports `StepRows`, `StepRow`, `TipList` and the type `Step = { id; time; title; kicker; image; text; tips? }`.
+- `StepRows` props: `steps: readonly Step[]`, `className`. `image` is a final URL (`meetupPhotoUrl(step.photo)`). `StepRow` props: `step`. `TipList` props: `tips: readonly string[]`, `className`; renders nothing when empty.
+- Row: `<article id={step.id} className="group grid items-center gap-5 border-t border-line py-8 first:border-t-0 first:pt-0 md:grid-cols-2 md:gap-12 md:py-11">` (old query 860px is `md`). The photo box comes first on mobile; `md:group-even:order-2` moves it to the right on even rows. Photo `aspect-[4/3] rounded-card object-cover shadow-lift`, `alt=""`, `loading="lazy"`; time tag `absolute top-3.5 left-3.5 rounded-full bg-ink px-[11px] py-1.5 text-[0.82rem] font-semibold text-white`. Kicker `font-hand text-[1.6rem] leading-[1.1] text-green`; `h3` `text-[1.8rem]`; text `text-ink-soft`.
+- Tips: `ul role="list"`, `mt-[1.2rem] grid gap-[0.6rem]`; each `li` is a mini post-it `w-fit max-w-full rotate-[-0.6deg] bg-postit-yellow font-hand text-[1.25rem] [line-height:1.2]`, even items `even:bg-postit-green even:rotate-[0.8deg]`.
+- Pages: meetup (`#deroule`). Old site reference: `.step-row`, `.time-tag`, `.kicker`, `.tips`.
+
+### Form primitives (Field, FieldError, FieldRow, TextInput, Select, TextArea, PillGroup, Pill, ChoiceGroup, ChoiceCard, ConsentCheckbox, Honeypot, FormAlert)
+One file per component in `src/components/`, `PillGroup.tsx` holds `Pill`, `ChoiceCard.tsx` holds `ChoiceGroup`, `Field.tsx` holds `FieldError`. All are native controls that work controlled or uncontrolled (they pass every native prop through, `ref` included) and are server-safe. Error messages are strings the form passes when a field is invalid.
+- `Field`: props `id` (the control id; help and error ids derive from it), `label?`, `optional?: boolean | string` (`true` adds "(facultatif)", a string adds that text), `help?`, `error?`, `group?`, `className`, one child element. It clones the child with `id`, `aria-invalid` (when `error` is set) and `aria-describedby` (help id, then error id). With `group`, the label is a `<span id="{id}-label">` and the child gets `aria-labelledby`: use it around `PillGroup` and `ChoiceGroup`. Wrapper `mb-[18px]`; label `mb-1.5 block text-[0.93rem] font-semibold`, suffix `font-normal text-muted`; help `text-[0.83rem] text-muted`; error (`FieldError`, props `id`, `children: string`) `text-[0.84rem] text-red`, rendered only when invalid.
+- `TextInput`: native `<input>` props, `type` defaults to `text`. Exports `controlStyles` (a `tv`) shared with `Select` and `TextArea`: `w-full rounded-sm border-[1.5px] border-line bg-white px-[0.9rem] py-3`, `focus:border-green` plus a 3px halo `shadow-[0_0_0_3px_rgba(27,107,58,0.15)]`, `focus:outline-none`, `aria-invalid:border-red` (also while focused), `motion-safe:` transition. `Select` takes `<option>` children. `TextArea` adds `min-h-24 resize-y`.
+- `FieldRow`: `grid gap-4 sm:grid-cols-2` (old query 600px is `sm`).
+- `PillGroup`: props `role: "group" | "radiogroup"` (default group), native `<div>` props (pass `aria-labelledby` or `aria-label`); `flex flex-wrap gap-2`. `Pill`: props `type: "radio" | "checkbox"`, `children: string`, native `<input>` props. `<label className="relative">` around an input (`peer pointer-events-none absolute opacity-0`, still focusable) and a span `rounded-full border-[1.5px] border-line bg-white px-4 py-[0.55rem] text-[0.93rem] font-medium`; checked is `peer-checked:bg-ink peer-checked:text-white`, keyboard focus draws a green outline on the span.
+- `ChoiceGroup`: `role="radiogroup"`, `grid gap-3`. `ChoiceCard`: props `title`, `description?`, `price?`, native radio `<input>` props (`name`, `value`, `defaultChecked`, `required`...). `<label>` as `grid grid-cols-[24px_1fr] sm:grid-cols-[24px_1fr_auto]` (old query 520px is `sm`; below it the price sits under the text, `col-start-2`), `rounded-card border-[1.5px] border-line px-[18px] py-4`, hover border `#cbbfa9`, `has-checked:border-green has-checked:bg-[#f3faf5]`, `has-focus-visible:outline-3 has-focus-visible:outline-green` on the card. A 22px ring with a 10px green dot when checked; price `font-display text-green`.
+- `ConsentCheckbox`: props `children: string` (the sentence: cites Moroccan law 09-08, differs per form), `error?`, `id?` (generated when missing), native checkbox `<input>` props. Grid `grid-cols-[22px_1fr]`, text `text-[0.88rem] text-ink-soft`, 20px box with `accent-green`; the error sits under it and describes the box (`aria-invalid`, `aria-describedby`).
+- `Honeypot`: props `id` (default `website_hp`), `name` (default `website_hp`), `label` (default "Ne pas remplir"), native input props except `type`. Wrapper `aria-hidden="true"` `absolute -left-[9999px] size-px overflow-hidden`; input `tabIndex={-1}` `autoComplete="off"`.
+- `FormAlert`: native `<div>` props, children are the message (a string or nodes with a link). Always in the page with `role="alert"`; carries the `hidden` attribute while it has no children, so a late message is announced. `mt-4 rounded-sm bg-[#fdecec] px-3.5 py-3 text-[0.92rem] text-red-dark`.
+- Old site reference: `.field`, `.row`, `.pills`, `.pill`, `.choice-card`, `.consent`, `.hp`, `.form-alert`.
+
 ### Data layer for the home page
 Not a component: typed loaders and pure derivations. A page loads the JSON once in a server component, derives plain props and passes them to the section components. A component never reads files.
 - Loaders (`src/content/load.ts`, schemas in `schemas.ts`, types in `types.ts`): `loadSite()`, `loadHome()` (all of `home.json`), `loadEvents()`, `loadCompanies()`, `loadOffers()`, `loadSponsoring()`. Each reads `../content/*.json` with `fs` at build time and parses with zod; a broken edit throws `Invalid content in content/<file>.json: <path>: <message>`. `Event.date` is `YYYY-MM-DD` or `YYYY-MM`; `Event.type` is a closed enum (`meetup`, `socrates`, `codesnack`, `online`): a new type fails the build until `EVENT_TYPES` and `TYPE_LABEL` get an entry.
@@ -143,26 +188,6 @@ All in `src/components/home/`, all client components. `HistorySection` must rend
 
 Home sections are built (see Built). The entries below are ordered as the port reaches them. "Native HTML" says what to use instead of JS.
 
-### PageHero
-- Role: inner page hero with facts and a figure. Props: eyebrow, title, lead, `facts`, `image`, `postit` (`color`, text).
-- Layout: two columns `lg:grid-cols-[1.1fr_0.9fr]`, `gap-12`. Image 4/3, `rounded-card`, `shadow-lift`, rotated `1.5deg`; post-it overlaps the bottom left (`-left-3.5 -bottom-4`, `-4deg`). Facts in two columns, `mt-8`. Zellige corner.
-- Pages: meetup (yellow post-it), association (green).
-- Old site reference: `meetup.html`, `association.html`; `.page-hero`.
-
-### DarkHero, StatusChip
-- Role: SoCraTes hero. Props: `photo`, eyebrow, title, lead, buttons, status text, `facts`.
-- Layout: `bg-green-deep`, `pt-30 pb-18`. Photo layer at `opacity-45`, `saturate-85`, position `center 35%`, with a vertical gradient to green-deep on top. Sage zellige corner. Text `max-w-[820px]`; `h1` white and larger; emphasis sage without underline. Facts: glassy cells (`bg-white/7`), sage numbers.
-- Status chip: inline-flex, `rounded-[18px]`, translucent green fill, sage border, cream `0.92rem` text, `text-wrap: balance` (`text-balance`), 14px sage khatam before the text.
-- Pages: socrates.
-- Old site reference: `socrates.html`; `.hero-dark`, `.status-chip`.
-
-### FactList
-- Role: row of numbered facts. Props: `items: { value, label }[]`, `tone: "light" | "dark"`.
-- Layout: two columns by default, four columns from `sm`; always two inside `PageHero`. Cell: white, `border border-line`, `rounded-sm`, number `font-display` 1.6rem green `whitespace-nowrap`, label `0.84rem text-ink-soft`. Dark: `bg-white/7`, sage numbers.
-- Content: association facts come from stats helpers (events count, distinct hosts, SoCraTes editions, followers formatted `fr-FR`).
-- Pages: meetup, association, socrates.
-- Old site reference: `.facts`.
-
 ### LogoWall, LogoTile, LogoSticker, Monogram
 - Role: partner logos with a "your logo here" post-it. `LogoWall` takes `compact`.
 - Built for the home page: see `PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage` in Built. Left to build: the `compact` variant (association) and the dark variant (socrates).
@@ -171,18 +196,6 @@ Home sections are built (see Built). The entries below are ordered as the port r
 - Native HTML: `<a>` when the company has a link, `<div>` otherwise; sticker is one `<a>` with `aria-labelledby`.
 - Pages: home (`#partenaires`), association (compact), socrates.
 - Old site reference: `.logo-wall`, `.logo-tile`, `.sticker`, `.monogram`.
-
-### CardGrid, Card
-- Role: plain text cards. Props: `CardGrid` (`columns: 2 | 3 | 4`), `Card` (`title`, `text`, `href?`, `tone`).
-- Layout: one column; two from `sm`; three or four from `lg` (a three-column grid centers an incomplete last row: use a 6-track grid where each card spans 2, or flex with fixed basis). Card: white, `border border-line`, `rounded-card`, `px-5.5 py-6`, `h3` 1.15rem, text `0.95rem text-ink-soft`, "more" link bold `0.9rem` with an arrow; external links `target="_blank" rel="noopener"`. Dark tone: translucent fill and border, `on-dark` text.
-- Pages: meetup, socrates, association.
-- Old site reference: `.cards`, `.card`, `.more`.
-
-### StepRows, StepRow, TipList
-- Role: meetup schedule rows with a photo, a time tag and tips.
-- Layout: two equal columns from `md` (`gap-12`, `py-11`, top `border-line` except the first); even rows put the media on the right (`md:order-*`); one column with media first below. Image 4/3, `rounded-card`, `shadow-lift`. Time tag: ink pill at the top left. Kicker `font-hand` 1.6rem green; `h3` 1.8rem. Tips: mini post-its, yellow (even green), `font-hand` 1.25rem, `w-fit`, rotation `-0.6deg` and `0.8deg`.
-- Pages: meetup (`#deroule`).
-- Old site reference: `.step-row`, `.time-tag`, `.kicker`, `.tips`.
 
 ### ZoomSplit, NumberedList
 - Role: photo beside a numbered list.
@@ -250,16 +263,9 @@ Home sections are built (see Built). The entries below are ordered as the port r
 - Pages: host.
 - Old site reference: `assets/js/funnel.js`; `.funnel`, `.progress`, `.choice-card`.
 
-### Form primitives (Field, TextInput, Select, TextArea, ChoiceCard, PillGroup, Pill, ConsentCheckbox, Honeypot, FormAlert, FieldRow)
-- `Field`: label (600 `0.93rem`, optional suffix "(facultatif)"), control, help (`0.83rem text-muted`), error (red `0.84rem`, shown when invalid; an empty-versus-format message swap). Controls: full width, `px-3.5 py-3`, `border-[1.5px] border-line`, `rounded-sm`, white. Focus: green border plus the 3px green halo, no outline. Invalid: red border (use `aria-invalid:border-red`). Textarea min 96px, vertical resize.
-- `FieldRow`: one column, two from `sm`, `gap-4`.
-- `ChoiceCard`: `<label>` around a visually hidden radio; grid `24px 1fr auto`, `border-[1.5px]`, `rounded-card`; checked (`has-checked:`) green border and `#f3faf5` fill with a green-centered dot; keyboard focus draws the green outline on the card (`has-focus-visible:`); below `sm` the price moves under the text.
-- `Pill`: `<label>` around a hidden radio or checkbox with a span: `px-4 py-2.5`, `border-[1.5px] border-line`, white, 500 `0.93rem`; checked is `bg-ink text-white`; focus outline on the span (`peer`).
-- `ConsentCheckbox`: grid `22px 1fr`, `0.88rem text-ink-soft`, 20px checkbox with `accent-green`; the text cites Moroccan law 09-08.
-- `Honeypot`: off-screen wrapper, `aria-hidden`, input `tabIndex={-1}` and `autoComplete="off"`.
-- `FormAlert`: hidden until shown, `#fdecec` fill, `text-red-dark`, `rounded-sm`, `role="alert"`.
-- `Recap`: `bg-paper` box, `0.86rem`, a definition list in a `max-content 1fr` grid; hidden when empty.
-- Old site reference: `.field`, `.pill`, `.consent`, `.hp`, `.form-alert`, `.recap`.
+### Recap
+- Role: summary box at the top of host funnel step 4. `bg-paper` box, `border border-line`, `rounded-sm`, `0.86rem`, a definition list in a `max-content 1fr` grid (`dt` muted, `dd` 500); hidden when empty. Built with `HostFunnel`.
+- Old site reference: `.recap`.
 
 ### SponsorForm, SponsorLayout
 - Role: single-step sponsor lead form beside a FAQ, inside a dark section. Client.
