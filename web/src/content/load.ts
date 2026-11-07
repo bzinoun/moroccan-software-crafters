@@ -7,14 +7,29 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { z } from "zod";
 import {
+  articlesSchema,
+  associationSchema,
   companiesSchema,
   eventsSchema,
   homeSchema,
+  meetupSchema,
   offersSchema,
   siteSchema,
+  socratesSchema,
   sponsoringSchema,
 } from "./schemas";
-import type { Companies, Event, Home, Offers, Site, Sponsoring } from "./types";
+import type {
+  Articles,
+  Association,
+  Companies,
+  Event,
+  Home,
+  Meetup,
+  Offers,
+  Site,
+  Socrates,
+  Sponsoring,
+} from "./types";
 
 export { homeSchema, siteSchema } from "./schemas";
 
@@ -67,6 +82,26 @@ export function parseSponsoring(json: unknown, file: string): Sponsoring {
   return parseWith(sponsoringSchema, json, file);
 }
 
+/** Exposed for tests. Prefer `loadMeetup()`. */
+export function parseMeetup(json: unknown, file: string): Meetup {
+  return parseWith(meetupSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadAssociation()`. */
+export function parseAssociation(json: unknown, file: string): Association {
+  return parseWith(associationSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadSocrates()`. */
+export function parseSocrates(json: unknown, file: string): Socrates {
+  return parseWith(socratesSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadArticles()`. */
+export function parseArticles(json: unknown, file: string): Articles {
+  return parseWith(articlesSchema, json, file);
+}
+
 export function loadSite(): Site {
   return parseSite(readJson("site.json"), "content/site.json");
 }
@@ -93,4 +128,24 @@ export function loadSponsoring(): Sponsoring {
     readJson("sponsoring.json"),
     "content/sponsoring.json",
   );
+}
+
+export function loadMeetup(): Meetup {
+  return parseMeetup(readJson("meetup.json"), "content/meetup.json");
+}
+
+export function loadAssociation(): Association {
+  return parseAssociation(
+    readJson("association.json"),
+    "content/association.json",
+  );
+}
+
+export function loadSocrates(): Socrates {
+  return parseSocrates(readJson("socrates.json"), "content/socrates.json");
+}
+
+/** All articles of content/articles.json, in file order. Slugs are unique. */
+export function loadArticles(): Articles {
+  return parseArticles(readJson("articles.json"), "content/articles.json");
 }

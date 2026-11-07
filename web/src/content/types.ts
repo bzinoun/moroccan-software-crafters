@@ -237,6 +237,163 @@ export type Sponsoring = {
   form: { title: string; lead: string; success: string };
 };
 
+/** A titled text block; `href` and `label` make it a link ("En savoir plus" when no label). */
+export type Card = {
+  title: string;
+  text: string;
+  /** Root-site href ("meetup.html#proposer") or an absolute URL. */
+  href?: string;
+  label?: string;
+};
+
+export type PageMeta = { title: string; description: string };
+
+/** A figure with its caption, for the hero fact lists. */
+export type Fact = { value: string; label: string };
+
+export type MeetupStep = {
+  /** Anchor id of the step row. */
+  id: string;
+  time: string;
+  title: string;
+  kicker: string;
+  /** Photo name without folder and extension. */
+  photo: string;
+  text: string;
+  tips?: string[];
+};
+
+export type Meetup = {
+  meta: PageMeta;
+  hero: {
+    eyebrow: string;
+    /** May contain one `<em>` around the emphasized word. */
+    title: string;
+    lead: string;
+    photo: string;
+    facts: Fact[];
+  };
+  who: { eyebrow: string; title: string; text: string; items: Card[] };
+  steps: { eyebrow: string; title: string; items: MeetupStep[] };
+  marketplace: {
+    eyebrow: string;
+    title: string;
+    photo: string;
+    steps: { title: string; text: string }[];
+  };
+  propose: { eyebrow: string; title: string; items: Card[] };
+  rules: { eyebrow: string; title: string; items: Card[] };
+  topicsWall: { eyebrow: string; title: string };
+  faq: {
+    eyebrow: string;
+    title: string;
+    items: { q: string; a: string }[];
+  };
+  cta: { title: string; text: string; primary: Cta; secondary: Cta };
+};
+
+export type Association = {
+  meta: PageMeta;
+  hero: {
+    eyebrow: string;
+    /** May contain one `<em>` around the emphasized word. */
+    title: string;
+    lead: string;
+    photo: string;
+  };
+  mission: { eyebrow: string; title: string; items: Card[] };
+  principles: { eyebrow: string; title: string; items: Card[] };
+  timeline: {
+    eyebrow: string;
+    title: string;
+    items: { year: string; title: string; text: string }[];
+  };
+  contribute: { eyebrow: string; title: string; items: Card[] };
+  contact: { eyebrow?: string; title: string; text: string };
+};
+
+export type SocratesEdition = {
+  year: string;
+  /** "1re édition". */
+  edition: string;
+  city: string;
+  /** Empty or absent when the venue is unknown. */
+  venue?: string;
+  dates: string;
+  participants: number;
+  partners: number;
+  /** Photo name; empty or absent: the cover shows the year. */
+  photo?: string;
+  text: string;
+};
+
+export type Socrates = {
+  meta: PageMeta;
+  hero: {
+    eyebrow: string;
+    status: string;
+    /** May contain one `<em>` around the emphasized words. */
+    title: string;
+    lead: string;
+    /** Photo name; empty or absent: no background photo. */
+    photo?: string;
+    primary: Cta;
+    secondary: Cta;
+    facts: Fact[];
+  };
+  about: { eyebrow: string; title: string; lead: string; pillars: Card[] };
+  openspace: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    /** The last law is the main one. */
+    laws: { title: string; text: string }[];
+    formats: { title: string; items: Card[] };
+  };
+  schedule: {
+    eyebrow: string;
+    title: string;
+    days: { day: string; title: string; text: string }[];
+    note: string;
+  };
+  editions: { eyebrow: string; title: string; items: SocratesEdition[] };
+  family: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    /** `id` is the file name of the logo in assets/img/socrates (.png). */
+    items: { id: string; name: string; country: string }[];
+  };
+  values: { eyebrow: string; title: string; items: Card[] };
+  sponsorsWall: { eyebrow: string; title: string };
+};
+
+export type Article = {
+  /** Unique; the route is /actualites/<slug>/. */
+  slug: string;
+  /** "YYYY-MM-DD" or "YYYY-MM". */
+  date: string;
+  /** "Récap", "Annonce"... */
+  kind: string;
+  title: string;
+  /** Photo name without folder and extension. */
+  cover?: string;
+  excerpt: string;
+  tags?: string[];
+  /** Mini Markdown, see `md`. */
+  body: string;
+  /** `Event.id` of the related event. */
+  event?: string;
+};
+
+export type Articles = {
+  meta: PageMeta;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  items: Article[];
+};
+
 /** Page ids used by the root site in `<body data-page>`. */
 export type PageId =
   "home" | "meetup" | "socrates" | "news" | "association" | "host";

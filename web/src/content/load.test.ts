@@ -1,15 +1,24 @@
 import { describe, expect, it } from "vitest";
 import {
+  loadArticles,
+  loadAssociation,
   loadCompanies,
   loadEvents,
   loadHome,
+  loadMeetup,
   loadOffers,
   loadSite,
+  loadSocrates,
   loadSponsoring,
+  parseArticles,
+  parseAssociation,
   parseCompanies,
   parseEvents,
   parseHome,
+  parseMeetup,
   parseSite,
+  parseSocrates,
+  parseSponsoring,
 } from "./load";
 
 describe("loadSite", () => {
@@ -327,5 +336,286 @@ describe("parseCompanies", () => {
     expect(() => parseCompanies(broken, "content/companies.json")).toThrow(
       /content\/companies\.json.*items\.0\.display/,
     );
+  });
+});
+
+describe("loadSponsoring (every field socrates.html reads)", () => {
+  it("reads the arguments, the in-kind block, the note and the form texts", () => {
+    const sp = loadSponsoring();
+    expect(sp.arguments).toHaveLength(4);
+    expect(sp.packages).toHaveLength(3);
+    expect(sp.packages[1]).toMatchObject({ highlight: true });
+    expect(sp.packages[0]?.highlight).toBeUndefined();
+    expect(sp.packages[0]?.badge).toBeUndefined();
+    expect(sp.inKind.title).toBe("Partenariat en nature");
+    expect(sp.note.length).toBeGreaterThan(0);
+    expect(sp.form.title).toBe("Parlons de la prochaine édition");
+    expect(sp.form.success).toBe(
+      "Merci ! Nous vous envoyons le dossier de partenariat sous 48 heures.",
+    );
+    expect(sp.trust.title).toBe(
+      "Cinq entreprises ont soutenu chacune des quatre éditions depuis 2022.",
+    );
+  });
+});
+
+describe("loadMeetup", () => {
+  it("reads the hero, the facts and the meta", () => {
+    const m = loadMeetup();
+    expect(m.meta.title).toBe(
+      "Le meetup, expliqué · Moroccan Software Crafters",
+    );
+    expect(m.hero.photo).toBe("2026-10-sg-gscm-2");
+    expect(m.hero.title).toContain("<em>zéro</em>");
+    expect(m.hero.facts).toHaveLength(4);
+    expect(m.hero.facts[0]).toEqual({
+      value: "9 h 30 → 14 h",
+      label: "un samedi, toutes les 6 à 8 semaines",
+    });
+  });
+
+  it("reads the five steps with their tips", () => {
+    const { steps } = loadMeetup();
+    expect(steps.items.map((s) => s.id)).toEqual([
+      "accueil",
+      "lightning",
+      "bubble",
+      "tables",
+      "retro",
+    ]);
+    expect(steps.items[0]).toMatchObject({
+      time: "9 h 30 → 10 h 15",
+      title: "Accueil et networking",
+      kicker: "On commence par le café",
+    });
+    expect(steps.items[0]?.tips).toEqual([
+      "Arrivez à l'heure : l'accès au bâtiment ferme souvent 30 minutes après le début.",
+      "Venez avec une question que vous vous posez en ce moment : elle finira sur un post-it.",
+    ]);
+  });
+
+  it("reads the marketplace, the cards, the faq and the call to action", () => {
+    const m = loadMeetup();
+    expect(m.marketplace.photo).toBe("2026-05-axa-3");
+    expect(m.marketplace.steps).toHaveLength(4);
+    expect(m.marketplace.steps[0]?.title).toBe("Un post-it par idée");
+    expect(m.who.items).toHaveLength(4);
+    expect(m.who.items[0]?.href).toBeUndefined();
+    expect(m.propose.items).toHaveLength(4);
+    expect(m.rules.items).toHaveLength(5);
+    expect(m.topicsWall.title).toBe("Le mur des sujets, depuis 2019.");
+    expect(m.faq.items).toHaveLength(4);
+    expect(m.faq.items[0]?.q).toBe(
+      "Je ne connais personne, est-ce que je vais rester dans mon coin ?",
+    );
+    expect(m.cta.primary).toEqual({
+      label: "Suivre l'association",
+      href: "https://www.linkedin.com/company/moroccansoftwarecrafters/",
+    });
+    expect(m.cta.secondary.href).toBe("accueillir.html");
+  });
+});
+
+describe("loadAssociation", () => {
+  it("reads the hero and the card sections with their links", () => {
+    const a = loadAssociation();
+    expect(a.hero.photo).toBe("2026-03-innovx-1");
+    expect(a.hero.title).toBe("Une communauté, <em>pas</em> une marque.");
+    expect(a.mission.items.map((i) => i.href)).toEqual([
+      "meetup.html",
+      "socrates.html",
+      "index.html#historique",
+    ]);
+    expect(a.principles.items).toHaveLength(6);
+    expect(a.principles.items[0]?.title).toBe("Ouvert à tous");
+    expect(a.principles.items[0]?.href).toBeUndefined();
+    expect(a.contribute.items.map((i) => i.href)).toEqual([
+      "accueillir.html",
+      "socrates.html#sponsoring",
+      "meetup.html#proposer",
+      "https://www.linkedin.com/company/moroccansoftwarecrafters/",
+    ]);
+  });
+
+  it("reads the timeline and the contact block", () => {
+    const a = loadAssociation();
+    expect(a.timeline.items.map((t) => t.year)).toEqual([
+      "2019",
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "2025",
+      "2026",
+    ]);
+    expect(a.contact.title).toBe("Nous écrire");
+  });
+});
+
+describe("loadSocrates", () => {
+  it("reads the hero", () => {
+    const { hero } = loadSocrates();
+    expect(hero.status).toBe(
+      "Prochaine édition\u202f: après le Ramadan 2027, Bouznika",
+    );
+    expect(hero.primary).toEqual({
+      label: "Devenir partenaire",
+      href: "#sponsoring",
+    });
+    expect(hero.secondary.href).toBe("https://socrates-ma.github.io/");
+    expect(hero.facts[0]).toEqual({
+      value: "4",
+      label: "éditions depuis 2022",
+    });
+  });
+
+  it("reads the sections and their counts", () => {
+    const s = loadSocrates();
+    expect(s.about.pillars).toHaveLength(3);
+    expect(s.openspace.laws).toHaveLength(4);
+    expect(s.openspace.laws[3]?.title).toBe("La loi des deux pieds.");
+    expect(s.openspace.formats.title).toBe("Ce qu'on trouve sur la grille");
+    expect(s.openspace.formats.items).toHaveLength(4);
+    expect(s.schedule.days).toHaveLength(4);
+    expect(s.schedule.days[0]).toMatchObject({
+      day: "Jeudi",
+      title: "Arrivée et World Café",
+    });
+    expect(s.values.items).toHaveLength(4);
+    expect(s.sponsorsWall.title).toBe("Onze entreprises, quatre éditions.");
+  });
+
+  it("reads the editions, with an empty venue and photo allowed", () => {
+    const { editions } = loadSocrates();
+    expect(editions.items.map((e) => e.year)).toEqual([
+      "2022",
+      "2023",
+      "2024",
+      "2025",
+    ]);
+    expect(editions.items[1]).toMatchObject({
+      edition: "2e édition",
+      city: "Bouznika",
+      venue: "",
+      dates: "10 → 12 mars",
+      participants: 45,
+      partners: 10,
+      photo: "2022-03-socrates-open-space",
+    });
+  });
+
+  it("reads the international family", () => {
+    const { family } = loadSocrates();
+    expect(family.items).toHaveLength(9);
+    expect(family.items[0]).toEqual({
+      id: "socrates-de",
+      name: "SoCraTes",
+      country: "Allemagne",
+    });
+  });
+});
+
+describe("loadArticles", () => {
+  it("reads the four articles, newest first in the file", () => {
+    const articles = loadArticles();
+    expect(articles.title).toBe("Récaps, annonces, appels.");
+    expect(articles.items.map((a) => a.slug)).toEqual([
+      "appel-partenaires-socrates-5e-edition",
+      "sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code",
+      "axa-craftsmanship-a-l-ere-de-l-ia",
+      "innovx-l-impact-reel-de-l-ia",
+    ]);
+  });
+
+  it("keeps the event link optional", () => {
+    const [first, second] = loadArticles().items;
+    expect(first?.event).toBeUndefined();
+    expect(second?.event).toBe("2026-10-sg-gscm");
+    expect(second).toMatchObject({
+      date: "2026-10-24",
+      kind: "Récap",
+      cover: "2026-10-sg-gscm-5",
+      tags: ["IA", "Responsabilité", "Sécurité"],
+    });
+    expect(second?.body.startsWith("Ce samedi, les Moroccan")).toBe(true);
+  });
+
+  it("links every article event to a real event id", () => {
+    const ids = new Set(loadEvents().map((e) => e.id));
+    const unknown = loadArticles()
+      .items.filter((a) => a.event && !ids.has(a.event))
+      .map((a) => a.slug);
+    expect(unknown).toEqual([]);
+  });
+});
+
+describe("the new parsers name the file and the path of a broken field", () => {
+  it("parseMeetup", () => {
+    const m = loadMeetup();
+    const broken = {
+      ...m,
+      steps: { ...m.steps, items: [{ id: "accueil", time: "9 h" }] },
+    };
+    expect(() => parseMeetup(broken, "content/meetup.json")).toThrow(
+      /content\/meetup\.json.*steps\.items\.0\.title/,
+    );
+  });
+
+  it("parseAssociation", () => {
+    const a = loadAssociation();
+    const broken = {
+      ...a,
+      timeline: { ...a.timeline, items: [{ year: 2019 }] },
+    };
+    expect(() => parseAssociation(broken, "content/association.json")).toThrow(
+      /content\/association\.json.*timeline\.items\.0\.year/,
+    );
+  });
+
+  it("parseSocrates", () => {
+    const s = loadSocrates();
+    const broken = {
+      ...s,
+      editions: {
+        ...s.editions,
+        items: [{ ...s.editions.items[0], participants: "30" }],
+      },
+    };
+    expect(() => parseSocrates(broken, "content/socrates.json")).toThrow(
+      /content\/socrates\.json.*editions\.items\.0\.participants/,
+    );
+  });
+
+  it("parseArticles", () => {
+    const a = loadArticles();
+    const broken = {
+      ...a,
+      items: [{ ...a.items[0], date: "27/10/2026" }],
+    };
+    expect(() => parseArticles(broken, "content/articles.json")).toThrow(
+      /content\/articles\.json.*items\.0\.date/,
+    );
+  });
+
+  it("parseArticles rejects two articles with the same slug", () => {
+    const a = loadArticles();
+    const first = a.items[0];
+    const broken = { ...a, items: [first, first] };
+    expect(() => parseArticles(broken, "content/articles.json")).toThrow(
+      /content\/articles\.json.*items\.1\.slug.*appel-partenaires-socrates-5e-edition/,
+    );
+  });
+
+  it("parseSponsoring", () => {
+    const sp = loadSponsoring();
+    const broken = { ...sp, trust: { title: "x" } };
+    expect(() => parseSponsoring(broken, "content/sponsoring.json")).toThrow(
+      /content\/sponsoring\.json.*trust\.ids/,
+    );
+  });
+
+  it("accepts unknown extra keys", () => {
+    const m = loadMeetup();
+    expect(parseMeetup({ ...m, extra: 1 }, "m.json").faq.items).toHaveLength(4);
   });
 });

@@ -5,11 +5,15 @@
 import { z } from "zod";
 import {
   EVENT_TYPES,
+  type Articles,
+  type Association,
   type Companies,
   type Event,
   type Home,
+  type Meetup,
   type Offers,
   type Site,
+  type Socrates,
   type Sponsoring,
 } from "./types";
 
@@ -238,6 +242,182 @@ export const sponsoringSchema = z.object({
   }),
 });
 
+const metaSchema = z.object({ title: z.string(), description: z.string() });
+
+const cardSchema = z.object({
+  title: z.string(),
+  text: z.string(),
+  href: z.string().optional(),
+  label: z.string().optional(),
+});
+
+const sectionHeadSchema = { eyebrow: z.string(), title: z.string() };
+
+const factSchema = z.object({ value: z.string(), label: z.string() });
+
+export const meetupSchema = z.object({
+  meta: metaSchema,
+  hero: z.object({
+    eyebrow: z.string(),
+    title: z.string(),
+    lead: z.string(),
+    photo: z.string(),
+    facts: z.array(factSchema),
+  }),
+  who: z.object({
+    ...sectionHeadSchema,
+    text: z.string(),
+    items: z.array(cardSchema),
+  }),
+  steps: z.object({
+    ...sectionHeadSchema,
+    items: z.array(
+      z.object({
+        id: z.string(),
+        time: z.string(),
+        title: z.string(),
+        kicker: z.string(),
+        photo: z.string(),
+        text: z.string(),
+        tips: z.array(z.string()).optional(),
+      }),
+    ),
+  }),
+  marketplace: z.object({
+    ...sectionHeadSchema,
+    photo: z.string(),
+    steps: z.array(z.object({ title: z.string(), text: z.string() })),
+  }),
+  propose: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  rules: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  topicsWall: z.object(sectionHeadSchema),
+  faq: z.object({
+    ...sectionHeadSchema,
+    items: z.array(z.object({ q: z.string(), a: z.string() })),
+  }),
+  cta: z.object({
+    title: z.string(),
+    text: z.string(),
+    primary: ctaSchema,
+    secondary: ctaSchema,
+  }),
+});
+
+export const associationSchema = z.object({
+  meta: metaSchema,
+  hero: z.object({
+    eyebrow: z.string(),
+    title: z.string(),
+    lead: z.string(),
+    photo: z.string(),
+  }),
+  mission: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  principles: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  timeline: z.object({
+    ...sectionHeadSchema,
+    items: z.array(
+      z.object({ year: z.string(), title: z.string(), text: z.string() }),
+    ),
+  }),
+  contribute: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  contact: z.object({
+    eyebrow: z.string().optional(),
+    title: z.string(),
+    text: z.string(),
+  }),
+});
+
+export const socratesSchema = z.object({
+  meta: metaSchema,
+  hero: z.object({
+    eyebrow: z.string(),
+    status: z.string(),
+    title: z.string(),
+    lead: z.string(),
+    photo: z.string().optional(),
+    primary: ctaSchema,
+    secondary: ctaSchema,
+    facts: z.array(factSchema),
+  }),
+  about: z.object({
+    ...sectionHeadSchema,
+    lead: z.string(),
+    pillars: z.array(cardSchema),
+  }),
+  openspace: z.object({
+    ...sectionHeadSchema,
+    lead: z.string(),
+    laws: z.array(z.object({ title: z.string(), text: z.string() })),
+    formats: z.object({ title: z.string(), items: z.array(cardSchema) }),
+  }),
+  schedule: z.object({
+    ...sectionHeadSchema,
+    days: z.array(
+      z.object({ day: z.string(), title: z.string(), text: z.string() }),
+    ),
+    note: z.string(),
+  }),
+  editions: z.object({
+    ...sectionHeadSchema,
+    items: z.array(
+      z.object({
+        year: z.string(),
+        edition: z.string(),
+        city: z.string(),
+        venue: z.string().optional(),
+        dates: z.string(),
+        participants: z.number(),
+        partners: z.number(),
+        photo: z.string().optional(),
+        text: z.string(),
+      }),
+    ),
+  }),
+  family: z.object({
+    ...sectionHeadSchema,
+    text: z.string(),
+    items: z.array(
+      z.object({ id: z.string(), name: z.string(), country: z.string() }),
+    ),
+  }),
+  values: z.object({ ...sectionHeadSchema, items: z.array(cardSchema) }),
+  sponsorsWall: z.object(sectionHeadSchema),
+});
+
+const articleSchema = z.object({
+  slug: z.string(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}(-\d{2})?$/, "expected YYYY-MM-DD or YYYY-MM"),
+  kind: z.string(),
+  title: z.string(),
+  cover: z.string().optional(),
+  excerpt: z.string(),
+  tags: z.array(z.string()).optional(),
+  body: z.string(),
+  event: z.string().optional(),
+});
+
+export const articlesSchema = z.object({
+  meta: metaSchema,
+  eyebrow: z.string(),
+  title: z.string(),
+  lead: z.string(),
+  items: z.array(articleSchema).superRefine((items, ctx) => {
+    const seen = new Set<string>();
+    items.forEach((item, index) => {
+      if (seen.has(item.slug)) {
+        ctx.addIssue({
+          code: "custom",
+          path: [index, "slug"],
+          message: `duplicate slug "${item.slug}"`,
+        });
+      }
+      seen.add(item.slug);
+    });
+  }),
+});
+
 // Compile-time check: each schema and its hand-written type in types.ts describe one shape.
 type Equal<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 type Check<T extends true> = T;
@@ -258,4 +438,16 @@ export type OffersSchemaMatchesType = Check<
 >;
 export type SponsoringSchemaMatchesType = Check<
   Equal<z.infer<typeof sponsoringSchema>, Sponsoring>
+>;
+export type MeetupSchemaMatchesType = Check<
+  Equal<z.infer<typeof meetupSchema>, Meetup>
+>;
+export type AssociationSchemaMatchesType = Check<
+  Equal<z.infer<typeof associationSchema>, Association>
+>;
+export type SocratesSchemaMatchesType = Check<
+  Equal<z.infer<typeof socratesSchema>, Socrates>
+>;
+export type ArticlesSchemaMatchesType = Check<
+  Equal<z.infer<typeof articlesSchema>, Articles>
 >;
