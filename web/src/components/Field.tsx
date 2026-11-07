@@ -44,7 +44,11 @@ type FieldProps = {
    */
   group?: boolean;
   className?: string;
-  /** One control. Field gives it `id`, `aria-invalid` and `aria-describedby`. */
+  /**
+   * One control. Field gives it `id`, `aria-invalid` and `aria-describedby`,
+   * and keeps what the control already has: its `id`, an `aria-invalid` set to
+   * true, and its own describedby ids, which stay first.
+   */
   children: ReactElement<ControlProps>;
 };
 
@@ -60,7 +64,12 @@ export function Field({
 }: FieldProps) {
   const helpId = help ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;
-  const describedBy = [helpId, errorId].filter(Boolean).join(" ") || undefined;
+  const own = children.props;
+  const controlId = own.id ?? id;
+  const describedBy =
+    [own["aria-describedby"], helpId, errorId].filter(Boolean).join(" ") ||
+    undefined;
+  const invalid = Boolean(error) || own["aria-invalid"] === true;
   const suffix = optional === true ? "(facultatif)" : optional || undefined;
   const labelContent = label ? (
     <>
@@ -76,8 +85,8 @@ export function Field({
     </>
   ) : null;
   const control = cloneElement(children, {
-    id,
-    "aria-invalid": error ? true : undefined,
+    id: controlId,
+    "aria-invalid": invalid ? true : undefined,
     "aria-describedby": describedBy,
     ...(group && label ? { "aria-labelledby": `${id}-label` } : {}),
   });
@@ -89,7 +98,7 @@ export function Field({
             {labelContent}
           </span>
         ) : (
-          <label htmlFor={id} className={LABEL_CLASS}>
+          <label htmlFor={controlId} className={LABEL_CLASS}>
             {labelContent}
           </label>
         )

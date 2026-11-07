@@ -6,7 +6,7 @@ import { Button } from "../Button";
 import { Reveal } from "../Reveal";
 
 // Spec: the "OfferGrid, OfferCard" entry in msca-design/COMPONENTS.md; port of
-// `.offers` and `.offer` in assets/css/style.css and of the offers block of
+// `.offers` and `.offer` in assets/css/style.css and of the offers part of
 // assets/js/home.js. Each card links to the host funnel with its own formule.
 
 const cardStyles = tv({
@@ -71,7 +71,7 @@ const LIST_LAST =
 type OfferGridProps = {
   /** `loadOffers().items`. */
   items: Offer[];
-  /** `dark` for a grid inside a dark `Section`. */
+  /** `dark` for the set of offers inside a dark `Section`. */
   tone?: "light" | "dark";
 };
 

@@ -42,8 +42,11 @@ describe("PageHero", () => {
   it("keeps the facts on two columns at every width", () => {
     render(<PageHero {...MEETUP} />);
     const list = screen.getByRole("list");
-    expect(list).toHaveClass("grid-cols-2", "sm:grid-cols-2");
-    expect(list).not.toHaveClass("sm:grid-cols-4");
+    expect(list).toHaveClass(
+      "grid-cols-[repeat(2,1fr)]",
+      "sm:grid-cols-[repeat(2,1fr)]",
+    );
+    expect(list).not.toHaveClass("sm:grid-cols-[repeat(4,1fr)]");
   });
 
   it("shows the photo with its alt text, loaded at once", () => {

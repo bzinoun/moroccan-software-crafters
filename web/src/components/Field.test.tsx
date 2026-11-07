@@ -162,4 +162,70 @@ describe("Field", () => {
     expect(container.firstElementChild).toHaveClass("mb-0");
     expect(container.firstElementChild).not.toHaveClass("mb-[18px]");
   });
+
+  it("keeps the describedby of the child and appends the help and the error ids", () => {
+    render(
+      <>
+        <p id="compteur">0 / 500 caractères</p>
+        <Field
+          id="message"
+          label="Message"
+          help="Soyez bref."
+          error="Écrivez un message."
+        >
+          <TextArea name="message" aria-describedby="compteur" />
+        </Field>
+      </>,
+    );
+    expect(screen.getByLabelText("Message")).toHaveAttribute(
+      "aria-describedby",
+      "compteur message-help message-error",
+    );
+  });
+
+  it("keeps the describedby of the child when the field has no help and no error", () => {
+    render(
+      <>
+        <p id="compteur">0 / 500 caractères</p>
+        <Field id="message" label="Message">
+          <TextArea name="message" aria-describedby="compteur" />
+        </Field>
+      </>,
+    );
+    expect(screen.getByLabelText("Message")).toHaveAccessibleDescription(
+      "0 / 500 caractères",
+    );
+  });
+
+  it("keeps the id of the child and points the label at it", () => {
+    render(
+      <Field id="s-nom" label="Prénom et nom" help="Comme sur votre badge.">
+        <TextInput id="champ-nom" name="nom" />
+      </Field>,
+    );
+    const input = screen.getByLabelText("Prénom et nom");
+    expect(input).toHaveAttribute("id", "champ-nom");
+    expect(input).toHaveAccessibleDescription("Comme sur votre badge.");
+  });
+
+  it("keeps aria-invalid true when the child says so, with or without an error", () => {
+    const { rerender } = render(
+      <Field id="s-nom" label="Prénom et nom">
+        <TextInput name="nom" aria-invalid />
+      </Field>,
+    );
+    expect(screen.getByLabelText("Prénom et nom")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    rerender(
+      <Field id="s-nom" label="Prénom et nom" error="Indiquez votre nom.">
+        <TextInput name="nom" aria-invalid />
+      </Field>,
+    );
+    expect(screen.getByLabelText("Prénom et nom")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
 });

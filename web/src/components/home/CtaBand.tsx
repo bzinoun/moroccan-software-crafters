@@ -28,6 +28,8 @@ type CtaBandProps = {
   primary: Cta;
   secondary: Cta;
   variant?: "default" | "green";
+  /** The tight section padding (56px instead of 88px), as the last band of the meetup and association pages. */
+  tight?: boolean;
 };
 
 function CtaLink({
@@ -55,17 +57,18 @@ function CtaLink({
 // Spec: the "CtaBand" entry in msca-design/COMPONENTS.md.
 // The last section of index.html: a green band with round corners, title and text on the
 // left, two buttons on the right from md. The band is a dark surface, so the
-// focus indicator turns sage (green on green would be invisible).
+// focus indicator turns sage (green on green would not show).
 export function CtaBand({
   title,
   text,
   primary,
   secondary,
   variant = "default",
+  tight = false,
 }: CtaBandProps) {
   const styles = ctaStyles({ variant });
   return (
-    <Section aria-labelledby="cta-title">
+    <Section tight={tight} aria-labelledby="cta-title">
       <div className="relative grid gap-8 overflow-hidden rounded-[22px] bg-green px-6 py-10 text-white **:focus-visible:outline-sage md:grid-cols-[1.4fr_1fr] md:items-center md:px-12 md:py-14">
         <div>
           <h2 id="cta-title" className="text-white">

@@ -247,3 +247,32 @@ describe("md on the real articles", () => {
     );
   });
 });
+
+describe("md french spacing", () => {
+  // From articles.json (appel-partenaires-socrates-5e-edition): a plain space
+  // before the colon becomes U+202F, as the old site did on every text node.
+  it("uses a narrow no-break space before ? ! : ;", () => {
+    expect(html("est à but non lucratif : le prix")).toBe(
+      "<p>est à but non lucratif : le prix</p>",
+    );
+    expect(html("a ? b ! c ; d")).toBe("<p>a ? b ! c ; d</p>");
+  });
+
+  it("applies to headings, list items and link text", () => {
+    expect(html("## Pourquoi : ici")).toBe("<h3>Pourquoi : ici</h3>");
+    expect(html("- tests : oui")).toBe("<ul><li>tests : oui</li></ul>");
+    expect(html("[voir : ici](https://x.fr)")).toBe(
+      '<p><a href="https://x.fr" target="_blank" rel="noopener">voir : ici</a></p>',
+    );
+  });
+
+  it("leaves code spans and hrefs untouched", () => {
+    expect(html("`a : b`")).toBe("<p><code>a : b</code></p>");
+    const { container } = render(
+      <div>{md("[x](https://x.fr/p?a=1;b:2)")}</div>,
+    );
+    expect(container.querySelector("a")?.getAttribute("href")).toBe(
+      "https://x.fr/p?a=1;b:2",
+    );
+  });
+});

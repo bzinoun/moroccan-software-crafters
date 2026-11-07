@@ -3,8 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
-// The box-shadow utilities of an element (the base transition lists the
-// property name box-shadow, which is not a shadow utility).
+// The glow utilities of an element (the base transition lists the property
+// name box-shadow, which is not a glow utility).
 const shadowClasses = (el: HTMLElement) =>
   el.className.split(" ").filter((name) => name.startsWith("shadow"));
 

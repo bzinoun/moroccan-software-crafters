@@ -124,4 +124,16 @@ describe("CtaBand", () => {
       .closest("div")?.parentElement;
     expect(band).toHaveClass("**:focus-visible:outline-sage");
   });
+
+  it("uses the regular 88px section padding by default", () => {
+    const { container } = render(<CtaBand {...cta} />);
+    expect(container.querySelector("section")).toHaveClass("py-22");
+  });
+
+  it("uses the tight 56px section padding with the tight prop", () => {
+    const { container } = render(<CtaBand {...cta} tight />);
+    const section = container.querySelector("section");
+    expect(section).toHaveClass("py-14");
+    expect(section).not.toHaveClass("py-22");
+  });
 });

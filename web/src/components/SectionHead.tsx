@@ -9,7 +9,7 @@ type SectionHeadProps = {
   /** May contain one `<em>` around the emphasized word. */
   title: string;
   lead?: string;
-  /** `center` centers the block and the lead and hides the eyebrow marker by default. */
+  /** `center` centers the head and the lead and hides the eyebrow marker by default. */
   align?: "start" | "center";
   /** `dark` for a head inside a dark `Section`: sage eyebrow, on-dark lead. */
   tone?: "default" | "dark";

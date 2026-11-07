@@ -22,7 +22,7 @@ type ChoiceCardProps = Omit<ComponentProps<"input">, "type" | "title"> & {
 /**
  * A radio drawn as a card: a circle, a title, an optional description and
  * price. The native radio stays in the page (focusable, transparent). A checked
- * card gets a green border and tint; keyboard focus marks the whole card.
+ * card gets a green edge and tint; keyboard focus marks the whole card.
  */
 export function ChoiceCard({
   title,

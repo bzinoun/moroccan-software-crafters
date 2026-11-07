@@ -38,7 +38,7 @@ describe("SectionFoot", () => {
   });
 
   it("can start hidden through the native hidden attribute", () => {
-    // index.html: #timeline-more and #gallery-more start hidden.
+    // index.html: #timeline-more and #gallery-more start concealed.
     render(
       <SectionFoot hidden data-testid="more">
         <Button>Voir les 21 événements</Button>

@@ -5,11 +5,13 @@ import { frenchSpacing } from "@/lib/french";
 
 // Spec: the "FactList" entry in msca-design/COMPONENTS.md; port of `.facts`.
 // A row of figures: a big value and a short label in a bordered cell. Two
-// columns on mobile, four from `sm` (old 700px query). Inside `PageHero` pass
-// `sm:grid-cols-2` in `className` to keep two columns.
+// columns on mobile, four from `sm` (old 700px query). The tracks are
+// `1fr`, not `minmax(0,1fr)`: a column grows to its widest value, as in the old
+// site, so "9 h 30 → 14 h" never overflows its cell at 375px. Inside `PageHero`
+// pass `sm:grid-cols-[repeat(2,1fr)]` in `className` to keep two columns.
 export const factListStyles = tv({
   slots: {
-    list: "m-0 grid list-none grid-cols-2 gap-3.5 p-0 sm:grid-cols-4",
+    list: "m-0 grid list-none grid-cols-[repeat(2,1fr)] gap-3.5 p-0 sm:grid-cols-[repeat(4,1fr)]",
     item: "rounded-sm border px-4 py-3.5",
     value:
       "block font-display text-[1.6rem] leading-[1.1] font-semibold whitespace-nowrap",

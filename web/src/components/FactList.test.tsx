@@ -53,10 +53,27 @@ describe("FactList", () => {
   });
 
   it("merges a caller className over the default columns", () => {
-    render(<FactList items={MEETUP_FACTS} className="mt-8 sm:grid-cols-2" />);
+    render(
+      <FactList
+        items={MEETUP_FACTS}
+        className="mt-8 sm:grid-cols-[repeat(2,1fr)]"
+      />,
+    );
     const list = screen.getByRole("list");
-    expect(list).toHaveClass("mt-8", "sm:grid-cols-2");
+    expect(list).toHaveClass("mt-8", "sm:grid-cols-[repeat(2,1fr)]");
+    expect(list).not.toHaveClass("sm:grid-cols-[repeat(4,1fr)]");
+    expect(list).toHaveClass("grid-cols-[repeat(2,1fr)]");
+  });
+
+  it("sizes the columns to their content like the old 1fr tracks, never to equal widths", () => {
+    // minmax(0,1fr) (the two equal columns of Tailwind) would clip "9 h 30 → 14 h" at 375px.
+    render(<FactList items={MEETUP_FACTS} />);
+    const list = screen.getByRole("list");
+    expect(list).toHaveClass(
+      "grid-cols-[repeat(2,1fr)]",
+      "sm:grid-cols-[repeat(4,1fr)]",
+    );
+    expect(list).not.toHaveClass("grid-cols-2");
     expect(list).not.toHaveClass("sm:grid-cols-4");
-    expect(list).toHaveClass("grid-cols-2");
   });
 });

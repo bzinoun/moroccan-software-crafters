@@ -10,7 +10,7 @@ import { TopicWall } from "./TopicWall";
 
 // Spec: the "FormatAgenda" entry in msca-design/COMPONENTS.md; port of the
 // #format section of index.html, of `.agenda` in assets/css/style.css and of
-// the agenda block of assets/js/home.js. The head, the steps, the topics and
+// the agenda part of assets/js/home.js. The head, the steps, the topics and
 // the more link all come from content/home.json and content/events.json.
 
 type FormatAgendaProps = {

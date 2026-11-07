@@ -49,9 +49,16 @@ describe("TextInput", () => {
       "border-line",
       "aria-invalid:border-red",
       "focus:border-green",
-      "focus:outline-none",
+      "focus:outline-hidden",
       "rounded-sm",
       "w-full",
+    );
+  });
+
+  it("keeps a transparent outline on focus so forced-colors mode shows one", () => {
+    render(<TextInput aria-label="Nom" />);
+    expect(screen.getByRole("textbox", { name: "Nom" })).not.toHaveClass(
+      "focus:outline-none",
     );
   });
 

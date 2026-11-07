@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { loadEvents, loadHome } from "@/content/load";
 import { topicsFromEvents } from "@/lib/home-data";
+import { meetupTopicBoard } from "@/lib/pages-data";
 import { TopicWall } from "./TopicWall";
 
 // Props are built from the real content files, as the home page passes them.
@@ -106,6 +107,66 @@ describe("TopicWall", () => {
     render(<TopicWall label="Sujets" topics={[]} />);
     expect(screen.getByRole("group", { name: "Sujets" }).children).toHaveLength(
       0,
+    );
+  });
+});
+
+describe("TopicWall board variant", () => {
+  function renderBoard() {
+    render(
+      <TopicWall
+        variant="board"
+        label="Le mur des sujets"
+        topics={meetupTopicBoard(loadEvents())}
+      />,
+    );
+    return screen.getByRole("group", { name: "Le mur des sujets" });
+  }
+
+  it("shows every distinct topic of the events, not only ten", () => {
+    expect(renderBoard().children).toHaveLength(47);
+  });
+
+  it("prints the year and the host or city in the small line", () => {
+    const first = renderBoard().children[0] as HTMLElement;
+    expect(first.firstChild?.textContent).toBe("AI factory");
+    expect(first.querySelector("small")).toHaveTextContent(
+      "2026 · Société Générale GSCM",
+    );
+  });
+
+  it("keeps the year alone when a note has no origin", () => {
+    render(
+      <TopicWall
+        label="Sujets"
+        topics={[{ topic: "Rust", year: "2025", tone: "default" }]}
+      />,
+    );
+    expect(screen.getByText("2025")).toBeInTheDocument();
+  });
+
+  it("is a cork board: no top margin, brown frame, notes start left", () => {
+    const board = renderBoard();
+    expect(board).toHaveClass(
+      "mt-0",
+      "justify-start",
+      "rounded-card",
+      "border-10",
+      "border-[#b58a55]",
+      "bg-[#e9dcc3]",
+      "px-7",
+      "py-9",
+    );
+    expect(board).not.toHaveClass("mt-12", "justify-center");
+  });
+
+  it("tilts and colors the notes as the wall does", () => {
+    const board = renderBoard();
+    expect(board.children[0]).toHaveClass("-rotate-2", "bg-postit-yellow");
+    expect(board.children[1]).toHaveClass("rotate-[1.5deg]", "bg-postit-pink");
+    expect(board.children[2]).toHaveClass(
+      "-rotate-[0.5deg]",
+      "bg-postit-green",
     );
   });
 });

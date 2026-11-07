@@ -37,7 +37,7 @@ describe("Eyebrow", () => {
     render(<Eyebrow marker="none">Ils nous font confiance</Eyebrow>);
     const eyebrow = screen.getByText("Ils nous font confiance");
     // The pseudo-element would still exist (Tailwind sets its content), so it
-    // must be taken out of the layout: an empty flex item would add a gap.
+    // must be taken out of the layout: an empty row item would add a gap.
     expect(eyebrow).toHaveClass("before:hidden");
     expect(eyebrow).not.toHaveClass("before:w-[22px]");
   });

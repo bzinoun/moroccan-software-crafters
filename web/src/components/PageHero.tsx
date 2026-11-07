@@ -52,7 +52,10 @@ export function PageHero({
           </h1>
           <Lead>{lead}</Lead>
           {facts ? (
-            <FactList items={facts} className="mt-8 sm:grid-cols-2" />
+            <FactList
+              items={facts}
+              className="mt-8 sm:grid-cols-[repeat(2,1fr)]"
+            />
           ) : null}
         </div>
         <figure className="relative m-0">

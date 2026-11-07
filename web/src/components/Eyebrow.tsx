@@ -20,7 +20,7 @@ export const eyebrowStyles = tv({
       khatam:
         "before:size-3.5 before:content-[''] before:[clip-path:polygon(50%_0%,64.6%_14.6%,85.4%_14.6%,85.4%_35.4%,100%_50%,85.4%_64.6%,85.4%_85.4%,64.6%_85.4%,50%_100%,35.4%_85.4%,14.6%_85.4%,14.6%_64.6%,0%_50%,14.6%_35.4%,14.6%_14.6%,35.4%_14.6%)]",
       // Tailwind gives any before: utility a content value, so the empty
-      // pseudo-element would stay a flex item. Remove it from the layout.
+      // pseudo-element would still take space in the row. Remove it from the layout.
       none: "before:hidden",
     },
   },

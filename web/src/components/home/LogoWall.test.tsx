@@ -14,6 +14,19 @@ function tileOf(id: string): LogoTileData {
 }
 
 describe("LogoTile", () => {
+  it("keeps the 1.25 line height of the name next to the text size, default and compact", () => {
+    const { unmount } = render(<LogoTile tile={tileOf("maltem")} />);
+    expect(screen.getByText("Maltem Africa")).toHaveClass(
+      "text-[0.88rem]",
+      "leading-[1.25]",
+    );
+    unmount();
+    render(<LogoTile tile={tileOf("maltem")} compact />);
+    expect(screen.getByText("Maltem Africa")).toHaveClass(
+      "text-[0.8rem]",
+      "leading-[1.25]",
+    );
+  });
   it("is a LinkedIn link in a new tab when the company has a page", () => {
     render(<LogoTile tile={tileOf("axa")} />);
     const link = screen.getByRole("link", { name: /AXA Assurance Maroc/ });
@@ -179,5 +192,59 @@ describe("LogoWall", () => {
     const wall = container.firstElementChild;
     expect(wall).toHaveAttribute("id", "logo-wall");
     expect(wall).toHaveClass("flex", "flex-wrap", "justify-center", "gap-3.5");
+  });
+});
+
+describe("LogoWall compact", () => {
+  it("narrows the wall gap and passes the compact size to every tile", () => {
+    const { container } = render(
+      <LogoWall id="logo-wall" compact tiles={tiles} />,
+    );
+    const wall = container.firstElementChild;
+    expect(wall).toHaveClass("flex", "flex-wrap", "justify-center", "gap-2.5");
+    expect(wall).not.toHaveClass("gap-3.5");
+    expect(wall?.firstElementChild).toHaveClass("w-28");
+  });
+
+  it("keeps the full size when compact is not set", () => {
+    const { container } = render(<LogoWall tiles={tiles} />);
+    expect(container.firstElementChild?.firstElementChild).toHaveClass("w-42");
+  });
+
+  it("prints the name but no role line under a compact tile", () => {
+    render(<LogoTile compact tile={tileOf("maltem")} />);
+    expect(screen.getByText("Maltem Africa")).toBeInTheDocument();
+    expect(screen.queryByText(/Hôte de 2 meetups/)).toBeNull();
+  });
+
+  it("keeps the role in the title of a compact tile", () => {
+    render(<LogoTile compact tile={tileOf("axa")} />);
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "title",
+      "AXA Assurance Maroc · Hôte d'un meetup · Partenaire SoCraTes",
+    );
+  });
+
+  it("shrinks the logo to 60px in a 64px box", () => {
+    render(<LogoTile compact tile={tileOf("axa")} />);
+    const logo = screen.getByRole("img", { name: "AXA Assurance Maroc" });
+    expect(logo).toHaveClass("size-15");
+    expect(logo.parentElement).toHaveClass("size-16");
+  });
+
+  it("draws a smaller monogram when the company has no logo", () => {
+    render(<LogoTile compact tile={{ ...tileOf("axa"), logoSrc: null }} />);
+    expect(screen.getByText("AA")).toHaveClass("size-15");
+  });
+
+  it("gives the sticker the compact footprint and keeps its accessible name", () => {
+    render(<LogoSticker compact sticker={companies.sticker.host} />);
+    const link = screen.getByRole("link", {
+      name: "Votre logo ici\u202f? Accueillir un meetup",
+    });
+    expect(link).toHaveClass("w-28");
+    expect(link).toHaveAccessibleDescription(
+      "Recevez 40 crafters un samedi matin. On s'occupe du reste.",
+    );
   });
 });

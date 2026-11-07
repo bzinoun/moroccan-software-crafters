@@ -14,10 +14,13 @@
 // - a relative link goes through `toRoute()` and opens in the same tab, an
 //   absolute one opens in a new tab with rel="noopener";
 // - a URL that starts with `//` is not a link;
+// - plain text goes through frenchSpacing() (a narrow no-break space before
+//   ? ! : ;), as the old one did on every text node; code spans and hrefs do not;
 // - empty input gives no node (the old one gave an empty paragraph).
 
 import Link from "next/link";
 import { createElement, type ReactElement, type ReactNode } from "react";
+import { frenchSpacing } from "./french";
 import { isExternal, toRoute } from "./routes";
 
 // Private-use characters mark the inline structure while the regexes run.
@@ -86,7 +89,7 @@ function inline(source: string): ReactNode[] {
   let last = 0;
   for (const match of marked.matchAll(TOKEN)) {
     if (match.index > last)
-      top().children.push(marked.slice(last, match.index));
+      top().children.push(frenchSpacing(marked.slice(last, match.index)));
     last = match.index + match[0].length;
     const [, openKind, index, closeKind] = match;
     if (openKind === "c") {
@@ -109,7 +112,8 @@ function inline(source: string): ReactNode[] {
       while (depth > 0 && stack.length > depth) pop();
     }
   }
-  if (last < marked.length) top().children.push(marked.slice(last));
+  if (last < marked.length)
+    top().children.push(frenchSpacing(marked.slice(last)));
   while (stack.length > 1) pop();
   return top().children;
 }
