@@ -15,10 +15,27 @@ const home = loadHome();
 // once those pages exist. Two CSS selectors depend on `<body data-page>`.
 const page: PageId = "home";
 
+// Social tags need absolute URLs. `site.baseUrl` already carries the GitHub
+// Pages base path, so build them from it: `assetUrl` would add the path twice.
+const sharePhoto = home.hero.collage[0]?.photo;
+const shareImages = sharePhoto
+  ? [`${site.baseUrl}/assets/img/meetups/${sharePhoto}.jpg`]
+  : [];
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.baseUrl),
   title: home.meta.title,
   description: home.meta.description,
+  openGraph: {
+    type: "website",
+    title: home.meta.title,
+    description: home.meta.description,
+    url: `${site.baseUrl}/`,
+    images: shareImages,
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   icons: {
     // Metadata URLs do not get the base path from Next, so add it here.
     icon: assetUrl("/assets/img/favicon.png"),
