@@ -1,67 +1,22 @@
 // Typed loader for the root content/*.json files.
 // The JSON files at the repo root stay the single source of truth.
+// Schemas live in schemas.ts and types in types.ts; this module reads and parses.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { z } from "zod";
-import type { Home, Site } from "./types";
+import type { z } from "zod";
+import {
+  companiesSchema,
+  eventsSchema,
+  homeSchema,
+  offersSchema,
+  siteSchema,
+  sponsoringSchema,
+} from "./schemas";
+import type { Companies, Event, Home, Offers, Site, Sponsoring } from "./types";
 
-const navLinkSchema = z.object({
-  label: z.string(),
-  href: z.string(),
-});
-
-const ctaSchema = z.object({
-  label: z.string(),
-  href: z.string(),
-});
-
-export const siteSchema = z.object({
-  name: z.string(),
-  shortName: z.string(),
-  tagline: z.string(),
-  mission: z.string(),
-  description: z.string(),
-  baseUrl: z.string(),
-  since: z.number(),
-  linkedinFollowers: z.number(),
-  links: z.object({
-    linkedin: z.string(),
-    socrates: z.string(),
-    github: z.string(),
-  }),
-  contact: z.object({ email: z.string() }),
-  form: z.object({
-    endpoint: z.string(),
-    extraFields: z.record(z.string(), z.string()),
-  }),
-  nav: z.array(navLinkSchema),
-  cta: ctaSchema,
-  footer: z.object({ links: z.array(navLinkSchema), legal: z.string() }),
-});
-
-export const homeSchema = z.object({
-  meta: z.object({ title: z.string(), description: z.string() }),
-  hero: z.object({
-    eyebrow: z.string(),
-    title: z.string(),
-    lead: z.string(),
-    primary: ctaSchema,
-    secondary: ctaSchema,
-    note: z.string(),
-  }),
-});
-
-// Compile-time check: each schema and its hand-written type in types.ts describe one shape.
-type Equal<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
-type Check<T extends true> = T;
-export type SiteSchemaMatchesType = Check<
-  Equal<z.infer<typeof siteSchema>, Site>
->;
-export type HomeSchemaMatchesType = Check<
-  Equal<z.infer<typeof homeSchema>, Home>
->;
+export { homeSchema, siteSchema } from "./schemas";
 
 // Resolved from this module, so the same path works in Vitest and in `next build`.
 const contentDir = path.resolve(
@@ -92,10 +47,50 @@ export function parseHome(json: unknown, file: string): Home {
   return parseWith(homeSchema, json, file);
 }
 
+/** Exposed for tests. Prefer `loadEvents()`. */
+export function parseEvents(json: unknown, file: string): Event[] {
+  return parseWith(eventsSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadCompanies()`. */
+export function parseCompanies(json: unknown, file: string): Companies {
+  return parseWith(companiesSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadOffers()`. */
+export function parseOffers(json: unknown, file: string): Offers {
+  return parseWith(offersSchema, json, file);
+}
+
+/** Exposed for tests. Prefer `loadSponsoring()`. */
+export function parseSponsoring(json: unknown, file: string): Sponsoring {
+  return parseWith(sponsoringSchema, json, file);
+}
+
 export function loadSite(): Site {
   return parseSite(readJson("site.json"), "content/site.json");
 }
 
 export function loadHome(): Home {
   return parseHome(readJson("home.json"), "content/home.json");
+}
+
+/** All events of content/events.json, in file order (newest first). */
+export function loadEvents(): Event[] {
+  return parseEvents(readJson("events.json"), "content/events.json");
+}
+
+export function loadCompanies(): Companies {
+  return parseCompanies(readJson("companies.json"), "content/companies.json");
+}
+
+export function loadOffers(): Offers {
+  return parseOffers(readJson("offers.json"), "content/offers.json");
+}
+
+export function loadSponsoring(): Sponsoring {
+  return parseSponsoring(
+    readJson("sponsoring.json"),
+    "content/sponsoring.json",
+  );
 }
