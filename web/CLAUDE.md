@@ -33,8 +33,10 @@ Run `pnpm format` before each commit.
 
 - `src/app/globals.css`: the single source of tokens (`@theme`), the base layer and `@utility` blocks. `src/app/fonts.ts`: `next/font/google` faces. `src/app/layout.tsx`: shell, metadata, `data-page`.
 - `src/lib/cn.ts`: `cn()` and `tv()` (`clsx` + `tailwind-merge` + `tailwind-variants`). Its merge config lists the custom `shadow`, `radius` and `container` token names and is hand-synced with `@theme`: add a token there when you add one to `@theme`.
-- `src/components/`: one component per entry of `msca-design/COMPONENTS.md`, test next to it. Built: `Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`.
-- `src/content/load.ts`: loaders (`loadSite()`, `loadHome()`) read `../content/*.json` with zod. `src/content/types.ts`: types; a compile-time check keeps the schema output equal to them.
+- `src/components/`: one component per entry of `msca-design/COMPONENTS.md`, test next to it. Built shell and primitives: `Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`, `Eyebrow`, `Lead`, `SectionHead`, `SectionFoot`, `Section`, `PostIt`, `TagList`, `Monogram`, `Reveal`, `Lightbox` (`LightboxProvider`, `useLightbox`).
+- `src/components/home/`: the home sections, `HomeHero` (`Polaroid`), `StatsBand`, `FormatAgenda` (`TopicWall`), `HistorySection` (`FeaturedEvents`, `FilterChips`, `EventTimeline`, `EventBadge`), `PhotoGallery`, `PartnersSection` (`LogoWall`, `LogoTile`, `LogoSticker`), `SocratesTeaser` (`EditionChips`, `SponsorCall`, `LogoRow`), `OffersSection` (`OfferGrid`), `Faq` (`FaqList`), `CtaBand`. `src/app/page.tsx` assembles them.
+- `src/content/load.ts`: loaders (`loadSite()`, `loadHome()`, `loadEvents()`, `loadCompanies()`, `loadOffers()`, `loadSponsoring()`) read `../content/*.json` with zod (`schemas.ts`). `src/content/types.ts`: types; a compile-time check keeps the schema output equal to them.
+- `src/lib/derive.ts`: ports of `cms.js` (`fmtDate`, `place`, `stats`, `companyStats`, `roleLabel`, `monogram`, `logoWallTiles`, ...). `src/lib/home-data.ts`: ports of the inline derivations of `home.js` (hero note, stats, featured events, timeline, gallery, SoCraTes, offers). Pure and unit-tested; pages call them and pass plain props.
 - `src/lib/routes.ts`: `toRoute()`, `pageRoute()`, `isExternal()`, `assetUrl()`. `src/lib/french.ts`: `frenchSpacing()`.
 
 ## Content
@@ -65,11 +67,13 @@ The host funnel (`/accueillir/`) and the SoCraTes sponsor form post to `site.jso
 
 ## Port status
 
-Done: page shell (`Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`) in Tailwind, checked against the root site at 375, 768 and 1280 px; placeholder home hero (text and buttons only).
+Done: data layer for the home page (loaders, `derive.ts`, `home-data.ts`, tests); shared primitives and `Lightbox`; page shell (`Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`) in Tailwind, checked against the root site at 375, 768 and 1280 px; the home page `/` built from the ten section components in `src/components/home/` (hero with collage and post-it, stats, `#format` with topic wall, `#historique` with featured events, filters and timeline, `#galerie` with lightbox, `#partenaires` logo wall, `#socrates` teaser, `#offres` offer cards, `#faq`, CTA band), with unit tests and a static export that builds with and without the base path.
+
+Remaining for the home page: the browser comparison with the root site at 375, 768 and 1280 px (see "Done means"), and the owner's decision on the breakpoint mapping (960 to `lg`, 600 and 700 to `sm`, see Gotchas).
 
 To do, in this order (section ids from the root HTML). Build each page from the components in `COMPONENTS.md` with token utilities, and update that file when a component is added.
 
-1. Home `/` (`index.html`): hero collage and post-it, `stats`, `#format` topic wall, `#historique` featured event, filters and timeline, `#galerie` gallery and lightbox, `#partenaires` logo wall, `#socrates` teaser, `#offres` offer cards, `#faq`, CTA band. Needs loaders for `events.json`, `companies.json`, `offers.json`.
+1. Home `/` (`index.html`): built (see above); the browser comparison is still to do.
 2. `/meetup/` (`meetup.html`, `meetup.json`).
 3. `/association/` (`association.html`, `association.json`).
 4. `/actualites/` and `/actualites/[slug]/` (`actualites.html`, `articles.json`, the `md` renderer from `assets/js/cms.js`).
@@ -94,6 +98,16 @@ Update this list in the same commit as each finished page.
 - The three fonts are variable fonts loaded without a `weight` option, so any weight renders. The old site loaded only Fraunces 500 and 600 and the browser faked bold on the italic: the hero emphasis is weight 590 (measured: 97 percent of the old ink, +2.7 percent width) and the brand name is 600 (the old `<strong>` asked for 700 but rendered 600). Measure before you change either.
 - Tailwind transforms are separate properties: transition `translate`, `rotate`, `scale`, not `transform`.
 - Old breakpoints that are not Tailwind defaults map to the true nearest default (table in `TOKENS.md`, a proposal the owner confirms): nav at `lg`, hero grid at `lg`, tagline `max-sm`. A layout may switch up to about 160 px away from the old query width, one-pixel edge differences at exactly 640 and 1024 px included, and the owner confirms the proposal.
+- `Lightbox` is a client component that renders one closed `<dialog>` after `children`; mount `LightboxProvider` once around the page content (a server component can render it). Its dialog needs explicit full-screen utilities because Tailwind removes the dialog margins, and `open:flex` keeps it at `display: none` when closed. jsdom has no `showModal()`: stub it in tests. Check the backdrop and the sage focus ring in a real browser at 375, 768 and 1280 px.
+- `Event.type` is a closed enum: a new type in `events.json` fails the build until `EVENT_TYPES` (`types.ts`) and `TYPE_LABEL` (`derive.ts`) get an entry.
+- `toRoute()` splits only on `#`, so `toRoute("accueillir.html?formule=x")` gives `/accueillir.html?formule=x`. `offerHref()` carries the query string itself: it builds `/accueillir/?formule={id}` from `pageRoute("host")`. Fix `toRoute` before another link carries a query string.
+- `stats().followers` uses `toLocaleString("fr-FR")` (U+202F separator): the output depends on the ICU data of the Node that runs the build.
+- The breakpoint mapping of the home sections (old 960 and 900 to `lg`, old 700, 600 and 560 to `sm`, old 760 to `md`) still awaits the owner. Visible effect: from 961 to 1023 px the featured cards are rows (old: three columns), from 601 to 639 px they stack (old: rows), and the timeline year sticks from 640 px (old: 701 px).
+- Testing Library folds U+202F into a plain space in node text, but not in the expected string. A `getByText("... ?")` with a U+202F (written as an escape) never matches: read `textContent` and compare it exactly, and write U+202F in test literals as `\u202f`, never as a plain space.
+- The old home timeline has no vertical line and no dots (the old `.timeline` had no rule). The line and the dots belong to `HistoryTimeline` on the association page.
+- `green-soft` (`#e6f2ea`) is a token because `Monogram` and the meetup badge share it. The other badge colors are arbitrary values until a second use.
+- `PostIt` sets its line height with `[line-height:1.15]`, not `leading-*`, because `tailwind-merge` drops `leading-*` when a caller adds a text size.
+- The alt text of the SoCraTes group photo is static in `index.html`, not in `home.json`; copy it into the component.
 
 ## Done means
 

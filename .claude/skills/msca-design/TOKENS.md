@@ -4,7 +4,7 @@ Single source: `web/src/app/globals.css`. When this file and the CSS differ, the
 
 ## Colors
 
-`--color-*: initial` removes every stock Tailwind color. Only the tokens below exist, and white is `--color-white`. A color that is missing here is either added as a token (when two places use it) or written as an arbitrary value (`bg-[#e6f2ea]`) when it is used once.
+`--color-*: initial` removes every stock Tailwind color. Only the tokens below exist, and white is `--color-white`. A color that is missing here is either added as a token (when two places use it) or written as an arbitrary value (`bg-[#fbe4e5]`) when it is used once.
 
 | Token | Value | Role |
 |---|---|---|
@@ -14,6 +14,7 @@ Single source: `web/src/app/globals.css`. When this file and the CSS differ, the
 | `--color-green` | `#1b6b3a` | Links, focus ring, data numbers, prices, years, CTA band fill, highlighted offer border, checked inputs, progress, numbered circles |
 | `--color-green-dark` | `#14532e` | Link hover, monogram text, meetup badge text, sticker CTA |
 | `--color-green-deep` | `#0f3f23` | Dark surfaces: SoCraTes hero, dark sections, footer, law-main card, edition cover |
+| `--color-green-soft` | `#e6f2ea` | Monogram tile, meetup badge background |
 | `--color-cream` | `#f3eedf` | Text on dark surfaces (footer links, edition year) |
 | `--color-sage` | `#a9bba3` | Accent on dark (emphasis, eyebrows, prices, flags, focus ring), hand-drawn underline stroke, blockquote rule, khatam glyph |
 | `--color-sage-soft` | `#e1e8df` | Alternate section background |
@@ -40,7 +41,7 @@ Overlay values on dark surfaces use the opacity modifier on a token: `bg-white/5
 
 | Value | Role |
 |---|---|
-| `#e6f2ea`, `#fbe4e5`, `#fff4cc`, `#e3f1fa` | Badge backgrounds: meetup, SoCraTes, code snack, online. `#e6f2ea` also the monogram background |
+| `#fbe4e5`, `#fff4cc`, `#e3f1fa` | Badge backgrounds: SoCraTes, code snack, online (the meetup badge uses `green-soft`) |
 | `#7a5b00`, `#1f5f80` | Badge text: code snack, online |
 | `#e9dcc3`, `#b58a55`, `#c9b48f` | Cork board: background, 10px frame, dot pattern fill |
 | `#d9efe2` | CTA band paragraph |

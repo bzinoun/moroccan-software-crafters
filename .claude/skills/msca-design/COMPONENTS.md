@@ -1,6 +1,6 @@
 # MSCA component inventory
 
-Two parts. "Built" lists what exists in `web/src/components/` with its real props and the classes that matter. "To build" lists the remaining components by role, so each page port picks the right one. Tokens are in `TOKENS.md`, Tailwind rules in `TAILWIND.md`.
+Two parts. "Built" lists what exists in `web/src/components/` (and the data layer in `web/src/content/` and `web/src/lib/`) with its real props and the classes that matter. "To build" lists the remaining components by role, so each page port picks the right one. Tokens are in `TOKENS.md`, Tailwind rules in `TAILWIND.md`.
 
 Conventions for every component:
 - A variant is a `tv()` variant (`@/lib/cn`); a caller `className` is merged with `cn()`.
@@ -15,10 +15,10 @@ Conventions for every component:
 
 ### Button
 `src/components/Button.tsx`. Exports `Button` and `buttonStyles` (a `tv`).
-- Props: `variant: "primary" | "ghost"` (default primary), `size: "md" | "sm"` (default md), `className`, plus native `<a>` props when `href` is set, native `<button>` props otherwise (`type` defaults to `button`).
+- Props: `variant: "primary" | "primary-flat" | "inverse" | "ghost" | "ghost-on-dark"` (default primary), `size: "md" | "sm"` (default md), `className`, plus native `<a>` props when `href` is set, native `<button>` props otherwise (`type` defaults to `button`).
 - Renders `next/link` for an internal `href`, a plain `<a>` when `isExternal(href)`, a `<button>` without `href`.
-- Classes that matter: pill (`rounded-full`), `border-2 border-transparent`, `font-body text-base leading-none font-semibold no-underline`, `motion-safe:` transition on `translate`, `background-color`, `box-shadow`, `hover:-translate-y-px`, `disabled:opacity-55 disabled:cursor-not-allowed`. Primary: `bg-red text-white` with the red shadow, `hover:bg-red-dark`. Ghost: `border-ink bg-transparent text-ink`, `hover:bg-ink hover:text-white`. Size `sm` repeats `leading-none` after its font size, because `tailwind-merge` drops an earlier `leading-*` when a text size follows.
-- Dark surfaces (SoCraTes hero, dark sections, CTA band) need overrides at the call site with `className`: primary without shadow; ghost with white text and border, hover white fill with ink text (green text in the CTA band); inverted primary in the CTA band (white fill, red text). Add these as variants or `className` when the first dark surface is built.
+- Classes that matter: pill (`rounded-full`), `border-2 border-transparent`, `font-body text-base leading-none font-semibold no-underline`, `motion-safe:` transition on `translate`, `background-color`, `box-shadow`, `hover:-translate-y-px`, `disabled:opacity-55 disabled:cursor-not-allowed`. Primary: `bg-red text-white` with the red shadow, `hover:bg-red-dark`. Ghost: `border-ink bg-transparent text-ink`, `hover:bg-ink hover:text-white`. `primary-flat`: primary without the red shadow. `inverse`: `bg-white text-red`, `hover:bg-paper hover:text-red-dark`, no shadow. `ghost-on-dark`: `border-white text-white`, `hover:bg-white hover:text-ink`. Size `sm` repeats `leading-none` after its font size, because `tailwind-merge` drops an earlier `leading-*` when a text size follows.
+- Dark surfaces (SoCraTes hero and teaser, dark sections, CTA band) use the explicit variants: `primary-flat` for the primary action, `ghost-on-dark` for the secondary, `inverse` for the CTA band primary. Per-call differences go in `className` and win over the variant through `tailwind-merge` (the CTA band ghost sets `hover:text-green`, its green variant sets `text-green hover:text-green` on `inverse`).
 - Old site reference: every page, `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-row`.
 
 ### Container
@@ -46,40 +46,102 @@ Conventions for every component:
 ### HeroEm
 `src/components/HeroEm.tsx`. Props: `text`. Turns `<em>word</em>` in a JSON title into a React `<em>` without `dangerouslySetInnerHTML`. The red italic and the underline come from the base layer (`h1 em`, `h2 em`).
 
-### Home hero (placeholder)
-`src/app/page.tsx`. Eyebrow, `h1`, lead, two buttons, `zellige-corner` on the section. The two-column grid starts at `lg`. The eyebrow and lead are inline utilities; extract `Eyebrow` and `Lead` when the next section needs them. The collage, post-it and hero note are still to build (see Home hero below).
+### Eyebrow, Lead, SectionHead, SectionFoot
+`Eyebrow.tsx`, `Lead.tsx`, `SectionHead.tsx`, `SectionFoot.tsx`.
+- `Eyebrow`: props `tone: "default" | "dark" | "cream"`, `marker: "rule" | "khatam" | "none"` (default rule), native `<p>` props. Exports `eyebrowStyles`. The marker is a `before:` pseudo-element (rule 22px by 2px, khatam 14px by `clip-path`); `default` is red, `dark` is sage, `cream` is cream (SoCraTes hero), and the marker takes the text color on the two dark tones. Marker `none` is `before:hidden`: the pseudo-element is out of the layout (an empty one would still be a flex item and shift the label). A string child goes through `frenchSpacing()`.
+- `Lead`: props `tone: "default" | "dark"`, native `<p>` props. Exports `leadStyles`. `max-w-[60ch] text-[1.15rem]`, soft ink or `text-on-dark`. The bottom margin comes from the base layer paragraph rule.
+- `SectionHead`: props `eyebrow?`, `title` (may hold one `<em>`, rendered by `HeroEm`), `lead?`, `align: "start" | "center"` (default start), `tone: "default" | "dark"`, `marker: "rule" | "khatam" | "none"` (default `rule`, or `none` when `align` is `center`), `titleId?`, `className`, `children` (after the lead). `mb-11 max-w-[760px]`; `align="center"` adds `mx-auto text-center`, hides the eyebrow marker (`Eyebrow` marker `none` is `before:hidden`, so no empty box shifts the label) and centers the lead. The `h2` color on dark comes from the dark `Section`.
+- `SectionFoot`: native `<p>` props. `mt-9 flex flex-wrap justify-center gap-[0.8rem]`. Hide it with the `hidden` attribute (Preflight forces `display: none` for it).
+- Responsive: none. Old site reference: all pages; `.eyebrow`, `.lead`, `.section-head`, `.section-foot`.
+
+### Section
+`src/components/Section.tsx`. Exports `Section` and `sectionStyles`. Props: `variant: "plain" | "alt" | "dark"` (default plain), `tight` (boolean), `containerClassName` (classes for the inner `Container`), native `<section>` props. Padding `py-22`, tight `py-14`. `alt` is `bg-sage-soft`; `dark` is `bg-green-deep text-cream **:focus-visible:outline-sage` with white `h2` and `h3`, and a sage `h2 em` without the hand-drawn mark (`[&_h2_em]:bg-none`). A `Button` on a dark section uses the `primary-flat` or `ghost-on-dark` variant. Anchor offset: the base layer sets `scroll-padding-top: 84px` on `html`. Old site reference: `.section`, `.section.alt`, `.section.dark`, `.section.tight`.
+
+### PostIt
+`src/components/PostIt.tsx`. Exports `PostIt` and `postItStyles`. Props: `color: "yellow" | "pink" | "green" | "blue" | "orange"` (default yellow), `caption?` (small line in the body font, for the year on a topic note), `className`, native `<div>` props. Classes: `w-[170px] p-[16px_18px_20px] font-hand text-[1.35rem] [line-height:1.15] text-ink`, post-it shadow, `bg-postit-*`. The line height is an arbitrary property on purpose: `tailwind-merge` drops a `leading-*` when a caller adds a text size (1.15rem, 1.25rem, 1.5rem on the old site). The parent sets rotation, position and width with `className`. Old site reference: `.postit`.
+
+### TagList
+`src/components/TagList.tsx`. Props: `tags?: readonly string[]`, `max?`, native `<ul>` props. Renders nothing for a missing or empty list. `mt-[0.2rem] mb-4 flex list-none flex-wrap gap-1.5 p-0`; pills `rounded-full bg-paper-2 px-[9px] py-[3px] text-[0.76rem] text-ink-soft`. The timeline and article cards pass their own margins with `className`. Old site reference: `.tags`.
+
+### Monogram
+`src/components/Monogram.tsx`. Exports `Monogram` and `monogramStyles`. Props: `initials` (from `monogram(name)` in `src/lib/derive.ts`), `label?`, `size: "lg" | "md" | "sm"` (default lg), native `<span>` props. Sizes: `lg` 84px box with `text-[1.6rem]` (logo wall), `md` 60px with `text-[1.2rem]` (compact wall), `sm` 56px bordered `rounded-xl` square (logo row). Look: `bg-green-soft font-display font-semibold text-green-dark`, `rounded-[14px]` for lg and md. A11y: `aria-hidden` by default; with `label`, `role="img"` and `aria-label` (use it when the name is not printed next to the tile). Old site reference: `.monogram`.
+
+### Reveal
+`src/components/Reveal.tsx` (client). Props: `as: "div" | "li" | "article" | "section"` (default div), native `<div>` props. The server HTML carries no hidden state, so content shows without JavaScript. On mount a layout effect sets `data-reveal="waiting"` (instant, no fade out), except when the element already sits above the viewport bottom minus 60px: then it stays visible. An `IntersectionObserver` (`rootMargin: "0px 0px -60px 0px"`) sets `data-reveal="shown"` once and disconnects. Without `IntersectionObserver`, nothing is hidden. Both states sit behind `motion-safe:`: waiting is `translate-y-4 opacity-0`, shown adds `transition-[opacity,translate] duration-600 ease-[ease]`. Under reduced motion the content is always at rest. Applied to: feature cards, offers, cards, editions, article cards. Old site reference: `.reveal`, `initReveal`.
+
+### Lightbox, LightboxProvider, useLightbox
+`src/components/Lightbox.tsx` (client). Exports `LightboxProvider` (`{ children }`), `useLightbox()` returning `{ open(items, startIndex) }` (throws outside the provider) and the type `LightboxItem = { src: string; caption?: string }`. Mount the provider once around the page content; it renders the dialog once after `children`. `src` is a final URL (callers use `assetUrl()`); the caption is optional and goes through `frenchSpacing()`.
+- Native `<dialog aria-label="Photo agrandie">` opened with `showModal()` (top layer, native Escape, focus trap, `::backdrop`). Inside: close button, previous button, `<figure><img><figcaption>`, next button, labelled "Fermer", "Photo précédente", "Photo suivante". ArrowLeft and ArrowRight are handled by a `keydown` listener on `document`, added while the dialog is open (a click on the photo or caption moves focus out of the dialog, so a handler on the dialog would miss the keys).
+- Classes that matter: dialog `m-0 size-full max-h-none max-w-none flex-col items-center justify-center bg-transparent px-4 py-10 text-white open:flex backdrop:bg-[rgba(15,13,12,0.94)] **:focus-visible:outline-sage` (`open:flex` keeps the closed dialog at `display: none`; the full-screen utilities are explicit because Tailwind removes the dialog margins). Round buttons `absolute size-12 rounded-full bg-white/12 hover:bg-white/25`; close top right, previous and next centered at the edges. Image `max-h-[calc(100vh-140px)] w-auto rounded-[6px]`; caption `text-[0.92rem] text-[#e8e2d9]` (no token for that color).
+- Behavior: several photos show "{caption} · 3 / 12" (the counter alone without a caption), step buttons and wraparound; one photo shows the caption only. Close button, Escape and a click on the dialog itself (backdrop and padding) all end in the native `close` event, whose handler clears the state, restores `document.body.style.overflow` and returns focus to the element active at `open()`. Opening focuses the close button and locks body scroll. `open()` clamps `startIndex` and ignores an empty list.
+- Tests: jsdom has no `showModal()` or `close()`; the test file stubs both on `HTMLDialogElement.prototype`. A closed dialog is not in the accessibility tree: query it by tag.
+- Pages: home (gallery, feature cards), news. Old site reference: `lightbox` in `assets/js/cms.js`, `.lightbox`, `.lb-close`, `.lb-prev`, `.lb-next`.
+
+### Data layer for the home page
+Not a component: typed loaders and pure derivations. A page loads the JSON once in a server component, derives plain props and passes them to the section components. A component never reads files.
+- Loaders (`src/content/load.ts`, schemas in `schemas.ts`, types in `types.ts`): `loadSite()`, `loadHome()` (all of `home.json`), `loadEvents()`, `loadCompanies()`, `loadOffers()`, `loadSponsoring()`. Each reads `../content/*.json` with `fs` at build time and parses with zod; a broken edit throws `Invalid content in content/<file>.json: <path>: <message>`. `Event.date` is `YYYY-MM-DD` or `YYYY-MM`; `Event.type` is a closed enum (`meetup`, `socrates`, `codesnack`, `online`): a new type fails the build until `EVENT_TYPES` and `TYPE_LABEL` get an entry.
+- Derivations of `cms.js` (`src/lib/derive.ts`): `fmtDate`, `place`, `photoItems`, `stats`, `companyStats`, `roleLabel`, `monogram`, `TYPE_LABEL`, `meetupPhotoUrl`, `logoUrl`, `logoWallTiles`. Companies link to events by exact `name` match with `host` and `sponsors[]`. `PhotoItem` is `{ photo, src, caption, eventId }`; the lightbox uses `src`.
+- Derivations of `home.js` (`src/lib/home-data.ts`): `heroNote`, `heroCollage`, `statItems`, `formatSteps`, `topicsFromEvents`, `featuredEvents`, `featuredMeta`, `eventLinks`, `timelineWhere`, `filterEvents`, `eventsByYear`, `timelineMoreLabel`, `galleryItems`, `socratesEditions`, `socratesPhoto`, `trustLogos`, `offerPrice`, `offerHref` (it builds `/accueillir/?formule={id}` from `pageRoute("host")`, because `toRoute()` cannot carry a query string).
+- Rules the components must keep: `limit` values use `||` (`home.history.limit || 6`, `home.gallery.limit || 8`, `home.topics.limit || 10` inside `topicsFromEvents`). Timeline and gallery: the "more" button shows when the total is larger than the limit; after the click, focus moves to the item at index `limit`; a filter click shows the first `limit` events again; the lightbox walks all gallery items. Strings come back with plain spaces: render them through `frenchSpacing()`. The logo wall sticker is not in `logoWallTiles`: read `companies.sticker.host`. The alt text of the SoCraTes group photo is static in `index.html`, not in `home.json`: `socratesPhoto(home)` gives the URL, the alt is copied into the component.
+- Old site reference: `assets/js/cms.js`, `assets/js/home.js`.
+
+### Home sections (`src/components/home/`)
+The home page `src/app/page.tsx` is a server component: it calls the loaders and the derivations of `home-data.ts`, wraps the sections in `LightboxProvider` and renders, in the order and with the ids of the root `index.html`: `HomeHero`, `StatsBand`, `FormatAgenda` (`#format`), `HistorySection` (`#historique`), `PhotoGallery` (`#galerie`), `PartnersSection` (`#partenaires`), `SocratesTeaser` (`#socrates`), `OffersSection` (`#offres`), `Faq` (`#faq`), `CtaBand`. The skip link target `main#main` stays in the layout. Breakpoint note for all of them: old queries map to the nearest default (960 and 900 to `lg`, 760 to `md`, 700, 600 and 560 to `sm`), a proposal the owner has not confirmed (see `TOKENS.md`).
+
+#### HomeHero, Polaroid
+`HomeHero.tsx` (server), `Polaroid.tsx` (server). Props: `HomeHero` (`hero: Home["hero"]`, `note: string` from `heroNote(home, events)`, `collage: { src, caption }[]` from `heroCollage(home)`; `hero.collage` is ignored); `Polaroid` (`index`, `src`, `caption`).
+- Section `zellige-corner overflow-hidden pt-16 pb-10`; `Container` grid `items-center gap-12 lg:grid-cols-[1.05fr_1fr]`. Left column: `Eyebrow`, `h1` with `HeroEm`, `Lead` (`mb-[1.8rem]`), a primary and a ghost `Button` through `toRoute()`, and the hero note (`mt-[1.4rem] text-[0.9rem] text-muted`, only when not empty).
+- Collage box: `relative h-[380px] lg:h-[480px]` with `aria-hidden="true"`. `Polaroid`: `figure` `absolute rounded-[3px] bg-white px-2.5 pt-2.5 pb-[34px] shadow-lift`, empty-alt `img` (`object-cover`), `figcaption` in `font-hand` ellipsized on one line. The index picks the slot (width, height, offset, tilt, layer): `-rotate-3` `z-2`, `rotate-4` `z-4`, `-rotate-[1.5deg]` `z-3`; heights grow from `lg`. The post-it (`hero.postit`) is a `PostIt` `absolute top-2.5 right-[6%] z-5 w-35 rotate-[5deg]`, `lg:w-[170px] lg:text-[1.35rem]`.
+- Old site reference: `index.html` hero; `.hero`, `.collage`, `.polaroid`, `.hero-note`.
+
+#### StatsBand
+`StatsBand.tsx` (server). Props: `items: StatItem[]` from `statItems(home, site, events)`. `<section aria-label="Chiffres clés">` `border-y border-line bg-paper-2 py-7`, a `ul` grid `grid-cols-2 gap-5 md:grid-cols-5 md:gap-4`; the last item spans the row below `md` (`last:col-span-full md:last:col-auto`). Value in a `b`: `font-display text-[length:clamp(1.8rem,3vw,2.4rem)] leading-[1.1] font-semibold text-green`; label `text-[0.88rem] text-ink-soft`. Old site reference: `.stats`.
+
+#### FormatAgenda, TopicWall
+`FormatAgenda.tsx`, `TopicWall.tsx` (server). Props: `FormatAgenda` (`eyebrow`, `title`, `lead?`, `steps: FormatStepItem[]` from `formatSteps(home)`, `topics: TopicNote[]` from `topicsFromEvents(events, home.topics.limit)`, `topicsLabel`, `more?: Cta` with the raw `.html` href); `TopicWall` (`label`, `topics`).
+- `Section id="format" aria-labelledby="format-title"`, `SectionHead`, then an `<ol>` `grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4`. Card (`li`): `group flex flex-col overflow-hidden rounded-card border border-line bg-card`; optional photo (`aspect-16/10`, empty alt, lazy, `motion-safe:group-hover:scale-[1.04]` over 500ms); body `px-5.5 pt-4.5 pb-5.5` with the number `01` to `04` (`aria-hidden`, `font-display text-[1.9rem]` red), time (`text-[0.78rem]` uppercase green), `h3`, text. Then `TopicWall`, then a ghost `Button` in a `SectionFoot` when `more` is set.
+- `TopicWall`: `div role="group" aria-label` `mt-12 flex flex-wrap justify-center gap-3.5`; one `PostIt` per topic (`w-auto max-w-60 p-[12px_16px_14px] text-[1.25rem]`), color from the tone (`default` is yellow), the year as caption, tilt by index (even `-rotate-2`, odd `rotate-[1.5deg]`, every third `-rotate-[0.5deg]`). Not built yet: the cork `board` variant (meetup page).
+- Old site reference: `#format`, `.agenda`, `.topic-wall`.
+
+#### HistorySection, FeaturedEvents, FilterChips, EventTimeline, EventBadge
+All in `src/components/home/`, all client components. `HistorySection` must render inside `LightboxProvider` (it calls `useLightbox()`).
+- `HistorySection` props: `history` (`home.history`), `events` (`loadEvents()`). `Section id="historique" variant="alt"`: `SectionHead`, `FeaturedEvents`, `FilterChips` (label "Filtrer les événements", static in `index.html`), `EventTimeline id="timeline"` and, while events are hidden, a `SectionFoot` with a ghost `Button` (`aria-controls="timeline" aria-expanded={false}`) labelled by `timelineMoreLabel(history.more, total)`. State: the filter (starts at `history.filters[0].value`) and the expanded flag. Rules kept from `home.js`: limit `history.limit || 6`; the button shows when the filtered total is larger than the limit and disappears after the click; the click shows every event of the filter and moves focus to the item at index `limit`; a filter click shows the first `limit` events again.
+- `FeaturedEvents` props: `events` (`featuredEvents(events)`), `onOpenPhotos(event)` (the section opens the lightbox on `photoItems(event)` at index 0). List `mb-14 grid grid-cols-1 gap-6 lg:grid-cols-3`. Card (`Reveal as="article"`): `flex flex-col overflow-hidden rounded-card bg-card shadow-card sm:flex-row lg:flex-col`. Photo: a `<button aria-label="Voir les {n} photos de {title}">` (`group relative aspect-16/10 cursor-zoom-in overflow-hidden`, from `sm` `sm:w-2/5 sm:aspect-auto`, from `lg` stacked again) with the first photo (`alt=""`, lazy, zoom `motion-safe:group-hover:scale-104`) and the count pill "{n} photos". Body: `featuredMeta(e)`, `h3`, summary, `TagList max={4}`, links from `eventLinks(e)` (`min-h-11`, `target="_blank" rel="noopener"`).
+- `FilterChips` props: `label`, `options: readonly HistoryFilter[]`, `value`, `onChange(value)`, `className`. `div role="group" aria-label` of `<button type="button" aria-pressed>`; chip `rounded-full border-[1.5px] border-line bg-card px-[0.95rem] py-[0.45rem] text-[0.9rem] font-medium leading-[normal]`, pressed `aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-white`.
+- `EventTimeline` props: `groups: YearGroup[]` (`eventsByYear(events, filter, limit)`), `id?`, `focusId?` (the item of that event gets `tabIndex={-1}` and takes the focus when it mounts). Exports `EventTimeline`, `EventBadge` (`kind: EventType`, label from `TYPE_LABEL`) and `eventBadgeStyles` (a `tv`; meetup `bg-green-soft text-green-dark`, the other three badge colors are arbitrary values, see `TOKENS.md`). Year group `grid grid-cols-1 gap-2 border-t border-line py-4.5 sm:grid-cols-[120px_1fr] sm:gap-6`, year `h3` `text-[2rem] text-green sm:sticky sm:top-[90px]`; item `li` `rounded-sm border border-line bg-card px-[18px] py-3.5`, from `sm` `sm:grid-cols-[92px_1fr_auto] sm:gap-4`, with `<time dateTime>`, `h4`, `timelineWhere(e)`, `TagList max={6}` and the badge. The home timeline has no vertical line and no dots: the old `.timeline` had no such rule (they belong to `HistoryTimeline` on the association page).
+- Old site reference: `#historique`, `#featured`, `.feature-card`, `.filters`, `.chip`, `.year-group`, `.tl-item`, `.badge--*`.
+
+#### PhotoGallery
+`PhotoGallery.tsx` (client; inside `LightboxProvider`). Props: `eyebrow`, `title`, `more` (button label), `limit?` (`home.gallery.limit`; a missing or zero value means 8), `items: PhotoItem[]` from `galleryItems(events)`. `Section id="galerie"`, `SectionHead`, then a `div#gallery` of CSS columns `columns-2 gap-x-2.5 sm:gap-x-3.5 md:columns-3 lg:columns-4`. Each item is a `<button aria-label="Agrandir : {caption}">` (`group relative mb-2.5 sm:mb-3.5 cursor-zoom-in overflow-hidden rounded-sm break-inside-avoid`) with a lazy `img` (`alt` = caption, zoom `motion-safe:group-hover:scale-103`) and a caption overlay (gradient, visible on `group-hover` and `group-focus-visible`). A click calls `lightbox.open(items, index)` on all items. The ghost "more" button (`aria-controls="gallery"`) appends the rest, disappears, and focuses the first added item. Old site reference: `.gallery`, `.cap`.
+
+#### PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage
+`PartnersSection.tsx`, `LogoWall.tsx` (exports `LogoWall`, `LogoTile`, `LogoSticker`). Props: `PartnersSection` (`eyebrow`, `title`, `lead`, `tiles: LogoTile[]` from `logoWallTiles(companies.items, events)`, `sticker: Sticker` from `companies.sticker.host`); `LogoWall` (`tiles`, `sticker?`, `id?`); `LogoTile` (`tile`); `LogoSticker` (`sticker`).
+- `PartnersSection`: `Section variant="alt" id="partenaires"`, centered `SectionHead`, `LogoWall id="logo-wall"`, then a `SectionFoot` with a primary `Button` "Rejoindre les hôtes" (to the host page) and a ghost `Button` "Soutenir SoCraTes Maroc" (to `socrates/#sponsoring`); both labels are static, as in `index.html`.
+- `LogoWall`: `flex flex-wrap justify-center gap-3.5`. `LogoTile`: `w-42 rounded-card border border-line bg-card`, logo `size-21` in a `size-23` box (lazy, `alt` = name) or a `Monogram` when the company has no logo; name `text-[0.88rem] font-semibold`, label `text-[0.74rem] text-muted`; an `<a target="_blank" rel="noopener">` with lift on hover (`motion-safe:hover:-translate-y-0.75`, `shadow-lift`) only when the company has a LinkedIn page, else a `div`. `LogoSticker`: one `<a>` with the footprint of a tile, `bg-postit-yellow -rotate-2`, `font-hand`, named by `aria-labelledby`, described by `aria-describedby`. Not built yet: the `compact` wall (association page) and the dark tone (SoCraTes page).
+- `LogoImage` (`LogoImage.tsx`, client): a lazy `img`; it swaps itself for a `Monogram` on the `error` event, and on mount when the load already failed (`complete` with `naturalWidth` 0). `LogoTile` and `LogoRow` use it.
+- Old site reference: `.logo-wall`, `.logo-tile`, `.sticker`.
+
+#### SocratesTeaser, EditionChips, SponsorCall, LogoRow
+`SocratesTeaser.tsx` (exports `SocratesTeaser`, `EditionChips`, `SponsorCall`), `LogoRow.tsx`; all server components. Props: `SocratesTeaser` (`eyebrow`, `title`, `lead`, `cta`, `editions: SocratesEdition[]` from `socratesEditions(events)`, `photoSrc` from `socratesPhoto(home)`, `sponsor` (`home.socrates.sponsor`), `trust: TrustLogo[]` from `trustLogos(sponsoring, companies.items)`); `EditionChips` (`editions`, native `ul` props); `SponsorCall` (`sponsor`, `trust`, native `div` props, so the SoCraTes page can pass `my-10`); `LogoRow` (`logos: TrustLogo[]`, native `div` props).
+- `Section variant="dark" id="socrates"` with `containerClassName="grid items-center gap-14 md:grid-cols-[1.05fr_0.95fr]"`. Left: khatam `Eyebrow`, `h2` with `HeroEm`, dark `Lead`, `EditionChips` (`grid-cols-2 gap-3`; cell `rounded-sm border border-white/15`, title in `font-display` white, detail `text-on-dark`), a `Button` to the `cta`, then `SponsorCall` (`rounded-card border border-sage/35 bg-sage/10 px-6.5 py-6`: khatam `Eyebrow`, `h3`, text, `LogoRow` labelled "Partenaires présents à chaque édition", ghost button with white text and border). Right: the group photo `aspect-4/3 object-cover object-[center_75%]`, lazy, with a static French alt text (it is in `index.html`, not in `home.json`).
+- `LogoRow`: `div role="group"` `flex flex-wrap items-center justify-center gap-3`; a lazy `img` `size-14 rounded-xl border border-line bg-white object-contain p-1` (`alt` and `title` = name) or a `Monogram size="sm"` with `label`.
+- Old site reference: `.socrates`, `.editions`, `.sponsor-call`, `.logo-row`.
+
+#### OfferGrid, OffersSection
+`OfferGrid.tsx` (server; client boundary only through `Reveal`), `OffersSection.tsx` (server). One card is an `article` inside `OfferGrid`, not a separate export. Props: `OfferGrid` (`items: Offer[]`, `tone?: "light" | "dark"`, default light); `OffersSection` (`eyebrow`, `title`, `lead`, `note`, `items`). The highlight and the badge come from each `Offer` (`highlight`, `badge`).
+- `OffersSection`: `Section id="offres" aria-labelledby="offres-title"`, centered `SectionHead`, the grid, then the note (`mt-7 text-center text-[0.92rem] text-muted`).
+- Grid `mx-auto grid max-w-[560px] items-stretch gap-5.5 lg:max-w-none lg:grid-cols-3`. Card (`Reveal as="article"`): `relative flex flex-col rounded-card border-[1.5px] px-6.5 py-7`; highlighted: `border-green shadow-lift` and the badge as a flag (`absolute -top-3.25 left-6.5`, green pill). Content: `h3` name, price `offerPrice()` (empty gives "Sur devis"; `text-[1.5rem]`, not `text-2xl`, to keep the line height), tagline (`lg:min-h-[3em]`), two `h4` lists "Vous apportez" (yellow bullets, `#c9a400` border) and "Nous apportons" (green bullets), each bullet a 10px `before:` square. The button "Choisir cette formule" is `mt-auto self-start`, solid for the highlighted card and ghost for the others, and links through `offerHref()` to `/accueillir/?formule={id}`. Dark tone (unit-tested only, no dark section uses it yet): translucent card, sage border, flag and price, white ghost button.
+- Old site reference: `#offres`, `.offers`, `.offer`, `.flag`, `.give`.
+
+#### Faq, FaqList
+`Faq.tsx` (server). Exports `Faq` and `FaqList`. Props: `Faq` (`eyebrow`, `title`, `items: { q, a }[]` from `home.faq.items`); `FaqList` (`items`, `tone?: "default" | "dark"`, native `div` props). `Faq` is `Section variant="alt" id="faq" aria-labelledby="faq-title"` with a centered `SectionHead` and the list. `FaqList`: `mx-auto max-w-[820px]`; native `<details>` and `<summary>` (no JS): summary `flex cursor-pointer list-none justify-between gap-4 py-4.5 text-[1.05rem] font-semibold`, plus sign drawn by `after:content-['+']` that turns 45 degrees under `group-open:`; only its transition sits behind `motion-safe:`. Default tone: `border-line`, green plus, `text-ink-soft` answers; dark tone: `border-white/14`, sage plus, `text-on-dark` answers. Old site reference: `.faq`.
+
+#### CtaBand
+`CtaBand.tsx` (server). Props: `title`, `text`, `primary: Cta`, `secondary: Cta` (`home.cta`), `variant?: "default" | "green"`. `Section aria-labelledby="cta-title"` holding the band: `rounded-[22px] bg-green px-6 py-10 text-white md:grid-cols-[1.4fr_1fr] md:px-12 md:py-14 **:focus-visible:outline-sage`, white `h2`, text `text-[#d9efe2]`. Primary button inverted (white fill, hover paper, red text, or green text in the `green` variant), ghost button white outline (hover white fill, green text). A link is opened in a new tab (`rel="noopener"`) when `isExternal()`. Old site reference: `.cta-band`.
 
 ## To build
 
-Entries are ordered as the port reaches them. "Native HTML" says what to use instead of JS.
-
-### Eyebrow, Lead, SectionHead, SectionFoot
-- Role: small red label, intro paragraph, the head block of a section, the centered foot with a button.
-- Props: `Eyebrow` (`tone: "default" | "dark"`, `marker: "rule" | "khatam" | "none"`); `Lead` (`tone`); `SectionHead` (`center`, children: eyebrow, `h2` with `<em>`, lead); `SectionFoot`.
-- States and variants: eyebrow rule hidden when the head is centered; khatam marker (14px) on SoCraTes pages and the home SoCraTes teaser; on dark surfaces the eyebrow is sage (cream in the SoCraTes hero) and the lead is `on-dark`.
-- Responsive: none; head `max-w-[760px]`, `mb-11`.
-- Native HTML: `<p>`, `<h2>`.
-- Tailwind hints: extract the inline eyebrow classes from `page.tsx` (`before:` rule with `content-['']`).
-- Old site reference: all pages; `.eyebrow`, `.lead`, `.section-head`, `.section-foot`.
-
-### Section
-- Role: page band. Props: `variant: "default" | "alt" | "dark"`, `tight` (boolean). Renders `<section>` with `Container` inside.
-- Variants: `alt` is `bg-sage-soft`; `dark` is `bg-green-deep text-cream` with white `h2`/`h3`, sage eyebrow and emphasis, `on-dark` lead and sage focus ring (set `**:focus-visible:outline-sage`). Padding `py-22`, tight `py-14`. Pages alternate default and alt; at most one or two dark sections per page.
-- Old site reference: all pages; `.section`, `.section.alt`, `.section.dark`, `.section.tight`.
-
-### HomeHero, PolaroidCollage, Polaroid
-- Role: home hero with a photo collage and a post-it.
-- Props: `HomeHero` (`hero` content, optional `note`); `PolaroidCollage` (photos with caption, one post-it); `Polaroid` (`src`, `caption`, `rotation`).
-- Layout: two columns from `lg` (`lg:grid-cols-[1.05fr_1fr]`, `gap-12`). Collage is a relative box 480px high (380px below `lg`) with three absolutely positioned white-framed photos (padding 10px, 34px at the bottom, radius 3px, `shadow-lift`) rotated `-3deg`, `4deg`, `-1.5deg`, captions in `font-hand`; a yellow post-it at `5deg` at the top right. Zellige corner on the section.
-- Hero note: `home.hero.note`, else "Dernière édition : {date longue} chez {host}, {n} inscrits." from the latest meetup.
-- A11y: the collage is decorative (`aria-hidden`, empty `alt`).
-- Old site reference: `index.html` hero; `.hero`, `.collage`, `.polaroid`, `.postit`, `.hero-note`.
-
-### PostIt
-- Role: the hand-made note. Props: `color: "yellow" | "pink" | "green" | "blue" | "orange"`, `className` (the parent sets rotation and width).
-- Look: `font-hand` 1.35rem, line-height 1.15, ink text, square corners, `p-[16px_18px_20px]`, width 170px, post-it shadow, background from `bg-postit-*`.
-- Used in: collage, page hero figure, topic walls, success panel (green, 200px, 1.5rem, `-3deg`).
-- Old site reference: `.postit` and its color classes.
+Home sections are built (see Built). The entries below are ordered as the port reaches them. "Native HTML" says what to use instead of JS.
 
 ### PageHero
 - Role: inner page hero with facts and a figure. Props: eyebrow, title, lead, `facts`, `image`, `postit` (`color`, text).
@@ -101,97 +163,14 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 - Pages: meetup, association, socrates.
 - Old site reference: `.facts`.
 
-### StatsBand
-- Role: key figures band under the hero. Props: `items`.
-- Look: `bg-paper-2` with `border-y border-line`, five centered columns from `md`, two columns below with the last item spanning the row; numbers `font-display` green `clamp(1.8rem, 3vw, 2.4rem)`. `<section aria-label="Chiffres clés">`.
-- Content: `home.stats`; a `key` reads a derived stat (events, meetups, hosts, average registrations of the last 5 meetups, followers, SoCraTes editions, since).
-- Old site reference: `index.html`; `.stats`.
-
-### FormatAgenda
-- Role: four numbered photo cards. Props: `steps: { photo, time, title, text }[]`.
-- Layout: one column, two from `sm`, four from `lg`; `gap-5`. White cards `rounded-card`, photo 16/10 that zooms on card hover (`group`, `motion-safe:` scale 1.04 over 500ms). Counter `01`, `02` in `font-display` 1.9rem red (a CSS counter or the index), time label `0.78rem` uppercase green.
-- Native HTML: `<ol>` of `<li>`.
-- Pages: home (`#format`).
-- Old site reference: `.agenda`.
-
-### TopicWall
-- Role: post-its of past topics; with `board` it sits on a cork board.
-- Props: `topics: { text, small }[]`, `board` (boolean), `label`.
-- Look: centered wrapping flex, `gap-3.5`; post-its auto width up to 240px, 1.25rem, rotation by index (odd `-2deg`, even `1.5deg`, every third `-0.5deg`), color cycle from `TOKENS.md`; `<small>` Inter `0.7rem`. Board: cork background `#e9dcc3` with dot pattern, 10px `#b58a55` frame, `rounded-card`, inset shadow, left aligned, `px-7 py-9`.
-- Content: topics deduplicated case-insensitively across events, newest first. Home: first `home.topics.limit`, small = year. Meetup board: all, small = "year · host".
-- Pages: home, meetup.
-- Old site reference: `.topic-wall`, `.board`.
-
-### FilterChips
-- Role: single-choice event filter. Client component. Props: `options`, `value`, `onChange`, `label`.
-- Look: pill, `border-[1.5px] border-line`, white, 500 `0.9rem`; pressed (`aria-pressed="true"`) is `bg-ink text-white`.
-- Native HTML: `<div role="group" aria-label>` of `<button aria-pressed>`.
-- Pages: home (`#historique`).
-- Old site reference: `.filters`, `.chip`.
-
-### FeaturedEvents, FeatureCard
-- Role: the three latest meetups with photos. Client for the lightbox trigger.
-- Props: `FeatureCard` (`event`, `onOpenPhotos`).
-- Layout: one column; from `lg` three columns, `gap-6`; `mb-14`. Card: white, `shadow-card`, `rounded-card`; thumb 16/10 with `cursor-zoom-in`, dark count pill at the bottom right, thumb zoom 1.04 on hover; body with meta line, `h3`, text, `TagList` (max 4), links (bold `0.9rem`, 44px high). Between `sm` and `lg` the card may be a row with a 40 percent thumb (old site did this below 960).
-- Native HTML: `<article>`, thumb is a `<button>` with `aria-label="Voir les 6 photos de …"`, links `target="_blank" rel="noopener"`.
-- Pages: home.
-- Old site reference: `.feature-card`, `.thumb`.
-
-### TagList
-- Role: pills of topics. Props: `tags`, `max`. `flex flex-wrap gap-1.5`; pill `bg-paper-2 text-ink-soft rounded-full`, `0.76rem`. Used in feature cards (max 4), timeline (max 6), news.
-- Old site reference: `.tags`.
-
-### EventTimeline, YearGroup, TimelineItem, EventBadge
-- Role: events grouped by year with a "show all" button. Client component for the button state.
-- Props: `EventBadge` (`kind: "meetup" | "socrates" | "codesnack" | "online"`, labels Meetup, SoCraTes, Code Snack, En ligne); `TimelineItem` (`event`).
-- Layout: year group is one column; from `sm` a `120px 1fr` grid with a top `border-line`; year `font-display` 2rem green, sticky at 90px from `sm`. Item: white, `border border-line`, `rounded-sm`, grid `92px 1fr auto` from `sm`, stacked below. Title Inter 1.02rem 600. Badge: pill `0.72rem` 700 uppercase, colors from the badge colors in `TOKENS.md`.
-- Behavior: shows the first `home.history.limit` events of the active filter; the "more" button shows all, moves focus to the first newly shown item (`tabIndex={-1}`), and disappears when nothing is hidden. Button has `aria-controls` and `aria-expanded`.
-- Pages: home (`#historique`).
-- Old site reference: `.timeline`, `.year-group`, `.tl-item`, `.badge--*`.
-
-### PhotoGallery, GalleryItem
-- Role: masonry of event photos opening the lightbox. Client.
-- Props: `photos: { src, caption }[]`, `limit`.
-- Layout: CSS columns (`columns-2 sm:columns-3 lg:columns-4`, `gap-2.5`, `gap-3.5` from `sm`); items `rounded-sm`, `cursor-zoom-in`; photo zoom 1.03 on hover; caption overlay with a dark gradient shown on `group-hover` and `group-focus-visible`; explicit green focus ring.
-- Behavior: caption "{title} · {date}"; first `home.gallery.limit` shown; the "more" button appends the rest and focuses the first appended item.
-- Native HTML: each item is a `<button aria-label="Agrandir : {caption}">`.
-- Pages: home (`#galerie`).
-- Old site reference: `.gallery`, `.cap`.
-
-### Lightbox
-- Role: full-screen photo viewer shared by the gallery, feature cards and articles.
-- Use the native `<dialog>` with `showModal()` and `::backdrop` (backdrop `rgba(15,13,12,0.94)`); the dialog needs explicit full-screen utilities because Tailwind removes its default margins. Provide `open(items, index)` through a small context.
-- Look: image max height `calc(100vh - 140px)`, `rounded-[6px]`; round 48px translucent buttons (close top right, previous and next centered at the edges, hidden for a single photo); caption "{caption} · 3 / 12".
-- Behavior: Escape closes (native), ArrowLeft and ArrowRight step with wraparound, backdrop click closes, body scroll locks, focus goes to close and returns to the trigger. `aria-label="Photo agrandie"`, buttons labelled "Fermer", "Photo précédente", "Photo suivante".
-- Pages: home, news.
-- Old site reference: `.lightbox`, `.lb-close`.
-
 ### LogoWall, LogoTile, LogoSticker, Monogram
 - Role: partner logos with a "your logo here" post-it. `LogoWall` takes `compact`.
-- Props: `LogoTile` (`company`, `href?`, `role`); `LogoSticker` (`kind: "host" | "sponsor"`, text from `companies.sticker`); `Monogram` (initials of the first two words).
+- Built for the home page: see `PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage` in Built. Left to build: the `compact` variant (association) and the dark variant (socrates).
 - Layout: centered wrapping flex, `gap-3.5`, fixed-width tiles (168px; compact 112px) so the last row stays centered. Tile: white, `border border-line`, `rounded-card`; logo 84px in a 92px white box; name `0.88rem` 600; role `0.74rem text-muted`. Linked tile hover: `motion-safe:` lift `-translate-y-0.75`, `shadow-lift`, logo opacity 1. Sticker: same footprint, yellow, `rounded-[2px]`, `-2deg` (hover `-0.5deg`), `font-hand` title 1.7rem. On dark: translucent tile, light text.
-- Rule: show a logo only when the company has one and consent; an empty `logo` renders `Monogram`. Order by hosted plus sponsored count, descending. The SoCraTes wall shows sponsors only, with their years.
+- Rule: show a logo only when the company has one and consent; an empty `logo`, or a logo file that fails to load, renders `Monogram` (the client component `LogoImage` swaps the image for the monogram on `error`, and on mount when the load already failed; `LogoRow` uses it too). Order by hosted plus sponsored count, descending. The SoCraTes wall shows sponsors only, with their years.
 - Native HTML: `<a>` when the company has a link, `<div>` otherwise; sticker is one `<a>` with `aria-labelledby`.
 - Pages: home (`#partenaires`), association (compact), socrates.
 - Old site reference: `.logo-wall`, `.logo-tile`, `.sticker`, `.monogram`.
-
-### LogoRow
-- Role: small row of sponsor logos. Props: `companies`. Centered wrap, `gap-3`, 56px squares, `rounded-xl`, white padding, `border border-line`. Pages: home (sponsor call), socrates (`#sponsoring`).
-- Old site reference: `.logo-row`.
-
-### SocratesTeaser, EditionChips, SponsorCall
-- Role: dark home section about SoCraTes, with edition chips and a sponsor call box.
-- Layout: two columns `md:grid-cols-[1.05fr_0.95fr]`, `gap-14`, inside `Section variant="dark"`. Photo 4/3, `object-position: center 75%`, heavy shadow. Edition chips in two columns: translucent border, year in `font-display` white; text "{year} · {city}" and "1re édition · {n} crafters" (editions oldest first). Sponsor call: `rounded-card`, sage tinted fill and border, `px-6.5 py-6`, contains eyebrow, `h3`, text, `LogoRow`, ghost button. `SponsorCall` also appears on the SoCraTes page with `my-10`.
-- Pages: home (`#socrates`), socrates.
-- Old site reference: `.socrates`, `.editions`, `.sponsor-call`.
-
-### OfferGrid, OfferCard
-- Role: meetup formulas and SoCraTes packages.
-- Props: `OfferCard` (`offer`, `highlight`, `tone: "light" | "dark"`, `cta`).
-- Layout: one column up to `lg`, max 560px centered; three columns from `lg`, `gap-5.5`, stretch. Card: white, `border-[1.5px] border-line`, `rounded-card`, `px-6.5 py-7`, flex column with the button at the bottom (`mt-auto`). Highlight: green border, `shadow-lift`, a green pill flag on the top edge (`-top-3.25 left-6.5`). Price `font-display` 1.5rem green. `h4` small uppercase `text-muted`. Bullets: 10px rounded squares, green post-it fill with a green border; the "give" list is yellow with a `#c9a400` border. Dark tone: translucent card, sage highlight border and flag, sage price.
-- Behavior: the home button links to the host page with `?formule={id}`; SoCraTes packages select the matching level radio in the sponsor form.
-- Pages: home (`#offres`), socrates (`#packages`).
-- Old site reference: `.offers`, `.offer`, `.flag`, `.give`.
 
 ### CardGrid, Card
 - Role: plain text cards. Props: `CardGrid` (`columns: 2 | 3 | 4`), `Card` (`title`, `text`, `href?`, `tone`).
@@ -256,18 +235,6 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 - Pages: news.
 - Old site reference: `.article`, `.prose`, `md` in `assets/js/cms.js`.
 
-### Faq, FaqItem
-- Role: question list. Props: `items: { question, answer }[]`, `tone`.
-- Native HTML: `<details>` and `<summary>`; no JS. Look: `max-w-[820px]` centered, items separated by `border-line`; summary 600 1.05rem, flex with a green plus at the end (hide the default marker with `list-none` and `[&::-webkit-details-marker]:hidden`); the plus rotates 45 degrees under `group-open:` with a `motion-safe:` transition. Dark: translucent lines, `on-dark` answers, sage plus.
-- Pages: home, meetup, socrates.
-- Old site reference: `.faq`.
-
-### CtaBand
-- Role: green call-to-action block. Props: `variant: "default" | "green"`, title, text, two actions.
-- Layout: `bg-green`, `rounded-[22px]`, `px-6 py-10` below `md`, `px-12 py-14` from `md`; one column, then `md:grid-cols-[1.4fr_1fr]`. White `h2`, `#d9efe2` text. Buttons: primary inverted (white fill, red text, hover paper then red-dark), ghost white outline (hover white fill, green text). `green` variant gives the primary green text.
-- Pages: home, meetup (green), association.
-- Old site reference: `.cta-band`.
-
 ### HostLayout (HostHero, ProcessSteps, ProofCard)
 - Role: host page frame. Hero with a zellige corner (`pt-14 pb-6`); body `lg:grid-cols-[0.85fr_1.15fr]`, `gap-12`, `pb-22`; the aside is sticky at 100px from `lg` and static below. Steps: 38px solid green circles with white `font-display` digits. Proof card: white, 92x70 photo, text "Dernière édition : {host}, {date}, {n} inscrits."
 - Native HTML: `<aside>`, `<ol>`.
@@ -300,12 +267,6 @@ Entries are ordered as the port reaches them. "Native HTML" says what to use ins
 - Behavior: validates required fields, email and phone on submit (Moroccan `0[5-7]` plus 8 digits, or international `+` or `00` plus 8 to 15 digits). Same invalid, focus, sending and success patterns as the host funnel. Level pills come from the packages plus "En nature" and "À discuter" (checked by default).
 - Pages: socrates (`#sponsoring`).
 - Old site reference: `.sponsor-layout`, `simpleForm` in `assets/js/pages.js`.
-
-### Reveal
-- Role: fade-in on scroll. Client wrapper or hook.
-- Behavior: `IntersectionObserver` with `rootMargin: "0px 0px -60px 0px"`; adds the visible state once and unobserves; without the API, everything is visible. Start at `opacity-0 translate-y-4`, end at rest, `motion-safe:transition` 600ms. Under reduced motion the content is always visible (do not hide it with a plain class that `motion-safe:` cannot undo: gate the hidden state itself with `motion-safe:`).
-- Applied to: feature cards, offers, cards, editions, article cards.
-- Old site reference: `.reveal`, `initReveal`.
 
 ## Page-level notes
 
