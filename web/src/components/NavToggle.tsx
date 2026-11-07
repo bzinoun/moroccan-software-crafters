@@ -11,7 +11,7 @@ const bar =
 // Burger button plus the main nav, ported from `initNav` in assets/js/cms.js.
 // The nav links come from the server component as children; this component
 // only owns the open state. Below `lg` the nav is a panel under the header,
-// hidden until `data-open="true"`. From `lg` up it is a row and the burger is hidden.
+// closed until `data-open="true"`. From `lg` up it is a row and the burger is gone.
 export function NavToggle({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 

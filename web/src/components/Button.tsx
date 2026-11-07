@@ -18,7 +18,14 @@ export const buttonStyles = tv({
     variant: {
       primary:
         "bg-red text-white shadow-[0_6px_18px_rgba(193,39,45,0.28)] hover:bg-red-dark",
+      // Red pill without the glow, for a dark surface.
+      "primary-flat": "bg-red text-white hover:bg-red-dark",
+      // White pill with red text, for the green band.
+      inverse: "bg-white text-red hover:bg-paper hover:text-red-dark",
       ghost: "border-ink bg-transparent text-ink hover:bg-ink hover:text-white",
+      // Outlined in white, for a dark surface.
+      "ghost-on-dark":
+        "border-white bg-transparent text-white hover:bg-white hover:text-ink",
     },
     size: {
       md: "px-[1.35rem] py-[0.85rem]",

@@ -10,7 +10,7 @@ const linkClass =
 
 export function SiteFooter({ site }: { site: Site }) {
   return (
-    // The sage focus ring replaces the global green one on this dark surface.
+    // The sage focus indicator replaces the global green one on this dark surface.
     <footer className="bg-green-deep pt-14 pb-10 text-[0.92rem] text-on-dark **:focus-visible:outline-sage">
       <Container className="flex flex-wrap items-start justify-between gap-8">
         <Brand site={site} line={site.mission} size="lg" tone="dark" />
