@@ -31,13 +31,30 @@ Run `pnpm format` before each commit.
 
 ## Where things live
 
-- `src/app/globals.css`: the single source of tokens (`@theme`), the base layer and `@utility` blocks. `src/app/fonts.ts`: `next/font/google` faces. `src/app/layout.tsx`: shell, metadata, `data-page`.
+- `src/app/globals.css`: the single source of tokens (`@theme`), the base layer and `@utility` blocks. `src/app/fonts.ts`: `next/font/google` faces. `src/app/layout.tsx`: the root layout (`<html>`, `<body>`, fonts, site metadata) and nothing else. `src/app/PageFrame.tsx`: the page shell, see "Layouts and the current page" below.
 - `src/lib/cn.ts`: `cn()` and `tv()` (`clsx` + `tailwind-merge` + `tailwind-variants`). Its merge config lists the custom `shadow`, `radius` and `container` token names and is hand-synced with `@theme`: add a token there when you add one to `@theme`.
-- `src/components/`: one component per entry of `msca-design/COMPONENTS.md`, test next to it. Built shell and primitives: `Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`, `Eyebrow`, `Lead`, `SectionHead`, `SectionFoot`, `Section`, `PostIt`, `TagList`, `Monogram`, `Reveal`, `Lightbox` (`LightboxProvider`, `useLightbox`).
-- `src/components/home/`: the home sections, `HomeHero` (`Polaroid`), `StatsBand`, `FormatAgenda` (`TopicWall`), `HistorySection` (`FeaturedEvents`, `FilterChips`, `EventTimeline`, `EventBadge`), `PhotoGallery`, `PartnersSection` (`LogoWall`, `LogoTile`, `LogoSticker`), `SocratesTeaser` (`EditionChips`, `SponsorCall`, `LogoRow`), `OffersSection` (`OfferGrid`), `Faq` (`FaqList`), `CtaBand`. `src/app/page.tsx` assembles them.
+- `src/components/`: one component per entry of `msca-design/COMPONENTS.md`, test next to it. Shell: `Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`. Text and layout primitives: `HeroEm`, `Eyebrow`, `Lead`, `SectionHead`, `SectionFoot`, `Section`, `PostIt`, `TagList`, `Monogram`, `Reveal`, `FactList`, `CardGrid`, `CardsSection`, `StepRows`, `PageHero`, `DarkHero`, `Lightbox` (`LightboxProvider`, `useLightbox`). Form primitives: `Field`, `FieldRow`, `TextInput`, `TextArea`, `Select`, `PillGroup`, `ChoiceCard`, `ConsentCheckbox`, `Honeypot`, `FormAlert`.
+- `src/components/meetup/`: `ZoomSplit`, `NumberedList`. `src/components/association/`: `HistoryTimeline` (`AssociationHistory`), `HostsSection`. `src/components/actualites/`: `ArticleListSection`, `ArticleGrid`, `ArticleCard`, `ArticleView`, `ArticlePhotosLink`, `Prose`.
+- `src/components/home/`: the home sections, `HomeHero` (`Polaroid`), `StatsBand`, `FormatAgenda` (`TopicWall`), `HistorySection` (`FeaturedEvents`, `FilterChips`, `EventTimeline`, `EventBadge`), `PhotoGallery`, `PartnersSection` (`LogoWall`, `LogoTile`, `LogoSticker`), `SocratesTeaser` (`EditionChips`, `SponsorCall`, `LogoRow`), `OffersSection` (`OfferGrid`), `Faq` (`FaqList`), `CtaBand`. `src/app/(home)/page.tsx` assembles them.
 - `src/content/load.ts`: loaders (`loadSite()`, `loadHome()`, `loadEvents()`, `loadCompanies()`, `loadOffers()`, `loadSponsoring()`) read `../content/*.json` with zod (`schemas.ts`). `src/content/types.ts`: types; a compile-time check keeps the schema output equal to them.
 - `src/lib/derive.ts`: ports of `cms.js` (`fmtDate`, `place`, `stats`, `companyStats`, `roleLabel`, `monogram`, `logoWallTiles`, ...). `src/lib/home-data.ts`: ports of the inline derivations of `home.js` (hero note, stats, featured events, timeline, gallery, SoCraTes, offers). Pure and unit-tested; pages call them and pass plain props.
+- `src/lib/pages-data.ts`: pure derivations for the meetup, association and actualites pages (server only). `src/lib/md.tsx`: the mini Markdown renderer `md()`; plain text goes through `frenchSpacing()`, code spans and hrefs do not.
 - `src/lib/routes.ts`: `toRoute()`, `pageRoute()`, `isExternal()`, `assetUrl()`. `src/lib/french.ts`: `frenchSpacing()`.
+
+## Layouts and the current page
+
+The root layout owns `<html>` and `<body>` only. Each route segment has a `layout.tsx` that renders `<PageFrame page="...">` (skip link, header, `main#main`, footer, in this order) with the `PageId` of that segment. The header marks the current nav link with `aria-current="page"` from this id, so the state is right in the static HTML, with no client code. `PageFrame` also puts `data-page={id}` on its wrapper `<div>`; no CSS depends on it (the two old rules became the `zellige-corner` class and the `Eyebrow` `marker` prop).
+
+| Segment | Layout | Page id |
+|---|---|---|
+| `/` | `src/app/(home)/layout.tsx` (route group, so the URL is unchanged) | `home` |
+| `/meetup/` | `src/app/meetup/layout.tsx` | `meetup` |
+| `/actualites/` and `/actualites/[slug]/` | `src/app/actualites/layout.tsx` | `news` |
+| `/association/` | `src/app/association/layout.tsx` | `association` |
+
+To add a page (`/socrates/` with `socrates`, `/accueillir/` with `host`): create `src/app/<segment>/layout.tsx` with the same four lines as `meetup/layout.tsx`, change the page id, and add the id to the table in `PageFrame.test.tsx`. A layout that uses `LayoutProps` needs `pnpm exec next typegen` first for a new route; the layouts here use a plain `{ children: ReactNode }` type. Two root layouts would force a full page load between pages, so the shell stays in the segment layouts.
+
+The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id: no nav link is current and the wrapper has no `data-page`. The static export writes it to `out/404.html`.
 
 ## Content
 
@@ -67,19 +84,21 @@ The host funnel (`/accueillir/`) and the SoCraTes sponsor form post to `site.jso
 
 ## Port status
 
-Done: data layer for the home page (loaders, `derive.ts`, `home-data.ts`, tests); shared primitives and `Lightbox`; page shell (`Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`) in Tailwind, checked against the root site at 375, 768 and 1280 px; the home page `/` built from the ten section components in `src/components/home/` (hero with collage and post-it, stats, `#format` with topic wall, `#historique` with featured events, filters and timeline, `#galerie` with lightbox, `#partenaires` logo wall, `#socrates` teaser, `#offres` offer cards, `#faq`, CTA band), with unit tests and a static export that builds with and without the base path.
+Done: pages 1 to 4 (home, meetup, association, actualites and its articles) with their shared components, a per-route layout that sets the current nav link, the `md` renderer and `pages-data.ts`; data layer for the home page (loaders, `derive.ts`, `home-data.ts`, tests); shared primitives and `Lightbox`; page shell (`Button`, `Container`, `Brand`, `SkipLink`, `SiteHeader`, `NavToggle`, `SiteFooter`, `HeroEm`) in Tailwind, checked against the root site at 375, 768 and 1280 px; the home page `/` built from the ten section components in `src/components/home/` (hero with collage and post-it, stats, `#format` with topic wall, `#historique` with featured events, filters and timeline, `#galerie` with lightbox, `#partenaires` logo wall, `#socrates` teaser, `#offres` offer cards, `#faq`, CTA band), with unit tests and a static export that builds with and without the base path.
+
+Remaining after pages 1 to 4 (home, meetup, association, actualites): `/socrates/` and `/accueillir/`, then `sitemap.xml` (add the `articleSlugs()` routes) and `robots.txt`, then the deploy. Links to `/socrates/` and `/accueillir/` are broken until those pages exist.
 
 Remaining for the home page: the browser comparison with the root site at 375, 768 and 1280 px (see "Done means"), and the owner's decision on the breakpoint mapping (960 to `lg`, 600 and 700 to `sm`, see Gotchas).
 
 To do, in this order (section ids from the root HTML). Build each page from the components in `COMPONENTS.md` with token utilities, and update that file when a component is added.
 
 1. Home `/` (`index.html`): built (see above); the browser comparison is still to do.
-2. `/meetup/` (`meetup.html`, `meetup.json`).
-3. `/association/` (`association.html`, `association.json`).
-4. `/actualites/` and `/actualites/[slug]/` (`actualites.html`, `articles.json`, the `md` renderer from `assets/js/cms.js`).
+2. `/meetup/` (`meetup.html`, `meetup.json`): built (`ZoomSplit`, `NumberedList`, `TopicWall variant="board"`, `CtaBand tight`).
+3. `/association/` (`association.html`, `association.json`): built (`CardsSection`, `HostsSection`, `HistoryTimeline`, `LogoWall compact`, `CtaBand tight`).
+4. `/actualites/` and `/actualites/[slug]/` (`actualites.html`, `articles.json`, the `md` renderer from `assets/js/cms.js`): built (`ArticleGrid`, `ArticleCard`, `ArticleView`, `Prose`). Pages 2 to 4 still need the browser comparison at 375, 768 and 1280 px.
 5. `/socrates/` (`socrates.html`, `socrates.json`, `sponsoring.json`): dark hero, editions, sponsor form.
 6. `/accueillir/` (`accueillir.html`): the 4-step host funnel from `assets/js/funnel.js`.
-7. Per-page `<body data-page>` (TODO in `src/app/layout.tsx`), per-page metadata, `sitemap.xml`, `robots.txt`.
+7. Per-page metadata for the pages still to build, `sitemap.xml`, `robots.txt`.
 8. GitHub Actions deploy of `out/` with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters`. Cutover from the root site is the organizers' decision.
 
 Update this list in the same commit as each finished page.
@@ -107,7 +126,15 @@ Update this list in the same commit as each finished page.
 - The old home timeline has no vertical line and no dots (the old `.timeline` had no rule). The line and the dots belong to `HistoryTimeline` on the association page.
 - `green-soft` (`#e6f2ea`) is a token because `Monogram` and the meetup badge share it. The other badge colors are arbitrary values until a second use.
 - `PostIt` sets its line height with `[line-height:1.15]`, not `leading-*`, because `tailwind-merge` drops `leading-*` when a caller adds a text size.
+- Tailwind 4.3 does not generate quarter-step spacing such as `mb-2.4` or `mb-0.6`: write a rem literal (`mb-[0.6rem]`) when the old value is not a multiple of 0.25rem.
+- `Field` clones its single child to inject its ids and `aria-*`: give it exactly one element child. It merges the child's own `aria-describedby` (child first, then help, then error), keeps the child's `id` (the label `htmlFor` uses it) and keeps `aria-invalid` true when the child sets it.
+- `CardsSection` lives in `src/components/` (not in a page folder): the meetup page and the association page share it.
+- `lib/pages-data.ts` reads JSON through the loaders (`node:fs`): import it only from server components and pages, never from a `"use client"` file.
+- A dynamic route under `output: "export"` keeps `dynamicParams = false` and a sync `generateStaticParams()`; keep the slug source (`articleSlugs()`) the same for the params, the metadata and the sitemap.
+- `CtaBand` takes `tight` for the 56px padding of the closing band of meetup and association; `TopicWall` takes `variant="board"` and `LogoWall` takes `compact`.
 - The alt text of the SoCraTes group photo is static in `index.html`, not in `home.json`; copy it into the component.
+- The header gets its page id as a prop, so render every page through a segment `layout.tsx` that passes it (see "Layouts and the current page"). A route without such a layout renders no header and no footer, because the root layout holds only `<html>` and `<body>`.
+- `md()` applies `frenchSpacing()` to the plain text of the article body, as the old site did on every text node. Do not apply it again to the output.
 
 ## Done means
 
