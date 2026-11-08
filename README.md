@@ -15,11 +15,17 @@ The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc,
 pnpm install
 pnpm dev      # http://localhost:3000
 pnpm build    # static export in out/
-pnpm preview  # serve out/ at http://localhost:8000
+pnpm preview  # serve out/ at http://localhost:8000 (build without a base path)
 pnpm clean    # remove .next and out
 ```
 
-To test the GitHub Pages base path, build with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`.
+`pnpm preview` serves `out/` at the root, so it only fits a build made without a base path. To test the GitHub Pages base path, build with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`, then serve it under that path:
+
+```bash
+d=$(mktemp -d) && ln -s "$PWD/out" "$d/moroccan-software-crafters" && python3 -m http.server -d "$d" 8000
+```
+
+Open `http://localhost:8000/moroccan-software-crafters/`. `pnpm preview` returns 404 for the CSS and scripts of such a build.
 
 ## Checks
 

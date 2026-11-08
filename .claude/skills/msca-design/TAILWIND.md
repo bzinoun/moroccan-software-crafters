@@ -45,7 +45,7 @@ Tailwind v4 (CSS first, no `tailwind.config`). Each rule is one line plus the do
 - A `<dialog>` has no default margins; center it with explicit utilities, and use `open:flex` so the closed dialog stays `display: none`. [upgrade guide](https://tailwindcss.com/docs/upgrade-guide#dialog-margins-removed)
 - `tailwind-merge` treats a text size as overriding the line height, so it drops a `leading-*` that comes before a `text-*` size in the same class string. Keep the size and its `leading-*` in one string, with the `leading-*` after the size (the `Button` `sm` size does), or write the line height as an arbitrary property (`[line-height:1.15]`, as `PostIt` does) when a caller can add a size.
 - Half steps exist (`mb-2.5`, `px-4.5`), quarter steps do not (`mb-2.4` is not generated): write a rem literal (`mb-[0.6rem]`) for a value that is not a multiple of 0.25rem, and a half step for an even pixel value (`pt-5.5` for 22px).
-- `grid-cols-2` is `repeat(2, minmax(0, 1fr))`, so a column cannot grow past its share and a long word overflows. Where a column must grow to its widest content (`FactList`: "9 h 30 → 14 h" at 375px), write `grid-cols-[repeat(2,1fr)]`.
+- `grid-cols-2` is `repeat(2, minmax(0, 1fr))`, so a column cannot grow past its share and a long word overflows. Where a column must grow to its widest content (`FactList`: "9 h 30 → 14 h" at 375px), write `grid-cols-[repeat(2,1fr)]`. The value then takes `min-[360px]:whitespace-nowrap`, so below 360px it may wrap and the page does not scroll sideways.
 - An empty `::before` or `::after` still draws a box: remove it with `before:hidden`, not by emptying the content.
 - Tailwind's `outline-none` removes the outline that Windows forced-colors mode paints: use `outline-hidden` (a transparent outline).
 

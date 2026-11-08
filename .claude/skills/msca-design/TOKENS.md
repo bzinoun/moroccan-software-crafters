@@ -88,7 +88,6 @@ Other radii stay as utilities or arbitrary values: `rounded-full` (buttons, chip
 |---|---|---|---|
 | `--shadow-card` | `0 1px 2px rgba(29,27,25,.06), 0 8px 24px rgba(29,27,25,.08)` | `shadow-card` | Feature and article cards at rest |
 | `--shadow-lift` | `0 2px 4px rgba(29,27,25,.08), 0 18px 40px rgba(29,27,25,.14)` | `shadow-lift` | Hover lift, polaroids, hero and split images, funnel panel, mobile nav panel, highlighted offer, article cover |
-
 | `--shadow-postit` | `0 10px 18px rgba(0,0,0,.12)` | `shadow-postit` | Post-it, logo sticker |
 
 One-off shadows stay arbitrary values: tips `0_6px_12px_rgba(0,0,0,0.08)`, edition badge `0_4px_10px_rgba(0,0,0,0.2)`, SoCraTes photo `0_20px_50px_rgba(0,0,0,0.35)`, topic board `inset_0_0_40px_rgba(0,0,0,0.12)`. The primary button glow and the input focus halo use a colored shadow with the color from a token (see the literal color table above).

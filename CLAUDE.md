@@ -29,7 +29,8 @@ Run every command from the repo root.
 |---|---|
 | Dev server | `pnpm dev` (http://localhost:3000) |
 | Static export | `pnpm build` (writes `out/`) |
-| Serve the export | `pnpm preview` (`python3 -m http.server -d out 8000`) |
+| Serve the export | `pnpm preview` (`python3 -m http.server -d out 8000`). It serves `out/` at the root, so it only fits a build made without `NEXT_PUBLIC_BASE_PATH` |
+| Serve a base-path export | After a build with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters`: `d=$(mktemp -d) && ln -s "$PWD/out" "$d/moroccan-software-crafters" && python3 -m http.server -d "$d" 8000`, then open `http://localhost:8000/moroccan-software-crafters/`. `pnpm preview` returns 404 for the CSS and scripts of such a build |
 | Remove build output | `pnpm clean` (`.next` and `out`) |
 | Tests | `pnpm vitest run <file>`: one or a few files, only the tests the change touches. CI runs the full suite |
 | Coverage | `pnpm test:coverage` (v8, `src/`) |
@@ -52,7 +53,7 @@ Run `pnpm format` before each commit.
 - `src/app/globals.css`: the single source of tokens (`@theme`), the `js` variant, the base layer and `@utility` blocks. `src/app/fonts.ts` and `fonts-italic.ts`: `next/font/google` faces (the italic is separate, per route). `src/app/layout.tsx`: the root layout (`<html>`, `<body>`, the `js` class script in `<head>`, site metadata) and nothing else. `src/app/js-class-script.ts`: that script. `src/app/PageFrame.tsx`: the page shell, see "Layouts and the current page".
 - `src/lib/cn.ts`: `cn()` and `tv()` (`clsx` + `tailwind-merge` + `tailwind-variants`) and `twMergeConfig`, hand-synced with `@theme` (`TAILWIND.md`).
 - `src/components/`: one component per entry of `msca-design/COMPONENTS.md`, test next to it. Page folders: `home/`, `meetup/`, `association/`, `actualites/`, `socrates/`, `accueillir/`. Shared shell, text, layout, form and photo primitives sit at the top level (`Button`, `PageLink`, `Photo`, `Section`, `FormPanel`, `SuccessPanel`, `Lightbox`, ...). `CardsSection` is shared by the meetup, association and SoCraTes pages.
-- `src/content/load.ts`: the ten loaders (`loadSite`, `loadHome`, `loadEvents`, `loadCompanies`, `loadOffers`, `loadSponsoring`, `loadMeetup`, `loadAssociation`, `loadSocrates`, `loadArticles`). They read `../content/*.json` with zod (`schemas.ts`) and start with `import "server-only"`. `src/content/types.ts`: the types, all `z.infer` aliases of the schemas.
+- `src/content/load.ts`: the ten loaders (`loadSite`, `loadHome`, `loadEvents`, `loadCompanies`, `loadOffers`, `loadSponsoring`, `loadMeetup`, `loadAssociation`, `loadSocrates`, `loadArticles`). They read `../content/*.json` with zod (`schemas.ts`) and start with `import "server-only"`. `src/content/types.ts`: the types, `z.infer` aliases of the schemas except `PageId` and the resolved `Socrates` type, which are written by hand.
 - `src/lib/derive.ts`, `home-data.ts`, `pages-data.ts`, `socrates.ts`: pure, unit-tested derivations; pages call them and pass plain props. They import no `node:` module and no loader (`server-boundary.test.ts`). The server-only helpers are `articles-server.ts`, `images-server.ts` and `page-metadata.ts` (`pageMetadata()` builds title, canonical, Open Graph and Twitter for every page).
 - `src/lib/md.tsx`: the mini Markdown renderer `md()`; plain text goes through `frenchSpacing()`, code spans and hrefs do not, so do not apply it again to the output. Links are `https` URLs or `/routes`.
 - Forms: `src/lib/forms.ts` (pure submit code) and `forms-browser.ts` (the real globals), `funnel-fields.ts`, `funnel-validate.ts`, `funnel-draft.ts`, `funnel-text.ts` and `dates.ts` (the host funnel), `validation.ts` (`validateContact`, `withoutError`, e-mail and phone checks, shared by both forms), `submit-outcome.tsx` (`outcomeOf`, `useLeadSubmit`), `motion.ts`. The hooks are `useHostFunnel` and `useSponsorForm`; the package buttons reach the sponsor form through the store in `socrates/package-choice.ts`; `FormPanel` is the shared card. Details in `COMPONENTS.md`.
@@ -71,11 +72,11 @@ The root layout owns `<html>` and `<body>` only. Each route segment has a `layou
 | `/socrates/` | `src/app/socrates/layout.tsx` | `socrates` |
 | `/accueillir/` | `src/app/accueillir/layout.tsx` (also passes `skip`) | `host` |
 
-To add a page: pick a `PageId` (a new one goes in `PageId` of `content/types.ts` and in `PAGE_ROUTES` of `routes.ts`), create `src/app/<segment>/layout.tsx` with the same four lines as `meetup/layout.tsx`, change the page id, add the id to the table in `PageFrame.test.tsx`, and run `pnpm exec next typegen` (or `pnpm typecheck` fails on the stale `.next/dev/types/validator.ts`). Two root layouts would force a full page load between pages, so the shell stays in the segment layouts. A layout that needs the italic font imports `fonts-italic` and passes its `.variable` as `className` (`TOKENS.md`, "Fonts").
+To add a page: pick a `PageId` (a new one goes in `PageId` of `content/types.ts` and in `PAGE_ROUTES` of `routes.ts`), create `src/app/<segment>/layout.tsx` with the same four lines as `meetup/layout.tsx`, change the page id, add the id to the table in `PageFrame.test.tsx`. `pnpm typecheck` already runs `next typegen`, and `tsc` skips the dev validator (see Gotchas). Two root layouts would force a full page load between pages, so the shell stays in the segment layouts. A layout that needs the italic font imports `fonts-italic` and passes its `.variable` as `className` (`TOKENS.md`, "Fonts").
 
-The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id. The static export writes it to `out/404.html`. Old `.html` links from outside (for example `meetup.html`) give the 404 page (decided, no redirect stubs).
+The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id and exports its own `metadata` (own title, no canonical, no indexing). The static export writes it to `out/404.html`. Old `.html` links from outside (for example `meetup.html`) give the 404 page (decided, no redirect stubs).
 
-`src/app/sitemap.ts` and `src/app/robots.ts` generate `sitemap.xml` and `robots.txt`; both export `dynamic = "force-static"` (a static export refuses them otherwise) and build absolute URLs from `baseUrl`, which already carries the base path. A dynamic route (`/actualites/[slug]/`) keeps `dynamicParams = false` and a sync `generateStaticParams()`; keep the slug source (`articleSlugs()`) the same for the params, the metadata and the sitemap.
+`src/app/sitemap.ts` and `src/app/robots.ts` generate `sitemap.xml` and `robots.txt`; both export `dynamic = "force-static"` (a static export refuses them otherwise) and build absolute URLs from `baseUrl`, which already carries the base path. A dynamic route (`/actualites/[slug]/`) keeps `dynamicParams = false` and a sync `generateStaticParams()`; the params and the metadata use `articleSlugs()`. `sitemap.ts` reads `loadArticles().items` itself, so a filter added to `articleSlugs()` goes into the sitemap too.
 
 ## Content
 
@@ -83,16 +84,16 @@ The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id. 
 - One zod schema and one loader per JSON file, so a broken edit fails the build, not the page.
 - Every `href` in the content is a route (`/meetup/#proposer`), a hash on the same page or an `https` URL. No `.html` href exists; a test fails on one.
 - Fields that no page reads do not exist: an unknown key is silently stripped by zod, so delete a field from the schema and the JSON together.
-- `events.json` is the source of the SoCraTes numbers: the edition cards and the hero counters of the SoCraTes page (editions, partners) come from the events of type `socrates` (`sponsors[]`, `participants`, `date` and the optional `endDate`). An item of `socrates.json` points to its event by id. A link to a missing or non-SoCraTes event fails the build. When `events.json` and `socrates.json` disagree, `events.json` wins.
+- The SoCraTes sponsors wall labels a company with the years it sponsored (`sponsoredYears` of `companyStats()`), not the years it hosted a meetup. `events.json` is the source of the SoCraTes numbers: the edition cards and the hero counters of the SoCraTes page (editions, partners) come from the events of type `socrates` (`sponsors[]`, `participants`, `date` and the optional `endDate`). An item of `socrates.json` points to its event by id. A link to a missing or non-SoCraTes event fails the build. When `events.json` and `socrates.json` disagree, `events.json` wins.
 - `Event.type` is a closed enum: a new type in `events.json` fails the build until `EVENT_TYPES` (`schemas.ts`) and `TYPE_LABEL` (`derive.ts`) get an entry.
 - Companies link to events by exact `name` match with `host` and `sponsors[]`; keep and test that rule.
-- Images: `public/assets/img/` holds the photos and logos, edited in place (no copy script). Content references them as `/assets/img/meetups/<photo>.jpg`; an `<img>` goes through `Photo`, and its URL through `assetUrl()` or a helper that calls it. Meetup photos are at most 1600 px wide (the two 2022 SoCraTes group photos are 1200 px), logos 240 by 240 px (`logo.png` of the brand is 104 px).
+- Images: `public/assets/img/` holds the photos and logos, edited in place (no copy script). Content stores a meetup photo as a file name without extension (`2026-10-sg-gscm-5`; `meetupPhotoUrl()` builds the URL) and a logo as a file name with extension (`axa.png`, under `public/assets/img/logos/`). An `<img>` goes through `Photo`, and its URL through `assetUrl()` or a helper that calls it. Meetup photos are at most 1600 px wide (the two 2022 SoCraTes group photos are 1200 px), logos 240 by 240 px (`logo.png` of the brand is 104 px).
 - Show a partner logo only when the company has one in `companies.json`; an empty `logo` renders the monogram.
 - Text with a number that goes stale (`linkedinFollowers`, some prose counts) is written by hand: check it at each event.
 
 ## Forms
 
-The host funnel (`/accueillir/`) and the SoCraTes sponsor form post to `site.json` `form.endpoint` from the browser: the 4 steps of the funnel, the `type` field, `utm_*` and referrer capture, the hidden honeypot, and the fallback chain (endpoint, then prefilled `mailto:` to `contact.email`, then the LinkedIn page). The mailto body has no length cap. Endpoint ids are public config in `site.json`, never secrets in code.
+The host funnel (`/accueillir/`) and the SoCraTes sponsor form post to `site.json` `form.endpoint` from the browser: the 4 steps of the funnel, the `type` field, `utm_*` and referrer capture, the hidden honeypot, and the fallback chain (endpoint, then prefilled `mailto:` to `contact.email`, then the LinkedIn page). The mailto body has no length cap. Both forms have `method="dialog"` (a submit outside a `<dialog>` does nothing) and the submit button hides without JavaScript (`not-js:hidden`) next to a `NoScriptNote`, so a browser without script neither puts the answers in the URL nor navigates away. Endpoint ids are public config in `site.json`, never secrets in code.
 
 `src/lib/forms.ts` is pure and takes its browser dependencies as arguments (`submitForm(input, deps)`). `submitFormInBrowser` in `forms-browser.ts` wires the real globals, never throws, and returns a `result.mode` (`endpoint`, `mailto`, `linkedin`, `none`, `honeypot`, `error`). Both forms take an injected `submit`, so a test never posts to the real endpoint. The funnel option lists live in code (`funnel-fields.ts`). A saved draft expires after 30 days.
 
@@ -103,7 +104,7 @@ All pages are built: home `/`, `/meetup/`, `/association/`, `/actualites/` with 
 Decided:
 
 - Breakpoints follow the Tailwind defaults (`TOKENS.md` holds the mapping).
-- No-JavaScript behavior is progressive enhancement through the `js` variant: all content in the HTML, controls that need JavaScript hide without it, and the funnel shows every step with a note that points to LinkedIn.
+- No-JavaScript behavior is progressive enhancement through the `js` variant: all content in the HTML, controls that need JavaScript hide without it, and both forms show their fields with a note that points to LinkedIn.
 - The funnel option lists live in code; drafts expire after 30 days; the mailto fallback has no length cap.
 - `events.json` wins over `socrates.json`. Old `.html` links give the 404 page.
 
@@ -126,11 +127,11 @@ Remaining owner decisions:
 ## Gotchas
 
 - `cacheComponents` and `partialPrefetching` stay off: they imply PPR, which `output: "export"` refuses.
-- `next/link` adds the base path; plain `<img src>` and metadata icons do not, so use `assetUrl()`.
+- `next/link` adds the base path; plain `<img src>` and metadata icons do not, so use `assetUrl()`. `PageLink` renders a plain anchor with `assetUrl()` for a route that carries a hash (`/#historique`), because `next/link` does not scroll again on a second click.
 - `vitest.setup.ts` sets `__NEXT_TRAILING_SLASH` so `next/link` hrefs in tests match the build, and mocks `next/font/google`. `vitest.config.mts` aliases `server-only` to its empty module.
 - Interactive parts are small client components; everything else stays a server component that reads JSON at build time.
 - `stats().followers` uses `toLocaleString("fr-FR")` (U+202F separator): the output depends on the ICU data of the Node that runs the build.
-- Testing Library folds U+202F into a plain space in node text, but not in the expected string. A `getByText("... ?")` with a U+202F never matches: read `textContent` and compare it exactly, and write U+202F in test literals as ` `, never as a plain space or a raw character.
+- Testing Library folds U+202F into a plain space in node text, but not in the expected string. A `getByText("... ?")` with a U+202F never matches: read `textContent` and compare it exactly, and write U+202F in test literals as `\u202f`, never as a plain space or a raw character.
 - A test does not read live content for counts or copy: it uses a fixture written in the test, with values worked out by hand. The content test (`load.test.ts`) checks the shape and the cross-file links of the real files.
 - `next build` adds `allowJs: true` to `tsconfig.json` on every run: leave it.
 - The dev server file `.next/dev/types/validator.ts` is excluded from `tsc`; `.next/types/validator.ts` from `next typegen` is checked.
@@ -141,6 +142,6 @@ A change is done when it keeps the site working, not when it matches an older ve
 
 - `pnpm format:check`, `pnpm typecheck` and `pnpm lint`.
 - The tests the change touches (`pnpm vitest run <files>`), and a new test first for a changed behavior.
-- `pnpm build` and `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`, both with no warning.
+- `pnpm build` and `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`, both with no warning. Serve the first with `pnpm preview` and the second with the base-path command of the Commands table.
 - A crawl of the exported pages for broken links.
 - A browser check of each changed page at 375, 768 and 1280 px (use the `run` skill and the browser tools): keyboard order and focus rings, hover and open states with real mouse and keyboard events, the console for errors, and the page with JavaScript off. If the window cannot be resized, use same-origin iframes at each width.
