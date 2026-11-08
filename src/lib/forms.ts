@@ -32,20 +32,20 @@ export function formSite(site: {
   };
 }
 
-export type FormValue = string | number | boolean | string[] | null | undefined;
-export type FormValues = Record<string, FormValue>;
+type FormValue = string | number | boolean | string[] | null | undefined;
+type FormValues = Record<string, FormValue>;
 
 /** Name of the anti-robot field, kept out of sight of the forms. */
 export const HONEYPOT_FIELD = "website_hp";
 
-export const TRACKING_KEYS = [
+const TRACKING_KEYS = [
   "utm_source",
   "utm_medium",
   "utm_campaign",
   "utm_content",
 ] as const;
 
-export type Tracking = Partial<
+type Tracking = Partial<
   Record<(typeof TRACKING_KEYS)[number] | "referrer", string>
 >;
 

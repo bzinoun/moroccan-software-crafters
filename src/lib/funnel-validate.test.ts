@@ -50,6 +50,34 @@ describe("validateStep", () => {
     }
   });
 
+  it("step 2 rejects a capacity that is not one to four digits", () => {
+    const base = { date: "2026-11-14", participants: "80+" } as const;
+    for (const capacite of ["12.5", "10.0", "1e3", "-20", " 20", "00012"]) {
+      expect(validateStep(2, values({ ...base, capacite }), MIN).first).toBe(
+        "capacite",
+      );
+    }
+  });
+
+  it("step 2 checks the alternative day only when it is filled", () => {
+    const base = {
+      date: "2026-12-05",
+      participants: "20-40",
+    } as const;
+    expect(validateStep(2, values({ ...base, date_alt: "" }), MIN).first).toBe(
+      null,
+    );
+    expect(
+      validateStep(2, values({ ...base, date_alt: "2026-11-08" }), MIN).first,
+    ).toBe(null);
+    for (const date_alt of ["2020-01-01", "2026-11-07", "2026-02-45"]) {
+      expect(validateStep(2, values({ ...base, date_alt }), MIN)).toEqual({
+        errors: { date_alt: "Indiquez une date à venir." },
+        first: "date_alt",
+      });
+    }
+  });
+
   it("step 3 needs the company name, not only spaces", () => {
     expect(validateStep(3, values({ entreprise: "  " }), MIN)).toEqual({
       errors: { entreprise: "Indiquez le nom de l'entreprise." },

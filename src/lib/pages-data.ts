@@ -127,7 +127,7 @@ export function sponsorsWall(companies: Companies, events: Event[]): LogoWall {
   return {
     tiles: logoWallTiles(companies.items, events, {
       filter: (_c, st) => st.sponsored > 0,
-      label: (_c, st) => st.years.join(" · "),
+      label: (_c, st) => st.sponsoredYears.join(" · "),
     }),
     sticker: companies.sticker.sponsor,
   };

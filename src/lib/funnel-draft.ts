@@ -5,6 +5,7 @@
 
 import { parseIsoDay } from "./dates";
 import {
+  CAPACITY_SHAPE,
   EMPTY_VALUES,
   EQUIPEMENTS,
   PARTICIPANTS,
@@ -19,7 +20,7 @@ import type { FunnelValues } from "./funnel-fields";
 
 export const DRAFT_KEY = "msc-host-draft-v1";
 
-export type Draft = Record<string, unknown>;
+type Draft = Record<string, unknown>;
 
 /**
  * What the page saves: every control except the consent and the honeypot,
@@ -50,8 +51,6 @@ export function toDraft(v: FunnelValues, step: number): Draft {
   draft._step = step;
   return draft;
 }
-
-const CAPACITY_SHAPE = /^(\d{1,4})?$/;
 
 const TEXT_FIELDS = [
   "capacite",
@@ -111,7 +110,9 @@ export function restoreDraft({ draft, search, offerIds, min }: RestoreInput): {
   }
   for (const key of TEXT_FIELDS) values[key] = asString(source[key]) ?? "";
   // A number of places is one to four digits; the range is checked on send.
-  if (!CAPACITY_SHAPE.test(values.capacite)) values.capacite = "";
+  if (values.capacite && !CAPACITY_SHAPE.test(values.capacite)) {
+    values.capacite = "";
+  }
   for (const key of ["date", "date_alt"] as const) {
     const value = asString(source[key]);
     values[key] = value && parseIsoDay(value) && value >= min ? value : "";
@@ -131,9 +132,8 @@ export const DRAFT_MAX_AGE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * The saved draft, or null when there is none or it is too old. A draft older
- * than `DRAFT_MAX_AGE_DAYS`, or with no valid timestamp (saved before the
- * timestamp existed), is deleted. `now` is the clock, for tests.
+ * The saved draft, or null. A draft is deleted when it is older than
+ * `DRAFT_MAX_AGE_DAYS` or has no valid past timestamp. `now` is the test clock.
  */
 export function readDraft(now: Date = new Date()): Draft | null {
   try {
@@ -147,7 +147,8 @@ export function readDraft(now: Date = new Date()): Draft | null {
     const savedAt = draft._savedAt;
     const age =
       typeof savedAt === "number" ? now.getTime() - savedAt : Number.NaN;
-    if (!(age <= DRAFT_MAX_AGE_DAYS * DAY_MS)) {
+    // A stamp in the future (a clock that was set ahead) would extend the 30 days.
+    if (!(age >= 0 && age <= DRAFT_MAX_AGE_DAYS * DAY_MS)) {
       clearDraft();
       return null;
     }

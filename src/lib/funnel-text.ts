@@ -94,13 +94,19 @@ export function collect(
 export function recapRows(d: Lead): [label: string, value: string][] {
   const rows: [string, string][] = [
     ["Formule", d.formule],
+    // A restored draft can lose the main day or the range: join what is left.
     [
       "Date souhaitée",
-      formatDay(d.date) + (d.date_alt ? ` (ou ${formatDay(d.date_alt)})` : ""),
+      d.date
+        ? formatDay(d.date) +
+          (d.date_alt ? ` (ou ${formatDay(d.date_alt)})` : "")
+        : "",
     ],
     [
       "Crafters attendus",
-      d.participants + (d.capacite ? ` · salle de ${d.capacite} places` : ""),
+      [d.participants, d.capacite && `salle de ${d.capacite} places`]
+        .filter(Boolean)
+        .join(" · "),
     ],
     ["Lieu", [d.adresse, d.ville].filter(Boolean).join(", ")],
     ["Sur place", d.equipements],

@@ -2,7 +2,8 @@
 // send. Messages come back as written; the components apply
 // `frenchSpacing()`.
 
-import { TOTAL_STEPS } from "./funnel-fields";
+import { parseIsoDay } from "./dates";
+import { CAPACITY_SHAPE, TOTAL_STEPS } from "./funnel-fields";
 import type { ErrorField, FieldErrors, FunnelValues } from "./funnel-fields";
 import {
   CONSENT_ERROR,
@@ -10,15 +11,16 @@ import {
   type ContactErrors,
 } from "./validation";
 
-export const ERROR_TEXT = {
+const ERROR_TEXT = {
   formule: "Choisissez une formule pour continuer.",
   date: "Indiquez une date à venir.",
+  dateAlt: "Indiquez une date à venir.",
   participants: "Indiquez une fourchette.",
   capacite: "Entre 10 et 1000 places.",
   site: "Adresse invalide (elle doit commencer par https://).",
 } as const;
 
-export type StepValidation = {
+type StepValidation = {
   errors: FieldErrors;
   /** The first invalid field, in page order, or null when the step is valid. */
   first: ErrorField | null;
@@ -50,8 +52,20 @@ export function validateStep(
   if (step === 1 && !v.formule) fail("formule", ERROR_TEXT.formule);
   if (step === 2) {
     if (!v.date || v.date < min) fail("date", ERROR_TEXT.date);
+    // The alternative day is optional, but a typed one follows the same rule as
+    // a restored one: a real day that is not past.
+    if (v.date_alt && !(parseIsoDay(v.date_alt) && v.date_alt >= min)) {
+      fail("date_alt", ERROR_TEXT.dateAlt);
+    }
     if (!v.participants) fail("participants", ERROR_TEXT.participants);
-    if (v.capacite && (Number(v.capacite) < 10 || Number(v.capacite) > 1000)) {
+    if (
+      v.capacite &&
+      !(
+        CAPACITY_SHAPE.test(v.capacite) &&
+        Number(v.capacite) >= 10 &&
+        Number(v.capacite) <= 1000
+      )
+    ) {
       fail("capacite", ERROR_TEXT.capacite);
     }
   }
@@ -70,7 +84,7 @@ export function validateStep(
   return { errors, first };
 }
 
-export type FormValidation = StepValidation & {
+type FormValidation = StepValidation & {
   /** The step to go back to. */
   step: number;
   first: ErrorField;

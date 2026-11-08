@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { loadEvents, loadMeetup, loadSite } from "@/content/load";
+import { topicKey } from "@/lib/derive";
 import { frenchSpacing } from "@/lib/french";
 import MeetupPage, { metadata } from "./page";
 
@@ -161,8 +162,9 @@ describe("MeetupPage", () => {
     ).toBeInTheDocument();
     const board = within(section).getByRole("group", { name: title });
     const events = loadEvents();
+    // One note per topic, whatever its case, accents or outer spaces.
     const distinct = new Set(
-      events.flatMap((e) => e.topics ?? []).map((t) => t.toLowerCase()),
+      events.flatMap((e) => e.topics ?? []).map(topicKey),
     );
     expect(board.children).toHaveLength(distinct.size);
     const newest = events.find((e) => e.topics?.length);

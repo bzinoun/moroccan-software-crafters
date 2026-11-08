@@ -31,8 +31,7 @@ import {
   sponsorsWall,
 } from "./pages-data";
 
-// Every test works on a small fixture, with expected values worked out by hand,
-// except "the real articles" at the end, which reads the content on purpose.
+// Every test works on a small fixture, with expected values worked out by hand.
 // The functions read only a few fields of each content object: the fixtures set
 // those fields and a cast fills in the rest.
 
@@ -277,12 +276,9 @@ describe("sponsorsWall", () => {
     expect(wall.tiles.map((t) => t.id)).toEqual(["beta", "alpha"]);
   });
 
-  it("labels each tile with the years of its activity", () => {
+  it("labels each tile with the years it sponsored, not the years it hosted", () => {
     // beta: sponsor 2025 and 2024, host 2025. alpha: host 2026, sponsor 2025.
-    expect(wall.tiles.map((t) => t.label)).toEqual([
-      "2024 · 2025",
-      "2025 · 2026",
-    ]);
+    expect(wall.tiles.map((t) => t.label)).toEqual(["2024 · 2025", "2025"]);
   });
 
   it("gives the sponsor sticker", () => {

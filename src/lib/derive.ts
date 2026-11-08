@@ -180,6 +180,8 @@ type CompanyStats = {
   sponsored: number;
   /** Sorted distinct years of both kinds. */
   years: string[];
+  /** Sorted distinct years of the sponsored events only. */
+  sponsoredYears: string[];
   roles: ("host" | "sponsor")[];
 };
 
@@ -195,9 +197,9 @@ export function companyStats(
   for (const c of companies) {
     const hosted = events.filter((e) => e.host === c.name);
     const sponsored = events.filter((e) => (e.sponsors ?? []).includes(c.name));
-    const years = [
-      ...new Set([...hosted, ...sponsored].map((e) => e.date.slice(0, 4))),
-    ].sort();
+    const yearsOf = (list: Event[]) =>
+      [...new Set(list.map((e) => e.date.slice(0, 4)))].sort();
+    const years = yearsOf([...hosted, ...sponsored]);
     const roles: CompanyStats["roles"] = [];
     if (hosted.length) roles.push("host");
     if (sponsored.length) roles.push("sponsor");
@@ -205,6 +207,7 @@ export function companyStats(
       hosted: hosted.length,
       sponsored: sponsored.length,
       years,
+      sponsoredYears: yearsOf(sponsored),
       roles,
     };
   }
@@ -272,7 +275,13 @@ export function logoWallTiles(
 ): LogoTile[] {
   const st = companyStats(companies, events);
   const statsOf = (c: Company): CompanyStats =>
-    st[c.id] ?? { hosted: 0, sponsored: 0, years: [], roles: [] };
+    st[c.id] ?? {
+      hosted: 0,
+      sponsored: 0,
+      years: [],
+      sponsoredYears: [],
+      roles: [],
+    };
   let list = companies.filter(
     (c) => !opts.filter || opts.filter(c, statsOf(c)),
   );

@@ -322,6 +322,7 @@ describe("companyStats", () => {
       hosted: 2,
       sponsored: 1,
       years: ["2024", "2025", "2026"],
+      sponsoredYears: ["2024"],
       roles: ["host", "sponsor"],
     });
   });
@@ -331,6 +332,7 @@ describe("companyStats", () => {
       hosted: 2,
       sponsored: 0,
       years: ["2019"],
+      sponsoredYears: [],
       roles: ["host"],
     });
   });
@@ -340,6 +342,7 @@ describe("companyStats", () => {
       hosted: 0,
       sponsored: 2,
       years: ["2022", "2024"],
+      sponsoredYears: ["2022", "2024"],
       roles: ["sponsor"],
     });
   });
@@ -349,6 +352,7 @@ describe("companyStats", () => {
       hosted: 0,
       sponsored: 0,
       years: [],
+      sponsoredYears: [],
       roles: [],
     });
   });

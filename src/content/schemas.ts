@@ -120,17 +120,35 @@ export const homeSchema = z.object({
   }),
 });
 
+/** A real calendar day, "YYYY-MM-DD": "2026-02-45" and "2026-02-30" are refused. */
+const daySchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD")
+  .refine(
+    (iso) => {
+      const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
+      const date = new Date(Date.UTC(y, m - 1, d));
+      return (
+        date.getUTCFullYear() === y &&
+        date.getUTCMonth() === m - 1 &&
+        date.getUTCDate() === d
+      );
+    },
+    { message: "not a day of the calendar" },
+  );
+
+/** A real day "YYYY-MM-DD", or a month alone "YYYY-MM" (month 01 to 12). */
+const dateOrMonthSchema = z.union(
+  [daySchema, z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/)],
+  { error: "expected a real day YYYY-MM-DD or a month YYYY-MM" },
+);
+
 export const eventSchema = z
   .object({
     id: z.string(),
-    date: z
-      .string()
-      .regex(/^\d{4}-\d{2}(-\d{2})?$/, "expected YYYY-MM-DD or YYYY-MM"),
+    date: dateOrMonthSchema,
     /** Last day of an event that lasts several days, "YYYY-MM-DD". */
-    endDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD")
-      .optional(),
+    endDate: daySchema.optional(),
     type: z.enum(EVENT_TYPES),
     title: z.string(),
     host: z.string().optional(),
@@ -153,6 +171,11 @@ export const eventSchema = z
   .refine((e) => e.endDate === undefined || e.endDate >= e.date, {
     path: ["endDate"],
     message: "the end date is before the start date",
+  })
+  // A range such as "2026-03" to "2026-03-27" has no first day to print.
+  .refine((e) => e.endDate === undefined || e.date.length === 10, {
+    path: ["endDate"],
+    message: "an end date needs a start date with a day (YYYY-MM-DD)",
   });
 
 export const eventsSchema = z.array(eventSchema);
@@ -391,9 +414,7 @@ const articleSchema = z.object({
       /^[a-z0-9]+(-[a-z0-9]+)*$/,
       "expected lower-case letters and digits joined by single hyphens",
     ),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}(-\d{2})?$/, "expected YYYY-MM-DD or YYYY-MM"),
+  date: dateOrMonthSchema,
   kind: z.enum(ARTICLE_KINDS),
   title: z.string(),
   cover: z.string().optional(),

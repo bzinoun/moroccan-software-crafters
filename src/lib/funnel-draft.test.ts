@@ -171,6 +171,12 @@ describe("draft storage", () => {
       expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
     });
 
+    it("ignores and deletes a draft stamped in the future", () => {
+      store(NOW.getTime() + 10 * DAY);
+      expect(readDraft(NOW)).toBeNull();
+      expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+    });
+
     it.each([undefined, null, "yesterday", Number.NaN])(
       "ignores and deletes a draft whose timestamp is %j",
       (savedAt) => {

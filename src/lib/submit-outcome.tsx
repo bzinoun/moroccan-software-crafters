@@ -8,7 +8,7 @@ import type { ContactFallback, SubmitInput, SubmitResult } from "./forms";
 // also share the send lifecycle in `useLeadSubmit`.
 
 /** The three sentences of the failed-send alert, as each page wrote them. */
-export type FailureTexts = {
+type FailureTexts = {
   /** Shown alone when there is no way to reach the team. */
   plain: string;
   /** Text before the link to the prefilled e-mail. The address is the link text. */

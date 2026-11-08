@@ -1,7 +1,8 @@
 import "server-only";
 
 // These functions read content/articles.json through node:fs by default.
-// Import this module from pages, `generateStaticParams` and sitemap code.
+// Import this module from pages and `generateStaticParams`. `sitemap.ts` reads
+// `loadArticles()` itself.
 // `pages-data.ts` stays free of node:fs.
 
 import { loadArticles } from "@/content/load";

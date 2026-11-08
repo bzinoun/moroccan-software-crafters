@@ -135,10 +135,14 @@ export type Lead = {
   message: string;
 };
 
+/** A number of places: one to four digits, with no sign, point or exponent. */
+export const CAPACITY_SHAPE = /^\d{1,4}$/;
+
 /** The fields that carry an error message. */
 export type ErrorField =
   | "formule"
   | "date"
+  | "date_alt"
   | "participants"
   | "capacite"
   | "entreprise"

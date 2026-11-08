@@ -333,6 +333,49 @@ describe("the parsers", () => {
     ).toThrow(/0\.endDate/);
   });
 
+  it.each(["2026-02-45", "2026-00-10", "2026-13-01", "2026-02-30", "2026-00"])(
+    "rejects the impossible event date %s",
+    (date) => {
+      expect(() =>
+        parseEvents([{ ...minimalEvent, date }], "events.json"),
+      ).toThrow(/0\.date/);
+    },
+  );
+
+  it("accepts a leap day and a month alone", () => {
+    expect(
+      parseEvents(
+        [
+          { ...minimalEvent, date: "2028-02-29" },
+          { ...minimalEvent, id: "b", date: "2021-04" },
+        ],
+        "events.json",
+      ),
+    ).toHaveLength(2);
+  });
+
+  it("rejects an end date when the start date has no day", () => {
+    expect(() =>
+      parseEvents(
+        [{ ...minimalEvent, date: "2026-03", endDate: "2026-03-27" }],
+        "events.json",
+      ),
+    ).toThrow(/0\.endDate/);
+  });
+
+  it("rejects an impossible end date", () => {
+    expect(() =>
+      parseEvents([{ ...minimalEvent, endDate: "2026-10-45" }], "events.json"),
+    ).toThrow(/0\.endDate/);
+  });
+
+  it("rejects an impossible article date", () => {
+    const broken = { items: [{ ...minimalArticle, date: "2026-02-45" }] };
+    expect(() => parseArticles(broken, "content/articles.json")).toThrow(
+      /items\.0\.date/,
+    );
+  });
+
   it("names the file and the path of a broken article date", () => {
     const broken = { items: [{ ...minimalArticle, date: "27/10/2026" }] };
     expect(() => parseArticles(broken, "content/articles.json")).toThrow(

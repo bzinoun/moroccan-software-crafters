@@ -112,6 +112,29 @@ describe("recapRows", () => {
   });
 });
 
+describe("recapRows, with a date or a size lost on restore", () => {
+  const rows = (patch: Parameters<typeof values>[0]) =>
+    Object.fromEntries(recapRows(collect(values(patch), OFFERS)));
+
+  it("shows no date line when only the alternative day is left", () => {
+    expect(rows({ date: "", date_alt: "2026-12-05" })).not.toHaveProperty(
+      "Date souhaitée",
+    );
+  });
+
+  it("shows no date line when both days are empty", () => {
+    expect(rows({ date: "", date_alt: "" })).not.toHaveProperty(
+      "Date souhaitée",
+    );
+  });
+
+  it("shows the room size alone when the range is empty", () => {
+    expect(
+      rows({ participants: "", capacite: "60" })["Crafters attendus"],
+    ).toBe("salle de 60 places");
+  });
+});
+
 describe("emailBody", () => {
   it("writes one line per filled answer, with the message after a blank line", () => {
     expect(emailBody(collect(FULL, OFFERS))).toBe(
