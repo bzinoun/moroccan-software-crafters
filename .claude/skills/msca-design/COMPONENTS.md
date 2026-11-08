@@ -16,7 +16,7 @@ Conventions for every component:
 ### Button
 `src/components/Button.tsx`. Exports `Button` and `buttonStyles` (a `tv`).
 - Props: `variant: "primary" | "primary-flat" | "inverse" | "ghost" | "ghost-on-dark"` (default primary), `size: "md" | "sm"` (default md), `className`, plus native `<a>` props when `href` is set, native `<button>` props otherwise (`type` defaults to `button`).
-- Renders `next/link` for an internal `href`, a plain `<a>` when `isExternal(href)`, a `<button>` without `href`.
+- Renders through `PageLink` when `href` is set, a `<button>` without `href`. `PageLink` (`src/components/PageLink.tsx`, also used by `CardGrid` and `LogoSticker`) is `next/link` for an internal route and a plain `<a>` for an external URL or a hash-only href (`#sponsor-form`). Rule: a hash needs no base path, and `next/link` does not scroll again when the hash is already in the URL, so a second click on the same in-page link ("Choisir ce niveau", the hero CTA, the sticker) would do nothing.
 - Classes that matter: pill (`rounded-full`), `border-2 border-transparent`, `font-body text-base leading-none font-semibold no-underline`, `motion-safe:` transition on `translate`, `background-color`, `box-shadow`, `hover:-translate-y-px`, `disabled:opacity-55 disabled:cursor-not-allowed`. Primary: `bg-red text-white` with the red shadow, `hover:bg-red-dark`. Ghost: `border-ink bg-transparent text-ink`, `hover:bg-ink hover:text-white`. `primary-flat`: primary without the red shadow. `inverse`: `bg-white text-red`, `hover:bg-paper hover:text-red-dark`, no shadow. `ghost-on-dark`: `border-white text-white`, `hover:bg-white hover:text-ink`. Size `sm` repeats `leading-none` after its font size, because `tailwind-merge` drops an earlier `leading-*` when a text size follows.
 - Dark surfaces (SoCraTes hero and teaser, dark sections, CTA band) use the explicit variants: `primary-flat` for the primary action, `ghost-on-dark` for the secondary, `inverse` for the CTA band primary. Per-call differences go in `className` and win over the variant through `tailwind-merge` (the CTA band ghost sets `hover:text-green`, its green variant sets `text-green hover:text-green` on `inverse`).
 - Old site reference: every page, `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-row`.
@@ -28,7 +28,7 @@ Conventions for every component:
 `src/components/Brand.tsx`. Props: `site`, `line` (text under the name, default `site.tagline`; the footer passes `site.mission`), `size: "md" | "lg"` (logo 44px or 52px), `tone: "light" | "dark"`. A `tv` with slots `root`, `logo`, `name`, `line`. The tagline line is hidden below `sm` (`max-sm:hidden`). The name is `font-display` 600. Light tone hovers to `green-dark`; dark tone is white with `on-dark-muted` line.
 
 ### SkipLink
-`src/components/SkipLink.tsx`. Props: `href` (default `#main`), `label` (default "Aller au contenu"). Off-screen at `-left-[999px]`, `focus:left-2`, ink background, white text, `z-100`. On the host page use `href="#funnel"` and label "Aller au formulaire".
+`src/components/SkipLink.tsx`. Props: `href` (default `#main`), `label` (default "Aller au contenu"). Off-screen at `-left-[999px]`, `focus:left-2`, ink background, white text, `z-100`. `PageFrame` forwards its optional `skip` prop (`{ href, label }`) to it; the host layout passes `{ href: "#funnel", label: "Aller au formulaire" }`. Every other page uses the defaults.
 
 ### SiteHeader and NavToggle
 `SiteHeader.tsx` (server): props `site`, `page`. `NavToggle.tsx` (client): props `children` (the nav links), owns the open state.
@@ -92,7 +92,7 @@ Conventions for every component:
 ### DarkHero, StatusChip
 `src/components/DarkHero.tsx`. Exports `DarkHero` and `StatusChip`.
 - `DarkHero` props: `photo` (final URL), `eyebrow`, `title` (may hold one `<em>`), `lead`, `actions?: ReactNode` (the buttons, in a `flex flex-wrap gap-[0.8rem]` row: use `Button` `primary-flat` and `ghost-on-dark`), `status?: string`, `facts?: readonly Fact[]`, `titleId?`.
-- Section: `zellige-corner overflow-hidden bg-green-deep pt-30 pb-18 text-cream **:focus-visible:outline-sage`. Photo layer (`data-hero-photo`, `aria-hidden`, inline `background-image`): `absolute inset-0 bg-cover bg-[center_35%] opacity-45 saturate-85`, then a gradient layer `rgba(15,63,35,0.45)` to `0.78` at 60 percent to `green-deep`. Content in a `Container` `relative z-1`; text block `max-w-[820px]`. Eyebrow `tone="cream" marker="khatam"`. `h1`: `text-[clamp(2.6rem,6vw,4.8rem)] text-white`, emphasis sage with no underline (`[&_em]:bg-none [&_em]:text-sage`). Lead: `Lead tone="dark"` with `max-w-[64ch] text-[1.2rem] text-[#e4ddd2]`. Facts: `FactList tone="dark"` with `mt-12`.
+- Section: `zellige-corner zellige-corner-dark overflow-hidden bg-green-deep pt-30 pb-18 text-cream **:focus-visible:outline-sage`. The plain `zellige-corner` draws its tile at `z-index: -1`, which is under the photo layer and the gradient (they are positioned layers in the same stacking context), so on this hero it would be invisible. `zellige-corner-dark` (`globals.css`) only sets `--zellige-image` (the sage tile, stroke `#a9bba3` at .4) and `--zellige-z` (1) that `zellige-corner` reads; the content `Container` is `z-1` and comes later, so it stays above. Photo layer (`data-hero-photo`, `aria-hidden`, inline `background-image`): `absolute inset-0 bg-cover bg-[center_35%] opacity-45 saturate-85`, then a gradient layer `rgba(15,63,35,0.45)` to `0.78` at 60 percent to `green-deep`. Content in a `Container` `relative z-1`; text block `max-w-[820px]`. Eyebrow `tone="cream" marker="khatam"`. `h1`: `text-[clamp(2.6rem,6vw,4.8rem)] text-white`, emphasis sage with no underline and weight 520 (`[&_em]:bg-none [&_em]:font-[520] [&_em]:text-sage`): at the global 590 the SoCraTes title wraps to three lines at 1280 px ("sans programme" is 527.6 px wide, 3 px too much for the 820 px column), at 520 it is about 516 px (the old faux bold was 513 px) and fits. Lead: `Lead tone="dark"` with `max-w-[64ch] text-[1.2rem] text-[#e4ddd2]`. Facts: `FactList tone="dark"` with `mt-12`.
 - `StatusChip` props: native `<p>` props. `mt-[1.4rem] inline-flex items-center gap-[0.55rem] rounded-[18px]`, fill `rgba(15,63,35,0.85)`, border `rgba(169,187,163,0.55)`, cream `0.92rem` text with `text-balance`, 14px sage khatam as `before:` (clip-path). `leading-[1.3]` follows the size on purpose.
 - Pages: socrates. Old site reference: `.hero-dark`, `.status-chip`.
 
@@ -112,8 +112,8 @@ Conventions for every component:
 
 ### Form primitives (Field, FieldError, FieldRow, TextInput, Select, TextArea, PillGroup, Pill, ChoiceGroup, ChoiceCard, ConsentCheckbox, Honeypot, FormAlert)
 One file per component in `src/components/`, `PillGroup.tsx` holds `Pill`, `ChoiceCard.tsx` holds `ChoiceGroup`, `Field.tsx` holds `FieldError`. All are native controls that work controlled or uncontrolled (they pass every native prop through, `ref` included) and are server-safe. Error messages are strings the form passes when a field is invalid.
-- `Field`: props `id` (the control id; help and error ids derive from it), `label?`, `optional?: boolean | string` (`true` adds "(facultatif)", a string adds that text), `help?`, `error?`, `group?`, `className`, one child element. It clones the child with `id`, `aria-invalid` and `aria-describedby`, and keeps what the child already has: its own `id` (the label `htmlFor` points to it; the help and error ids still derive from the field `id`), an `aria-invalid` set to true (also true when `error` is set), and its own `aria-describedby` ids, which come first, then the help id, then the error id. With `group`, the label is a `<span id="{id}-label">` and the child gets `aria-labelledby`: use it around `PillGroup` and `ChoiceGroup`. Wrapper `mb-[18px]`; label `mb-1.5 block text-[0.93rem] font-semibold`, suffix `font-normal text-muted`; help `text-[0.83rem] text-muted`; error (`FieldError`, props `id`, `children: string`) `text-[0.84rem] text-red`, rendered only when invalid.
-- `TextInput`: native `<input>` props, `type` defaults to `text`. Exports `controlStyles` (a `tv`) shared with `Select` and `TextArea`: `w-full rounded-sm border-[1.5px] border-line bg-white px-[0.9rem] py-3`, `focus:border-green` plus a 3px halo `shadow-[0_0_0_3px_rgba(27,107,58,0.15)]`, `focus:outline-hidden` (a transparent outline that Windows forced-colors mode paints; `outline-none` would remove it), `aria-invalid:border-red` (also while focused), `motion-safe:` transition. `Select` takes `<option>` children. `TextArea` adds `min-h-24 resize-y`.
+- `Field`: props `id` (the control id; help and error ids derive from it), `label?`, `optional?: boolean | string` (`true` adds "(facultatif)", a string adds that text), `help?`, `error?`, `group?`, `className`, one child element. It clones the child with `id`, `aria-invalid` and `aria-describedby`, and keeps what the child already has: its own `id` (the label `htmlFor` points to it; the help and error ids still derive from the field `id`), an `aria-invalid` set to true (also true when `error` is set), and its own `aria-describedby` ids, which come first, then the help id, then the error id. With `group`, the label is a `<span id="{id}-label">` and the child gets `aria-labelledby`: use it around `PillGroup` and `ChoiceGroup`. Wrapper `mb-[18px]`; label `mb-1.5 block text-[0.93rem] font-semibold`, suffix `font-normal text-muted`; help `mt-[5px] mb-[1em] text-[0.83rem] text-muted` (the old `p` margin; `help=""` keeps an empty paragraph, as the old date help, without `aria-describedby`; `help` undefined renders none); error (`FieldError`, props `id`, `children: string`) `mt-[5px] mb-[1em] text-[0.84rem] text-red`, rendered only when invalid.
+- `TextInput`: native `<input>` props, `type` defaults to `text`. Exports `controlStyles` (a `tv`) shared with `Select` and `TextArea`: `w-full rounded-sm border-[1.5px] border-line bg-white px-[0.9rem] py-3`, `focus:border-green` plus a 3px halo `shadow-[0_0_0_3px_rgba(27,107,58,0.15)]`, `focus:outline-hidden` (a transparent outline that Windows forced-colors mode paints; `outline-none` would remove it), `aria-invalid:border-red` (also while focused), `motion-safe:` transition. `type="date"` adds `min-h-12` (48px: Preflight removes the inner padding of a date field, which made it 2px shorter than the old one). `Select` takes `<option>` children. `TextArea` adds `min-h-24 resize-y`.
 - `FieldRow`: `grid gap-4 sm:grid-cols-2` (old query 600px is `sm`).
 - `PillGroup`: props `role: "group" | "radiogroup"` (default group), native `<div>` props (pass `aria-labelledby` or `aria-label`); `flex flex-wrap gap-2`. `Pill`: props `type: "radio" | "checkbox"`, `children: string`, native `<input>` props. `<label className="relative">` around an input (`peer pointer-events-none absolute opacity-0`, still focusable) and a span `rounded-full border-[1.5px] border-line bg-white px-4 py-[0.55rem] text-[0.93rem] font-medium`; checked is `peer-checked:bg-ink peer-checked:text-white`, keyboard focus draws a green outline on the span.
 - `ChoiceGroup`: `role="radiogroup"`, `grid gap-3`. `ChoiceCard`: props `title`, `description?`, `price?`, native radio `<input>` props (`name`, `value`, `defaultChecked`, `required`...). `<label>` as `grid grid-cols-[24px_1fr] sm:grid-cols-[24px_1fr_auto]` (old query 520px is `sm`; below it the price sits under the text, `col-start-2`), `rounded-card border-[1.5px] border-line px-[18px] py-4`, hover border `#cbbfa9`, `has-checked:border-green has-checked:bg-[#f3faf5]`, `has-focus-visible:outline-3 has-focus-visible:outline-green` on the card. A 22px ring with a 10px green dot when checked; price `font-display text-green`.
@@ -198,7 +198,7 @@ All in `src/components/home/`, all client components. `HistorySection` must rend
 
 #### CardsSection, HostsSection
 `CardsSection.tsx` (shared by the meetup and association pages, in `src/components/`), `association/HostsSection.tsx` (server).
-- `CardsSection`: props `id`, `variant?: "plain" | "alt"`, `eyebrow`, `title`, `lead?`, `titleId?`, `items: CardItem[]`, `columns: 2 | 3 | 4`. A `Section` with `SectionHead` and `CardGrid`; `Eyebrow` and `Lead` apply `frenchSpacing`, the title goes through it here. With `titleId`, the `h2` gets that id and the section gets `aria-labelledby` (a named region); without it the section is no landmark. Used for `#mission`, `#principes`, `#contribuer` (association) and `#pour-qui` (with a lead), `#proposer`, `#regles` (meetup).
+- `CardsSection`: props `id`, `variant?: "plain" | "alt"`, `marker?: "rule" | "khatam" | "none"` (passed to `SectionHead`; `khatam` for SoCraTes), `eyebrow`, `title`, `lead?`, `titleId?`, `items: CardItem[]`, `columns: 2 | 3 | 4`. A `Section` with `SectionHead` and `CardGrid`; `Eyebrow` and `Lead` apply `frenchSpacing`, the title goes through it here. With `titleId`, the `h2` gets that id and the section gets `aria-labelledby` (a named region); without it the section is no landmark. Used for `#mission`, `#principes`, `#contribuer` (association) and `#pour-qui` (with a lead), `#proposer`, `#regles` (meetup).
 - `HostsSection`: props `eyebrow`, `title` (from `companies.json`), `tiles: LogoTile[]`, `sticker: Sticker` (both from `hostsWall(companies, events)`). `Section id="entreprises" variant="alt"`, centered head with no lead, `LogoWall id="logo-wall" compact`.
 
 #### HistoryTimeline, AssociationHistory
@@ -223,68 +223,53 @@ Routes: `src/app/actualites/page.tsx` (`metadata`: title and description from `a
 - `Prose`: `text-[1.08rem] leading-[1.7]`; descendant variants on the wrapper: `h2` 1.6rem and `h3` 1.5rem (`md()` maps `#` to h2 and `##` to h3), `ul` and `ol` restored with `list-disc` and `list-decimal`, `blockquote` with a 3px sage left rule in `font-display` italic, `code` on `paper-2`, links underlined. Spacing that is not a quarter step (0.4, 0.6, 1.2, 1.3, 1.4 rem) is a rem literal.
 - Old site reference: `.article`, `.prose`, the detail branch of `news()`.
 
+### SoCraTes page (`/socrates/`)
+Routes: `src/app/socrates/layout.tsx` (`PageFrame page="socrates"`) and `page.tsx` (server; `metadata`: title and description from `socrates.meta`, Open Graph from `socrates.html`, url `/socrates/`). Section ids in order: `unconference`, `regles` (with `#formats`), `deroule`, `editions`, `famille`, `valeurs`, `sponsoring` (with `arguments`, `trust-logos`, `packages`, `in-kind`, `sponsor-faq`, `sponsor-funnel`, `sponsor-form`), `partenaires` (with `#sponsors-wall`). Components are in `src/components/socrates/`.
+
+#### OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid
+- `OpenSpaceLaws({ laws })`: `<ol role="list">`, one column, two from `md`; a CSS counter badge (rotated `-8deg`); the last law is the `bg-green-deep` band (`md:col-span-full`). Data from `socratesLaws(s)`.
+- `DayStrip({ days, note? })`: bordered white panel, 1 column, 2 from `sm`, 4 from `lg`; the divider lines switch with the layout. `font-hand` day name.
+- `EditionGrid({ editions })` and `EditionCard({ edition })`: the photo, or the year in a khatam star over a green-deep cover; yellow badge. Data from `socratesEditionCards(s)`.
+- `FamilyGrid({ items })`: `<ul role="list">` of auto-fill 120px tiles with a 72px logo. It keeps the old accidental list defaults (`pl-10 mb-[17px]`) for geometry parity.
+- The khatam bands (`#unconference`, `#valeurs`) are `CardsSection marker="khatam"`. The former `CardBand` was removed: it duplicated `CardsSection` apart from the marker.
+
+#### PackageGrid, SponsorLayout, SponsorForm, SponsoringSection
+- `PackageGrid({ packages })` (`id="packages"`): three dark offer cards, one column below `lg`. "Choisir ce niveau" is `<Button href="#sponsor-form" data-level={package id}>`.
+- `SponsorLayout({ title, lead, faq, children })`: `lg:grid-cols-[0.9fr_1.1fr]`; the FAQ (`#sponsor-faq`, dark) beside the white `#sponsor-funnel` panel.
+- `SponsorForm({ site, levels, packageLevels, successText, submit? })` (client): single-step form, validation and result modes as `simpleForm` in the old `pages.js` (type "Sponsoring SoCraTes", subject "Partenariat SoCraTes · {entreprise} · {niveau}"). Validation uses `isValidEmail`, `validPhone` and `normalizePhone` from `lib/validation.ts`; a ref guard (`inFlight`) ignores a second submit while one is in flight, and the button is `aria-disabled` while sending (not `disabled`, so it keeps the focus). The result goes through `outcomeOf` (`lib/submit-outcome.tsx`) and the shared `SuccessPanel`. A document click listener checks the level of any `[data-level="<id>"]` click (unknown ids ignored). `submit` defaults to `submitFormInBrowser`; tests inject a fake. Field ids kept: `s-entreprise`, `s-nom`, `s-fonction`, `s-email`, `s-tel`, `s-message`, `s-consent`, `s-hp`, `s-alert`, `s-submit`, `s-success`.
+- `SponsoringSection({ sponsoring, trust, packages, levels, packageLevels, site })`: the whole `#sponsoring` band. The page builds `packageLevels` from `levelForPackage` and passes only `links.linkedin`, `contact` and `form` as `site`.
+- Differences from the old page: focus on a failed submit goes to the first invalid field in page order; the error alert follows `result.fallback` (mailto, LinkedIn or no link); the success `h3` is ink on the white panel (`SuccessPanel id="s-success" stamp="Merci !" headingLevel={3} headingClassName="text-ink!"`); mode `none` no longer links LinkedIn from `site.links` (none means no LinkedIn configured); the console message is `[MSC] Envoi du formulaire impossible :` as on the host funnel. Ruling: the old heading was white on the white card and unreadable (an old bug, the panel sits inside the dark section); the new readable heading is kept on purpose.
+
+### Host page (`/accueillir/`)
+Routes: `src/app/accueillir/layout.tsx` (`PageFrame page="host"` with `skip={{ href: "#funnel", label: "Aller au formulaire" }}`) and `page.tsx` (server; metadata from `accueillir.html`, url `/accueillir/`). Components are in `src/components/accueillir/`; the logic is pure in `src/lib/funnel.ts`.
+
+#### HostLayout (HostHero, ProcessSteps, ProofCard)
+`HostLayout.tsx` (server). `HostHero({ eyebrow, title, lead })` (`zellige-corner pt-14 pb-6`), `ProcessSteps({ steps })` (`ol role="list"`, 38px green round digits in bold, as the old `b`), `ProofCard({ src, alt, edition })` (92x70 lazy photo, `p#proof-text` "Dernière édition : {host}, {date longue}, {n} inscrits."; a null edition keeps the static sentence), `HostLayout({ aside, children })` (`Container` grid `gap-12 pb-22 lg:grid-cols-[0.85fr_1.15fr]`, the `aside` pinned at `lg:top-[100px]` from `lg`).
+
+#### HostFunnel (useHostFunnel, OfferStep, EventStep, CompanyStep, ContactStep, FunnelProgress, FunnelStep, FunnelNav, Recap)
+`HostFunnel.tsx` (client, about 75 lines: the card, the form and the success panel). The state lives in `useHostFunnel(offers, site)` (`useHostFunnel.ts`: answers, step, draft, validation, submit; returns `formRef`, `values`, `step`, `minDate`, `errors`, `alert`, `busy`, `success`, `update`, `bind`, `onPrev`, `onSubmit`). Each step is a component with the shared props `StepProps = { active, values, errors, update, bind }`: `OfferStep` (also needs `offers`), `EventStep` (also needs `minDate`), `CompanyStep`, `ContactStep` (also needs `offers`, it holds the `Recap`). The card `#funnel` has `tabIndex={-1}` (`outline-hidden`) so the skip link lands on it. Props `offers: FunnelOffer[]` (id, name, tagline, price) and `site: FormSite`. Four steps as in `funnel.js`; `lib/funnel.ts` holds `validateStep`, `validateAll` (the last step runs it, jumps to the first invalid step, shows its errors and focuses the field), `dateHelp`, `tomorrowIso`, `collect`, `recapRows`, `emailBody`, `leadSubject`, the draft functions and the option lists. The first render is step 1 with empty answers, so the static HTML shows the three offers; a mount effect reads the draft (`msc-host-draft-v1`, same format as the old page, cleared on success), `window.location.search` (`?formule=<id>`: the id wins over the saved offer, and opens step 2 only when the draft has no saved step; a saved step wins over it) and today's date. The primary button is `type="submit"`, so Continuer and Enter in a field both go through the form `onSubmit` (the old buttons were `type="button"`, so Enter did nothing). The honeypot is read at submit and passed to `submitFormInBrowser`; a filled one shows success without a call. A ref guard ignores a second submit while one is in flight, and the send runs in try/catch/finally. The result goes through `outcomeOf` (`lib/submit-outcome.tsx`); the failure alert links the prefilled `result.fallback.url` for the mail. Phone and e-mail checks come from `lib/validation.ts`; scrolling uses `scrollBehavior()` from `lib/motion.ts` (smooth unless the person prefers reduced motion). Result modes: endpoint and mailto success texts; LinkedIn or none shows the "pas encore relié" alert; error shows the alert with the mailto or LinkedIn fallback. Ids kept: `funnel`, `host-form`, `offer-choices`, `progress-label`, `date`, `date_alt`, `recap`, `form-alert`, `prev`, `next`, `success`, `success-text`, `website_hp`, `proof-text`. Subcomponents: `FunnelProgress({ step })`, `FunnelStep({ step, active, title, hint? })` and `StepHint`, `FunnelNav({ step, busy, onPrev })` (while busy the primary button is `aria-disabled="true"`, not `disabled`, so it keeps the focus), `Recap({ rows })` (`bg-paper` box, `dl` grid, hidden when empty). The success panel is the shared `SuccessPanel` (see below), used as `id="success" stamp="Merci ! On vous rappelle vite."` with the ghost link "Revoir les éditions passées" as `children`.
+
+#### SuccessPanel and the shared form modules
+- `SuccessPanel` (`src/components/SuccessPanel.tsx`, client). Props `{ id, hidden, stamp, text, headingLevel?: 2 | 3, headingClassName?, children? }`. Renders `role="status"` named by its title ("Demande bien reçue."), with the green post-it `stamp`, the `text` (through `frenchSpacing`) and `children` after it. Ids: `<id>`, `<id>-title`, `<id>-text`. It has `tabIndex={-1}` and focuses itself when `hidden` becomes false. Used by `HostFunnel` and `SponsorForm`.
+- `src/lib/validation.ts`: `isValidEmail`, `normalizePhone`, `validPhone` (the regexes of the old site; the caller owns the messages).
+- `src/lib/motion.ts`: `scrollBehavior()` returns `"smooth"`, or `"auto"` with `prefers-reduced-motion: reduce` or without `matchMedia`. Read at call time, so call it from handlers and effects only.
+- `src/lib/submit-outcome.tsx`: `outcomeOf(result, { success, mailto, failure: { plain, mailLead, linkedinLead } })` returns `{ kind: "success", text }` or `{ kind: "alert", content }` and logs the console errors for the team. Both forms use it with their own texts.
+- Busy state of both forms: the submit button gets `aria-disabled` (not `disabled`) while the request runs, with `aria-disabled:opacity-55 aria-disabled:cursor-not-allowed`, and the handler ignores the submit through a ref guard.
+
 ## To build
 
 Home sections are built (see Built). The entries below are ordered as the port reaches them. "Native HTML" says what to use instead of JS.
 
 ### LogoWall, LogoTile, LogoSticker, Monogram
 - Role: partner logos with a "your logo here" post-it. `LogoWall` takes `compact`.
-- Built for the home page: see `PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage` in Built. Left to build: the dark variant (socrates). The `compact` variant is built.
+- Built for the home page: see `PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage` in Built. The `compact` variant is built. The socrates sponsors wall sits in a light section, so no dark variant exists.
 - Layout: centered wrapping flex, `gap-3.5`, fixed-width tiles (168px; compact 112px) so the last row stays centered. Tile: white, `border border-line`, `rounded-card`; logo 84px in a 92px white box; name `0.88rem` 600; role `0.74rem text-muted`. Linked tile hover: `motion-safe:` lift `-translate-y-0.75`, `shadow-lift`, logo opacity 1. Sticker: same footprint, yellow, `rounded-[2px]`, `-2deg` (hover `-0.5deg`), `font-hand` title 1.7rem. On dark: translucent tile, light text.
 - Rule: show a logo only when the company has one and consent; an empty `logo`, or a logo file that fails to load, renders `Monogram` (the client component `LogoImage` swaps the image for the monogram on `error`, and on mount when the load already failed; `LogoRow` uses it too). Order by hosted plus sponsored count, descending. The SoCraTes wall shows sponsors only, with their years.
 - Native HTML: `<a>` when the company has a link, `<div>` otherwise; sticker is one `<a>` with `aria-labelledby`.
 - Pages: home (`#partenaires`), association (compact, built), socrates.
 - Old site reference: `.logo-wall`, `.logo-tile`, `.sticker`, `.monogram`.
 
-### OpenSpaceLaws
-- Role: the open-space laws as numbered cards.
-- Layout: one column; two from `md`, `gap-5`. Card: white, `rounded-card`, left padding 78px with a 38px green-outlined counter rotated `-8deg`; `h3` italic 1.25rem. The last item ("main law") spans both columns on `bg-green-deep`, sage counter, white `h3` 1.7rem, `pr-[15%]` from `md`.
-- Native HTML: `<ol>`.
-- Pages: socrates (`#regles`).
-- Old site reference: `.laws`, `.law-main`.
-
-### DayStrip
-- Role: four days of the conference in one block.
-- Layout: one bordered white block, `rounded-card`; one column, 2x2 from `sm`, four cells from `lg`, divided by 1px `border-line` lines (switch the divider side with the breakpoint). Day name `font-hand` 1.7rem green.
-- Native HTML: `<ol>`, plus a note paragraph.
-- Pages: socrates (`#deroule`).
-- Old site reference: `.days`.
-
-### EditionGrid, EditionCard
-- Role: past SoCraTes editions.
-- Layout: one column; two from `sm`; four from `lg`; `gap-5`. Cover 4/3: the photo, or a sage zellige pattern over green-deep with a radial vignette and the year in a double khatam star (`font-display` cream); yellow post-it badge at the top left rotated `-4deg`. Numbers `font-display` 1.4rem green.
-- Pages: socrates (`#editions`).
-- Old site reference: `.edition`, `.cover`, `.yr-badge`.
-
-### FamilyGrid
-- Role: logos of the SoCraTes family. `grid-cols-[repeat(auto-fill,minmax(120px,1fr))]`, `gap-3.5`; centered white tiles with a 72px logo, name bold, country muted. Native `<ul>`. Pages: socrates (`#famille`).
-- Old site reference: `.family`.
-
-### HostLayout (HostHero, ProcessSteps, ProofCard)
-- Role: host page frame. Hero with a zellige corner (`pt-14 pb-6`); body `lg:grid-cols-[0.85fr_1.15fr]`, `gap-12`, `pb-22`; the aside is sticky at 100px from `lg` and static below. Steps: 38px solid green circles with white `font-display` digits. Proof card: white, 92x70 photo, text "Dernière édition : {host}, {date}, {n} inscrits."
-- Native HTML: `<aside>`, `<ol>`.
-- Pages: host.
-- Old site reference: `accueillir.html`; `.host-hero`, `.host-layout`, `.steps`, `.proof`.
-
-### HostFunnel (FunnelProgress, FunnelStep, FunnelNav, Recap, SuccessPanel)
-- Role: four-step lead form. Client component.
-- Steps: 1 Formule (radio choice cards from the offers). 2 L'événement (date with `min` = tomorrow and a help line for non-Saturday dates, optional second date, attendee pills, city select, capacity 10 to 1000, equipment checkbox pills, topics textarea). 3 Votre entreprise (name, sector, tech team size, URL, address). 4 Contact (recap, name, role, email, phone, contact preference pills, message, consent, honeypot).
-- Look: white panel `rounded-[20px]`, `shadow-lift`, `p-8` (`px-4.5 py-5.5` below `sm`). Progress: four flexible 6px pill bars, `bg-line`, done = `bg-green`. Legend `font-display` 1.55rem. Nav bar with a top line; ghost button border `line`; primary pushed right; buttons stack full width below `sm`.
-- Behavior: "Continuer" validates the step; invalid fields get an invalid style and `aria-invalid`, focus goes to the first one. On step change: bars and `aria-live="polite"` label update ("Étape 1 sur 4 · Formule"), "Retour" hidden on step 1, next label becomes "Envoyer ma demande" on step 4, recap renders, focus moves to the step legend (`tabIndex={-1}`) and the panel scrolls into view. Enter acts as "Continuer". Draft saves to `localStorage` key `msc-host-draft-v1` (consent and honeypot excluded) and restores with the step. `?formule={id}` preselects the offer and opens step 2. While sending the button is disabled and reads "Envoi…". Success shows a green post-it, clears the draft. Delivery chain: JSON POST to `site.form.endpoint`, then a prefilled `mailto:`, then an alert with the LinkedIn link. Capture `utm_*` and the referrer; a filled honeypot ends silently as success.
-- Native HTML: `<form noValidate>`, `<fieldset>` and `<legend>` per step.
-- Pages: host.
-- Old site reference: `assets/js/funnel.js`; `.funnel`, `.progress`, `.choice-card`.
-
-### Recap
-- Role: summary box at the top of host funnel step 4. `bg-paper` box, `border border-line`, `rounded-sm`, `0.86rem`, a definition list in a `max-content 1fr` grid (`dt` muted, `dd` 500); hidden when empty. Built with `HostFunnel`.
-- Old site reference: `.recap`.
-
-### SponsorForm, SponsorLayout
-- Role: single-step sponsor lead form beside a FAQ, inside a dark section. Client.
-- Layout: `lg:grid-cols-[0.9fr_1.1fr]`, `gap-12`, `mt-18`; the form panel stays white with ink text, `p-7`; submit button full width "Recevoir le dossier de partenariat".
-- Behavior: validates required fields, email and phone on submit (Moroccan `0[5-7]` plus 8 digits, or international `+` or `00` plus 8 to 15 digits). Same invalid, focus, sending and success patterns as the host funnel. Level pills come from the packages plus "En nature" and "À discuter" (checked by default).
-- Pages: socrates (`#sponsoring`).
-- Old site reference: `.sponsor-layout`, `simpleForm` in `assets/js/pages.js`.
+Nothing is left to build: every page of the port exists. Add an entry here when a new component is planned.
 
 ## Page-level notes
 

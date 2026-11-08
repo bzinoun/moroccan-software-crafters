@@ -163,7 +163,7 @@ Proposal, owner to confirm: map each query of the old site to the true nearest d
 
 ## Layering
 
-Skip link `z-100`, lightbox `z-200`, sticky header `z-50`, collage polaroids `z-2`/`z-4`/`z-3` and post-it `z-5`, zellige corner `-z-1` inside its own stacking context.
+Skip link `z-100`, lightbox `z-200`, sticky header `z-50`, collage polaroids `z-2`/`z-4`/`z-3` and post-it `z-5`, zellige corner `-z-1` inside its own stacking context (`z-1` on the dark hero, see `zellige-corner-dark`).
 
 ## Base layer in `globals.css`
 
@@ -180,7 +180,7 @@ These rules apply to bare elements. A component never repeats them.
 
 ## Signature graphics
 
-- `--zellige-green` (custom property on `:root`) holds the 40x40 tile as an SVG data URI (stroke `#1b6b3a` at opacity `.28`, width 1.1). The utility `zellige-corner` (defined in `globals.css` with `@utility`) goes on a hero section. It sets `relative isolate` and draws a masked tile corner at the top right (`min(380px, 48vw)` square, radial mask fading out). One per hero. The SoCraTes hero needs a sage variant: add `--zellige-sage` (stroke `#a9bba3`, opacity `.4`) next to the green one when that hero is built.
+- `--zellige-green` (custom property on `:root`) holds the 40x40 tile as an SVG data URI (stroke `#1b6b3a` at opacity `.28`, width 1.1). The utility `zellige-corner` (defined in `globals.css` with `@utility`) goes on a hero section. It sets `relative isolate` and draws a masked tile corner at the top right (`min(380px, 48vw)` square, radial mask fading out). One per hero. The dark hero uses the sage tile: `--zellige-sage` (stroke `#a9bba3`, opacity `.4`) next to the green one, selected by the utility `zellige-corner-dark` (put it next to `zellige-corner`), which also raises the corner to `z-index: 1` because at `-1` it sits under the photo layer and is invisible. The corner reads `--zellige-image` and `--zellige-z`, so a plain hero keeps the green tile at `-1`.
 - Khatam star: eight-point star polygon `polygon(50% 0%, 64.6% 14.6%, 85.4% 14.6%, 85.4% 35.4%, 100% 50%, 85.4% 64.6%, 85.4% 85.4%, 64.6% 85.4%, 50% 100%, 35.4% 85.4%, 14.6% 85.4%, 14.6% 64.6%, 0% 50%, 14.6% 35.4%, 14.6% 14.6%, 35.4% 14.6%)`, used as `clip-path`. SoCraTes content only. Add it as a `@utility khatam` when first needed.
 - Edition cover: double eight-point star SVG (fill `#1b6b3a`, strokes `#f3eedf` and `#a9bba3`) behind the year, on a sage zellige pattern over green-deep.
 - Cork board dots: 6x6 SVG, circle `r=.6`, fill `#c9b48f` at opacity `.5`.
