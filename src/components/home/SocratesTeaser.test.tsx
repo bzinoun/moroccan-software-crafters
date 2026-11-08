@@ -137,6 +137,13 @@ describe("SocratesTeaser", () => {
   });
 });
 
+describe("EditionChips without an edition", () => {
+  it("renders nothing", () => {
+    const { container } = render(<EditionChips editions={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
 describe("EditionChips", () => {
   it("renders one chip per edition with the year line and the detail line", () => {
     render(<EditionChips editions={EDITIONS.slice(0, 2)} />);

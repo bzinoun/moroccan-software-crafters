@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { Event } from "@/content/types";
@@ -105,10 +105,13 @@ describe("FeaturedEvents", () => {
 
   it("shows the first photo, decorative and lazy, with the photo count", () => {
     const [alpha, , gamma] = setup().cards;
-    const thumb = within(alpha!).getByRole("button", {
+    const thumb = within(alpha!).getByRole("link", {
       name: "Voir les 3 photos de Meetup @ Alpha Corp",
     });
-    expect(thumb).toHaveAttribute("type", "button");
+    expect(thumb).toHaveAttribute(
+      "href",
+      "/assets/img/meetups/2026-10-alpha-5.jpg",
+    );
     const img = thumb.querySelector("img");
     expect(img).toHaveAttribute(
       "src",
@@ -118,7 +121,7 @@ describe("FeaturedEvents", () => {
     expect(img).toHaveAttribute("loading", "lazy");
     expect(within(thumb).getByText("3 photos")).toBeInTheDocument();
     expect(
-      within(gamma!).getByRole("button", {
+      within(gamma!).getByRole("link", {
         name: "Voir les 2 photos de Meetup @ Gamma",
       }),
     ).toBeInTheDocument();
@@ -126,10 +129,10 @@ describe("FeaturedEvents", () => {
 
   it("links to the LinkedIn recap, then the Luma page, in a new tab", () => {
     const [, , gamma] = setup().cards;
-    const links = within(gamma!).getAllByRole("link");
+    const links = within(gamma!).getAllByRole("link").slice(1);
     expect(links.map((link) => link.textContent)).toEqual([
-      "Récap LinkedIn",
-      "Page Luma",
+      "Récap LinkedIn, Meetup @ Gamma",
+      "Page Luma, Meetup @ Gamma",
     ]);
     expect(links[0]).toHaveAttribute("href", "https://linkedin.example/gamma");
     expect(links[1]).toHaveAttribute("href", "https://luma.example/gamma");
@@ -141,7 +144,9 @@ describe("FeaturedEvents", () => {
 
   it("zooms the photo on hover only behind motion-safe", () => {
     const { cards } = setup();
-    const img = within(cards[0]!).getByRole("button").querySelector("img");
+    const img = within(cards[0]!)
+      .getByRole("link", { name: /^Voir les 3 photos/ })
+      .querySelector("img");
     const classes = img!.className.split(" ");
     expect(classes.filter((c) => /(^|:)scale-/.test(c))).toEqual([
       "motion-safe:group-hover:scale-104",
@@ -151,7 +156,44 @@ describe("FeaturedEvents", () => {
   it("reports the event of the clicked photo", async () => {
     const user = userEvent.setup();
     const { onOpenPhotos, cards } = setup();
-    await user.click(within(cards[1]!).getByRole("button"));
+    await user.click(
+      within(cards[1]!).getByRole("link", { name: /^Voir les 4 photos/ }),
+    );
     expect(onOpenPhotos).toHaveBeenCalledExactlyOnceWith(BETA);
+  });
+
+  it("keeps a plain click on the photo from following the link", () => {
+    const { cards } = setup();
+    const link = within(cards[1]!).getByRole("link", {
+      name: /^Voir les 4 photos/,
+    });
+    expect(fireEvent.click(link)).toBe(false);
+  });
+
+  it("uses the singular for a single photo", () => {
+    const single = { ...GAMMA, photos: ["2026-03-gamma-1"] };
+    render(<FeaturedEvents events={[single]} onOpenPhotos={vi.fn()} />);
+    const link = screen.getByRole("link", {
+      name: "Voir la photo de Meetup @ Gamma",
+    });
+    expect(within(link).getByText("1 photo")).toBeInTheDocument();
+  });
+
+  it("renders nothing when there is no event to feature", () => {
+    const { container } = render(
+      <FeaturedEvents events={[]} onOpenPhotos={vi.fn()} />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("lists two links with the same address without a key warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const twin = {
+      ...GAMMA,
+      links: { luma: "https://x.example/a", linkedin: "https://x.example/a" },
+    };
+    render(<FeaturedEvents events={[twin]} onOpenPhotos={vi.fn()} />);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });

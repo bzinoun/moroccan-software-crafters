@@ -7,27 +7,26 @@ import { SectionHead } from "../SectionHead";
 type FaqItem = { q: string; a: string };
 
 // Native details and summary: no state, Enter and Space work in the browser.
-// The plus is the ::after of the summary; the open details turns it 45 degrees.
+// The plus is a span that assistive technology skips, not generated content,
+// so a screen reader does not read it; the open details turns it 45 degrees.
 const faqStyles = tv({
   slots: {
     item: "group border-b",
-    summary: [
-      "flex cursor-pointer list-none justify-between gap-4 py-4.5 text-[1.05rem] font-semibold [&::-webkit-details-marker]:hidden",
-      "after:shrink-0 after:text-2xl after:leading-none after:content-['+']",
-      "group-open:after:rotate-45 motion-safe:after:transition-[rotate] motion-safe:after:duration-200",
-    ],
+    summary:
+      "flex cursor-pointer list-none justify-between gap-4 py-4.5 text-s105 font-semibold [&::-webkit-details-marker]:hidden",
+    icon: "shrink-0 text-2xl leading-none group-open:rotate-45 motion-safe:transition-[rotate] motion-safe:duration-200",
     answer: "mb-4.5",
   },
   variants: {
     tone: {
       default: {
         item: "border-line",
-        summary: "after:text-green",
+        icon: "text-green",
         answer: "text-ink-soft",
       },
       dark: {
-        item: "border-white/14",
-        summary: "after:text-sage",
+        item: "border-white/16",
+        icon: "text-sage",
         answer: "text-on-dark",
       },
     },
@@ -49,11 +48,17 @@ export function FaqList({
   ...props
 }: FaqListProps) {
   const styles = faqStyles({ tone });
+  if (items.length === 0) return null;
   return (
-    <div className={cn("mx-auto max-w-[820px]", className)} {...props}>
-      {items.map(({ q, a }) => (
-        <details key={q} className={styles.item()}>
-          <summary className={styles.summary()}>{frenchSpacing(q)}</summary>
+    <div className={cn("mx-auto max-w-205", className)} {...props}>
+      {items.map(({ q, a }, index) => (
+        <details key={`${index}-${q}`} className={styles.item()}>
+          <summary className={styles.summary()}>
+            {frenchSpacing(q)}
+            <span aria-hidden="true" className={styles.icon()}>
+              +
+            </span>
+          </summary>
           <p className={styles.answer()}>{frenchSpacing(a)}</p>
         </details>
       ))}
@@ -69,8 +74,9 @@ type FaqProps = {
 };
 
 // Spec: the "Faq, FaqItem" entry in msca-design/COMPONENTS.md.
-// The #faq section of the former `index.html` (`git show 1353207:index.html`): centered head, then the question list.
+// The #faq section: centered head, then the question list. No question, no section.
 export function Faq({ eyebrow, title, items }: FaqProps) {
+  if (items.length === 0) return null;
   return (
     <Section variant="alt" id="faq" aria-labelledby="faq-title">
       <SectionHead

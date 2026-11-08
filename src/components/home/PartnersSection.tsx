@@ -1,6 +1,5 @@
 import type { Sticker } from "@/content/types";
 import type { LogoTile } from "@/lib/derive";
-import { frenchSpacing } from "@/lib/french";
 import { Button } from "../Button";
 import { LogoWall } from "./LogoWall";
 import { Section } from "../Section";
@@ -8,8 +7,8 @@ import { SectionFoot } from "../SectionFoot";
 import { SectionHead } from "../SectionHead";
 
 // Spec: the "LogoWall, LogoTile, LogoSticker" entry in msca-design/COMPONENTS.md.
-// The #partenaires section of the former `index.html` (`git show 1353207:index.html`). The head and the sticker come from
-// content/companies.json; the two buttons are literal copy of the former `index.html`.
+// The #partenaires section. The head and the sticker come from
+// content/companies.json; the two buttons carry literal copy.
 
 type PartnersSectionProps = {
   eyebrow: string;
@@ -30,16 +29,11 @@ export function PartnersSection({
 }: PartnersSectionProps) {
   return (
     <Section variant="alt" id="partenaires">
-      <SectionHead
-        align="center"
-        eyebrow={frenchSpacing(eyebrow)}
-        title={frenchSpacing(title)}
-        lead={frenchSpacing(lead)}
-      />
-      <LogoWall id="logo-wall" tiles={tiles} sticker={sticker} />
+      <SectionHead align="center" eyebrow={eyebrow} title={title} lead={lead} />
+      <LogoWall tiles={tiles} sticker={sticker} />
       <SectionFoot>
-        <Button href={"/accueillir/"}>Rejoindre les hôtes</Button>
-        <Button variant="ghost" href={"/socrates/#sponsoring"}>
+        <Button href="/accueillir/">Rejoindre les hôtes</Button>
+        <Button variant="ghost" href="/socrates/#sponsoring">
           Soutenir SoCraTes Maroc
         </Button>
       </SectionFoot>

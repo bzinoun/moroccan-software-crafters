@@ -1,9 +1,10 @@
-import { render, within } from "@testing-library/react";
+import { fireEvent, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Event, Home } from "@/content/types";
 import { LightboxProvider } from "../Lightbox";
 import { HistorySection } from "./HistorySection";
+import { setJs } from "./js-mode";
 
 // jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
 beforeEach(() => {
@@ -16,6 +17,11 @@ beforeEach(() => {
     this.dispatchEvent(new Event("close"));
   };
   document.body.style.overflow = "";
+  setJs(true);
+});
+
+afterEach(() => {
+  setJs(false);
 });
 
 // A fixture written here.
@@ -290,14 +296,16 @@ describe("HistorySection featured events", () => {
   it("links to the LinkedIn recap and the Luma page in a new tab", () => {
     const { section } = setup();
     const [sg] = within(section).getAllByRole("article");
-    const recap = within(sg!).getByRole("link", { name: "Récap LinkedIn" });
+    const recap = within(sg!).getByRole("link", {
+      name: /^Récap LinkedIn/,
+    });
     expect(recap).toHaveAttribute(
       "href",
       "https://www.linkedin.com/feed/update/urn:li:activity:7517872453725888512/",
     );
     expect(recap).toHaveAttribute("target", "_blank");
     expect(recap).toHaveAttribute("rel", "noopener");
-    const luma = within(sg!).getByRole("link", { name: "Page Luma" });
+    const luma = within(sg!).getByRole("link", { name: /^Page Luma/ });
     expect(luma).toHaveAttribute("href", "https://luma.com/6eiyisjw");
     expect(luma).toHaveAttribute("target", "_blank");
   });
@@ -305,7 +313,7 @@ describe("HistorySection featured events", () => {
   it("shows the first photo as a decorative lazy image with a photo count", () => {
     const { section } = setup();
     const [sg, axa] = within(section).getAllByRole("article");
-    const thumb = within(sg!).getByRole("button", {
+    const thumb = within(sg!).getByRole("link", {
       name: "Voir les 8 photos de Meetup @ Société Générale GSCM",
     });
     const img = thumb.querySelector("img");
@@ -317,7 +325,7 @@ describe("HistorySection featured events", () => {
     );
     expect(within(thumb).getByText("8 photos")).toBeInTheDocument();
     expect(
-      within(axa!).getByRole("button", {
+      within(axa!).getByRole("link", {
         name: "Voir les 4 photos de Meetup @ AXA Assurance Maroc",
       }),
     ).toBeInTheDocument();
@@ -328,7 +336,7 @@ describe("HistorySection featured events", () => {
     const { container, section } = setup();
     const [, axa] = within(section).getAllByRole("article");
     await user.click(
-      within(axa!).getByRole("button", { name: /^Voir les 4 photos/ }),
+      within(axa!).getByRole("link", { name: /^Voir les 4 photos/ }),
     );
     const dialog = container.ownerDocument.querySelector("dialog");
     expect(dialog).toHaveAttribute("open");
@@ -446,5 +454,133 @@ describe("HistorySection timeline", () => {
     const { section } = setup();
     await user.click(within(section).getByRole("button", { name: "En ligne" }));
     expect(timelineTitles(section)).toEqual([]);
+  });
+});
+
+describe("HistorySection without JavaScript", () => {
+  it("shows every event, with no filter chips and no more button", () => {
+    setJs(false);
+    const { section } = setup();
+    expect(timelineTitles(section)).toHaveLength(EVENTS.length);
+    expect(
+      within(section).queryByRole("group", { name: "Filtrer les événements" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(section).queryByRole("button", { name: /événements$/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(section)
+        .getAllByRole("heading", { level: 3 })
+        .map((heading) => heading.textContent)
+        .filter((text) => /^\d{4}$/.test(text ?? "")),
+    ).toEqual(["2026", "2025", "2024"]);
+  });
+
+  it("links each featured photo to its file", () => {
+    setJs(false);
+    const { section } = setup();
+    const [, axa] = within(section).getAllByRole("article");
+    expect(
+      within(axa!).getByRole("link", { name: /^Voir les 4 photos/ }),
+    ).toHaveAttribute("href", "/assets/img/meetups/2026-05-axa-1.jpg");
+  });
+});
+
+describe("HistorySection with JavaScript", () => {
+  it("keeps the hidden events in the page, as the markup of every visitor", () => {
+    const { section } = setup();
+    expect(timelineTitles(section)).toHaveLength(6);
+    expect(
+      within(section).getAllByRole("heading", { level: 4, hidden: true }),
+    ).toHaveLength(EVENTS.length);
+  });
+
+  it("names each year section by its year", () => {
+    const { section } = setup();
+    expect(
+      within(section)
+        .getAllByRole("region")
+        .map((region) => region.getAttribute("aria-labelledby"))
+        .map((id) => document.getElementById(id ?? "missing")?.textContent),
+    ).toEqual(["2026", "2025"]);
+    expect(
+      within(section).getByRole("region", { name: "2025" }),
+    ).toContainElement(
+      within(section).getByRole("heading", {
+        level: 4,
+        name: "Meetup @ Jobzyn",
+      }),
+    );
+  });
+
+  it("says how many events the pressed filter shows, in a polite status", async () => {
+    const user = userEvent.setup();
+    const { section } = setup();
+    const status = within(section).getByRole("status");
+    await user.click(
+      within(section).getByRole("button", { name: "SoCraTes Maroc" }),
+    );
+    expect(status.textContent).toBe("SoCraTes Maroc\u202f: 2 événements");
+    await user.click(within(section).getByRole("button", { name: "En ligne" }));
+    expect(status.textContent).toBe("En ligne\u202f: 0 événement");
+    await user.click(within(section).getByRole("button", { name: "Tous" }));
+    expect(status.textContent).toBe("Tous\u202f: 8 événements");
+  });
+
+  it("hides the year of a filter that keeps none of its events", async () => {
+    const user = userEvent.setup();
+    const { section } = setup();
+    await user.click(
+      within(section).getByRole("button", { name: "Code Snacks" }),
+    );
+    expect(within(section).queryAllByRole("region")).toEqual([]);
+  });
+});
+
+describe("HistorySection photo links", () => {
+  it("opens the lightbox on a plain click and keeps the link from navigating", () => {
+    const { section } = setup();
+    const [sg] = within(section).getAllByRole("article");
+    const link = within(sg!).getByRole("link", { name: /^Voir les 8 photos/ });
+    expect(fireEvent.click(link)).toBe(false);
+    expect(document.querySelector("dialog")).toHaveAttribute("open");
+  });
+
+  it("leaves a click with a modifier key to the browser", () => {
+    const { section } = setup();
+    const [sg] = within(section).getAllByRole("article");
+    const link = within(sg!).getByRole("link", { name: /^Voir les 8 photos/ });
+    let prevented = true;
+    const record = (event: globalThis.Event) => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    };
+    document.addEventListener("click", record);
+    fireEvent.click(link, { ctrlKey: true });
+    document.removeEventListener("click", record);
+    expect(prevented).toBe(false);
+    expect(document.querySelector("dialog")).not.toHaveAttribute("open");
+  });
+
+  it("gives the focus back to the photo link when the lightbox closes", () => {
+    const { section } = setup();
+    const [sg] = within(section).getAllByRole("article");
+    const link = within(sg!).getByRole("link", { name: /^Voir les 8 photos/ });
+    fireEvent.click(link);
+    expect(link).not.toHaveFocus();
+    (document.querySelector("dialog") as HTMLDialogElement).close();
+    expect(link).toHaveFocus();
+  });
+});
+
+describe("HistorySection without an event", () => {
+  it("renders no section, no chips and no orphan heading", () => {
+    const { container } = render(
+      <LightboxProvider>
+        <HistorySection history={HISTORY} events={[]} />
+      </LightboxProvider>,
+    );
+    expect(container.querySelector("section")).toBeNull();
+    expect(container).not.toHaveTextContent("Sept ans de meetups.");
   });
 });

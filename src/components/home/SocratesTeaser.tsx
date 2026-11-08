@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react";
+import type { Cta } from "@/content/types";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import type { SocratesEdition, TrustLogo } from "@/lib/home-data";
@@ -11,15 +12,12 @@ import { LogoRow } from "./LogoRow";
 import { Photo } from "../Photo";
 
 // Spec: the "SocratesTeaser, EditionChips, SponsorCall" entry in msca-design/COMPONENTS.md.
-// The #socrates section of the former `index.html` (`git show 1353207:index.html`). Texts come from content/home.json
-// (`home.socrates`), the chips from `socratesEditions()`, the logos from
-// `trustLogos()`. Both eyebrows carry the khatam star, as `#socrates .eyebrow`
-// did on the old site.
+// The #socrates section. Texts come from content/home.json (`home.socrates`),
+// the chips from `socratesEditions()`, the logos from `trustLogos()`. Both
+// eyebrows carry the khatam star.
 
-// Static copy of the aria-label of #trust-logos in the former `index.html`.
+// Not in home.json: the accessible name of the trusted logos.
 const TRUST_LABEL = "Partenaires présents à chaque édition";
-
-type Cta = { label: string; href: string };
 
 type EditionChipsProps = Omit<ComponentPropsWithoutRef<"ul">, "children"> & {
   /** `socratesEditions(events)`, oldest first. */
@@ -32,6 +30,7 @@ export function EditionChips({
   className,
   ...props
 }: EditionChipsProps) {
+  if (editions.length === 0) return null;
   return (
     <ul
       role="list"
@@ -41,12 +40,12 @@ export function EditionChips({
       {editions.map((edition) => (
         <li
           key={edition.id}
-          className="rounded-sm border border-white/15 px-3.5 py-3"
+          className="rounded-sm border border-white/16 px-3.5 py-3"
         >
           <b className="block font-display text-[1.1rem] font-semibold text-white">
             {frenchSpacing(edition.title)}
           </b>
-          <span className="text-[0.85rem] text-on-dark">
+          <span className="text-s85 text-on-dark">
             {frenchSpacing(edition.detail)}
           </span>
         </li>
@@ -82,16 +81,11 @@ export function SponsorCall({
       )}
       {...props}
     >
-      {/* The old rule `.sponsor-call p` (specificity above `.eyebrow`) sets .98rem here. */}
-      <Eyebrow tone="dark" marker="khatam" className="mb-2 text-[0.98rem]">
+      <Eyebrow tone="dark" marker="khatam" className="mb-2 text-s98">
         {sponsor.eyebrow}
       </Eyebrow>
-      <h3 className="mb-[0.4rem] text-[1.4rem]">
-        {frenchSpacing(sponsor.title)}
-      </h3>
-      <p className="text-[0.98rem] text-on-dark">
-        {frenchSpacing(sponsor.text)}
-      </p>
+      <h3 className="mb-[0.4rem] text-s140">{frenchSpacing(sponsor.title)}</h3>
+      <p className="text-s98 text-on-dark">{frenchSpacing(sponsor.text)}</p>
       <LogoRow
         logos={trust}
         aria-label={TRUST_LABEL}
@@ -154,7 +148,7 @@ export function SocratesTeaser({
         </Button>
         <SponsorCall sponsor={sponsor} trust={trust} />
       </div>
-      {/* Static alt text of the former `index.html`: it is not in home.json. */}
+      {/* The alt text is not in home.json. */}
       <Photo
         src={photoSrc}
         alt="Photo de groupe des participants de SoCraTes Maroc 2022 à Marrakech"

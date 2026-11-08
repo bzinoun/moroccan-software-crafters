@@ -41,6 +41,11 @@ const props = {
 };
 
 describe("OffersSection", () => {
+  it("renders no section, and no orphan heading or note, without an offer", () => {
+    const { container } = render(<OffersSection {...props} items={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("is the #offres anchor, named by its title", () => {
     render(<OffersSection {...props} />);
     const region = screen.getByRole("region", {

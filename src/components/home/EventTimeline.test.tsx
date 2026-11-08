@@ -1,8 +1,17 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Event } from "@/content/types";
 import type { YearGroup } from "@/lib/home-data";
 import { EventTimeline } from "./EventTimeline";
+import { setJs } from "./js-mode";
+
+beforeEach(() => {
+  setJs(true);
+});
+
+afterEach(() => {
+  setJs(false);
+});
 
 // Fixture events (copies of real shapes, not read from content), grouped by
 // year as eventsByYear() gives them: a SoCraTes edition with partners, a meetup with six topics, an online
@@ -208,5 +217,71 @@ describe("EventTimeline list semantics", () => {
     const lists = container.querySelectorAll("ol");
     expect(lists).toHaveLength(GROUPS.length);
     for (const list of lists) expect(list).toHaveAttribute("role", "list");
+  });
+});
+
+describe("EventTimeline year sections", () => {
+  it("names each year section by its year heading", () => {
+    render(<EventTimeline groups={GROUPS} />);
+    expect(
+      screen.getAllByRole("region").map((region) => region.textContent),
+    ).toHaveLength(GROUPS.length);
+    const section = screen.getByRole("region", { name: "2024" });
+    expect(section).toContainElement(item("Meetup @ Renault Digital Maroc"));
+  });
+
+  it("gives two timelines on one page distinct names to their sections", () => {
+    render(
+      <>
+        <EventTimeline groups={GROUPS} />
+        <EventTimeline groups={GROUPS} />
+      </>,
+    );
+    const ids = screen
+      .getAllByRole("region")
+      .map((region) => region.getAttribute("aria-labelledby"));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("EventTimeline shownIds", () => {
+  const SHOWN = new Set([SOCRATES_2025.id, RENAULT.id]);
+
+  it("hides, for a visitor with JavaScript, the events that are not shown", () => {
+    render(<EventTimeline groups={GROUPS} shownIds={SHOWN} />);
+    expect(
+      screen
+        .getAllByRole("heading", { level: 4 })
+        .map((heading) => heading.textContent),
+    ).toEqual([SOCRATES_2025.title, RENAULT.title]);
+  });
+
+  it("keeps the hidden events in the page", () => {
+    render(<EventTimeline groups={GROUPS} shownIds={SHOWN} />);
+    expect(
+      screen.getAllByRole("heading", { level: 4, hidden: true }),
+    ).toHaveLength(5);
+  });
+
+  it("hides the year of a group with no shown event", () => {
+    render(<EventTimeline groups={GROUPS} shownIds={SHOWN} />);
+    expect(
+      screen
+        .getAllByRole("heading", { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual(["2025", "2024"]);
+  });
+
+  it("shows every event without JavaScript", () => {
+    setJs(false);
+    render(<EventTimeline groups={GROUPS} shownIds={SHOWN} />);
+    expect(screen.getAllByRole("heading", { level: 4 })).toHaveLength(5);
+  });
+});
+
+describe("EventTimeline empty", () => {
+  it("renders nothing without a group", () => {
+    const { container } = render(<EventTimeline groups={[]} id="timeline" />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

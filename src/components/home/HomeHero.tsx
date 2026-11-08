@@ -6,12 +6,12 @@ import { Lead } from "@/components/Lead";
 import { PostIt } from "@/components/PostIt";
 import type { Home } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
-import { Polaroid } from "./Polaroid";
+import { Polaroid, POLAROID_SLOTS } from "./Polaroid";
 
 // Spec: the "HomeHero, PolaroidCollage, Polaroid" entry in msca-design/COMPONENTS.md.
 // The collage is decorative, so the whole box is removed from assistive
-// technology. The two columns start at `lg` (the old site switched at 900px,
-// which is not a default breakpoint); the collage then stacks under the text.
+// technology. The two columns start at `lg`; the collage stacks under the text
+// below it. Only the first photos that have a slot show.
 type HomeHeroProps = {
   /** `home.hero` from `loadHome()`. Its `collage` is ignored: pass `collage`. */
   hero: Home["hero"];
@@ -40,21 +40,21 @@ export function HomeHero({ hero, note, collage }: HomeHeroProps) {
             </Button>
           </div>
           {note ? (
-            <p className="mt-[1.4rem] text-[0.9rem] text-muted">
+            <p className="mt-[1.4rem] text-s90 text-muted">
               {frenchSpacing(note)}
             </p>
           ) : null}
         </div>
-        <div aria-hidden="true" className="relative h-[380px] lg:h-[480px]">
-          {collage.map((photo, index) => (
+        <div aria-hidden="true" className="relative h-95 lg:h-120">
+          {collage.slice(0, POLAROID_SLOTS).map((photo, index) => (
             <Polaroid
-              key={photo.src}
+              key={`${index}-${photo.src}`}
               index={index}
               src={photo.src}
               caption={photo.caption}
             />
           ))}
-          <PostIt className="absolute top-2.5 right-[6%] z-5 w-35 rotate-[5deg] text-[1.15rem] lg:w-[170px] lg:text-[1.35rem]">
+          <PostIt className="absolute top-2.5 right-[6%] z-5 w-35 rotate-5 text-s115 lg:w-42.5 lg:text-s135">
             {hero.postit}
           </PostIt>
         </div>

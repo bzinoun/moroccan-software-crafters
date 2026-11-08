@@ -19,8 +19,7 @@ type LogoImageProps = Omit<
   fallback: ReactNode;
 };
 
-// Port of the missing-logo rule of the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`): a logo file that fails to
-// load gives way to the monogram. The error event can fire before React
+// A logo file that fails to load gives way to the monogram. The error event can fire before React
 // attaches its handler, so the effect also checks the image that already failed.
 export function LogoImage({ src, fallback, alt, ...props }: LogoImageProps) {
   const ref = useRef<HTMLImageElement>(null);

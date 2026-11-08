@@ -1,7 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { DEFAULT_GALLERY_LIMIT } from "@/lib/home-data";
 import { LightboxProvider } from "../Lightbox";
+import { setJs } from "./js-mode";
 import { PhotoGallery } from "./PhotoGallery";
 
 // jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
@@ -15,6 +17,11 @@ beforeEach(() => {
     this.dispatchEvent(new Event("close"));
   };
   document.body.style.overflow = "";
+  setJs(true);
+});
+
+afterEach(() => {
+  setJs(false);
 });
 
 // A fixture written here, newest event first, as galleryItems() returns the
@@ -58,7 +65,7 @@ function setup(props: Partial<Parameters<typeof PhotoGallery>[0]> = {}) {
 }
 
 function openers() {
-  return screen.getAllByRole("button", { name: /^Agrandir : / });
+  return screen.getAllByRole("link", { name: /^Agrandir : / });
 }
 
 function moreButton() {
@@ -76,12 +83,12 @@ describe("PhotoGallery", () => {
     expect(heading.closest("section")).toHaveAttribute("id", "galerie");
   });
 
-  it("shows the first photos up to the limit, each a button named after its caption", () => {
+  it("shows the first photos up to the limit, each a link named after its caption", () => {
     setup();
-    const buttons = openers();
-    expect(buttons).toHaveLength(LIMIT);
-    expect(buttons[0]).toHaveAccessibleName(`Agrandir : ${ACME}`);
-    const img = within(buttons[0]!).getByRole("img", { name: ACME });
+    const links = openers();
+    expect(links).toHaveLength(LIMIT);
+    expect(links[0]).toHaveAccessibleName(`Agrandir : ${ACME}`);
+    const img = within(links[0]!).getByRole("img", { name: ACME });
     expect(img).toHaveAttribute(
       "src",
       "/assets/img/meetups/2026-10-acme-5.jpg",
@@ -89,10 +96,10 @@ describe("PhotoGallery", () => {
     expect(img).toHaveAttribute("loading", "lazy");
   });
 
-  it("uses 8 when the limit is 0 or missing, as the old site did", () => {
+  it("uses the default limit when the limit is 0 or missing", () => {
     setup({ limit: 0 });
-    expect(openers()).toHaveLength(8);
-    expect(TOTAL).toBeGreaterThan(8);
+    expect(openers()).toHaveLength(DEFAULT_GALLERY_LIMIT);
+    expect(TOTAL).toBeGreaterThan(DEFAULT_GALLERY_LIMIT);
   });
 
   it("honors a smaller limit", () => {
@@ -120,10 +127,10 @@ describe("PhotoGallery", () => {
     const user = userEvent.setup();
     setup();
     await user.click(moreButton()!);
-    const buttons = openers();
-    expect(buttons).toHaveLength(TOTAL);
-    expect(buttons[LIMIT]).toHaveAccessibleName(`Agrandir : ${GLOBEX}`);
-    expect(buttons[LIMIT]).toHaveFocus();
+    const links = openers();
+    expect(links).toHaveLength(TOTAL);
+    expect(links[LIMIT]).toHaveAccessibleName(`Agrandir : ${GLOBEX}`);
+    expect(links[LIMIT]).toHaveFocus();
     expect(moreButton()).not.toBeInTheDocument();
   });
 
@@ -159,6 +166,53 @@ describe("PhotoGallery", () => {
       "src",
       "/assets/img/meetups/2026-05-globex-1.jpg",
     );
+  });
+
+  it("links each photo to its file", () => {
+    setup();
+    expect(openers()[0]).toHaveAttribute(
+      "href",
+      "/assets/img/meetups/2026-10-acme-5.jpg",
+    );
+  });
+
+  it("keeps every photo in the page, and hides the extra ones from a visitor with JavaScript", () => {
+    setup();
+    expect(openers()).toHaveLength(LIMIT);
+    expect(document.querySelectorAll("a[href^='/assets/']")).toHaveLength(
+      TOTAL,
+    );
+  });
+
+  it("shows every photo and no more button without JavaScript", () => {
+    setJs(false);
+    setup();
+    expect(openers()).toHaveLength(TOTAL);
+    expect(moreButton()).not.toBeInTheDocument();
+  });
+
+  it("keeps the click on a photo from navigating to the file", () => {
+    setup();
+    expect(fireEvent.click(openers()[0]!)).toBe(false);
+    expect(document.querySelector("dialog")).toHaveAttribute("open");
+  });
+
+  it("gives the focus back to the photo link when the lightbox closes", () => {
+    setup();
+    const link = openers()[1]!;
+    fireEvent.click(link);
+    (document.querySelector("dialog") as HTMLDialogElement).close();
+    expect(link).toHaveFocus();
+  });
+
+  it("renders nothing when there is no photo", () => {
+    const { container } = render(
+      <LightboxProvider>
+        <PhotoGallery {...COPY} limit={LIMIT} items={[]} />
+      </LightboxProvider>,
+    );
+    expect(container.querySelector("section")).toBeNull();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
   });
 
   describe("layout guards", () => {

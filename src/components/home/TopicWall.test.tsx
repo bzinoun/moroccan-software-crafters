@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { TopicNote } from "@/lib/home-data";
 import { TopicWall, type TopicWallNote } from "./TopicWall";
 
@@ -62,8 +62,18 @@ describe("TopicWall", () => {
     expect(renderWall()).toHaveClass("justify-center");
   });
 
-  it("renders an empty group when there is no topic", () => {
-    expect(renderWall([]).children).toHaveLength(0);
+  it("renders nothing when there is no topic", () => {
+    const { container } = render(<TopicWall label="Sujets" topics={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("keeps two notes with the same topic and year apart, without a key warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const twin: TopicWallNote = { topic: "Rust", year: "2026", tone: "pink" };
+    render(<TopicWall label="Sujets" topics={[twin, twin]} />);
+    expect(screen.getAllByText("Rust")).toHaveLength(2);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });
 

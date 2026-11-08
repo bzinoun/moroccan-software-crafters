@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Offer } from "@/content/types";
 import { OfferGrid } from "./OfferGrid";
 
@@ -44,9 +44,10 @@ function card(name: string) {
   return article;
 }
 
+// Every card has the same visible label: a hidden part names the offer.
 function choose(name: string) {
   return within(card(name)).getByRole("link", {
-    name: "Choisir cette formule",
+    name: `Choisir cette formule, ${name}`,
   });
 }
 
@@ -151,11 +152,11 @@ describe("OfferGrid badge and highlight", () => {
     expect(screen.getAllByText("Nouveau")).toHaveLength(1);
   });
 
-  it("marks only the highlighted card with the green border", () => {
+  it("marks only the highlighted card", () => {
     render(<OfferGrid items={items} />);
-    expect(card("Offre Beta")).toHaveClass("border-green");
-    expect(card("Offre Alpha")).not.toHaveClass("border-green");
-    expect(card("Offre Gamma")).not.toHaveClass("border-green");
+    expect(card("Offre Beta")).toHaveAttribute("data-highlighted");
+    expect(card("Offre Alpha")).not.toHaveAttribute("data-highlighted");
+    expect(card("Offre Gamma")).not.toHaveAttribute("data-highlighted");
   });
 });
 
@@ -170,6 +171,15 @@ describe("OfferGrid actions", () => {
     }
   });
 
+  it("gives each link of the grid its own name", () => {
+    render(<OfferGrid items={items} />);
+    const names = screen
+      .getAllByRole("link")
+      .map((link) => link.textContent)
+      .map((text) => text?.replace(/\s+/g, " "));
+    expect(new Set(names).size).toBe(items.length);
+  });
+
   it("makes the button of the highlighted offer solid and the others not", () => {
     render(<OfferGrid items={items} />);
     expect(choose("Offre Beta")).toHaveClass("bg-red");
@@ -182,8 +192,7 @@ describe("OfferGrid dark tone", () => {
   it("draws the cards on a translucent surface and the highlight border in sage", () => {
     render(<OfferGrid items={items} tone="dark" />);
     expect(card("Offre Alpha")).toHaveClass("bg-white/5");
-    expect(card("Offre Beta")).toHaveClass("border-sage");
-    expect(card("Offre Beta")).not.toHaveClass("border-green");
+    expect(card("Offre Beta")).toHaveAttribute("data-highlighted");
   });
 
   it("keeps every card, price and action in the dark tone", () => {
@@ -192,5 +201,24 @@ describe("OfferGrid dark tone", () => {
     for (const offer of items) {
       expect(choose(offer.name)).toBeVisible();
     }
+  });
+});
+
+describe("OfferGrid edge cases", () => {
+  it("renders nothing without an offer", () => {
+    const { container } = render(<OfferGrid items={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("lists twice the same line without a key warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const first = items[0]!;
+    render(
+      <OfferGrid
+        items={[{ ...first, youProvide: ["Une salle", "Une salle"] }]}
+      />,
+    );
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });

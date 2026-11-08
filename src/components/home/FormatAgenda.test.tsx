@@ -57,6 +57,22 @@ function renderAgenda() {
   );
 }
 
+describe("FormatAgenda without a step", () => {
+  it("renders the head and the topics but no empty list", () => {
+    const { container } = render(
+      <FormatAgenda
+        eyebrow="Le format"
+        title={TITLE}
+        steps={[]}
+        topics={TOPICS}
+        topicsLabel={TOPICS_LABEL}
+      />,
+    );
+    expect(container.querySelector("ol")).toBeNull();
+    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+  });
+});
+
 describe("FormatAgenda", () => {
   it("is the #format region named by its title, with eyebrow and lead", () => {
     renderAgenda();

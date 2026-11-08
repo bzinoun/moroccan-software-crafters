@@ -73,14 +73,20 @@ describe("PartnersSection", () => {
 
   it("shows one tile per company, then the host sticker", () => {
     const { container } = renderPartners();
-    const wall = container.querySelector("#logo-wall") as HTMLElement;
+    const section = container.querySelector("section") as HTMLElement;
+    const sticker = within(section).getByRole("link", {
+      name: /Votre logo ici/,
+    });
+    expect(sticker).toHaveAttribute("href", "/accueillir/");
+    const wall = sticker.parentElement as HTMLElement;
     expect(wall.children).toHaveLength(TILES.length + 1);
-    expect(within(wall).getAllByRole("img")).toHaveLength(
+    expect(wall.lastElementChild).toBe(sticker);
+    for (const tile of TILES) {
+      expect(within(wall).getByText(tile.name)).toBeInTheDocument();
+    }
+    expect(wall.querySelectorAll("img")).toHaveLength(
       TILES.filter((tile) => tile.logoSrc).length,
     );
-    expect(
-      within(wall).getByRole("link", { name: /Votre logo ici/ }),
-    ).toHaveAttribute("href", "/accueillir/");
   });
 
   it("ends with a link to the host funnel and a link to the SoCraTes sponsoring", () => {

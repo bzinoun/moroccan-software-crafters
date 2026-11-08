@@ -27,6 +27,13 @@ const LOGOS: TrustLogo[] = [
 const logos = () => LOGOS;
 
 describe("LogoRow", () => {
+  it("renders nothing without a logo", () => {
+    const { container } = render(
+      <LogoRow logos={[]} aria-label="Partenaires" />,
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("is a named group of the trusted partners", () => {
     render(
       <LogoRow
@@ -85,13 +92,10 @@ describe("LogoRow", () => {
     expect(fallback).toHaveAttribute("title", "Acme Corp");
   });
 
-  it("renders an empty group without logos", () => {
-    render(<LogoRow logos={[]} aria-label="Partenaires" />);
-    expect(screen.getByRole("group")).toBeEmptyDOMElement();
-  });
-
   it("merges the class name of the caller", () => {
-    render(<LogoRow logos={[]} aria-label="Partenaires" className="mt-3.5" />);
+    render(
+      <LogoRow logos={logos()} aria-label="Partenaires" className="mt-3.5" />,
+    );
     expect(screen.getByRole("group")).toHaveClass("mt-3.5");
   });
 });

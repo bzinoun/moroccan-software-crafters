@@ -55,6 +55,13 @@ describe("StatsBand", () => {
   });
 });
 
+describe("StatsBand without a figure", () => {
+  it("renders nothing", () => {
+    const { container } = renderBand([]);
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
 describe("StatsBand list semantics", () => {
   it("keeps the list role explicit, Safari drops it when the list style is none", () => {
     renderBand();

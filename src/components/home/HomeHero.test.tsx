@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { HomeHero } from "./HomeHero";
 
 // A fixture written here: the hero draws the copy, the note and the collage it gets.
@@ -105,5 +105,33 @@ describe("HomeHero collage", () => {
     );
     expect(container.querySelectorAll("figure")).toHaveLength(0);
     expect(screen.getByText(/^Prochain hôte/)).toBeInTheDocument();
+  });
+});
+
+describe("HomeHero collage size", () => {
+  const FOUR = [
+    ...collage,
+    { src: "/assets/img/meetups/2026-01-delta-1.jpg", caption: "Delta" },
+  ];
+
+  it("shows the first three photos when the collage has more", () => {
+    const { container } = render(
+      <HomeHero hero={hero} note={note} collage={FOUR} />,
+    );
+    const photos = container.querySelectorAll("figure img");
+    expect(Array.from(photos).map((img) => img.getAttribute("src"))).toEqual(
+      collage.map((photo) => photo.src),
+    );
+  });
+
+  it("draws the same photo twice in the collage without a key warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const twin = [collage[0]!, collage[0]!];
+    const { container } = render(
+      <HomeHero hero={hero} note={note} collage={twin} />,
+    );
+    expect(container.querySelectorAll("figure")).toHaveLength(2);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });

@@ -48,7 +48,7 @@ function CtaLink({
 }
 
 // Spec: the "CtaBand" entry in msca-design/COMPONENTS.md.
-// The last section of the former `index.html` (`git show 1353207:index.html`): a green band with round corners, title and text on the
+// The last section: a green band with round corners, title and text on the
 // left, two buttons on the right from md. The band is a dark surface, so the
 // focus indicator turns sage (green on green would not show).
 export function CtaBand({

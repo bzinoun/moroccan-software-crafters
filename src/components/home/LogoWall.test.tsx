@@ -62,12 +62,13 @@ describe("LogoTile", () => {
     expect(link).toHaveAttribute("rel", "noopener");
   });
 
-  it("titles the tile with the name and the role label", () => {
+  it("names the link once, with the name and then the role label", () => {
     render(<LogoTile tile={ACME} />);
-    expect(screen.getByRole("link")).toHaveAttribute(
-      "title",
-      "Acme Corp · Hôte d'un meetup · Partenaire SoCraTes",
-    );
+    const link = screen.getByRole("link");
+    expect(link).toHaveAccessibleName(/^Acme Corp\s*Hôte d'un meetup/);
+    expect(link).not.toHaveAccessibleName(/Acme Corp.*Acme Corp/);
+    expect(link).not.toHaveAttribute("title");
+    expect(screen.getAllByText("Acme Corp")).toHaveLength(1);
   });
 
   it("prints the name and the role label under the logo", () => {
@@ -76,9 +77,10 @@ describe("LogoTile", () => {
     expect(screen.getByText("Hôte de 2 meetups")).toBeInTheDocument();
   });
 
-  it("shows the logo file of the company, named after the company", () => {
-    render(<LogoTile tile={ACME} />);
-    const logo = screen.getByRole("img", { name: "Acme Corp" });
+  it("shows the logo file of the company, as a decoration beside the printed name", () => {
+    const { container } = render(<LogoTile tile={ACME} />);
+    const logo = container.querySelector("img") as HTMLImageElement;
+    expect(logo).toHaveAttribute("alt", "");
     expect(logo).toHaveAttribute("src", "/assets/img/logos/acme.png");
     expect(logo).toHaveAttribute("loading", "lazy");
     expect(logo).toHaveAttribute("width", "120");
@@ -86,9 +88,9 @@ describe("LogoTile", () => {
   });
 
   it("falls back to the monogram when the logo file cannot be loaded", () => {
-    render(<LogoTile tile={ACME} />);
-    fireEvent.error(screen.getByRole("img", { name: "Acme Corp" }));
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    const { container } = render(<LogoTile tile={ACME} />);
+    fireEvent.error(container.querySelector("img") as HTMLImageElement);
+    expect(container.querySelector("img")).toBeNull();
     expect(screen.getByText("AC")).toBeInTheDocument();
     expect(screen.getByText("Acme Corp")).toBeInTheDocument();
   });
@@ -97,22 +99,21 @@ describe("LogoTile", () => {
     const { container } = render(<LogoTile tile={GLOBEX} />);
     expect(screen.queryByRole("link")).toBeNull();
     expect(container.firstElementChild?.tagName).toBe("DIV");
-    expect(container.firstElementChild).toHaveAttribute(
-      "title",
-      "Globex Solutions · Hôte de 2 meetups",
+    expect(container.firstElementChild).toHaveTextContent(
+      /Globex Solutions\s*Hôte de 2 meetups/,
     );
   });
 
   it("shows the monogram, not an image, when the company has no logo", () => {
-    render(<LogoTile tile={INITECH} />);
-    expect(screen.queryByRole("img")).toBeNull();
+    const { container } = render(<LogoTile tile={INITECH} />);
+    expect(container.querySelector("img")).toBeNull();
     expect(screen.getByText("IN")).toBeInTheDocument();
   });
 
   it("prints no role line when the label is empty", () => {
     const { container } = render(<LogoTile tile={{ ...ACME, label: "" }} />);
     expect(screen.queryByText(/Hôte/)).toBeNull();
-    expect(container.firstElementChild).toHaveAttribute("title", "Acme Corp");
+    expect(container.firstElementChild).toHaveAccessibleName("Acme Corp");
   });
 
   it("lifts on hover only when it is a link, and only when motion is allowed", () => {
@@ -121,9 +122,9 @@ describe("LogoTile", () => {
       "motion-safe:hover:-translate-y-0.75",
     );
     rerender(<LogoTile tile={GLOBEX} />);
-    expect(screen.getByTitle(/Globex Solutions/).className).not.toMatch(
-      /translate-y/,
-    );
+    expect(
+      screen.getByText("Globex Solutions").parentElement?.className,
+    ).not.toMatch(/translate-y/);
   });
 });
 
@@ -146,6 +147,12 @@ describe("LogoSticker", () => {
   it("hides the arrow from assistive technology", () => {
     render(<LogoSticker sticker={HOST_STICKER} />);
     expect(screen.getByText("→")).toHaveAttribute("aria-hidden", "true");
+  });
+
+  it("keeps the arrow on the line of the last word", () => {
+    render(<LogoSticker sticker={HOST_STICKER} />);
+    const arrow = screen.getByText("→");
+    expect(arrow.previousSibling?.textContent).toBe("\u00a0");
   });
 
   it("keeps an in-page href as it is", () => {
@@ -190,6 +197,11 @@ describe("LogoWall", () => {
     expect(screen.queryByText(/Votre logo ici/)).toBeNull();
   });
 
+  it("renders nothing without a tile and without a sticker", () => {
+    const { container } = render(<LogoWall tiles={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("carries the id it is given", () => {
     const { container } = render(<LogoWall id="logo-wall" tiles={TILES} />);
     expect(container.firstElementChild).toHaveAttribute("id", "logo-wall");
@@ -211,18 +223,19 @@ describe("LogoWall compact", () => {
     }
   });
 
-  it("prints the name but no role line under a compact tile", () => {
+  it("prints the name under a compact tile and keeps the role out of sight", () => {
     render(<LogoTile compact tile={GLOBEX} />);
     expect(screen.getByText("Globex Solutions")).toBeInTheDocument();
-    expect(screen.queryByText(/Hôte de 2 meetups/)).toBeNull();
+    expect(screen.getByText("Hôte de 2 meetups")).toHaveClass("sr-only");
   });
 
-  it("keeps the role in the title of a compact tile", () => {
+  it("keeps the role in the name that a screen reader reads for a compact tile", () => {
     render(<LogoTile compact tile={ACME} />);
-    expect(screen.getByRole("link")).toHaveAttribute(
-      "title",
-      "Acme Corp · Hôte d'un meetup · Partenaire SoCraTes",
+    const link = screen.getByRole("link");
+    expect(link).toHaveAccessibleName(
+      /^Acme Corp\s*Hôte d'un meetup · Partenaire SoCraTes$/,
     );
+    expect(link).not.toHaveAttribute("title");
   });
 
   it("keeps the accessible name and description of a compact sticker", () => {

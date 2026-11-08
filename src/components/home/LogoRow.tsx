@@ -5,8 +5,7 @@ import { Monogram } from "../Monogram";
 import { LogoImage } from "./LogoImage";
 
 // Spec: the "LogoRow" entry in msca-design/COMPONENTS.md.
-// Port of #trust-logos in the former `assets/js/home.js` (`git show 1353207:assets/js/home.js`): a centered wrapping row of 56px
-// bordered squares. The logos come from `trustLogos()` in src/lib/home-data.ts.
+// A centered wrapping row of 56px bordered squares. The logos come from `trustLogos()` in src/lib/home-data.ts.
 // A company without a logo file shows its monogram (the first two letters).
 
 const LOGO =
@@ -18,6 +17,7 @@ type LogoRowProps = Omit<ComponentPropsWithoutRef<"div">, "children"> & {
 };
 
 export function LogoRow({ logos, className, ...props }: LogoRowProps) {
+  if (logos.length === 0) return null;
   return (
     <div
       role="group"

@@ -5,8 +5,8 @@ import { SectionHead } from "../SectionHead";
 import { OfferGrid } from "./OfferGrid";
 
 // Spec: the "OfferGrid, OfferCard" entry in msca-design/COMPONENTS.md.
-// The #offres section of the former `index.html` (`git show 1353207:index.html`): a centered head, the offer cards and the
-// pricing note, all from content/offers.json.
+// The #offres section: a centered head, the offer cards and the pricing note,
+// all from content/offers.json. No offer, no section.
 
 type OffersSectionProps = {
   eyebrow: string;
@@ -24,17 +24,18 @@ export function OffersSection({
   note,
   items,
 }: OffersSectionProps) {
+  if (items.length === 0) return null;
   return (
     <Section id="offres" aria-labelledby="offres-title">
       <SectionHead
         align="center"
-        eyebrow={frenchSpacing(eyebrow)}
-        title={frenchSpacing(title)}
-        lead={frenchSpacing(lead)}
+        eyebrow={eyebrow}
+        title={title}
+        lead={lead}
         titleId="offres-title"
       />
       <OfferGrid items={items} />
-      <p className="mt-7 text-center text-[0.92rem] text-muted">
+      <p className="mt-7 text-center text-s92 text-muted">
         {frenchSpacing(note)}
       </p>
     </Section>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { Faq, FaqList } from "./Faq";
@@ -19,6 +19,11 @@ const PROPS = {
 };
 
 describe("Faq", () => {
+  it("renders no section, and no orphan heading, without a question", () => {
+    const { container } = render(<Faq {...PROPS} items={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("is the #faq section, named by its title", () => {
     render(<Faq {...PROPS} />);
     const section = screen.getByRole("region", {
@@ -40,8 +45,9 @@ describe("Faq", () => {
     const details = container.querySelectorAll("details");
     expect(details).toHaveLength(ITEMS.length);
     for (const item of details) expect(item).not.toHaveAttribute("open");
+    // The text before the hidden plus is the question.
     const summaries = [...container.querySelectorAll("summary")].map(
-      (summary) => summary.textContent,
+      (summary) => summary.firstChild?.textContent,
     );
     expect(summaries).toEqual([
       "Combien de personnes faut-il prévoir\u202f?",
@@ -90,14 +96,27 @@ describe("Faq", () => {
 describe("FaqList", () => {
   it("marks the plus of each question with the green or the sage color by tone", () => {
     const light = render(<FaqList items={ITEMS} />);
-    expect(light.container.querySelector("summary")).toHaveClass(
-      "after:text-green",
+    expect(light.container.querySelector("summary [aria-hidden]")).toHaveClass(
+      "text-green",
     );
     light.unmount();
     const dark = render(<FaqList items={ITEMS} tone="dark" />);
-    expect(dark.container.querySelector("summary")).toHaveClass(
-      "after:text-sage",
+    expect(dark.container.querySelector("summary [aria-hidden]")).toHaveClass(
+      "text-sage",
     );
+  });
+
+  it("keeps the plus out of the name that a screen reader reads", () => {
+    const { container } = render(<FaqList items={ITEMS} />);
+    for (const summary of container.querySelectorAll("summary")) {
+      const plus = within(summary as HTMLElement).getByText("+");
+      expect(plus).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+
+  it("renders nothing without a question", () => {
+    const { container } = render(<FaqList items={[]} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it("keeps the className and the attributes of the caller on the list", () => {

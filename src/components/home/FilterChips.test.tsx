@@ -1,7 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilterChips } from "./FilterChips";
+import { setJs } from "./js-mode";
+
+beforeEach(() => {
+  setJs(true);
+});
+
+afterEach(() => {
+  setJs(false);
+});
 
 // A fixture written here: the chips draw the options they get.
 const FILTERS = [
@@ -66,5 +75,14 @@ describe("FilterChips", () => {
     for (const button of screen.getAllByRole("button")) {
       expect(button).toHaveAttribute("type", "button");
     }
+  });
+});
+
+describe("FilterChips without JavaScript", () => {
+  it("shows no control that would do nothing", () => {
+    setJs(false);
+    setup();
+    expect(screen.queryByRole("group")).not.toBeInTheDocument();
+    expect(screen.queryAllByRole("button")).toEqual([]);
   });
 });

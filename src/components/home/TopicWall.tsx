@@ -2,9 +2,8 @@ import { cn } from "@/lib/cn";
 import type { TopicNote, TopicTone } from "@/lib/home-data";
 import { PostIt } from "../PostIt";
 
-// Spec: the "TopicWall" entry in msca-design/COMPONENTS.md; port of the
-// `.topic-wall` rules in the former `assets/css/style.css` (`git show 1353207:assets/css/style.css`) and of the topics part of
-// former `assets/js/home.js` (`git show 1353207:assets/js/home.js`). One post-it per past topic, the year in a small line.
+// Spec: the "TopicWall" entry in msca-design/COMPONENTS.md.
+// One post-it per past topic, the year in a small line. No topic, no wall.
 
 /** A topic note; `from` (the host or the city) adds "year · from" as caption. */
 export type TopicWallNote = TopicNote & { from?: string };
@@ -21,8 +20,7 @@ type TopicWallProps = {
   variant?: "wall" | "board";
 };
 
-// The old site named the first color "" (the base yellow note); the data layer
-// calls it "default".
+// The data layer calls the base yellow note "default".
 const COLOR = {
   default: "yellow",
   pink: "pink",
@@ -31,8 +29,8 @@ const COLOR = {
   orange: "orange",
 } as const satisfies Record<TopicTone, string>;
 
-// Old rules by 1-based position: odd -2deg, even 1.5deg, every third -0.5deg
-// (declared last, so it wins). `i` is the 0-based index.
+// Tilt by 1-based position: odd -2deg, even 1.5deg, every third -0.5deg (the
+// third rule wins). `i` is the 0-based index.
 function tilt(i: number): string {
   if (i % 3 === 2) return "-rotate-[0.5deg]";
   return i % 2 === 0 ? "-rotate-2" : "rotate-[1.5deg]";
@@ -43,6 +41,7 @@ const BOARD =
   "mt-0 justify-start rounded-card border-10 border-[#b58a55] bg-[#e9dcc3] bg-[url(data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%276%27%20height=%276%27%3E%3Ccircle%20cx=%271%27%20cy=%271%27%20r=%27.6%27%20fill=%27%23c9b48f%27%20fill-opacity=%27.5%27/%3E%3C/svg%3E)] px-7 py-9 shadow-[inset_0_0_40px_rgba(0,0,0,0.12)]";
 
 export function TopicWall({ label, topics, variant = "wall" }: TopicWallProps) {
+  if (topics.length === 0) return null;
   return (
     <div
       role="group"
@@ -54,13 +53,10 @@ export function TopicWall({ label, topics, variant = "wall" }: TopicWallProps) {
     >
       {topics.map((t, i) => (
         <PostIt
-          key={t.topic}
+          key={`${i}-${t.topic}`}
           color={COLOR[t.tone]}
           caption={t.from ? `${t.year} · ${t.from}` : t.year}
-          className={cn(
-            "w-auto max-w-60 p-[12px_16px_14px] text-[1.25rem]",
-            tilt(i),
-          )}
+          className={cn("w-auto max-w-60 px-4 pt-3 pb-3.5 text-s125", tilt(i))}
         >
           {t.topic}
         </PostIt>
