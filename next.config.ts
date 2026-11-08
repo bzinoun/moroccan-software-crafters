@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
+import { parseBasePath } from "./src/lib/base-path";
 
 // Empty locally, "/moroccan-software-crafters" on GitHub Pages (set in CI).
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const basePath = parseBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
 
 const nextConfig: NextConfig = {
   output: "export",
