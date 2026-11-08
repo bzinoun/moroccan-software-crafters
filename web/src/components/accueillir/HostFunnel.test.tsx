@@ -1,0 +1,889 @@
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { renderToString } from "react-dom/server";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from "vitest";
+import { loadOffers, loadSite } from "@/content/load";
+import { submitFormInBrowser } from "@/lib/forms-browser";
+import type { FormSite } from "@/lib/forms";
+import { HostFunnel } from "./HostFunnel";
+
+// Nothing here posts anywhere: the submit module is replaced by a mock.
+vi.mock("@/lib/forms-browser", () => ({ submitFormInBrowser: vi.fn() }));
+
+const submit = vi.mocked(submitFormInBrowser);
+const offers = loadOffers().items;
+const linkedin = loadSite().links.linkedin;
+const SITE: FormSite = {
+  links: { linkedin },
+  contact: { email: "" },
+  form: { endpoint: "https://formspree.io/f/xtestid", extraFields: {} },
+};
+
+// 7 November 2026 is a Saturday: the first date allowed is Sunday 8 November.
+const NOW = new Date(2026, 10, 7, 10, 0);
+const DRAFT_KEY = "msc-host-draft-v1";
+
+function setup(site: FormSite = SITE) {
+  const user = userEvent.setup();
+  const view = render(<HostFunnel offers={offers} site={site} />);
+  return { user, ...view };
+}
+
+type User = ReturnType<typeof userEvent.setup>;
+
+const next = () =>
+  screen.getByRole("button", { name: /Continuer|Envoyer|Envoi/ });
+const draft = () => JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "null");
+const legend = (step: number) =>
+  document.getElementById(`step-${step}-legend`) as HTMLElement;
+
+async function chooseOffer(user: User, name = "Meetup partenaire") {
+  await user.click(screen.getByRole("radio", { name: new RegExp(name) }));
+}
+
+async function toStep2(user: User) {
+  await chooseOffer(user);
+  await user.click(next());
+}
+
+async function fillStep2(user: User, date = "2026-11-14") {
+  fireEvent.change(screen.getByLabelText("Date souhaitée"), {
+    target: { value: date },
+  });
+  await user.click(screen.getByRole("radio", { name: "40 à 60" }));
+}
+
+async function toStep3(user: User) {
+  await toStep2(user);
+  await fillStep2(user);
+  await user.click(next());
+}
+
+async function toStep4(user: User) {
+  await toStep3(user);
+  await user.type(screen.getByLabelText("Nom de l'entreprise"), "Acme");
+  await user.click(next());
+}
+
+async function fillStep4(user: User) {
+  await user.type(screen.getByLabelText("Prénom et nom"), "Sara Alaoui");
+  await user.type(
+    screen.getByLabelText("E-mail professionnel"),
+    "sara@acme.ma",
+  );
+  await user.type(
+    screen.getByRole("textbox", { name: "Téléphone" }),
+    "06 12 34 56 78",
+  );
+  await user.click(screen.getByRole("checkbox", { name: /J'accepte/ }));
+}
+
+async function send(user: User) {
+  await toStep4(user);
+  await fillStep4(user);
+  await user.click(next());
+}
+
+let errorSpy: MockInstance;
+
+function stubReducedMotion(reduce: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: reduce && query === "(prefers-reduced-motion: reduce)",
+  }));
+}
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(NOW);
+  submit.mockReset();
+  submit.mockResolvedValue({ mode: "endpoint" });
+  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  Element.prototype.scrollIntoView = vi.fn();
+  stubReducedMotion(false);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  localStorage.clear();
+  window.history.replaceState(null, "", "/");
+});
+
+describe("HostFunnel first render", () => {
+  it("opens on step 1 with the offers of offers.json as choice cards", () => {
+    const { container } = setup();
+    expect(container.querySelector("#funnel")).toBeInTheDocument();
+    expect(container.querySelector("#host-form")).toHaveAttribute("novalidate");
+    expect(
+      screen.getByRole("group", { name: /Quelle formule vous intéresse/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Étape 1 sur 4 · Formule")).toBeInTheDocument();
+    const choices = within(
+      screen.getByRole("radiogroup", { name: "Formule" }),
+    ).getAllByRole("radio");
+    expect(choices).toHaveLength(3);
+    expect(container.querySelector("#offer-choices")).toBe(
+      screen.getByRole("radiogroup", { name: "Formule" }),
+    );
+    expect(
+      screen.getByRole("radio", { name: /Hôte communautaire.*Gratuit/ }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole("radio", {
+        name: /Meetup partenaire.*À partir de 12\s000 MAD/,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retour" })).toBeNull();
+    expect(
+      screen.queryByRole("group", { name: "L'événement" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders the first step in the static HTML, with no script", () => {
+    const html = renderToString(<HostFunnel offers={offers} site={SITE} />);
+    expect(html).toContain("Quelle formule vous intéresse");
+    expect(html).toContain("Hôte communautaire");
+    expect(html).toContain("Craft session privée");
+    expect(html).toContain("Étape 1 sur 4");
+    expect(html).toContain('id="funnel"');
+    expect(html).toContain('id="host-form"');
+  });
+
+  it("can take the focus from the skip link: the funnel has tabindex -1", () => {
+    const { container } = setup();
+    expect(container.querySelector("#funnel")).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
+  });
+
+  it("keeps the success panel and the alert box in the page, concealed", () => {
+    const { container } = setup();
+    expect(container.querySelector("#success")).toHaveAttribute("hidden");
+    expect(container.querySelector("#form-alert")).toHaveAttribute("hidden");
+    expect(container.querySelector("#form-alert")).toHaveAttribute(
+      "role",
+      "alert",
+    );
+  });
+});
+
+describe("step 1, the offer", () => {
+  it("refuses to continue without an offer, flags the group and focuses the first card", async () => {
+    const { user } = setup();
+    await user.click(next());
+    expect(
+      screen.getByText("Choisissez une formule pour continuer."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("radiogroup", { name: "Formule" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(
+      screen.getByRole("radio", { name: /Hôte communautaire/ }),
+    ).toHaveFocus();
+    expect(screen.getByText("Étape 1 sur 4 · Formule")).toBeInTheDocument();
+  });
+
+  it("clears the error as soon as an offer is chosen", async () => {
+    const { user } = setup();
+    await user.click(next());
+    await chooseOffer(user, "Craft session privée");
+    expect(
+      screen.queryByText("Choisissez une formule pour continuer."),
+    ).toBeNull();
+    expect(
+      screen.getByRole("radiogroup", { name: "Formule" }),
+    ).not.toHaveAttribute("aria-invalid");
+  });
+});
+
+describe("moving between steps", () => {
+  it("shows step 2, announces it, focuses its legend and scrolls to the form", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
+    expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
+    expect(legend(2)).toHaveFocus();
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+    });
+    expect(screen.getByRole("button", { name: "Retour" })).toBeVisible();
+  });
+
+  it("scrolls without animation when the person asks for reduced motion", async () => {
+    stubReducedMotion(true);
+    const { user } = setup();
+    await toStep2(user);
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
+      behavior: "auto",
+      block: "start",
+    });
+  });
+
+  it("goes back with Retour and keeps the answers", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    await user.click(screen.getByRole("button", { name: "Retour" }));
+    expect(
+      screen.getByRole("group", { name: /Quelle formule vous intéresse/ }),
+    ).toBeVisible();
+    expect(legend(1)).toHaveFocus();
+    expect(
+      screen.getByRole("radio", { name: /Meetup partenaire/ }),
+    ).toBeChecked();
+    expect(screen.queryByRole("button", { name: "Retour" })).toBeNull();
+  });
+
+  it("goes forward on Enter in a text field, as on Continuer", async () => {
+    const { user } = setup();
+    await toStep3(user);
+    await user.type(
+      screen.getByLabelText("Nom de l'entreprise"),
+      "Acme{Enter}",
+    );
+    expect(
+      screen.getByRole("group", { name: /Comment vous joindre/ }),
+    ).toBeVisible();
+  });
+
+  it("does not leave a step on Enter in a textarea", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    await user.type(
+      screen.getByLabelText(/Sujets que vos équipes/),
+      "TDD{Enter}legacy",
+    );
+    expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
+    expect(screen.getByLabelText(/Sujets que vos équipes/)).toHaveValue(
+      "TDD\nlegacy",
+    );
+  });
+});
+
+describe("step 2, the event", () => {
+  it("limits both dates to tomorrow and later", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    expect(screen.getByLabelText("Date souhaitée")).toHaveAttribute(
+      "min",
+      "2026-11-08",
+    );
+    expect(screen.getByLabelText(/Date alternative/)).toHaveAttribute(
+      "min",
+      "2026-11-08",
+    );
+  });
+
+  it("keeps an empty help paragraph under the date, as the old page did", async () => {
+    const { user, container } = setup();
+    await toStep2(user);
+    const help = container.querySelector("#date-help") as HTMLElement;
+    expect(help).toBeInTheDocument();
+    expect(help).toBeEmptyDOMElement();
+    expect(screen.getByLabelText("Date souhaitée")).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("explains a date that is not a Saturday, and confirms a Saturday", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    fireEvent.change(screen.getByLabelText("Date souhaitée"), {
+      target: { value: "2026-11-09" },
+    });
+    expect(
+      screen.getByText(
+        /C'est un lundi\. Les meetups ouverts ont lieu le samedi matin/,
+      ),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Date souhaitée"), {
+      target: { value: "2026-11-14" },
+    });
+    expect(screen.getByText("Samedi, c'est noté.")).toBeInTheDocument();
+  });
+
+  it("does not warn about a weekday for the private session, even when chosen first", async () => {
+    const { user } = setup();
+    await chooseOffer(user, "Craft session privée");
+    await user.click(next());
+    fireEvent.change(screen.getByLabelText("Date souhaitée"), {
+      target: { value: "2026-11-09" },
+    });
+    expect(screen.getByText("Lundi, c'est noté.")).toBeInTheDocument();
+  });
+
+  it("flags the date and the attendees, focuses the date, and clears each on input", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    await user.click(next());
+    const date = screen.getByLabelText("Date souhaitée");
+    expect(date).toHaveAttribute("aria-invalid", "true");
+    expect(date).toHaveFocus();
+    expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
+    expect(screen.getByText("Indiquez une fourchette.")).toBeInTheDocument();
+    fireEvent.change(date, { target: { value: "2026-11-14" } });
+    expect(screen.queryByText("Indiquez une date à venir.")).toBeNull();
+    await user.click(screen.getByRole("radio", { name: "Plus de 80" }));
+    expect(screen.queryByText("Indiquez une fourchette.")).toBeNull();
+  });
+
+  it("rejects a date in the past and a capacity outside 10 to 1000", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    await fillStep2(user, "2026-11-07");
+    await user.type(screen.getByLabelText(/Capacité de la salle/), "5");
+    await user.click(next());
+    expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
+    expect(screen.getByText("Entre 10 et 1000 places.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Capacité de la salle/)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.getByLabelText("Date souhaitée")).toHaveFocus();
+  });
+
+  it("offers the cities, the equipment and the attendee ranges of the old form", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    expect(
+      within(screen.getByLabelText("Ville"))
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toEqual(["Casablanca", "Rabat", "Marrakech", "Tanger", "Autre"]);
+    expect(
+      within(screen.getByRole("group", { name: /Sur place/ }))
+        .getAllByRole("checkbox")
+        .map((c) => c.getAttribute("value")),
+    ).toEqual([
+      "Salle plénière",
+      "Salles pour les tables rondes",
+      "Écran ou projecteur",
+      "Wifi invités",
+      "Café et petit-déjeuner",
+      "Parking",
+    ]);
+    expect(
+      within(
+        screen.getByRole("radiogroup", {
+          name: "Nombre de crafters attendus",
+        }),
+      )
+        .getAllByRole("radio")
+        .map((r) => r.getAttribute("value")),
+    ).toEqual(["20-40", "40-60", "60-80", "80+"]);
+  });
+});
+
+describe("step 3, the company", () => {
+  it("asks for the company name and focuses it", async () => {
+    const { user } = setup();
+    await toStep3(user);
+    await user.click(next());
+    expect(
+      screen.getByText("Indiquez le nom de l'entreprise."),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Nom de l'entreprise")).toHaveFocus();
+    expect(screen.getByLabelText("Nom de l'entreprise")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("rejects a web address without https:// and accepts an empty one", async () => {
+    const { user } = setup();
+    await toStep3(user);
+    await user.type(screen.getByLabelText("Nom de l'entreprise"), "Acme");
+    await user.type(screen.getByLabelText(/Site web/), "acme.ma");
+    await user.click(next());
+    expect(
+      screen.getByText("Adresse invalide (elle doit commencer par https://)."),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Site web/)).toHaveFocus();
+    await user.clear(screen.getByLabelText(/Site web/));
+    await user.click(next());
+    expect(
+      screen.getByRole("group", { name: /Comment vous joindre/ }),
+    ).toBeVisible();
+  });
+});
+
+describe("step 4, the contact", () => {
+  it("shows the recap of the answers and turns the button into Envoyer ma demande", async () => {
+    const { user, container } = setup();
+    await toStep4(user);
+    expect(
+      screen.getByRole("button", { name: "Envoyer ma demande" }),
+    ).toBeInTheDocument();
+    const recap = container.querySelector("#recap") as HTMLElement;
+    expect(recap).not.toHaveAttribute("hidden");
+    expect(within(recap).getByText("Votre demande")).toBeInTheDocument();
+    const rows = [...recap.querySelectorAll("dt")].map((dt) => [
+      dt.textContent,
+      dt.nextElementSibling?.textContent,
+    ]);
+    expect(rows).toEqual([
+      ["Formule", "Meetup partenaire"],
+      ["Date souhaitée", "samedi 14 novembre 2026"],
+      ["Crafters attendus", "40-60"],
+      ["Lieu", "Casablanca"],
+      ["Entreprise", "Acme"],
+    ]);
+  });
+
+  it("flags the name, the e-mail, the phone and the consent, and focuses the name", async () => {
+    const { user } = setup();
+    await toStep4(user);
+    await user.type(screen.getByLabelText("E-mail professionnel"), "sara@acme");
+    await user.click(next());
+    for (const text of [
+      "Indiquez votre nom.",
+      "Adresse e-mail invalide.",
+      "Indiquez votre numéro.",
+      "Votre accord est nécessaire pour envoyer la demande.",
+    ]) {
+      expect(screen.getByText(text)).toBeInTheDocument();
+    }
+    expect(screen.getByLabelText("Prénom et nom")).toHaveFocus();
+    expect(screen.getByRole("checkbox", { name: /J'accepte/ })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(submit).not.toHaveBeenCalled();
+  });
+
+  it("switches the phone message between empty and wrong", async () => {
+    const { user } = setup();
+    await toStep4(user);
+    await user.click(next());
+    expect(screen.getByText("Indiquez votre numéro.")).toBeInTheDocument();
+    await user.type(screen.getByRole("textbox", { name: "Téléphone" }), "0412");
+    await user.click(next());
+    expect(screen.queryByText("Indiquez votre numéro.")).toBeNull();
+    expect(
+      screen.getByText(
+        "Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78).",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("preselects the e-mail preference", async () => {
+    const { user } = setup();
+    await toStep4(user);
+    expect(screen.getByRole("radio", { name: "E-mail" })).toBeChecked();
+  });
+});
+
+describe("sending", () => {
+  it("sends the answers with the type, the subject and the French e-mail body", async () => {
+    const { user } = setup();
+    await send(user);
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(submit).toHaveBeenCalledWith({
+      site: SITE,
+      data: {
+        formule: "Meetup partenaire",
+        date: "2026-11-14",
+        date_alt: "",
+        participants: "40-60",
+        ville: "Casablanca",
+        capacite: "",
+        equipements: "",
+        sujets: "",
+        entreprise: "Acme",
+        secteur: "",
+        taille: "",
+        site: "",
+        adresse: "",
+        nom: "Sara Alaoui",
+        fonction: "",
+        email: "sara@acme.ma",
+        telephone: "0612345678",
+        preference: "E-mail",
+        message: "",
+      },
+      type: "Hébergement meetup",
+      subject: "Demande d'hébergement meetup · Acme · 2026-11-14",
+      body: [
+        "Formule : Meetup partenaire",
+        "Date souhaitée : samedi 14 novembre 2026",
+        "Crafters attendus : 40-60",
+        "Ville : Casablanca",
+        "Entreprise : Acme",
+        "Contact : Sara Alaoui",
+        "E-mail : sara@acme.ma",
+        "Téléphone : 0612345678",
+        "Préférence : E-mail",
+      ].join("\n"),
+      honeypot: "",
+    });
+  });
+
+  it("marks the button busy, keeps its focus and sends once until the answer comes", async () => {
+    let finish: (r: { mode: "endpoint" }) => void = () => {};
+    submit.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    const { user } = setup();
+    await send(user);
+    const busy = screen.getByRole("button", { name: "Envoi…" });
+    expect(busy).toHaveAttribute("aria-disabled", "true");
+    expect(busy).toHaveFocus();
+    await user.click(busy);
+    expect(submit).toHaveBeenCalledTimes(1);
+    finish({ mode: "endpoint" });
+    expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
+  });
+
+  it("gives back the button and shows the failure alert when the send throws", async () => {
+    submit.mockRejectedValue(new Error("boom"));
+    const { user } = setup();
+    await send(user);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant.",
+    );
+    const button = screen.getByRole("button", { name: "Envoyer ma demande" });
+    expect(button).not.toHaveAttribute("aria-disabled");
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[MSC] Envoi du formulaire impossible :",
+      expect.any(Error),
+    );
+    expect(screen.getByLabelText("Prénom et nom")).toHaveValue("Sara Alaoui");
+  });
+
+  it("can send again after a failure", async () => {
+    submit.mockRejectedValueOnce(new Error("boom"));
+    const { user } = setup();
+    await send(user);
+    await screen.findByRole("alert");
+    await user.click(next());
+    expect(submit).toHaveBeenCalledTimes(2);
+    expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
+  });
+
+  it("replaces the form with the success panel, focuses it and clears the draft", async () => {
+    const { user, container } = setup();
+    await send(user);
+    const panel = container.querySelector("#success") as HTMLElement;
+    expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
+    expect(panel).not.toHaveAttribute("hidden");
+    expect(panel).toHaveFocus();
+    expect(panel).toHaveAttribute("role", "status");
+    expect(panel).toHaveAccessibleName("Demande bien reçue.");
+    expect(
+      within(panel).getByRole("link", { name: "Revoir les éditions passées" }),
+    ).toHaveAttribute("href", "/#historique");
+    expect(container.querySelector("#host-form")).toHaveAttribute("hidden");
+    expect(
+      screen.getByText(
+        "Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.",
+      ),
+    ).toBeInTheDocument();
+    expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+  });
+
+  it("tells the person to send the prefilled e-mail when the mail client opened", async () => {
+    submit.mockResolvedValue({ mode: "mailto", url: "mailto:x@y.ma" });
+    const { user } = setup({ ...SITE, contact: { email: "x@y.ma" } });
+    await send(user);
+    expect(
+      await screen.findByText(
+        "Votre messagerie s'est ouverte avec la demande pré-remplie : il ne reste qu'à l'envoyer. Nous revenons vers vous sous 48 heures.",
+      ),
+    ).toBeVisible();
+  });
+
+  it("shows the LinkedIn link and keeps the form when nothing receives the request", async () => {
+    submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
+    const { user } = setup();
+    await send(user);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
+    );
+    const link = within(alert).getByRole("link", { name: "LinkedIn" });
+    expect(link).toHaveAttribute("href", linkedin);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener");
+    expect(errorSpy).toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "Envoyer ma demande" }),
+    ).toBeEnabled();
+    expect(
+      screen.queryByRole("heading", { name: "Demande bien reçue." }),
+    ).toBeNull();
+  });
+
+  it("shows the same alert, without a link, when no LinkedIn page is configured", async () => {
+    submit.mockResolvedValue({ mode: "none" });
+    const { user } = setup();
+    await send(user);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
+    );
+    expect(within(alert).queryByRole("link")).toBeNull();
+  });
+
+  it("explains a failed send, keeps the answers and offers the e-mail address", async () => {
+    submit.mockResolvedValue({
+      mode: "error",
+      error: new Error("HTTP 500"),
+      fallback: {
+        kind: "mailto",
+        email: "x@y.ma",
+        url: "mailto:x@y.ma?subject=s",
+      },
+    });
+    const { user } = setup({ ...SITE, contact: { email: "x@y.ma" } });
+    await send(user);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant. Vous pouvez aussi nous écrire à x@y.ma.",
+    );
+    expect(within(alert).getByRole("link", { name: "x@y.ma" })).toHaveAttribute(
+      "href",
+      "mailto:x@y.ma?subject=s",
+    );
+    expect(errorSpy).toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "Envoyer ma demande" }),
+    ).toBeEnabled();
+    expect(screen.getByLabelText("Prénom et nom")).toHaveValue("Sara Alaoui");
+  });
+
+  it("offers the LinkedIn page after a failed send when there is no e-mail address", async () => {
+    submit.mockResolvedValue({
+      mode: "error",
+      error: new Error("HTTP 500"),
+      fallback: { kind: "linkedin", href: linkedin },
+    });
+    const { user } = setup();
+    await send(user);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant. Vous pouvez aussi nous écrire sur LinkedIn.",
+    );
+    expect(
+      within(alert).getByRole("link", { name: "LinkedIn" }),
+    ).toHaveAttribute("href", linkedin);
+  });
+
+  it("clears the alert when the person changes step", async () => {
+    submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
+    const { user } = setup();
+    await send(user);
+    await screen.findByText(/pas encore relié/);
+    await user.click(screen.getByRole("button", { name: "Retour" }));
+    expect(screen.queryByText(/pas encore relié/)).toBeNull();
+  });
+
+  it("passes the trap value to the submit code and shows the success panel as if it worked", async () => {
+    submit.mockResolvedValue({ mode: "honeypot" });
+    const { user, container } = setup();
+    await toStep4(user);
+    await fillStep4(user);
+    fireEvent.change(container.querySelector("#website_hp") as HTMLElement, {
+      target: { value: " https://spam.example " },
+    });
+    await user.click(next());
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(submit.mock.calls[0]![0].honeypot).toBe(" https://spam.example ");
+    expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
+    expect(
+      screen.getByText(
+        "Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.",
+      ),
+    ).toBeInTheDocument();
+    expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+  });
+
+  it("passes an empty trap value when the field is empty", async () => {
+    const { user } = setup();
+    await send(user);
+    expect(submit.mock.calls[0]![0].honeypot).toBe("");
+  });
+
+  it("checks steps 1 to 4 before sending: a stale draft on step 4 goes back to the step in error", async () => {
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({
+        formule: "partenaire",
+        date: "2026-11-07",
+        participants: "40-60",
+        entreprise: "Acme",
+        _step: 4,
+      }),
+    );
+    const { user } = setup();
+    expect(
+      screen.getByRole("group", { name: /Comment vous joindre/ }),
+    ).toBeVisible();
+    await fillStep4(user);
+    await user.click(next());
+    expect(submit).not.toHaveBeenCalled();
+    expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
+    expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Date souhaitée")).toHaveFocus();
+    expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
+    expect(draft()._step).toBe(2);
+  });
+
+  it("goes back to step 1 when a stale draft has no offer", async () => {
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ date: "2026-12-05", participants: "40-60", _step: 4 }),
+    );
+    const { user } = setup();
+    await fillStep4(user);
+    await user.click(next());
+    expect(submit).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("Choisissez une formule pour continuer."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Étape 1 sur 4 · Formule")).toBeInTheDocument();
+  });
+});
+
+describe("the draft", () => {
+  it("saves each answer and the step, never the consent or the trap field", async () => {
+    const { user, container } = setup();
+    await toStep3(user);
+    await user.type(screen.getByLabelText("Nom de l'entreprise"), "Acme");
+    await user.click(next());
+    await user.type(screen.getByLabelText("Prénom et nom"), "Sara");
+    await user.click(screen.getByRole("checkbox", { name: /J'accepte/ }));
+    fireEvent.change(container.querySelector("#website_hp") as HTMLElement, {
+      target: { value: "x" },
+    });
+    expect(draft()).toMatchObject({
+      formule: "partenaire",
+      date: "2026-11-14",
+      participants: "40-60",
+      ville: "Casablanca",
+      entreprise: "Acme",
+      nom: "Sara",
+      preference: "E-mail",
+      _step: 4,
+    });
+    expect(draft()).not.toHaveProperty("consent");
+    expect(draft()).not.toHaveProperty("website_hp");
+  });
+
+  it("restores the answers and the step of a saved draft", () => {
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({
+        formule: "prive",
+        date: "2026-12-05",
+        participants: "80+",
+        ville: "Rabat",
+        equipements: ["Parking", "Wifi invités"],
+        entreprise: "Acme",
+        nom: "Sara",
+        _step: 3,
+      }),
+    );
+    setup();
+    expect(
+      screen.getByRole("group", { name: "Votre entreprise" }),
+    ).toBeVisible();
+    expect(
+      screen.getByText("Étape 3 sur 4 · Votre entreprise"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Nom de l'entreprise")).toHaveValue("Acme");
+    expect(screen.getByLabelText("Ville")).toHaveValue("Rabat");
+    expect(screen.getByLabelText("Date souhaitée")).toHaveValue("2026-12-05");
+    expect(
+      screen.getByRole("radio", { name: /Craft session privée/, hidden: true }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("radio", { name: "Plus de 80", hidden: true }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Parking", hidden: true }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Wifi invités", hidden: true }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Parking", hidden: true }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: "Salle plénière", hidden: true }),
+    ).not.toBeChecked();
+    expect(legend(3)).not.toHaveFocus();
+  });
+
+  it("drops a saved date that is no longer in the future", () => {
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ date: "2026-11-07", _step: 2 }),
+    );
+    setup();
+    expect(screen.getByLabelText("Date souhaitée")).toHaveValue("");
+  });
+
+  it("drops a tampered date and capacity of a saved draft", () => {
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ date: "2027-13-45", capacite: "<b>", _step: 2 }),
+    );
+    setup();
+    expect(screen.getByLabelText("Date souhaitée")).toHaveValue("");
+    expect(screen.getByLabelText(/Capacité de la salle/)).toHaveValue(null);
+  });
+
+  it("works when the storage is unavailable", async () => {
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("denied");
+      },
+      setItem: () => {
+        throw new Error("denied");
+      },
+      removeItem: () => {
+        throw new Error("denied");
+      },
+    });
+    const { user } = setup();
+    await toStep2(user);
+    expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
+  });
+});
+
+describe("?formule= in the URL", () => {
+  it("preselects the offer and opens step 2", () => {
+    window.history.replaceState(null, "", "/accueillir/?formule=prive");
+    setup();
+    expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
+    expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
+    expect(draft()).toBeNull();
+  });
+
+  it("shows the chosen offer when going back to step 1", async () => {
+    window.history.replaceState(null, "", "/accueillir/?formule=communautaire");
+    const { user } = setup();
+    await user.click(screen.getByRole("button", { name: "Retour" }));
+    expect(
+      screen.getByRole("radio", { name: /Hôte communautaire/ }),
+    ).toBeChecked();
+  });
+
+  it("stays on step 1 when the parameter names no offer", () => {
+    window.history.replaceState(null, "", "/accueillir/?formule=inconnue");
+    setup();
+    expect(
+      screen.getByRole("group", { name: /Quelle formule vous intéresse/ }),
+    ).toBeVisible();
+  });
+});
