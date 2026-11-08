@@ -11,7 +11,7 @@ import { ArticlePhotosLink } from "./ArticlePhotosLink";
 import { Prose } from "./Prose";
 import { Photo } from "../Photo";
 
-// Spec: the "ArticleView, Prose" entry in msca-design/COMPONENTS.md.
+// Spec: the "ArticleView, ArticlePhotosLink, Prose" entry in msca-design/COMPONENTS.md.
 // The page needs a `LightboxProvider` above it for the "Les N photos" link.
 const TITLE_ID = "article-title";
 

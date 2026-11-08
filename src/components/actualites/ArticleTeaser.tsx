@@ -7,7 +7,7 @@ import { Reveal } from "../Reveal";
 import { TagList } from "../TagList";
 import { Photo } from "../Photo";
 
-// Spec: the "ArticleGrid, ArticleCard" entry in msca-design/COMPONENTS.md
+// Spec: the "ArticleGrid, ArticleTeaser, ArticleListSection" entry in msca-design/COMPONENTS.md
 // (the component is `ArticleTeaser` so that it does not share the name of its
 // data type `ArticleCard`). The whole card is one link, named by its title.
 // The newest article (`lead`) spans the full row of the list; it is horizontal

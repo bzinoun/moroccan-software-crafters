@@ -87,13 +87,21 @@ describe("PhotoGallery", () => {
     setup();
     const links = openers();
     expect(links).toHaveLength(LIMIT);
-    expect(links[0]).toHaveAccessibleName(`Agrandir : ${ACME}`);
+    expect(links[0]).toHaveAccessibleName(`Agrandir : ${ACME}, photo 1 sur 8`);
     const img = within(links[0]!).getByRole("img", { name: ACME });
     expect(img).toHaveAttribute(
       "src",
       "/assets/img/meetups/2026-10-acme-5.jpg",
     );
     expect(img).toHaveAttribute("loading", "lazy");
+  });
+
+  it("tells the photos of one event apart by their position in that event", () => {
+    setup({ items: ITEMS.slice(0, 8) });
+    const names = openers().map((link) => link.getAttribute("aria-label"));
+    expect(new Set(names).size).toBe(8);
+    expect(names[2]).toBe(`Agrandir : ${ACME}, photo 3 sur 8`);
+    expect(names[7]).toBe(`Agrandir : ${ACME}, photo 8 sur 8`);
   });
 
   it("uses the default limit when the limit is 0 or missing", () => {
@@ -129,7 +137,9 @@ describe("PhotoGallery", () => {
     await user.click(moreButton()!);
     const links = openers();
     expect(links).toHaveLength(TOTAL);
-    expect(links[LIMIT]).toHaveAccessibleName(`Agrandir : ${GLOBEX}`);
+    expect(links[LIMIT]).toHaveAccessibleName(
+      `Agrandir : ${GLOBEX}, photo 1 sur 4`,
+    );
     expect(links[LIMIT]).toHaveFocus();
     expect(moreButton()).not.toBeInTheDocument();
   });

@@ -5,7 +5,7 @@ import { offerHref, offerPrice } from "@/lib/home-data";
 import { Button } from "../Button";
 import { Reveal } from "../Reveal";
 
-// Spec: the "OfferGrid, OfferCard" entry in msca-design/COMPONENTS.md.
+// Spec: the "OfferGrid, OffersSection" entry in msca-design/COMPONENTS.md.
 // Each card links to the host funnel with its own formule.
 
 type Tone = "light" | "dark";

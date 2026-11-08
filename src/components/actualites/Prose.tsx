@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/cn";
 
-// Spec: the "ArticleView, Prose" entry in msca-design/COMPONENTS.md.
+// Spec: the "ArticleView, ArticlePhotosLink, Prose" entry in msca-design/COMPONENTS.md.
 // The wrapper styles the bare elements that `md()` returns (h2, h3, ul, ol, li,
 // blockquote, code, a), so the renderer stays free of classes. `md()` renders
 // "#" and "##" as h2 (the page h1 is the article title) and "###" as h3. The

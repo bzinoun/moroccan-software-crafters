@@ -13,7 +13,7 @@ import { SectionFoot } from "../SectionFoot";
 import { SectionHead } from "../SectionHead";
 import { openPhoto } from "./photoLink";
 
-// Spec: the "PhotoGallery, GalleryItem" entry in msca-design/COMPONENTS.md.
+// Spec: the "PhotoGallery" entry in msca-design/COMPONENTS.md.
 // Every photo is in the HTML, each a link to its file. Without JavaScript the
 // whole gallery shows and there is no more button. With JavaScript the photos
 // after the first `limit` are collapsed until the more button, which moves
@@ -52,9 +52,12 @@ function GalleryItem({
   item,
   collapsed,
   onOpen,
+  position,
   ref,
 }: {
   item: PhotoItem;
+  /** Place of the photo among the photos of its event, from 1. */
+  position: { index: number; total: number };
   /** Hidden for a visitor with JavaScript, until the more button. */
   collapsed: boolean;
   onOpen: () => void;
@@ -65,7 +68,7 @@ function GalleryItem({
     <a
       ref={ref}
       href={item.src}
-      aria-label={`Agrandir : ${caption}`}
+      aria-label={`Agrandir : ${caption}, photo ${position.index} sur ${position.total}`}
       className={cn(ITEM, collapsed && "js:hidden")}
       onClick={openPhoto(onOpen)}
     >
@@ -94,19 +97,31 @@ export function PhotoGallery({
   }, [expanded]);
 
   if (items.length === 0) return null;
+  // The caption is the same for every photo of an event: the position tells
+  // the links apart.
+  const totals = new Map<string, number>();
+  for (const { eventId } of items) {
+    totals.set(eventId, (totals.get(eventId) ?? 0) + 1);
+  }
+  const seen = new Map<string, number>();
   return (
     <Section id="galerie">
       <SectionHead eyebrow={eyebrow} title={title} />
       <div id={GRID_ID} className={GRID}>
-        {items.map((item, i) => (
-          <GalleryItem
-            key={`${i}-${item.src}`}
-            ref={i === shownCount ? firstExtraRef : undefined}
-            item={item}
-            collapsed={!expanded && i >= shownCount}
-            onOpen={() => lightbox.open(items, i)}
-          />
-        ))}
+        {items.map((item, i) => {
+          const index = (seen.get(item.eventId) ?? 0) + 1;
+          seen.set(item.eventId, index);
+          return (
+            <GalleryItem
+              key={`${i}-${item.src}`}
+              ref={i === shownCount ? firstExtraRef : undefined}
+              item={item}
+              collapsed={!expanded && i >= shownCount}
+              position={{ index, total: totals.get(item.eventId) ?? 1 }}
+              onOpen={() => lightbox.open(items, i)}
+            />
+          );
+        })}
       </div>
       {hasMore && !expanded ? (
         <SectionFoot className="not-js:hidden">

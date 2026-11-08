@@ -4,7 +4,7 @@ import type { HistoryFilter } from "@/content/types";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 
-// Spec: the "FilterChips" entry in msca-design/COMPONENTS.md.
+// Spec: the "HistorySection, FeaturedEvents, FilterChips, EventTimeline, EventBadge" entry in msca-design/COMPONENTS.md.
 // A single choice: the pressed chip is the current value. The chips need
 // JavaScript, so a visitor without it does not see them (and the page then
 // shows every event).

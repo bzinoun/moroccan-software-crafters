@@ -11,7 +11,7 @@ import { Section } from "../Section";
 import { LogoRow } from "./LogoRow";
 import { Photo } from "../Photo";
 
-// Spec: the "SocratesTeaser, EditionChips, SponsorCall" entry in msca-design/COMPONENTS.md.
+// Spec: the "SocratesTeaser, EditionChips, SponsorCall, LogoRow" entry in msca-design/COMPONENTS.md.
 // The #socrates section. Texts come from content/home.json (`home.socrates`),
 // the chips from `socratesEditions()`, the logos from `trustLogos()`. Both
 // eyebrows carry the khatam star.

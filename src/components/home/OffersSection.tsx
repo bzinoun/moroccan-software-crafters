@@ -4,7 +4,7 @@ import { Section } from "../Section";
 import { SectionHead } from "../SectionHead";
 import { OfferGrid } from "./OfferGrid";
 
-// Spec: the "OfferGrid, OfferCard" entry in msca-design/COMPONENTS.md.
+// Spec: the "OfferGrid, OffersSection" entry in msca-design/COMPONENTS.md.
 // The #offres section: a centered head, the offer cards and the pricing note,
 // all from content/offers.json. No offer, no section.
 

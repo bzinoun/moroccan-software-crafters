@@ -8,7 +8,7 @@ import { SectionHead } from "../SectionHead";
 import { TopicWall } from "./TopicWall";
 import { Photo } from "../Photo";
 
-// Spec: the "FormatAgenda" entry in msca-design/COMPONENTS.md.
+// Spec: the "FormatAgenda, TopicWall" entry in msca-design/COMPONENTS.md.
 // The head, the steps, the topics and the more link all come from
 // content/home.json and content/events.json.
 

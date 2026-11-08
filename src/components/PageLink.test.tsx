@@ -57,6 +57,23 @@ describe("PageLink", () => {
     expect(link).not.toHaveAttribute("data-next-link");
   });
 
+  it("renders a plain anchor for a route with a hash, so a second click scrolls again", () => {
+    render(<PageLink href="/#historique">Éditions</PageLink>);
+    const link = screen.getByRole("link", { name: "Éditions" });
+    expect(link).toHaveAttribute("href", "/#historique");
+    expect(link).not.toHaveAttribute("data-next-link");
+  });
+
+  it("adds the base path to a route with a hash", () => {
+    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/moroccan-software-crafters");
+    render(<PageLink href="/socrates/#sponsoring">Sponsoring</PageLink>);
+    expect(screen.getByRole("link", { name: "Sponsoring" })).toHaveAttribute(
+      "href",
+      "/moroccan-software-crafters/socrates/#sponsoring",
+    );
+    vi.unstubAllEnvs();
+  });
+
   it("passes the other anchor attributes through", () => {
     render(
       <PageLink href="/meetup/" className="lien" aria-current="page">

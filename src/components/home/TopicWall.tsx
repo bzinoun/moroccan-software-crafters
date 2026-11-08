@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import type { TopicNote, TopicTone } from "@/lib/home-data";
 import { PostIt } from "../PostIt";
 
-// Spec: the "TopicWall" entry in msca-design/COMPONENTS.md.
+// Spec: the "FormatAgenda, TopicWall" entry in msca-design/COMPONENTS.md.
 // One post-it per past topic, the year in a small line. No topic, no wall.
 
 /** A topic note; `from` (the host or the city) adds "year · from" as caption. */

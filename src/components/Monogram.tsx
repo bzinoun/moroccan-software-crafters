@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from "react";
 import type { VariantProps } from "tailwind-variants/config";
 import { cn, tv } from "@/lib/cn";
 
-// Spec: the "LogoWall, LogoTile, LogoSticker, Monogram" entry in msca-design/COMPONENTS.md.
+// Spec: the "PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage, Monogram" entry in msca-design/COMPONENTS.md.
 // The initials tile that stands in for a missing company logo. The initials
 // come from `monogram(name)` in src/lib/derive.ts (the first letters of the
 // first two words, uppercased); this component only draws them.

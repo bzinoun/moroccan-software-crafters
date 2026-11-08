@@ -8,7 +8,7 @@ import type { Home } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
 import { Polaroid, POLAROID_SLOTS } from "./Polaroid";
 
-// Spec: the "HomeHero, PolaroidCollage, Polaroid" entry in msca-design/COMPONENTS.md.
+// Spec: the "HomeHero, Polaroid" entry in msca-design/COMPONENTS.md.
 // The collage is decorative, so the whole box is removed from assistive
 // technology. The two columns start at `lg`; the collage stacks under the text
 // below it. Only the first photos that have a slot show.

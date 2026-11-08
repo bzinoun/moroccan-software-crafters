@@ -3,7 +3,7 @@ import type { VariantProps } from "tailwind-variants/config";
 import { cn, tv } from "@/lib/cn";
 import { PageLink } from "./PageLink";
 
-// Spec: the "Button" entry under "Built" in msca-design/COMPONENTS.md.
+// Spec: the "Button" entry in msca-design/COMPONENTS.md.
 // Hover lifts the button by 1px; a disabled or aria-disabled button stays flat.
 const buttonStyles = tv({
   base: [

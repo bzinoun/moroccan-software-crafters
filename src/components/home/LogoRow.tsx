@@ -4,7 +4,7 @@ import type { TrustLogo } from "@/lib/home-data";
 import { Monogram } from "../Monogram";
 import { LogoImage } from "./LogoImage";
 
-// Spec: the "LogoRow" entry in msca-design/COMPONENTS.md.
+// Spec: the "SocratesTeaser, EditionChips, SponsorCall, LogoRow" entry in msca-design/COMPONENTS.md.
 // A centered wrapping row of 56px bordered squares. The logos come from `trustLogos()` in src/lib/home-data.ts.
 // A company without a logo file shows its monogram (the first two letters).
 

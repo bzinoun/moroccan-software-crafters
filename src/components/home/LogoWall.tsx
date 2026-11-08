@@ -7,7 +7,7 @@ import { Monogram } from "../Monogram";
 import { PageLink } from "../PageLink";
 import { LogoImage } from "./LogoImage";
 
-// Spec: the "LogoWall, LogoTile, LogoSticker, Monogram" entry in msca-design/COMPONENTS.md.
+// Spec: the "PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage, Monogram" entry in msca-design/COMPONENTS.md.
 // The tiles come from `logoWallTiles()` in src/lib/derive.ts, already sorted.
 // Fixed-width tiles in a centered wrapping row keep the last row centered.
 // A tile is a link only when the company has a LinkedIn page. The sticker

@@ -7,14 +7,15 @@ import { frenchSpacing } from "@/lib/french";
 // A row of figures: a big value and a short label in a bordered cell. Two
 // columns on mobile, four from `sm`. The tracks are `1fr`, not `minmax(0,1fr)`:
 // a column grows to its widest value, so "9 h 30 → 14 h" never overflows its
-// cell at 375px (`grid-cols-2` would use `minmax(0,1fr)`). Inside `PageHero`
+// cell at 375px (`grid-cols-2` would use `minmax(0,1fr)`). Below 360px a value
+// may wrap, so the page does not scroll sideways at 320px. Inside `PageHero`
 // pass `sm:grid-cols-[repeat(2,1fr)]` in `className` to keep two columns.
 const factListStyles = tv({
   slots: {
     list: "m-0 grid list-none grid-cols-[repeat(2,1fr)] gap-3.5 p-0 sm:grid-cols-[repeat(4,1fr)]",
     item: "rounded-sm border px-4 py-3.5",
     value:
-      "block font-display text-s160 leading-[1.1] font-semibold whitespace-nowrap",
+      "block font-display text-s160 leading-[1.1] font-semibold min-[360px]:whitespace-nowrap",
     label: "text-s84",
   },
   variants: {

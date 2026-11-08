@@ -10,7 +10,7 @@ import { Reveal } from "../Reveal";
 import { TagList } from "../TagList";
 import { openPhoto } from "./photoLink";
 
-// Spec: the "FeaturedEvents, FeatureCard" entry in msca-design/COMPONENTS.md.
+// Spec: the "HistorySection, FeaturedEvents, FilterChips, EventTimeline, EventBadge" entry in msca-design/COMPONENTS.md.
 // The photo is a link to the first photo file, so it works without
 // JavaScript. With JavaScript a plain click calls `onOpenPhotos` (the section
 // wires it to the lightbox) and the link does not navigate.

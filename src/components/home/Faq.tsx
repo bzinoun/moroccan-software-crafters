@@ -73,7 +73,7 @@ type FaqProps = {
   items: FaqItem[];
 };
 
-// Spec: the "Faq, FaqItem" entry in msca-design/COMPONENTS.md.
+// Spec: the "Faq, FaqList" entry in msca-design/COMPONENTS.md.
 // The #faq section: centered head, then the question list. No question, no section.
 export function Faq({ eyebrow, title, items }: FaqProps) {
   if (items.length === 0) return null;

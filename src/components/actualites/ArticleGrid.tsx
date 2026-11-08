@@ -1,7 +1,7 @@
 import type { ArticleCard } from "@/lib/pages-data";
 import { ArticleTeaser } from "./ArticleTeaser";
 
-// Spec: the "ArticleGrid, ArticleCard" entry in msca-design/COMPONENTS.md.
+// Spec: the "ArticleGrid, ArticleTeaser, ArticleListSection" entry in msca-design/COMPONENTS.md.
 // One column, two from `sm`, three from `lg`. The lead card spans the whole row.
 export function ArticleGrid({ articles }: { articles: ArticleCard[] }) {
   if (articles.length === 0) return null;

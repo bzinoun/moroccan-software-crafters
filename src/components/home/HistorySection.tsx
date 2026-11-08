@@ -20,9 +20,8 @@ import { EventTimeline } from "./EventTimeline";
 import { FeaturedEvents } from "./FeaturedEvents";
 import { FilterChips } from "./FilterChips";
 
-// Spec: the entries "FeaturedEvents, FeatureCard", "FilterChips" and
-// "EventTimeline, YearGroup, TimelineItem, EventBadge" in
-// msca-design/COMPONENTS.md.
+// Spec: the "HistorySection, FeaturedEvents, FilterChips, EventTimeline,
+// EventBadge" entry in msca-design/COMPONENTS.md.
 // Without JavaScript the page lists every event and shows no chip and no more
 // button. With JavaScript the timeline starts on the first chip and the first
 // `limit` events, and the chips and the button change which events show.

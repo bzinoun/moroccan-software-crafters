@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Cta, PageId, Site } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
 import { pageRoute } from "@/lib/routes";
@@ -6,10 +5,11 @@ import { Brand } from "./Brand";
 import { Button } from "./Button";
 import { Container } from "./Container";
 import { NavToggle } from "./NavToggle";
+import { PageLink } from "./PageLink";
 
 type HeaderCta = Cta & { variant: "primary" | "ghost" };
 
-// Per-page CTA rule from the design inventory (COMPONENTS.md, site header).
+// Per-page CTA rule from the design inventory (COMPONENTS.md, "SiteHeader and NavToggle").
 function headerCta(page: PageId | undefined, siteCta: Cta): HeaderCta {
   switch (page) {
     case "socrates":
@@ -38,14 +38,14 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
   const links = site.nav.map((link) => {
     const active = !link.href.includes("#") && link.href === current;
     return (
-      <Link
+      <PageLink
         key={link.href}
         href={link.href}
         aria-current={active ? "page" : undefined}
         className={linkClass}
       >
         {frenchSpacing(link.label)}
-      </Link>
+      </PageLink>
     );
   });
 

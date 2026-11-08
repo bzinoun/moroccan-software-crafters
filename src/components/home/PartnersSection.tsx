@@ -6,7 +6,7 @@ import { Section } from "../Section";
 import { SectionFoot } from "../SectionFoot";
 import { SectionHead } from "../SectionHead";
 
-// Spec: the "LogoWall, LogoTile, LogoSticker" entry in msca-design/COMPONENTS.md.
+// Spec: the "PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage, Monogram" entry in msca-design/COMPONENTS.md.
 // The #partenaires section. The head and the sticker come from
 // content/companies.json; the two buttons carry literal copy.
 

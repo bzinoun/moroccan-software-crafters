@@ -4,7 +4,7 @@ import { LogoWall } from "../home/LogoWall";
 import { Section } from "../Section";
 import { SectionHead } from "../SectionHead";
 
-// Spec: the "LogoWall, LogoTile, LogoSticker, Monogram" entry in
+// Spec: the "PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage, Monogram" entry in
 // msca-design/COMPONENTS.md (compact wall). The #entreprises section: a
 // centered head without lead, then the compact wall of every company and the
 // host sticker. The tiles come from `hostsWall()`.

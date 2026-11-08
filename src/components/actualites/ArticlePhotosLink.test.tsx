@@ -83,6 +83,18 @@ describe("ArticlePhotosLink", () => {
     );
   });
 
+  it("gives the focus back to the photo link when the lightbox closes", () => {
+    renderLink();
+    const link = screen.getByRole("link", { name: "Les 2 photos" });
+    // fireEvent.click does not focus the link, as Safari does not on a click.
+    fireEvent.click(link);
+    expect(
+      screen.getByRole("dialog", { name: "Photo agrandie" }),
+    ).toHaveAttribute("open");
+    (document.querySelector("dialog") as HTMLDialogElement).close();
+    expect(link).toHaveFocus();
+  });
+
   it("throws when no LightboxProvider is above it", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>

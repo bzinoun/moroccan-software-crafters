@@ -1,7 +1,7 @@
 "use client";
 
-import type { MouseEvent } from "react";
 import type { PhotoItem } from "@/lib/derive";
+import { openPhoto } from "../home/photoLink";
 import { useLightbox } from "../Lightbox";
 
 // The "Les N photos" entry of the links row of an article. It is a link to the
@@ -20,24 +20,8 @@ export function ArticlePhotosLink({
   const first = photos[0];
   if (!first) return null;
 
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
-    // A click with a modifier key or another button keeps the browser default
-    // (new tab, new window, download).
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return;
-    }
-    event.preventDefault();
-    lightbox.open(photos, 0);
-  }
-
   return (
-    <a href={first.src} onClick={handleClick}>
+    <a href={first.src} onClick={openPhoto(() => lightbox.open(photos, 0))}>
       {label}
     </a>
   );

@@ -8,10 +8,10 @@ import { frenchSpacing } from "@/lib/french";
 import { timelineWhere, type YearGroup } from "@/lib/home-data";
 import { TagList } from "../TagList";
 
-// Spec: the "EventTimeline, YearGroup, TimelineItem, EventBadge" entry in
+// Spec: the "HistorySection, FeaturedEvents, FilterChips, EventTimeline, EventBadge" entry in
 // msca-design/COMPONENTS.md. Every event is in the HTML. A visitor with
 // JavaScript sees only the events in `shownIds` (the chosen type and the more
-// button); the others carry the `js` collapse class, so the page does not shift at load.
+// button); the others carry the `js:hidden` variant, so the page does not shift at load.
 // The items stack below `sm` (640px) and the year sticks at 90px from `sm` only.
 
 type EventTimelineProps = {

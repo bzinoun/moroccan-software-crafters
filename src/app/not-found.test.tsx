@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import NotFound from "./not-found";
+import NotFound, { metadata } from "./not-found";
 
 describe("404 page", () => {
   it("keeps the site header and footer around the message", () => {
@@ -36,5 +36,14 @@ describe("404 page", () => {
     render(<NotFound />);
     const text = screen.getByRole("main").textContent ?? "";
     expect(text).not.toMatch(/[!—]/);
+  });
+
+  it("has its own title, no canonical to another page and no indexing", () => {
+    expect(metadata.title).toBe(
+      "Page introuvable · Moroccan Software Crafters",
+    );
+    expect(metadata.alternates?.canonical).toBeNull();
+    expect(metadata.openGraph).toBeNull();
+    expect(metadata.robots).toMatchObject({ index: false });
   });
 });

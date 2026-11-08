@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { Photo } from "../Photo";
 
-// Spec: the "HomeHero, PolaroidCollage, Polaroid" entry in msca-design/COMPONENTS.md.
+// Spec: the "HomeHero, Polaroid" entry in msca-design/COMPONENTS.md.
 // A white-framed photo (10px at the sides and top, 34px at the bottom for the
 // handwritten caption) inside the hero collage. The photo is decorative.
 // The index picks the slot: width, height, offset, tilt and layer. Heights and

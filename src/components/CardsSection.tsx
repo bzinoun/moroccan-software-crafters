@@ -2,7 +2,7 @@ import { CardGrid, type CardItem } from "./CardGrid";
 import { Section } from "./Section";
 import { SectionHead } from "./SectionHead";
 
-// Spec: the "CardGrid, Card" and "CardsSection" entries in msca-design/COMPONENTS.md.
+// Spec: the "CardGrid, Card" and "CardsSection, HostsSection" entries in msca-design/COMPONENTS.md.
 // A head followed by a row of cards: the association sections (#mission,
 // #principes, #contribuer) and the meetup sections (#pour-qui, #proposer,
 // #regles). `SectionHead` applies the French spacing to its three texts.

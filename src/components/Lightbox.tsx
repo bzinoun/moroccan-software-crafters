@@ -15,7 +15,7 @@ import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { Photo } from "./Photo";
 
-// Spec: the "Lightbox" entry under "Built" in msca-design/COMPONENTS.md.
+// Spec: the "Lightbox, LightboxProvider, useLightbox" entry in msca-design/COMPONENTS.md.
 // One native dialog is rendered once by the provider; the gallery, the feature
 // cards and the articles call `useLightbox().open(items, startIndex)`.
 
