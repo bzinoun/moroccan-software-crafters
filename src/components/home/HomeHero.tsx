@@ -6,7 +6,6 @@ import { Lead } from "@/components/Lead";
 import { PostIt } from "@/components/PostIt";
 import type { Home } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
-import { toRoute } from "@/lib/routes";
 import { Polaroid } from "./Polaroid";
 
 // Spec: the "HomeHero, PolaroidCollage, Polaroid" entry in msca-design/COMPONENTS.md.
@@ -33,10 +32,10 @@ export function HomeHero({ hero, note, collage }: HomeHeroProps) {
           </h1>
           <Lead className="mb-[1.8rem]">{hero.lead}</Lead>
           <div className="flex flex-wrap gap-[0.8rem]">
-            <Button href={toRoute(hero.primary.href)}>
+            <Button href={hero.primary.href}>
               {frenchSpacing(hero.primary.label)}
             </Button>
-            <Button variant="ghost" href={toRoute(hero.secondary.href)}>
+            <Button variant="ghost" href={hero.secondary.href}>
               {frenchSpacing(hero.secondary.label)}
             </Button>
           </div>

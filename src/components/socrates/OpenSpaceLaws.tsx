@@ -9,13 +9,13 @@ import type { LawItem } from "@/lib/pages-data";
 const lawStyles = tv({
   slots: {
     item: "relative rounded-card border pt-7 pr-6.5 pb-6.5 pl-[78px] before:absolute before:top-[26px] before:left-[22px] before:grid before:size-[38px] before:-rotate-8 before:place-items-center before:rounded-full before:border-2 before:font-display before:font-semibold before:content-[counter(law)] before:[counter-increment:law]",
-    title: "italic",
+    title: "font-display-italic",
     text: "m-0",
   },
   variants: {
     main: {
       false: {
-        item: "border-line bg-card before:border-green before:text-green",
+        item: "border-line bg-white before:border-green before:text-green",
         title: "text-[1.25rem]",
         text: "text-[0.95rem] text-ink-soft",
       },

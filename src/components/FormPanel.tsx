@@ -7,7 +7,7 @@ import { cn, tv } from "@/lib/cn";
 // sponsor panel `snug`, as the old pages had them.
 
 const panelStyles = tv({
-  base: "rounded-[20px] bg-card text-ink shadow-lift",
+  base: "rounded-[20px] bg-white text-ink shadow-lift",
   variants: {
     spacing: {
       roomy: "px-[18px] py-[22px] sm:p-8",

@@ -1,8 +1,8 @@
-// Derivations that former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`) of the former site does inline for the
-// meetup, SoCraTes, association and news pages, as pure functions. The page
+// Derivations for the meetup, SoCraTes, association and news pages, as pure
+// functions. The page
 // calls the loaders of `@/content/load`, passes the result here, and hands
-// plain props to the components. Text is returned as the old site built it:
-// apply `frenchSpacing()` at render.
+// plain props to the components. Text is returned as built: apply
+// `frenchSpacing()` at render.
 //
 // Nothing here reads files, so a client file may import from this module. The
 // functions that load the articles by default are in `articles-server.ts`.
@@ -21,7 +21,6 @@ import type {
   Sticker,
 } from "@/content/types";
 import {
-  absoluteMeetupPhoto,
   fmtDate,
   logoWallTiles,
   meetupPhotoUrl,
@@ -213,7 +212,7 @@ export function sponsorPackages(sp: Sponsoring): PackageCard[] {
 export type SponsorLevel = { value: string; label: string };
 
 /**
- * Options of the "niveau" radio group of the sponsor form: one per package
+ * Options of the "niveau" radios of the sponsor form: one per package
  * ("Pack · price"), then "En nature" and "À discuter". "À discuter" is checked
  * at first.
  */
@@ -319,10 +318,10 @@ type ArticleMeta = {
   /** "Title · Site name". */
   documentTitle: string;
   description: string;
-  /** Absolute URL of the article page. */
-  url: string;
-  /** Absolute URL of the share image: the cover, or the default photo. */
-  image: string;
+  /** Route of the article page. */
+  path: string;
+  /** Name of the share photo: the cover, or the default photo. */
+  photo: string;
 };
 
 function documentTitle(article: Article, site: Pick<Site, "name">): string {
@@ -332,16 +331,13 @@ function documentTitle(article: Article, site: Pick<Site, "name">): string {
 /** What `generateMetadata` needs of an article: no event, no photos, no body. */
 export function articleMeta(
   article: Article,
-  site: Pick<Site, "name" | "baseUrl">,
+  site: Pick<Site, "name">,
 ): ArticleMeta {
   return {
     documentTitle: documentTitle(article, site),
     description: article.excerpt,
-    url: `${site.baseUrl}${articleHref(article.slug)}`,
-    image: absoluteMeetupPhoto(
-      site.baseUrl,
-      article.cover ?? DEFAULT_SOCIAL_PHOTO,
-    ),
+    path: articleHref(article.slug),
+    photo: article.cover ?? DEFAULT_SOCIAL_PHOTO,
   };
 }
 

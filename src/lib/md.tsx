@@ -1,30 +1,28 @@
-// Port of the mini Markdown renderer `md` of the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`).
-// It returns React nodes, never an HTML string, so React escapes all text and
+// A mini Markdown renderer. It returns React nodes, never an HTML string, so React escapes all text and
 // no input can add an element that this module does not create.
 //
 // Blocks (separated by a blank line): `#`, `##`, `###` headings (`#` and `##`
 // render h2, `###` renders h3: the page h1 is the article title), `-` or `*`
 // lists, `1.` or `1)` lists, `>` quotes, paragraphs (single line breaks become
-// <br>). Inline: `code`, **bold**, *italic* and [text](url). A URL is an https
+// <br>). Inline: `code`, **bold**, *emphasis* and [text](url). A URL is an https
 // URL or a site route that starts with one `/` (letters, digits, `_ . / # ? = -`);
-// anything else, `javascript:` or a relative path for example, stays text.
+// anything else, `javascript:` or a path without a leading slash for example, stays text.
 //
-// Differences from the old renderer, on purpose:
-// - the content of a code span stays literal (the old one still read stars in it);
-// - links are read before bold and italic, so stars in a URL or bold around a link work;
+// Rules:
+// - the content of a code span stays literal (no stars are read in it);
+// - links are read before bold and emphasis, so stars in a URL or bold around a link work;
 // - a site route opens in the same tab, an https URL opens in a new tab with
 //   rel="noopener";
 // - a URL that starts with `//` is not a link;
 // - plain text goes through frenchSpacing() (a narrow no-break space before
-//   ? ! : ;), as the old one did on every text node; code spans and hrefs do not;
-// - empty input gives no node (the old one gave an empty paragraph).
+//   ? ! : ;) on every text node; code spans and hrefs do not;
+// - empty input gives no node.
 
-import Link from "next/link";
+import { PageLink } from "@/components/PageLink";
 import { createElement, type ReactElement, type ReactNode } from "react";
 import { frenchSpacing } from "./french";
-import { isExternal } from "./routes";
 
-// Private-use characters mark the inline structure while the regexes run.
+// Private-use characters mark the structure inside a line while the regexes run.
 // They are stripped from the input first, so the input cannot forge a marker.
 const OPEN = "";
 const CLOSE = "";
@@ -41,14 +39,7 @@ function closeFrame(frame: Frame, key: number): ReactElement {
   const { kind, href, children } = frame;
   if (kind === "s") return createElement("strong", { key }, ...children);
   if (kind === "e") return createElement("em", { key }, ...children);
-  if (href !== undefined && isExternal(href)) {
-    return createElement(
-      "a",
-      { key, href, target: "_blank", rel: "noopener" },
-      ...children,
-    );
-  }
-  return createElement(Link, { key, href: href ?? "" }, ...children);
+  return createElement(PageLink, { key, href: href ?? "" }, ...children);
 }
 
 function inline(source: string): ReactNode[] {
@@ -158,7 +149,7 @@ function block(lines: string[], key: number): ReactElement {
 /**
  * Renders the mini Markdown of an article body to React elements.
  * Wrap the result in an element that styles h2, h3, h4, ul, ol, li,
- * blockquote, code and a (the `.prose` rules of the former site).
+ * blockquote, code and a (the `Prose` component does it).
  */
 export function md(text: string | null | undefined): ReactElement[] {
   const source = String(text ?? "")

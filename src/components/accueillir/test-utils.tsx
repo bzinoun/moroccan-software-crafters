@@ -65,7 +65,7 @@ export function stubReducedMotion(reduce: boolean) {
 }
 
 /**
- * Registers the hooks of a funnel test file: the date fixed to `NOW`, a
+ * Registers the hooks of a funnel test file: the date set to `NOW`, a
  * resolved `submit`, a silent console, no saved draft, the URL reset.
  * The returned object gives the spy that hides `console.error`.
  */
@@ -90,7 +90,7 @@ export function setUpFunnelEnvironment() {
   return env;
 }
 
-/** Saves a draft as the page would have, at the fixed time of the tests. */
+/** Saves a draft as the page would have, at the set time of the tests. */
 export function storeDraft(draft: Record<string, unknown>) {
   localStorage.setItem(
     DRAFT_KEY,

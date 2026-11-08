@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Cta, PageId, Site } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
-import { pageRoute, toRoute } from "@/lib/routes";
+import { pageRoute } from "@/lib/routes";
 import { Brand } from "./Brand";
 import { Button } from "./Button";
 import { Container } from "./Container";
@@ -21,7 +21,7 @@ function headerCta(page: PageId | undefined, siteCta: Cta): HeaderCta {
     case "host":
       return {
         label: "Les formules",
-        href: "index.html#offres",
+        href: "/#offres",
         variant: "ghost",
       };
     default:
@@ -32,7 +32,6 @@ function headerCta(page: PageId | undefined, siteCta: Cta): HeaderCta {
 export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
   const current = page === undefined ? undefined : pageRoute(page);
   const cta = headerCta(page, site.cta);
-  const ctaRoute = toRoute(cta.href);
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur-[10px] backdrop-saturate-[1.4]">
@@ -40,12 +39,11 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
         <Brand site={site} />
         <NavToggle>
           {site.nav.map((link) => {
-            const active =
-              !link.href.includes("#") && toRoute(link.href) === current;
+            const active = !link.href.includes("#") && link.href === current;
             return (
               <Link
                 key={link.href}
-                href={toRoute(link.href)}
+                href={link.href}
                 aria-current={active ? "page" : undefined}
                 className="border-b border-line py-3 text-[0.95rem] font-medium text-ink-soft no-underline hover:text-red aria-[current=page]:text-red lg:border-b-2 lg:border-transparent lg:py-1 lg:aria-[current=page]:border-red lg:aria-[current=page]:text-ink"
               >
@@ -57,7 +55,7 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
           <Button
             className="mt-4 lg:hidden"
             variant={cta.variant}
-            href={ctaRoute}
+            href={cta.href}
           >
             {frenchSpacing(cta.label)}
           </Button>
@@ -66,7 +64,7 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
           className="max-lg:hidden"
           variant={cta.variant}
           size="sm"
-          href={ctaRoute}
+          href={cta.href}
         >
           {frenchSpacing(cta.label)}
         </Button>

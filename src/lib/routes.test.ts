@@ -1,27 +1,30 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { assetUrl, isExternal, pageRoute, toRoute } from "./routes";
+import { assetUrl, isExternal, pageRoute } from "./routes";
 
-describe("toRoute", () => {
-  it.each([
-    ["index.html", "/"],
-    ["index.html#historique", "/#historique"],
-    ["index.html#offres", "/#offres"],
-    ["meetup.html", "/meetup/"],
-    ["socrates.html#sponsoring", "/socrates/#sponsoring"],
-    ["actualites.html", "/actualites/"],
-    ["association.html", "/association/"],
-    ["accueillir.html", "/accueillir/"],
-    ["./", "/"],
-    ["/", "/"],
-    ["/meetup/", "/meetup/"],
-    ["/#historique", "/#historique"],
-    ["/socrates/#sponsoring", "/socrates/#sponsoring"],
-    ["/meetup/#proposer", "/meetup/#proposer"],
-    ["#historique", "#historique"],
-    ["https://socrates-ma.github.io/", "https://socrates-ma.github.io/"],
-    ["http://example.org/x.html", "http://example.org/x.html"],
-  ])("maps %s to %s", (href, route) => {
-    expect(toRoute(href)).toBe(route);
+describe("page hrefs in TypeScript", () => {
+  const srcDir = path.resolve(__dirname, "..");
+
+  function sourceFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) return sourceFiles(full);
+      return /\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)
+        ? [full]
+        : [];
+    });
+  }
+
+  it("never uses an .html file name as a href", () => {
+    const legacy = sourceFiles(srcDir).flatMap((file) =>
+      [
+        ...readFileSync(file, "utf8").matchAll(
+          /["'](?:\.\/)?[\w-]+\.html(?:#[\w-]*)?["']/g,
+        ),
+      ].map((m) => `${path.relative(srcDir, file)}: ${m[0]}`),
+    );
+    expect(legacy).toEqual([]);
   });
 });
 
@@ -31,7 +34,7 @@ describe("isExternal", () => {
       isExternal("https://www.linkedin.com/company/moroccansoftwarecrafters/"),
     ).toBe(true);
     expect(isExternal("http://example.org")).toBe(true);
-    expect(isExternal("accueillir.html")).toBe(false);
+    expect(isExternal("/accueillir/")).toBe(false);
     expect(isExternal("#sponsoring")).toBe(false);
   });
 });

@@ -25,7 +25,7 @@ export function currentPackageChoice(): PackageChoice | null {
   return current;
 }
 
-/** The static HTML and the first client render have no choice. */
+/** The exported HTML and the first client render have no choice. */
 export function noPackageChoice(): null {
   return null;
 }

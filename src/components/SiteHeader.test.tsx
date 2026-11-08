@@ -18,17 +18,17 @@ const site: Site = {
   contact: { email: "" },
   form: { endpoint: "", extraFields: {} },
   nav: [
-    { label: "Le meetup", href: "meetup.html" },
-    { label: "Éditions", href: "index.html#historique" },
-    { label: "SoCraTes", href: "socrates.html" },
-    { label: "Actualités", href: "actualites.html" },
-    { label: "L'association", href: "association.html" },
+    { label: "Le meetup", href: "/meetup/" },
+    { label: "Éditions", href: "/#historique" },
+    { label: "SoCraTes", href: "/socrates/" },
+    { label: "Actualités", href: "/actualites/" },
+    { label: "L'association", href: "/association/" },
   ],
-  cta: { label: "Accueillir un meetup", href: "accueillir.html" },
+  cta: { label: "Accueillir un meetup", href: "/accueillir/" },
   footer: {
     links: [
-      { label: "Accueillir un meetup", href: "accueillir.html" },
-      { label: "Sponsoriser SoCraTes", href: "socrates.html#sponsoring" },
+      { label: "Accueillir un meetup", href: "/accueillir/" },
+      { label: "Sponsoriser SoCraTes", href: "/socrates/#sponsoring" },
       {
         label: "LinkedIn",
         href: "https://www.linkedin.com/company/moroccansoftwarecrafters/",

@@ -24,7 +24,7 @@ const WHO: CardItem[] = [
 const INTERNAL: CardItem = {
   title: "Le meetup",
   text: "Un samedi matin toutes les six à huit semaines, chez une entreprise hôte à Casablanca. Gratuit, en open space : lightning talks, bubble topics, tables rondes.",
-  href: "meetup.html",
+  href: "/meetup/",
   label: "Le déroulé",
 };
 const EXTERNAL: CardItem = {
@@ -64,7 +64,7 @@ describe("CardGrid", () => {
           {
             title: "Proposer un lightning talk",
             text: "Cinq à dix minutes sur le sujet de votre choix, sans slides si vous préférez.",
-            href: "meetup.html#proposer",
+            href: "/meetup/#proposer",
             label: "Comment faire",
           },
         ]}
@@ -90,7 +90,7 @@ describe("CardGrid", () => {
   it("falls back to the label En savoir plus", () => {
     render(
       <CardGrid
-        items={[{ title: "Le meetup", text: "Texte.", href: "meetup.html" }]}
+        items={[{ title: "Le meetup", text: "Texte.", href: "/meetup/" }]}
         columns={2}
       />,
     );
@@ -124,7 +124,7 @@ describe("CardGrid", () => {
     render(<CardGrid items={[INTERNAL]} columns={2} tone="dark" />);
     const card = screen.getByRole("article");
     expect(card).toHaveClass("bg-white/5");
-    expect(card).not.toHaveClass("bg-card");
+    expect(card).not.toHaveClass("bg-white");
   });
 });
 

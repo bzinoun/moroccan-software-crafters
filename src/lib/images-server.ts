@@ -1,6 +1,7 @@
-// Server only: checks the public image files with node:fs. Call it from page
-// code at build time, so a renamed photo fails the build instead of giving a
-// broken share image. Never import it from a client file.
+import "server-only";
+
+// Checks the public image files with node:fs. Call it from page code at build
+// time, so a renamed photo fails the build instead of giving a broken share image.
 
 import { existsSync } from "node:fs";
 import path from "node:path";

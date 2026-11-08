@@ -3,7 +3,6 @@ import type { Sticker } from "@/content/types";
 import type { LogoTile as LogoTileData } from "@/lib/derive";
 import { cn, tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
-import { toRoute } from "@/lib/routes";
 import { Monogram } from "../Monogram";
 import { PageLink } from "../PageLink";
 import { LogoImage } from "./LogoImage";
@@ -19,7 +18,7 @@ import { LogoImage } from "./LogoImage";
 // The compact wall (association page) has narrower tiles, a 64px logo box and
 // no role line.
 const tileStyles = tv({
-  base: "group flex flex-col items-center rounded-card border border-line bg-card text-center text-ink no-underline hover:text-ink motion-safe:transition-[translate,box-shadow,border-color] motion-safe:duration-200 motion-safe:ease-[ease]",
+  base: "group flex flex-col items-center rounded-card border border-line bg-white text-center text-ink no-underline hover:text-ink motion-safe:transition-[translate,box-shadow,border-color] motion-safe:duration-200 motion-safe:ease-[ease]",
   variants: {
     compact: {
       false: "w-42 gap-1.5 px-3 pt-[18px] pb-3.5",
@@ -100,7 +99,6 @@ export function LogoTile({ tile, compact = false }: LogoTileProps) {
           <LogoImage
             src={tile.logoSrc}
             alt={tile.name}
-            loading="lazy"
             width={120}
             height={120}
             className={logoStyles({ compact })}
@@ -118,15 +116,13 @@ export function LogoTile({ tile, compact = false }: LogoTileProps) {
   );
 
   return tile.href ? (
-    <a
+    <PageLink
       className={cn(tileStyles({ compact }), TILE_LINK)}
       href={tile.href}
-      target="_blank"
-      rel="noopener"
       title={title}
     >
       {content}
-    </a>
+    </PageLink>
   ) : (
     <div className={tileStyles({ compact })} title={title}>
       {content}
@@ -142,7 +138,7 @@ export function LogoSticker({ sticker, compact = false }: LogoStickerProps) {
   return (
     <PageLink
       className={styles.base()}
-      href={toRoute(sticker.href)}
+      href={sticker.href}
       aria-labelledby={`${id}-t ${id}-l`}
       aria-describedby={`${id}-d`}
     >

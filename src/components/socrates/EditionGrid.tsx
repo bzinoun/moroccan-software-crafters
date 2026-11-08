@@ -1,6 +1,7 @@
 import { frenchSpacing } from "@/lib/french";
 import type { EditionCard as EditionCardData } from "@/lib/pages-data";
 import { Reveal } from "../Reveal";
+import { Photo } from "../Photo";
 
 // Spec: the "EditionGrid, EditionCard" entry in msca-design/COMPONENTS.md; port of
 // `.edition-grid` and `.edition`. One column, two from `sm` (old 560px), four
@@ -46,18 +47,16 @@ export function EditionCard({ edition }: { edition: EditionCardData }) {
   return (
     <Reveal
       as="article"
-      className="flex flex-col overflow-hidden rounded-card border border-line bg-card"
+      className="flex flex-col overflow-hidden rounded-card border border-line bg-white"
     >
       <div
         className="relative grid aspect-4/3 place-items-center overflow-hidden bg-green-deep"
         style={edition.photoSrc ? undefined : COVER_ART}
       >
         {edition.photoSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized
-          <img
+          <Photo
             src={edition.photoSrc}
             alt=""
-            loading="lazy"
             className="size-full object-cover"
           />
         ) : (

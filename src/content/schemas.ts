@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 
-/** A label with a route (for example "/meetup/#proposer") or an absolute URL. */
+/** A label with a route (for example "/meetup/#proposer") or a full URL. */
 export const ctaSchema = z.object({
   label: z.string(),
   href: z.string(),

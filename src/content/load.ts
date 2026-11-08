@@ -1,3 +1,5 @@
+import "server-only";
+
 // Typed loader for the root content/*.json files.
 // The JSON files at the repo root stay the single source of truth.
 // Schemas live in schemas.ts and types in types.ts; this module reads and parses.

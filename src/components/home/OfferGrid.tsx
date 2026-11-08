@@ -13,7 +13,7 @@ const cardStyles = tv({
   base: "relative flex flex-col rounded-card border-[1.5px] px-6.5 py-7",
   variants: {
     tone: {
-      light: "border-line bg-card",
+      light: "border-line bg-white",
       dark: "border-white/16 bg-white/5 text-cream",
     },
     highlight: { true: "", false: "" },

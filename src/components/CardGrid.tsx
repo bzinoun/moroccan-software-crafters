@@ -1,6 +1,5 @@
 import { cn, tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
-import { isExternal, toRoute } from "@/lib/routes";
 import { PageLink } from "./PageLink";
 import { Reveal } from "./Reveal";
 
@@ -10,7 +9,7 @@ import { Reveal } from "./Reveal";
 export type CardItem = {
   title: string;
   text: string;
-  /** A site href in the legacy `.html` form (`meetup.html#proposer`, mapped by `toRoute()`) or an external URL. */
+  /** A route (`/meetup/#proposer`) or an external URL. */
   href?: string;
   /** Link text; the arrow is added. Default "En savoir plus". */
   label?: string;
@@ -24,7 +23,7 @@ const cardStyles = tv({
   },
   variants: {
     tone: {
-      light: { card: "border-line bg-card", text: "text-ink-soft" },
+      light: { card: "border-line bg-white", text: "text-ink-soft" },
       dark: {
         card: "border-white/14 bg-white/5",
         title: "text-white",
@@ -56,12 +55,8 @@ export function Card({
     <Reveal as="article" className={cn(styles.card(), className)}>
       <h3 className={styles.title()}>{frenchSpacing(title)}</h3>
       <p className={styles.text()}>{frenchSpacing(text)}</p>
-      {href === undefined ? null : isExternal(href) ? (
-        <a className={linkClass} href={href} target="_blank" rel="noopener">
-          {linkText}
-        </a>
-      ) : (
-        <PageLink className={linkClass} href={toRoute(href)}>
+      {href === undefined ? null : (
+        <PageLink className={linkClass} href={href}>
           {linkText}
         </PageLink>
       )}

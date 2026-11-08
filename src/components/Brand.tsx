@@ -4,6 +4,7 @@ import type { Site } from "@/content/types";
 import { tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { assetUrl } from "@/lib/routes";
+import { Photo } from "./Photo";
 
 // Logo, site name and one line under it. The header shows the tagline and
 // the footer shows the mission, so the line can be passed in.
@@ -41,8 +42,8 @@ export function Brand({ site, line = site.tagline, size, tone }: BrandProps) {
 
   return (
     <Link className={styles.root()} href="/">
-      {/* eslint-disable-next-line @next/next/no-img-element -- faithful port, images are unoptimized */}
-      <img
+      <Photo
+        eager
         className={styles.logo()}
         src={assetUrl("/assets/img/logo.png")}
         alt=""

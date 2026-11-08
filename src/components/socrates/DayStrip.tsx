@@ -23,7 +23,7 @@ export function DayStrip({ days, note }: DayStripProps) {
     <>
       <ol
         role="list"
-        className="m-0 grid list-none grid-cols-1 overflow-hidden rounded-card border border-line bg-card p-0 sm:grid-cols-2 lg:grid-cols-4"
+        className="m-0 grid list-none grid-cols-1 overflow-hidden rounded-card border border-line bg-white p-0 sm:grid-cols-2 lg:grid-cols-4"
       >
         {days.map((day) => (
           <li key={day.day} className={CELL}>

@@ -13,7 +13,7 @@ const PROPS: {
 } = {
   title: TITLE,
   text: "Quatre étapes, deux minutes. Réponse sous 48 heures ?",
-  primary: { label: "Proposer une date", href: "accueillir.html" },
+  primary: { label: "Proposer une date", href: "/accueillir/" },
   secondary: {
     label: "Suivre sur LinkedIn",
     href: "https://www.linkedin.com/company/example/",

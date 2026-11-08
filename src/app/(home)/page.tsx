@@ -30,10 +30,9 @@ import {
   trustLogos,
 } from "@/lib/home-data";
 
-// Server component: every loader reads content/*.json at build time. The
-// sections follow the order and the ids of the former `index.html` (`git show 1353207:index.html`). The skip link
-// target (`main#main`) lives in the layout. The lightbox provider wraps the
-// sections that open photos (history and gallery).
+// Server component: every loader reads content/*.json at build time. The skip
+// link target (`main#main`) lives in the layout. The lightbox provider wraps
+// the sections that open photos (history and gallery).
 export default function Home() {
   const site = loadSite();
   const home = loadHome();

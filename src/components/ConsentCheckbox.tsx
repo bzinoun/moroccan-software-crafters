@@ -16,7 +16,7 @@ type ConsentCheckboxProps = Omit<
 /**
  * The consent line of a form: a 20px checkbox with a green accent beside the
  * sentence. The sentence differs per form, so the caller writes it. The
- * error sits under the line and describes the checkbox. The fixed attributes
+ * error sits under the line and describes the checkbox. The set attributes
  * come after the props, so a caller cannot override them by accident.
  */
 export function ConsentCheckbox({

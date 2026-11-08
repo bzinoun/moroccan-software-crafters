@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
+import { Photo } from "./Photo";
 
 // Spec: the "StepRows, StepRow, TipList" entry in msca-design/COMPONENTS.md;
 // port of `.step-row`, `.time-tag`, `.kicker` and `.tips`, and of the steps
@@ -58,11 +59,9 @@ export function StepRow({ step }: StepRowProps) {
       className="group grid items-center gap-5 border-t border-line py-8 first:border-t-0 first:pt-0 md:grid-cols-2 md:gap-12 md:py-11"
     >
       <div className="relative md:group-even:order-2">
-        {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-        <img
+        <Photo
           src={step.image}
           alt=""
-          loading="lazy"
           className="aspect-[4/3] w-full rounded-card object-cover shadow-lift"
         />
         <span className="absolute top-3.5 left-3.5 rounded-full bg-ink px-[11px] py-1.5 text-[0.82rem] font-semibold text-white">

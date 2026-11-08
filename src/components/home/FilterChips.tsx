@@ -22,7 +22,7 @@ type FilterChipsProps = {
 // The old chip set its font with the `font` shorthand, which resets the line
 // height to `normal`: `leading-[normal]` keeps the old chip height.
 const CHIP =
-  "cursor-pointer rounded-full border-[1.5px] border-line bg-card px-[0.95rem] py-[0.45rem] font-body text-[0.9rem] leading-[normal] font-medium text-ink-soft aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-white";
+  "cursor-pointer rounded-full border-[1.5px] border-line bg-white px-[0.95rem] py-[0.45rem] font-body text-[0.9rem] leading-[normal] font-medium text-ink-soft aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-white";
 
 export function FilterChips({
   label,

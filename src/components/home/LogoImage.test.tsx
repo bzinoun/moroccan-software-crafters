@@ -23,7 +23,6 @@ describe("LogoImage", () => {
         alt="AXA Assurance Maroc"
         width={120}
         height={120}
-        loading="lazy"
         className="size-21"
         fallback={FALLBACK}
       />,

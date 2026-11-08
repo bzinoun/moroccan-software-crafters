@@ -2,6 +2,7 @@ import { frenchSpacing } from "@/lib/french";
 import { Eyebrow } from "../Eyebrow";
 import { Section } from "../Section";
 import { NumberedList, type NumberedItem } from "./NumberedList";
+import { Photo } from "../Photo";
 
 // Spec: the "ZoomSplit, NumberedList" entry in msca-design/COMPONENTS.md; port
 // of `.zoom`. A plain section holding a photo on the left (4/3, tilted
@@ -38,13 +39,11 @@ export function ZoomSplit({
       aria-labelledby={titleId}
       containerClassName="grid items-center gap-12 md:grid-cols-[1fr_1.1fr]"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-      <img
+      <Photo
         src={image.src}
         alt={image.alt}
         width={image.width ?? 800}
         height={image.height ?? 771}
-        loading="lazy"
         className="aspect-[4/3] w-full -rotate-[1.5deg] rounded-card object-cover shadow-lift"
       />
       <div>

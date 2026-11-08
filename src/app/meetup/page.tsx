@@ -8,35 +8,29 @@ import { CtaBand } from "@/components/home/CtaBand";
 import { FaqList } from "@/components/home/Faq";
 import { TopicWall } from "@/components/home/TopicWall";
 import { ZoomSplit } from "@/components/meetup/ZoomSplit";
-import { loadEvents, loadMeetup, loadSite } from "@/content/load";
+import { loadEvents, loadMeetup } from "@/content/load";
 import { frenchSpacing } from "@/lib/french";
 import { meetupPhotoUrl } from "@/lib/derive";
+import { pageMetadata } from "@/lib/page-metadata";
 import { meetupSteps, meetupTopicBoard } from "@/lib/pages-data";
 
-const site = loadSite();
 const meetup = loadMeetup();
 
-// The share image and the share description are hard-coded in the former `meetup.html` (`git show 1353207:meetup.html`), not in
-// meetup.json: they are copied here.
+// The share image and the share description are not in meetup.json.
 const SHARE_DESCRIPTION =
   "Lightning talks, bubble topics, tables rondes : le déroulé d'un samedi matin chez les Moroccan Software Crafters.";
-const SHARE_IMAGE = `${site.baseUrl}/assets/img/meetups/2026-03-innovx-3.jpg`;
+const SHARE_PHOTO = "2026-03-innovx-3";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/meetup/",
   title: meetup.meta.title,
   description: meetup.meta.description,
-  openGraph: {
-    type: "website",
-    title: meetup.meta.title,
-    description: SHARE_DESCRIPTION,
-    url: `${site.baseUrl}/meetup/`,
-    images: [SHARE_IMAGE],
-  },
-};
+  share: { description: SHARE_DESCRIPTION },
+  photo: SHARE_PHOTO,
+});
 
-// Server component: the sections follow the order and the ids of the root
-// former `meetup.html` (other pages link to `#proposer`). The alt texts of the two
-// photos are hard-coded in the former `meetup.html`, so they are copied here.
+// Server component: other pages link to the section ids (`#proposer`). The alt
+// texts of the two photos are not in meetup.json.
 export default function MeetupPage() {
   const m = meetup;
   const events = loadEvents();

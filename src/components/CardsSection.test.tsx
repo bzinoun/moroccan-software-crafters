@@ -7,13 +7,13 @@ const CARDS: CardItem[] = [
   {
     title: "Premier",
     text: "Un texte.",
-    href: "meetup.html",
+    href: "/meetup/",
     label: "Le déroulé",
   },
   {
     title: "Deuxième",
     text: "Un autre texte.",
-    href: "socrates.html#sponsoring",
+    href: "/socrates/#sponsoring",
     label: "Voir les formules",
   },
   { title: "Troisième", text: "Sans lien." },

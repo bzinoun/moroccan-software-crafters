@@ -284,7 +284,7 @@ describe("md on the real articles", () => {
 
 describe("md french spacing", () => {
   // From articles.json (appel-partenaires-socrates-5e-edition): a plain space
-  // before the colon becomes U+202F, as the old site did on every text node.
+  // before the colon becomes U+202F on every text node.
   it("uses a narrow no-break space before ? ! : ;", () => {
     expect(html("est à but non lucratif : le prix")).toBe(
       "<p>est à but non lucratif\u202f: le prix</p>",

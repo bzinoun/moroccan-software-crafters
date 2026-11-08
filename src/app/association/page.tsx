@@ -12,34 +12,28 @@ import {
 } from "@/content/load";
 import { meetupPhotoUrl } from "@/lib/derive";
 import { frenchSpacing } from "@/lib/french";
+import { pageMetadata } from "@/lib/page-metadata";
 import { associationFacts, hostsWall } from "@/lib/pages-data";
 
 const site = loadSite();
 const association = loadAssociation();
 
-// Hard-coded in the former `association.html` (`git show 1353207:association.html`), not in association.json.
+// Not in association.json.
 const SHARE_DESCRIPTION =
   "Une communauté, pas une marque. Mission, principes, histoire et façons de contribuer.";
 const HERO_ALT = "Photo de groupe d'un meetup";
 const HERO_POSTIT = "Depuis 2019";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/association/",
   title: association.meta.title,
   description: association.meta.description,
-  openGraph: {
-    type: "website",
-    title: association.meta.title,
-    description: SHARE_DESCRIPTION,
-    url: `${site.baseUrl}/association/`,
-    // Social tags need full URLs: `site.baseUrl` already carries the base path.
-    images: [
-      `${site.baseUrl}/assets/img/meetups/${association.hero.photo}.jpg`,
-    ],
-  },
-};
+  share: { description: SHARE_DESCRIPTION },
+  photo: association.hero.photo,
+});
 
-// Server component: every loader reads content/*.json at build time. The
-// sections follow the order and the ids of the former `association.html`.
+// Server component: every loader reads content/*.json at build time. Other
+// pages link to the section ids.
 export default function AssociationPage() {
   const events = loadEvents();
   const companies = loadCompanies();
@@ -95,7 +89,7 @@ export default function AssociationPage() {
         title={association.contact.title}
         text={association.contact.text}
         primary={{ label: "Écrire sur LinkedIn", href: site.links.linkedin }}
-        secondary={{ label: "Accueillir un meetup", href: "accueillir.html" }}
+        secondary={{ label: "Accueillir un meetup", href: "/accueillir/" }}
       />
     </>
   );

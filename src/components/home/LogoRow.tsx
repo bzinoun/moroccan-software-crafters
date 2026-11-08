@@ -42,7 +42,6 @@ export function LogoRow({ logos, className, ...props }: LogoRowProps) {
             src={logo.logoSrc}
             alt={logo.name}
             title={logo.name}
-            loading="lazy"
             width={56}
             height={56}
             className={LOGO}

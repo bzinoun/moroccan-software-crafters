@@ -20,7 +20,7 @@ export const factListStyles = tv({
   variants: {
     tone: {
       light: {
-        item: "border-line bg-card",
+        item: "border-line bg-white",
         value: "text-green",
         label: "text-ink-soft",
       },

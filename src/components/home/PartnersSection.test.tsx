@@ -41,7 +41,7 @@ const STICKER: Sticker = {
   title: "Votre logo ici ?",
   text: "Recevez la communauté.",
   label: "Accueillir un meetup",
-  href: "accueillir.html",
+  href: "/accueillir/",
 };
 const HEAD = {
   eyebrow: "Ils nous font confiance",

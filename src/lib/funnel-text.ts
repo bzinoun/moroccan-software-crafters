@@ -1,6 +1,6 @@
 // Texts of the host funnel: the success and alert messages, the date lines,
 // the lead, its recap and its e-mail body, the progress and button labels.
-// Text is returned as the old site wrote it: the components apply `frenchSpacing()`.
+// Text is returned as written: the components apply `frenchSpacing()`.
 
 import type { Offer } from "@/content/types";
 import { parseIsoDay } from "./dates";
@@ -18,7 +18,7 @@ const DAYS = [
   "samedi",
 ] as const;
 
-/** Texts of the success panel and of the alerts, as in the old page. */
+/** Texts of the success panel and of the alerts, for the host funnel. */
 export const MESSAGES = {
   successDefault:
     "Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.",

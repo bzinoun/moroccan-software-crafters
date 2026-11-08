@@ -1,7 +1,7 @@
 // Field rules shared by the lead forms (host funnel and SoCraTes sponsor form):
-// the patterns of the old site, the French messages of the contact block and
-// `validateContact`, which both forms call. Messages come back as the old site
-// wrote them: the components apply `frenchSpacing()`.
+// the patterns, the French messages of the contact fields and
+// `validateContact`, which both forms call. Messages come back as written: the
+// components apply `frenchSpacing()`.
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -53,7 +53,7 @@ export const CONSENT_ERROR =
   "Votre accord est nécessaire pour envoyer la demande.";
 
 /**
- * Checks the contact block: company, name, e-mail and phone, each trimmed.
+ * Checks the contact fields: company, name, e-mail and phone, each trimmed.
  * `fields` limits the check (the funnel asks for the company on step 3 and for
  * the rest on step 4). The result has one message per invalid field.
  */

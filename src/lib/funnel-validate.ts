@@ -1,5 +1,5 @@
 // Validation of the host funnel: one step at a time, or all steps before the
-// send. Messages are as the old site wrote them; the components apply
+// send. Messages come back as written; the components apply
 // `frenchSpacing()`.
 
 import { TOTAL_STEPS } from "./funnel-fields";

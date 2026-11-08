@@ -2,20 +2,19 @@ import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import type { SocratesEdition, TrustLogo } from "@/lib/home-data";
-import { toRoute } from "@/lib/routes";
 import { Button } from "../Button";
 import { Eyebrow } from "../Eyebrow";
 import { HeroEm } from "../HeroEm";
 import { Lead } from "../Lead";
 import { Section } from "../Section";
 import { LogoRow } from "./LogoRow";
+import { Photo } from "../Photo";
 
 // Spec: the "SocratesTeaser, EditionChips, SponsorCall" entry in msca-design/COMPONENTS.md.
 // The #socrates section of the former `index.html` (`git show 1353207:index.html`). Texts come from content/home.json
 // (`home.socrates`), the chips from `socratesEditions()`, the logos from
 // `trustLogos()`. Both eyebrows carry the khatam star, as `#socrates .eyebrow`
-// did on the old site. Hrefs are the ones of the JSON ("socrates.html#sponsoring"):
-// the component maps them with `toRoute()`.
+// did on the old site.
 
 // Static copy of the aria-label of #trust-logos in the former `index.html`.
 const TRUST_LABEL = "Partenaires présents à chaque édition";
@@ -98,7 +97,7 @@ export function SponsorCall({
         aria-label={TRUST_LABEL}
         className="mt-3.5 mb-4.5"
       />
-      <Button variant="ghost-on-dark" href={toRoute(sponsor.cta.href)}>
+      <Button variant="ghost-on-dark" href={sponsor.cta.href}>
         {frenchSpacing(sponsor.cta.label)}
       </Button>
     </div>
@@ -150,17 +149,15 @@ export function SocratesTeaser({
         </h2>
         <Lead tone="dark">{lead}</Lead>
         <EditionChips editions={editions} />
-        <Button href={toRoute(cta.href)} variant="primary-flat">
+        <Button href={cta.href} variant="primary-flat">
           {frenchSpacing(cta.label)}
         </Button>
         <SponsorCall sponsor={sponsor} trust={trust} />
       </div>
       {/* Static alt text of the former `index.html`: it is not in home.json. */}
-      {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-      <img
+      <Photo
         src={photoSrc}
         alt="Photo de groupe des participants de SoCraTes Maroc 2022 à Marrakech"
-        loading="lazy"
         width={1600}
         height={1200}
         className="aspect-4/3 w-full rounded-card object-cover object-[center_75%] shadow-[0_20px_50px_rgba(0,0,0,0.35)]"

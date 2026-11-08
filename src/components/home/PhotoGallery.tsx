@@ -8,6 +8,7 @@ import { useLightbox } from "../Lightbox";
 import { Section } from "../Section";
 import { SectionFoot } from "../SectionFoot";
 import { SectionHead } from "../SectionHead";
+import { Photo } from "../Photo";
 
 // Spec: the "PhotoGallery, GalleryItem" entry in msca-design/COMPONENTS.md.
 // Ported from the gallery of the former `assets/js/home.js` (`git show 1353207:assets/js/home.js`). The first `limit` photos show;
@@ -57,8 +58,7 @@ function GalleryItem({
       className={ITEM}
       onClick={onOpen}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-      <img src={item.src} alt={caption} loading="lazy" className={PHOTO} />
+      <Photo src={item.src} alt={caption} className={PHOTO} />
       <span className={CAPTION}>{caption}</span>
     </button>
   );

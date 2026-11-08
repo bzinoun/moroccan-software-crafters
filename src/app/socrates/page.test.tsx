@@ -45,7 +45,7 @@ describe("socrates metadata", () => {
 });
 
 describe("SocratesPage", () => {
-  it("has the section ids of the old page, in order", () => {
+  it("has the section ids that other pages link to, in order", () => {
     const { container } = renderPage();
     const ids = [...container.querySelectorAll("section[id]")].map(
       (el) => el.id,

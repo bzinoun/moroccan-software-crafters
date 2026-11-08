@@ -1,9 +1,8 @@
-import Link from "next/link";
 import type { Site } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
-import { isExternal, toRoute } from "@/lib/routes";
 import { Brand } from "./Brand";
 import { Container } from "./Container";
+import { PageLink } from "./PageLink";
 
 const linkClass =
   "text-cream no-underline hover:text-white hover:underline hover:underline-offset-3";
@@ -19,27 +18,11 @@ export function SiteFooter({ site }: { site: Site }) {
           aria-label="Liens de pied de page"
           id="footer-nav"
         >
-          {site.footer.links.map((link) =>
-            isExternal(link.href) ? (
-              <a
-                key={link.href}
-                className={linkClass}
-                href={link.href}
-                target="_blank"
-                rel="noopener"
-              >
-                {frenchSpacing(link.label)}
-              </a>
-            ) : (
-              <Link
-                key={link.href}
-                className={linkClass}
-                href={toRoute(link.href)}
-              >
-                {frenchSpacing(link.label)}
-              </Link>
-            ),
-          )}
+          {site.footer.links.map((link) => (
+            <PageLink key={link.href} className={linkClass} href={link.href}>
+              {frenchSpacing(link.label)}
+            </PageLink>
+          ))}
         </nav>
         <p className="w-full border-t border-white/16 pt-5 text-[0.84rem] text-on-dark-muted">
           {frenchSpacing(site.footer.legal)}

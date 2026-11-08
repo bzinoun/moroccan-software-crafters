@@ -1,5 +1,6 @@
 import { frenchSpacing } from "@/lib/french";
 import type { FamilyItem } from "@/lib/pages-data";
+import { Photo } from "../Photo";
 
 // Spec: the "FamilyGrid" entry in msca-design/COMPONENTS.md; port of `.family`.
 // The old list kept the browser defaults for a list (a 40px start padding and a
@@ -19,13 +20,11 @@ export function FamilyGrid({ items }: FamilyGridProps) {
       {items.map((item) => (
         <li
           key={item.id}
-          className="rounded-card border border-line bg-card px-2.5 pt-4 pb-3 text-center"
+          className="rounded-card border border-line bg-white px-2.5 pt-4 pb-3 text-center"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-          <img
+          <Photo
             src={item.logoSrc}
             alt=""
-            loading="lazy"
             width={72}
             height={72}
             className="mx-auto mb-2 size-18 object-contain"

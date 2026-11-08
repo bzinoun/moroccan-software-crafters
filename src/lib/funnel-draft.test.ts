@@ -137,7 +137,7 @@ describe("draft storage", () => {
     localStorage.clear();
   });
 
-  it("writes, reads and clears under the old key", () => {
+  it("writes, reads and clears under its storage key", () => {
     expect(DRAFT_KEY).toBe("msc-host-draft-v1");
     expect(readDraft(NOW)).toBeNull();
     writeDraft({ nom: "Sara", _step: 2 }, NOW);

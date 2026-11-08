@@ -21,7 +21,7 @@ import type {
   stickerSchema,
 } from "./schemas";
 
-/** A label with a route (for example "/meetup/#proposer") or an absolute URL. */
+/** A label with a route (for example "/meetup/#proposer") or a full URL. */
 export type Cta = z.infer<typeof ctaSchema>;
 export type Site = z.infer<typeof siteSchema>;
 export type HistoryFilter = z.infer<typeof historyFilterSchema>;

@@ -1,7 +1,6 @@
 import type { Sticker } from "@/content/types";
 import type { LogoTile } from "@/lib/derive";
 import { frenchSpacing } from "@/lib/french";
-import { toRoute } from "@/lib/routes";
 import { Button } from "../Button";
 import { LogoWall } from "./LogoWall";
 import { Section } from "../Section";
@@ -39,8 +38,8 @@ export function PartnersSection({
       />
       <LogoWall id="logo-wall" tiles={tiles} sticker={sticker} />
       <SectionFoot>
-        <Button href={toRoute("accueillir.html")}>Rejoindre les hôtes</Button>
-        <Button variant="ghost" href={toRoute("socrates.html#sponsoring")}>
+        <Button href={"/accueillir/"}>Rejoindre les hôtes</Button>
+        <Button variant="ghost" href={"/socrates/#sponsoring"}>
           Soutenir SoCraTes Maroc
         </Button>
       </SectionFoot>

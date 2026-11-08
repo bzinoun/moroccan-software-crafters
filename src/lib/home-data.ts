@@ -1,7 +1,6 @@
-// Derivations that former `assets/js/home.js` (`git show 1353207:assets/js/home.js`) of the former site does inline, as pure
-// functions. The page calls the loaders of `@/content/load`, passes the result
+// Derivations for the home page, as pure functions. The page calls the loaders of `@/content/load`, passes the result
 // here, and hands plain props to the section components.
-// Text is returned as the old site built it: apply `frenchSpacing()` at render.
+// Text is returned as built: apply `frenchSpacing()` at render.
 
 import type {
   Company,
@@ -32,7 +31,7 @@ export const DEFAULT_HISTORY_LIMIT = 6;
 /** Used when a content limit is missing or 0: photos of the home gallery. */
 export const DEFAULT_GALLERY_LIMIT = 8;
 
-/** Today as "YYYY-MM-DD", the build date of a static export. */
+/** Today as "YYYY-MM-DD", the build date of the exported site. */
 function isoToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -69,7 +68,7 @@ export function heroCollage(home: Home): CollageItem[] {
 export type StatItem = { value: string; label: string };
 
 /**
- * Stats band: a fixed `value` wins, else the figure computed from `key`. A stat
+ * Stats band: a literal `value` wins, else the figure computed from `key`. A stat
  * with no value (an empty figure too) is left out.
  */
 export function statItems(home: Home, site: Site, events: Event[]): StatItem[] {
@@ -173,8 +172,8 @@ export function filterEvents(events: Event[], filter: string): Event[] {
 export type YearGroup = { year: string; items: Event[] };
 
 /**
- * Timeline groups: filter first, then keep the first `limit` events (all when
- * no limit), then group by year (one group per year) in order of first appearance.
+ * Timeline groups: select first, then keep the first `limit` events (all when
+ * no limit), then gather by year (one group per year) in order of first appearance.
  */
 export function eventsByYear(
   events: Event[],

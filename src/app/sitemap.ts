@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { loadArticles, loadSite } from "@/content/load";
 
-// A static export needs the metadata route prerendered at build time.
+// An exported site needs the metadata route prerendered at build time.
 export const dynamic = "force-static";
 
 const PAGE_PATHS = [

@@ -7,8 +7,12 @@ import {
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from "react";
+import { Photo } from "../Photo";
 
-type LogoImageProps = Omit<ComponentPropsWithoutRef<"img">, "children"> & {
+type LogoImageProps = Omit<
+  ComponentPropsWithoutRef<"img">,
+  "children" | "loading"
+> & {
   src: string;
   alt: string;
   /** Shown in place of the image when the file cannot be loaded (the monogram). */
@@ -31,8 +35,7 @@ export function LogoImage({ src, fallback, alt, ...props }: LogoImageProps) {
   if (failedSrc === src) return <>{fallback}</>;
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized
-    <img
+    <Photo
       ref={ref}
       src={src}
       alt={alt}

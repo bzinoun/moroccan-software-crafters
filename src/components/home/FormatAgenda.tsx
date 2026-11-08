@@ -1,12 +1,12 @@
 import type { Cta } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
 import type { FormatStepItem, TopicNote } from "@/lib/home-data";
-import { toRoute } from "@/lib/routes";
 import { Button } from "../Button";
 import { Section } from "../Section";
 import { SectionFoot } from "../SectionFoot";
 import { SectionHead } from "../SectionHead";
 import { TopicWall } from "./TopicWall";
+import { Photo } from "../Photo";
 
 // Spec: the "FormatAgenda" entry in msca-design/COMPONENTS.md; port of the
 // #format section of the former `index.html` (`git show 1353207:index.html`), of `.agenda` in the former `assets/css/style.css` (`git show 1353207:assets/css/style.css`) and of
@@ -34,7 +34,7 @@ const AGENDA =
   "m-0 grid list-none grid-cols-1 gap-5 p-0 sm:grid-cols-2 lg:grid-cols-4";
 
 const CARD =
-  "group flex flex-col overflow-hidden rounded-card border border-line bg-card";
+  "group flex flex-col overflow-hidden rounded-card border border-line bg-white";
 
 const SHOT = "aspect-16/10 overflow-hidden bg-paper-2";
 
@@ -70,13 +70,7 @@ export function FormatAgenda({
           <li key={step.title} className={CARD}>
             {step.photoSrc ? (
               <div className={SHOT}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-                <img
-                  className={PHOTO}
-                  src={step.photoSrc}
-                  alt=""
-                  loading="lazy"
-                />
+                <Photo className={PHOTO} src={step.photoSrc} alt="" />
               </div>
             ) : null}
             <div className="px-5.5 pt-4.5 pb-5.5">
@@ -97,7 +91,7 @@ export function FormatAgenda({
       <TopicWall label={topicsLabel} topics={topics} />
       {more ? (
         <SectionFoot>
-          <Button variant="ghost" href={toRoute(more.href)}>
+          <Button variant="ghost" href={more.href}>
             {frenchSpacing(more.label)}
           </Button>
         </SectionFoot>

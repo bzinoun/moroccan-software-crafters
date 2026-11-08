@@ -4,10 +4,12 @@ import type { ArticleView as ArticleViewData } from "@/lib/pages-data";
 import { md } from "@/lib/md";
 import { pageRoute } from "@/lib/routes";
 import { Lead } from "../Lead";
+import { PageLink } from "../PageLink";
 import { Section } from "../Section";
 import { TagList } from "../TagList";
 import { ArticlePhotosLink } from "./ArticlePhotosLink";
 import { Prose } from "./Prose";
+import { Photo } from "../Photo";
 
 // Spec: the "ArticleView, Prose" entry in msca-design/COMPONENTS.md; port of the
 // detail branch of `news()` in the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`) and of `.article` in
@@ -36,8 +38,8 @@ export function ArticleView({ view }: { view: ArticleViewData }) {
         <Lead>{view.excerpt}</Lead>
         {view.coverSrc ? (
           <div className="mt-7 mb-9 overflow-hidden rounded-card shadow-lift">
-            {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-            <img
+            <Photo
+              eager
               src={view.coverSrc}
               alt=""
               className="max-h-[520px] w-full object-cover"
@@ -49,14 +51,9 @@ export function ArticleView({ view }: { view: ArticleViewData }) {
         {hasLinks ? (
           <div className="mt-8 flex flex-wrap gap-4 border-t border-line pt-5 text-[0.95rem] font-semibold">
             {view.eventLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener"
-              >
+              <PageLink key={link.href} href={link.href}>
                 {link.label}
-              </a>
+              </PageLink>
             ))}
             {view.photosLabel !== null ? (
               <ArticlePhotosLink

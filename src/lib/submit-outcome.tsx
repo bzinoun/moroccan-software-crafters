@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import { PageLink } from "@/components/PageLink";
 import { frenchSpacing } from "./french";
 import type { ContactFallback, SubmitInput, SubmitResult } from "./forms";
 
@@ -29,12 +30,8 @@ export type Outcome =
 
 const LINKEDIN = "LinkedIn";
 
-function ExternalLink({ href }: { href: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener">
-      {LINKEDIN}
-    </a>
-  );
+function LinkedInLink({ href }: { href: string }) {
+  return <PageLink href={href}>{LINKEDIN}</PageLink>;
 }
 
 function NotConnected({ href }: { href: string | undefined }) {
@@ -43,7 +40,7 @@ function NotConnected({ href }: { href: string | undefined }) {
       {frenchSpacing(
         "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur",
       )}{" "}
-      {href ? <ExternalLink href={href} /> : LINKEDIN}{" "}
+      {href ? <LinkedInLink href={href} /> : LINKEDIN}{" "}
       {frenchSpacing("en attendant.")}
     </>
   );
@@ -68,7 +65,7 @@ function Failure({
     return (
       <>
         {frenchSpacing(texts.linkedinLead)}{" "}
-        <ExternalLink href={fallback.href} />.
+        <LinkedInLink href={fallback.href} />.
       </>
     );
   }

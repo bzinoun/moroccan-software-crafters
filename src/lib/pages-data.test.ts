@@ -565,22 +565,20 @@ describe("articles", () => {
   });
 
   describe("articleMeta", () => {
-    const siteMeta = { name: "Le site", baseUrl: "https://example.org/base" };
+    const siteMeta = { name: "Le site" };
 
-    it("gives the page title, description, URL and cover image", () => {
+    it("gives the page title, description, path and cover photo", () => {
       expect(articleMeta(articles.items[1]!, siteMeta)).toEqual({
         documentTitle: "Title of recap · Le site",
         description: "Excerpt",
-        url: "https://example.org/base/actualites/recap/",
-        image: "https://example.org/base/assets/img/meetups/m2-1.jpg",
+        path: "/actualites/recap/",
+        photo: "m2-1",
       });
     });
 
-    it("shares the default image when the article has no cover", () => {
-      const { image } = articleMeta(articles.items[2]!, siteMeta);
-      expect(image).toBe(
-        `https://example.org/base/assets/img/meetups/${DEFAULT_SOCIAL_PHOTO}.jpg`,
-      );
+    it("shares the default photo when the article has no cover", () => {
+      const { photo } = articleMeta(articles.items[2]!, siteMeta);
+      expect(photo).toBe(DEFAULT_SOCIAL_PHOTO);
     });
   });
 

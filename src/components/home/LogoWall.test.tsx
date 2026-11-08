@@ -41,7 +41,7 @@ const HOST_STICKER: Sticker = {
   title: "Votre logo ici ?",
   text: "Recevez 40 crafters un samedi matin. On s'occupe du reste.",
   label: "Accueillir un meetup",
-  href: "accueillir.html",
+  href: "/accueillir/",
 };
 const SPONSOR_STICKER: Sticker = {
   title: "Votre logo ici ?",

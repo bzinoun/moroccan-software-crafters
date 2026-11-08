@@ -1,4 +1,4 @@
-// French typography, ported from the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`) (frenchSpacing).
+// French typography (frenchSpacing).
 // A normal or no-break space before ? ! : ; becomes a narrow no-break space
 // (U+202F), so the punctuation never wraps alone. Apply it to rendered text
 // only, never to hrefs or other attributes.

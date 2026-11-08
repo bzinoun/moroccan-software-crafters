@@ -23,6 +23,7 @@ import { meetupPhotoUrl } from "@/lib/derive";
 import { formSite } from "@/lib/forms";
 import { frenchSpacing } from "@/lib/french";
 import { trustLogos } from "@/lib/home-data";
+import { pageMetadata } from "@/lib/page-metadata";
 import {
   levelForPackage,
   socratesEditionCards,
@@ -32,30 +33,24 @@ import {
   sponsorPackages,
   sponsorsWall,
 } from "@/lib/pages-data";
-import { toRoute } from "@/lib/routes";
 
 const site = loadSite();
 const socrates = loadSocrates();
 
-// The share title, description and image are hard-coded in the former `socrates.html` (`git show 1353207:socrates.html`), not in
-// socrates.json: they are copied here. The hero photo is the default background of
-// the old `#hero-bg` when the JSON names none.
+// The share title, description and image are not in socrates.json. The hero
+// photo is the default background when the JSON names none.
 const SHARE_TITLE = "SoCraTes Maroc · Devenir partenaire";
 const SHARE_DESCRIPTION =
   "Quatre jours d'unconference entre crafters. Trois niveaux de partenariat pour la 5e édition.";
 const SHARE_PHOTO = "2022-03-socrates-groupe";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/socrates/",
   title: socrates.meta.title,
   description: socrates.meta.description,
-  openGraph: {
-    type: "website",
-    title: SHARE_TITLE,
-    description: SHARE_DESCRIPTION,
-    url: `${site.baseUrl}/socrates/`,
-    images: [`${site.baseUrl}/assets/img/meetups/${SHARE_PHOTO}.jpg`],
-  },
-};
+  share: { title: SHARE_TITLE, description: SHARE_DESCRIPTION },
+  photo: SHARE_PHOTO,
+});
 
 /** Package id to the level of the sponsor form that "Choisir ce niveau" checks. */
 function packageLevels(sp: Sponsoring): Record<string, string> {
@@ -67,9 +62,9 @@ function packageLevels(sp: Sponsoring): Record<string, string> {
   );
 }
 
-// Server component: the sections follow the order and the ids of the root
-// former `socrates.html` (other pages link to `#sponsoring`; the sponsor sticker links to
-// `#sponsor-funnel`). Every eyebrow carries the khatam star on this page.
+// Server component: other pages link to the section ids (`#sponsoring`; the
+// sponsor sticker links to `#sponsor-funnel`). Every eyebrow carries the
+// khatam star on this page.
 export default function SocratesPage() {
   const s = socrates;
   const sp = loadSponsoring();
@@ -89,15 +84,10 @@ export default function SocratesPage() {
         facts={hero.facts}
         actions={
           <>
-            <Button variant="primary-flat" href={toRoute(hero.primary.href)}>
+            <Button variant="primary-flat" href={hero.primary.href}>
               {frenchSpacing(hero.primary.label)}
             </Button>
-            <Button
-              variant="ghost-on-dark"
-              href={toRoute(hero.secondary.href)}
-              target="_blank"
-              rel="noopener"
-            >
+            <Button variant="ghost-on-dark" href={hero.secondary.href}>
               {frenchSpacing(hero.secondary.label)}
             </Button>
           </>

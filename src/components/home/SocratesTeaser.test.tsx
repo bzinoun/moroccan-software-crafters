@@ -29,7 +29,7 @@ const SPONSOR = {
   eyebrow: "Appel à partenaires",
   title: "La prochaine édition se prépare.",
   text: "Chaque édition est financée par des entreprises partenaires.",
-  cta: { label: "Devenir partenaire", href: "socrates.html#sponsoring" },
+  cta: { label: "Devenir partenaire", href: "/socrates/#sponsoring" },
 };
 
 function props() {
@@ -37,7 +37,7 @@ function props() {
     eyebrow: "La conférence",
     title: TITLE,
     lead: "Quatre jours d'open space : sans programme imposé.",
-    cta: { label: "Découvrir la conférence", href: "socrates.html" },
+    cta: { label: "Découvrir la conférence", href: "/socrates/" },
     editions: EDITIONS,
     photoSrc: "/assets/img/meetups/2022-03-alpha-groupe.jpg",
     sponsor: SPONSOR,

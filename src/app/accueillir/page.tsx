@@ -12,28 +12,27 @@ import { loadEvents, loadOffers, loadSite } from "@/content/load";
 import { meetupPhotoUrl } from "@/lib/derive";
 import { formSite } from "@/lib/forms";
 import { frenchSpacing } from "@/lib/french";
-import { toRoute } from "@/lib/routes";
+import { pageMetadata } from "@/lib/page-metadata";
 
 const site = loadSite();
 
-// former `accueillir.html` (`git show 1353207:accueillir.html`) holds the texts below (not a JSON file), so they are copied here.
+// The texts below are not in a JSON file.
 const TITLE = "Accueillir un meetup · Moroccan Software Crafters";
 const DESCRIPTION =
   "Votre entreprise souhaite accueillir un meetup Moroccan Software Crafters ? Choisissez une formule, proposez une date et nous revenons vers vous sous 48 heures.";
-const SHARE_IMAGE = `${site.baseUrl}/assets/img/meetups/2026-05-axa-1.jpg`;
+const SHARE_PHOTO = "2026-05-axa-1";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/accueillir/",
   title: TITLE,
   description: DESCRIPTION,
-  openGraph: {
-    type: "website",
+  share: {
     title: "Accueillir un meetup Moroccan Software Crafters",
     description:
       "Gratuit ou en formule partenaire : recevez la communauté Software Craftsmanship dans vos locaux.",
-    url: `${site.baseUrl}/accueillir/`,
-    images: [SHARE_IMAGE],
   },
-};
+  photo: SHARE_PHOTO,
+});
 
 const STEPS: ProcessStep[] = [
   {
@@ -55,8 +54,8 @@ const STEPS: ProcessStep[] = [
 ];
 
 // Server component: reads offers.json, site.json and events.json at build time
-// and hands plain props to the client funnel. The photo and its alt text are
-// fixed text in the former `accueillir.html`; the sentence under it comes from the latest meetup.
+// and hands plain props to the client funnel. The sentence under the photo
+// comes from the latest meetup.
 export default function AccueillirPage() {
   const { items } = loadOffers();
   const latest = loadEvents().find((e) => e.type === "meetup");
@@ -93,7 +92,7 @@ export default function AccueillirPage() {
             />
             <p className="mt-5 text-[0.9rem] text-muted">
               {frenchSpacing("Vous voulez d'abord comprendre le format ?")}{" "}
-              <Link href={toRoute("meetup.html")}>
+              <Link href={"/meetup/"}>
                 {frenchSpacing("Le déroulé d'un meetup, étape par étape.")}
               </Link>
             </p>

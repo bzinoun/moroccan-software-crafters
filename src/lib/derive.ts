@@ -1,5 +1,4 @@
-// Pure derivations ported from the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`) of the former site, with the
-// same semantics. Input is the typed content from `@/content/load`; output is
+// Pure derivations. Input is the typed content from `@/content/load`; output is
 // plain data for the components. Nothing here reads files.
 
 import type { Company, Event, EventType, Site } from "@/content/types";
@@ -265,7 +264,7 @@ type LogoWallOptions = {
   label?: (company: Company, stats: CompanyStats) => string;
 };
 
-/** Data of the logo wall (`renderLogoWall` of the former site), without the sticker. */
+/** Data of the logo wall without the sticker. */
 export function logoWallTiles(
   companies: Company[],
   events: Event[],

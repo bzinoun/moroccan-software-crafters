@@ -22,8 +22,8 @@ export const DRAFT_KEY = "msc-host-draft-v1";
 export type Draft = Record<string, unknown>;
 
 /**
- * What the old page saved: every control except the consent and the honeypot,
- * keyed by field name in page order. A radio group with no choice and an empty
+ * What the page saves: every control except the consent and the honeypot,
+ * keyed by field name in page order. A set of radios with no choice and an empty
  * equipment list have no key, as with `FormData`.
  */
 export function toDraft(v: FunnelValues, step: number): Draft {

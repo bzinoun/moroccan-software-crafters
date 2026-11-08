@@ -7,7 +7,7 @@ const hero = {
   eyebrow: "Software Craftsmanship · Casablanca",
   title: "Des samedis matin où l'on parle <em>vraiment</em> de code.",
   lead: "Une communauté réunit développeurs, testeurs et ops autour du travail bien fait.",
-  primary: { label: "Accueillir le prochain meetup", href: "accueillir.html" },
+  primary: { label: "Accueillir le prochain meetup", href: "/accueillir/" },
   secondary: { label: "Voir les éditions passées", href: "#historique" },
   note: "",
   collage: [],

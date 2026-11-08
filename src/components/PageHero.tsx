@@ -5,6 +5,7 @@ import { FactList, type Fact } from "./FactList";
 import { HeroEm } from "./HeroEm";
 import { Lead } from "./Lead";
 import { PostIt } from "./PostIt";
+import { Photo } from "./Photo";
 
 // Spec: the "PageHero" entry in msca-design/COMPONENTS.md; port of `.page-hero`.
 // The hero of an inner page: text and facts on the left, a tilted photo with an
@@ -59,8 +60,8 @@ export function PageHero({
           ) : null}
         </div>
         <figure className="relative m-0">
-          {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-          <img
+          <Photo
+            eager
             src={image.src}
             alt={image.alt}
             width={image.width ?? 800}

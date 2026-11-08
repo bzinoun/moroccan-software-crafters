@@ -4,8 +4,10 @@ import type { Event } from "@/content/types";
 import { meetupPhotoUrl } from "@/lib/derive";
 import { frenchSpacing } from "@/lib/french";
 import { eventLinks, featuredMeta } from "@/lib/home-data";
+import { PageLink } from "../PageLink";
 import { Reveal } from "../Reveal";
 import { TagList } from "../TagList";
+import { Photo } from "../Photo";
 
 // Spec: the "FeaturedEvents, FeatureCard" entry in msca-design/COMPONENTS.md;
 // port of the featured cards of the former `assets/js/home.js` (`git show 1353207:assets/js/home.js`) and of `.featured` and
@@ -23,7 +25,7 @@ type FeaturedEventsProps = {
 };
 
 const CARD =
-  "flex flex-col overflow-hidden rounded-card bg-card shadow-card sm:flex-row lg:flex-col";
+  "flex flex-col overflow-hidden rounded-card bg-white shadow-card sm:flex-row lg:flex-col";
 
 // The card clips what overflows, so the focus indicator is drawn inside the photo.
 const THUMB =
@@ -58,13 +60,7 @@ function FeatureCard({
           className={THUMB}
           onClick={onOpenPhotos}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-          <img
-            src={meetupPhotoUrl(first)}
-            alt=""
-            loading="lazy"
-            className={PHOTO}
-          />
+          <Photo src={meetupPhotoUrl(first)} alt="" className={PHOTO} />
           <span className={COUNT}>{photos.length} photos</span>
         </button>
       ) : null}
@@ -82,15 +78,13 @@ function FeatureCard({
         {links.length ? (
           <div className="mt-auto flex flex-wrap gap-3.5 text-[0.9rem] font-semibold">
             {links.map((link) => (
-              <a
+              <PageLink
                 key={link.href}
                 href={link.href}
-                target="_blank"
-                rel="noopener"
                 className="inline-flex min-h-11 items-center"
               >
                 {link.label}
-              </a>
+              </PageLink>
             ))}
           </div>
         ) : null}

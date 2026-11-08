@@ -41,7 +41,7 @@ const TOPICS: TopicNote[] = [
   { topic: "Troisième sujet", year: "2025", tone: "green" },
 ];
 
-const MORE = { label: "Le déroulé détaillé", href: "meetup.html" };
+const MORE = { label: "Le déroulé détaillé", href: "/meetup/" };
 
 function renderAgenda() {
   return render(

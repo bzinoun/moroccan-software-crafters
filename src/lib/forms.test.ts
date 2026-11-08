@@ -130,7 +130,7 @@ describe("buildMailtoUrl", () => {
 });
 
 describe("buildPayload", () => {
-  it("merges extraFields, data, lead fields and tracking in the old order", () => {
+  it("merges extraFields, data, lead fields and tracking in a fixed order", () => {
     const payload = buildPayload({
       site: site({
         form: { endpoint: ENDPOINT, extraFields: { access_key: "k" } },
@@ -190,7 +190,7 @@ describe("submitForm", () => {
     expect(assignLocation).not.toHaveBeenCalled();
   });
 
-  it("posts JSON with the old headers to the endpoint and returns endpoint on 2xx", async () => {
+  it("posts JSON with its headers to the endpoint and returns endpoint on 2xx", async () => {
     const { deps, fetchMock, assignLocation } = makeDeps();
     const result = await submitForm(
       input(

@@ -49,7 +49,7 @@ const GROUP =
 const YEAR = "m-0 self-start text-[2rem] text-green sm:sticky sm:top-[90px]";
 
 const ITEM =
-  "grid grid-cols-1 items-start gap-1 rounded-sm border border-line bg-card px-[18px] py-3.5 sm:grid-cols-[92px_1fr_auto] sm:gap-4";
+  "grid grid-cols-1 items-start gap-1 rounded-sm border border-line bg-white px-[18px] py-3.5 sm:grid-cols-[92px_1fr_auto] sm:gap-4";
 
 function TimelineItem({ event, focus }: { event: Event; focus: boolean }) {
   const ref = useRef<HTMLLIElement>(null);

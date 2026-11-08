@@ -4,6 +4,7 @@ import { Eyebrow } from "@/components/Eyebrow";
 import { Lead } from "@/components/Lead";
 import { fmtDate } from "@/lib/derive";
 import { frenchSpacing } from "@/lib/french";
+import { Photo } from "../Photo";
 
 // Spec: the "HostLayout (HostHero, ProcessSteps, ProofCard)" entry in
 // msca-design/COMPONENTS.md; port of `.host-hero`, `.host-layout`, `.host-aside`,
@@ -78,14 +79,12 @@ export function ProofCard({ src, alt, edition }: ProofCardProps) {
       }.`
     : FALLBACK_PROOF;
   return (
-    <div className="flex items-center gap-3.5 rounded-card border border-line bg-card p-3.5">
-      {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-      <img
+    <div className="flex items-center gap-3.5 rounded-card border border-line bg-white p-3.5">
+      <Photo
         src={src}
         alt={alt}
         width={92}
         height={70}
-        loading="lazy"
         className="h-[70px] w-[92px] rounded-sm object-cover"
       />
       <p id="proof-text" className="m-0 text-[0.9rem] text-ink-soft">

@@ -7,7 +7,6 @@ import { SuccessPanel } from "@/components/SuccessPanel";
 import type { FormSite } from "@/lib/forms";
 import { type FunnelOffer } from "@/lib/funnel-fields";
 import { MESSAGES } from "@/lib/funnel-text";
-import { toRoute } from "@/lib/routes";
 import type { Submit } from "@/lib/submit-outcome";
 import { CompanyStep } from "./CompanyStep";
 import { ContactStep } from "./ContactStep";
@@ -73,7 +72,7 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
         text={success ?? MESSAGES.successDefault}
       >
         <p className="mx-auto max-w-[46ch] text-ink-soft">
-          <Button variant="ghost" href={toRoute("index.html#historique")}>
+          <Button variant="ghost" href={"/#historique"}>
             Revoir les éditions passées
           </Button>
         </p>

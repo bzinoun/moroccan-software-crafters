@@ -26,7 +26,7 @@ const sticker = {
   title: "Votre logo ici ?",
   text: "Accueillez un meetup.",
   label: "Devenir hôte",
-  href: "accueillir.html",
+  href: "/accueillir/",
 };
 
 function renderHosts(shown: LogoTile[] = tiles) {

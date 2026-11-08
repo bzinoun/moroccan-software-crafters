@@ -13,6 +13,7 @@ import {
 } from "react";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
+import { Photo } from "./Photo";
 
 // Spec: the "Lightbox" entry under "Built" in msca-design/COMPONENTS.md.
 // Ported from the lightbox of the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`). One native dialog is rendered
@@ -164,11 +165,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
         )}
         {item && (
           <figure className="m-0 flex max-h-full max-w-[min(1100px,100%)] flex-col items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-            <img
+            <Photo
               src={item.src}
               alt={caption}
-              loading="lazy"
               className="max-h-[calc(100vh-140px)] w-auto rounded-[6px]"
             />
             <figcaption className="mt-3 text-center text-[0.92rem] text-[#e8e2d9]">

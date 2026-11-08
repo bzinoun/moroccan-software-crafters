@@ -44,12 +44,12 @@ import { withoutError } from "@/lib/validation";
 // State of the host funnel (port of the state machine of the former `assets/js/funnel.js` (`git show 1353207:assets/js/funnel.js`)):
 // the answers, the step, the saved draft, the validation and the submit. The
 // first render is step 1 with empty answers, the same on the server and in the
-// browser, so the static HTML shows the offers. `useSyncExternalStore` makes
+// browser, so the exported HTML shows the offers. `useSyncExternalStore` makes
 // that possible with no effect: while React hydrates it reads the server
 // snapshot (not in the browser yet), then it renders again with the browser
 // snapshot, and only then are the saved draft, `?formule=` and today's date
 // read. The docs of `useSearchParams` ask for a Suspense boundary, which would
-// leave only a fallback in the static HTML; `location.search` is read in the
+// leave only a fallback in the exported HTML; `location.search` is read in the
 // same place as the draft instead.
 
 const subscribeNever = () => () => {};

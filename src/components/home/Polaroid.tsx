@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
+import { Photo } from "../Photo";
 
 // Spec: the "HomeHero, PolaroidCollage, Polaroid" entry in msca-design/COMPONENTS.md.
 // A white-framed photo (10px at the sides and top, 34px at the bottom for the
@@ -28,8 +29,7 @@ export function Polaroid({ index, src, caption }: PolaroidProps) {
         SLOT[index],
       )}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized */}
-      <img src={src} alt="" className="size-full object-cover" />
+      <Photo eager src={src} alt="" className="size-full object-cover" />
       <figcaption className="absolute right-3 bottom-1.5 left-3 overflow-hidden font-hand text-[1.15rem] text-ellipsis whitespace-nowrap text-ink-soft">
         {frenchSpacing(caption)}
       </figcaption>

@@ -1,6 +1,5 @@
 import type { Cta } from "@/content/types";
 import { frenchSpacing } from "@/lib/french";
-import { isExternal, toRoute } from "@/lib/routes";
 import { tv } from "@/lib/cn";
 import { Button } from "../Button";
 import { Section } from "../Section";
@@ -41,14 +40,8 @@ function CtaLink({
   variant: "inverse" | "ghost-on-dark";
   className: string;
 }) {
-  const external = isExternal(cta.href);
   return (
-    <Button
-      href={toRoute(cta.href)}
-      variant={variant}
-      className={className}
-      {...(external ? { target: "_blank", rel: "noopener" } : {})}
-    >
+    <Button href={cta.href} variant={variant} className={className}>
       {frenchSpacing(cta.label)}
     </Button>
   );

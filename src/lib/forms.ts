@@ -1,11 +1,10 @@
-// Shared submit code for the lead forms (host funnel and SoCraTes sponsor form),
-// ported from `sendLead` and `tracking` in the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`).
+// Shared submit code for the lead forms (host funnel and SoCraTes sponsor form).
 //
 // Everything here is free of browser globals: the browser values (fetch,
 // navigation, clock, location, referrer) come in through `SubmitDeps`, so tests
 // inject fakes. `forms-browser.ts` wires the real globals.
 //
-// Chain, as in the old site: `form.endpoint` set, POST JSON; else
+// Chain: `form.endpoint` set, POST JSON; else
 // `contact.email` set, open a prefilled mailto; else the LinkedIn page; else
 // nothing is configured.
 
@@ -36,7 +35,7 @@ export function formSite(site: {
 export type FormValue = string | number | boolean | string[] | null | undefined;
 export type FormValues = Record<string, FormValue>;
 
-/** Name of the hidden anti-robot field in the old forms. */
+/** Name of the anti-robot field, kept out of sight of the forms. */
 export const HONEYPOT_FIELD = "website_hp";
 
 export const TRACKING_KEYS = [
@@ -94,7 +93,7 @@ type PayloadInput = {
   tracking: Tracking;
 };
 
-/** JSON body sent to the endpoint. Key order matches the old `Object.assign` chain. */
+/** JSON body sent to the endpoint. The key order is part of the payload contract. */
 export function buildPayload(input: PayloadInput): Record<string, unknown> {
   const { site, data, type, subject, href, now, tracking } = input;
   return {
@@ -137,7 +136,7 @@ export type SubmitInput = {
   subject: string;
   /** Mailto body. Falls back to `defaultMailBody(data)` when empty. */
   body?: string;
-  /** Value of the hidden honeypot field. A non-empty value sends nothing. */
+  /** Value of the anti-robot field. A non-empty value sends nothing. */
   honeypot?: string;
   /**
    * Old behavior (default false): a failed endpoint returns `mode: "error"` and

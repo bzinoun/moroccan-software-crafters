@@ -5,6 +5,7 @@ import { frenchSpacing } from "@/lib/french";
 import type { ArticleCard as ArticleCardData } from "@/lib/pages-data";
 import { Reveal } from "../Reveal";
 import { TagList } from "../TagList";
+import { Photo } from "../Photo";
 
 // Spec: the "ArticleGrid, ArticleCard" entry in msca-design/COMPONENTS.md; port
 // of `.article-card` and `.lead-card` in the former `assets/css/style.css` (`git show 1353207:assets/css/style.css`). The whole card
@@ -16,7 +17,7 @@ import { TagList } from "../TagList";
 const WRAPPER = "flex min-w-0";
 
 const CARD =
-  "flex flex-1 flex-col overflow-hidden rounded-card bg-card text-ink no-underline shadow-card hover:text-ink hover:shadow-lift motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75";
+  "flex flex-1 flex-col overflow-hidden rounded-card bg-white text-ink no-underline shadow-card hover:text-ink hover:shadow-lift motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75";
 
 export function ArticleCard({ article }: { article: ArticleCardData }) {
   const titleId = useId();
@@ -35,11 +36,9 @@ export function ArticleCard({ article }: { article: ArticleCardData }) {
           )}
         >
           {article.coverSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element -- exported site, images are unoptimized
-            <img
+            <Photo
               src={article.coverSrc}
               alt=""
-              loading="lazy"
               className="size-full object-cover"
             />
           ) : null}

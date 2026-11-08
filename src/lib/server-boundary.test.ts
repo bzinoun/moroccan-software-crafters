@@ -40,3 +40,15 @@ describe("modules that client files import", () => {
     },
   );
 });
+
+describe("modules that read files", () => {
+  it.each([
+    "content/load.ts",
+    "lib/articles-server.ts",
+    "lib/images-server.ts",
+    "lib/page-metadata.ts",
+  ])('%s imports "server-only", so a client import fails the build', (name) => {
+    const source = readFileSync(path.join(srcDir, name), "utf8");
+    expect(source).toMatch(/^import "server-only";$/m);
+  });
+});
