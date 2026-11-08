@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type * as NextLinkModule from "next/link";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
 // Marks the anchors that come out of next/link, to tell them from plain anchors.
 vi.mock("next/link", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/link")>();
+  const actual = await importOriginal<typeof NextLinkModule>();
   const Link = actual.default;
   return {
     default: (props: React.ComponentProps<typeof Link>) => (
