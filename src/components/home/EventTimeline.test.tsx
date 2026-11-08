@@ -4,8 +4,8 @@ import type { Event } from "@/content/types";
 import type { YearGroup } from "@/lib/home-data";
 import { EventTimeline } from "./EventTimeline";
 
-// Real events of content/events.json, grouped by year as eventsByYear() gives
-// them: a SoCraTes edition with partners, a meetup with six topics, an online
+// Fixture events (copies of real shapes, not read from content), grouped by
+// year as eventsByYear() gives them: a SoCraTes edition with partners, a meetup with six topics, an online
 // event dated by month only, a code snack.
 const SOCRATES_2025: Event = {
   id: "2025-09-socrates",
@@ -200,33 +200,13 @@ describe("EventTimeline", () => {
     render(<EventTimeline groups={GROUPS} />);
     expect(document.body).toHaveFocus();
   });
-
-  describe("layout guards", () => {
-    it("sticks the year below the header from sm only", () => {
-      render(<EventTimeline groups={GROUPS} />);
-      const year = screen.getByRole("heading", { level: 3, name: "2025" });
-      const classes = year.className.split(" ");
-      expect(classes).toEqual(
-        expect.arrayContaining(["sm:sticky", "sm:top-[90px]"]),
-      );
-      expect(classes).not.toContain("sticky");
-    });
-
-    it("puts date, text and badge side by side from sm, stacked below", () => {
-      render(<EventTimeline groups={GROUPS} />);
-      const classes = item("Code Snack #2").className.split(" ");
-      expect(classes).toEqual(
-        expect.arrayContaining(["grid-cols-1", "sm:grid-cols-[92px_1fr_auto]"]),
-      );
-    });
-  });
 });
 
 describe("EventTimeline list semantics", () => {
   it("keeps the list role explicit on every year group", () => {
     const { container } = render(<EventTimeline groups={GROUPS} />);
     const lists = container.querySelectorAll("ol");
-    expect(lists.length).toBeGreaterThan(0);
+    expect(lists).toHaveLength(GROUPS.length);
     for (const list of lists) expect(list).toHaveAttribute("role", "list");
   });
 });

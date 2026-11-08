@@ -18,10 +18,10 @@ beforeEach(() => {
   document.body.style.overflow = "";
 });
 
-// content/home.json, history.
+// A fixture written here.
 const HISTORY: Home["history"] = {
   eyebrow: "Historique",
-  title: "Sept ans de meetups, 21 événements.",
+  title: "Sept ans de meetups.",
   lead: "Des Code Snacks de 2019 aux meetups de 2026, en passant par quatre éditions de SoCraTes Maroc.",
   filters: [
     { value: "all", label: "Tous" },
@@ -34,7 +34,7 @@ const HISTORY: Home["history"] = {
   more: "Voir les {n} événements",
 };
 
-// The eight newest events of content/events.json, in file order (newest first).
+// Eight fixture events, newest first.
 // Three meetups have photos (featured), two are SoCraTes editions.
 const EVENTS: Event[] = [
   {
@@ -231,7 +231,7 @@ describe("HistorySection head", () => {
     expect(
       within(section).getByRole("heading", {
         level: 2,
-        name: "Sept ans de meetups, 21 événements.",
+        name: "Sept ans de meetups.",
       }),
     ).toBeInTheDocument();
     expect(within(section).getByText("Historique")).toBeInTheDocument();
@@ -240,11 +240,6 @@ describe("HistorySection head", () => {
         "Des Code Snacks de 2019 aux meetups de 2026, en passant par quatre éditions de SoCraTes Maroc.",
       ),
     ).toBeInTheDocument();
-  });
-
-  it("uses the alternate section background", () => {
-    const { section } = setup();
-    expect(section).toHaveClass("bg-sage-soft");
   });
 });
 

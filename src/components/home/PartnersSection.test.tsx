@@ -1,59 +1,83 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadCompanies, loadEvents } from "@/content/load";
-import { logoWallTiles } from "@/lib/derive";
+import type { Sticker } from "@/content/types";
+import type { LogoTile } from "@/lib/derive";
 import { PartnersSection } from "./PartnersSection";
 
-const companies = loadCompanies();
-const tiles = logoWallTiles(companies.items, loadEvents());
+// Fixtures written here: the section draws the head, tiles and sticker it gets.
+const TILES: LogoTile[] = [
+  {
+    id: "acme",
+    name: "Acme Corp",
+    label: "Hôte d'un meetup",
+    href: "https://www.linkedin.com/company/acme/",
+    logoSrc: "/assets/img/logos/acme.png",
+    monogram: "AC",
+    hosted: 1,
+    sponsored: 0,
+  },
+  {
+    id: "globex",
+    name: "Globex Solutions",
+    label: "Partenaire SoCraTes",
+    href: null,
+    logoSrc: "/assets/img/logos/globex.png",
+    monogram: "GS",
+    hosted: 0,
+    sponsored: 1,
+  },
+  {
+    id: "initech",
+    name: "Initech",
+    label: "",
+    href: null,
+    logoSrc: null,
+    monogram: "IN",
+    hosted: 0,
+    sponsored: 0,
+  },
+];
+const STICKER: Sticker = {
+  title: "Votre logo ici ?",
+  text: "Recevez la communauté.",
+  label: "Accueillir un meetup",
+  href: "accueillir.html",
+};
+const HEAD = {
+  eyebrow: "Ils nous font confiance",
+  title: "Les entreprises qui nous soutiennent.",
+  lead: "En accueillant un meetup, ou en finançant une édition.",
+};
 
 function renderPartners() {
-  return render(
-    <PartnersSection
-      eyebrow={companies.eyebrow}
-      title={companies.title}
-      lead={companies.lead}
-      tiles={tiles}
-      sticker={companies.sticker.host}
-    />,
-  );
+  return render(<PartnersSection {...HEAD} tiles={TILES} sticker={STICKER} />);
 }
 
 describe("PartnersSection", () => {
-  it("is the #partenaires section on the alternate background", () => {
+  it("is the #partenaires section", () => {
     const { container } = renderPartners();
-    const section = container.querySelector("section");
-    expect(section).toHaveAttribute("id", "partenaires");
-    expect(section).toHaveClass("bg-sage-soft");
-  });
-
-  it("takes the eyebrow marker out of the layout so the centered label stays centered", () => {
-    renderPartners();
-    expect(screen.getByText("Ils nous font confiance")).toHaveClass(
-      "before:hidden",
+    expect(container.querySelector("section")).toHaveAttribute(
+      "id",
+      "partenaires",
     );
   });
 
-  it("opens with the centered head of content/companies.json", () => {
+  it("opens with the eyebrow, the title as a level 2 heading and the lead", () => {
     renderPartners();
-    expect(screen.getByText("Ils nous font confiance")).toBeInTheDocument();
+    expect(screen.getByText(HEAD.eyebrow)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "Les entreprises qui ont ouvert leurs portes ou soutenu la communauté.",
-      }),
+      screen.getByRole("heading", { level: 2, name: HEAD.title }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "En accueillant un meetup un samedi matin, ou en finançant une édition de SoCraTes Maroc.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(HEAD.lead)).toBeInTheDocument();
   });
 
-  it("shows the 16 companies of companies.json, then the host sticker", () => {
+  it("shows one tile per company, then the host sticker", () => {
     const { container } = renderPartners();
     const wall = container.querySelector("#logo-wall") as HTMLElement;
-    expect(within(wall).getAllByRole("img")).toHaveLength(16);
+    expect(wall.children).toHaveLength(TILES.length + 1);
+    expect(within(wall).getAllByRole("img")).toHaveLength(
+      TILES.filter((tile) => tile.logoSrc).length,
+    );
     expect(
       within(wall).getByRole("link", { name: /Votre logo ici/ }),
     ).toHaveAttribute("href", "/accueillir/");

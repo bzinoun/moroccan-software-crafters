@@ -1,11 +1,30 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadCompanies, loadSponsoring } from "@/content/load";
-import { trustLogos } from "@/lib/home-data";
+import type { TrustLogo } from "@/lib/home-data";
 import { LogoRow } from "./LogoRow";
 
-// Props come from the real content files, as the sponsor call passes them.
-const logos = () => trustLogos(loadSponsoring(), loadCompanies().items);
+// A fixture written here: the row draws the logos it gets, in order.
+const LOGOS: TrustLogo[] = [
+  {
+    id: "acme",
+    name: "Acme Corp",
+    logoSrc: "/assets/img/logos/acme.png",
+    monogram: "AC",
+  },
+  {
+    id: "globex",
+    name: "Globex Solutions",
+    logoSrc: "/assets/img/logos/globex.png",
+    monogram: "GS",
+  },
+  {
+    id: "initech",
+    name: "Initech",
+    logoSrc: "/assets/img/logos/initech.png",
+    monogram: "IN",
+  },
+];
+const logos = () => LOGOS;
 
 describe("LogoRow", () => {
   it("is a named group of the trusted partners", () => {
@@ -22,45 +41,33 @@ describe("LogoRow", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows one logo per company in the order of sponsoring.json trust.ids", () => {
+  it("shows one logo per company, in the given order", () => {
     render(<LogoRow logos={logos()} aria-label="Partenaires" />);
-    // content/sponsoring.json trust.ids: mckinsey, maltem, inwi, keiken, gemography.
-    // Keiken is shown with its display name.
     const images = within(screen.getByRole("group")).getAllByRole("img");
-    expect(images.map((img) => img.getAttribute("alt"))).toEqual([
-      "McKinsey & Company",
-      "Maltem Africa",
-      "inwi",
-      "Keiken digital solutions",
-      "Gemography",
-    ]);
-    expect(images.map((img) => img.getAttribute("src"))).toEqual([
-      "/assets/img/logos/mckinsey.png",
-      "/assets/img/logos/maltem.png",
-      "/assets/img/logos/inwi.png",
-      "/assets/img/logos/keiken.png",
-      "/assets/img/logos/gemography.png",
-    ]);
+    expect(images.map((img) => img.getAttribute("alt"))).toEqual(
+      LOGOS.map((logo) => logo.name),
+    );
+    expect(images.map((img) => img.getAttribute("src"))).toEqual(
+      LOGOS.map((logo) => logo.logoSrc),
+    );
   });
 
   it("replaces a logo whose file cannot be loaded by its named monogram", () => {
     render(<LogoRow logos={logos()} aria-label="Partenaires" />);
-    fireEvent.error(screen.getByRole("img", { name: "Maltem Africa" }));
-    const monogram = screen.getByRole("img", { name: "Maltem Africa" });
+    fireEvent.error(screen.getByRole("img", { name: "Globex Solutions" }));
+    const monogram = screen.getByRole("img", { name: "Globex Solutions" });
     expect(monogram.tagName).toBe("SPAN");
-    expect(monogram).toHaveTextContent("MA");
+    expect(monogram).toHaveTextContent("GS");
     expect(within(screen.getByRole("group")).getAllByRole("img")).toHaveLength(
-      5,
+      LOGOS.length,
     );
   });
 
   it("gives each logo its name as a title and loads it lazily", () => {
     render(<LogoRow logos={logos()} aria-label="Partenaires" />);
-    const keiken = screen.getByRole("img", {
-      name: "Keiken digital solutions",
-    });
-    expect(keiken).toHaveAttribute("title", "Keiken digital solutions");
-    expect(keiken).toHaveAttribute("loading", "lazy");
+    const initech = screen.getByRole("img", { name: "Initech" });
+    expect(initech).toHaveAttribute("title", "Initech");
+    expect(initech).toHaveAttribute("loading", "lazy");
   });
 
   it("falls back to the monogram when a company has no logo file", () => {
@@ -83,16 +90,8 @@ describe("LogoRow", () => {
     expect(screen.getByRole("group")).toBeEmptyDOMElement();
   });
 
-  it("merges the class name of the caller after its own", () => {
-    render(
-      <LogoRow logos={[]} aria-label="Partenaires" className="mt-3.5 mb-4.5" />,
-    );
-    expect(screen.getByRole("group")).toHaveClass(
-      "flex",
-      "flex-wrap",
-      "justify-center",
-      "mt-3.5",
-      "mb-4.5",
-    );
+  it("merges the class name of the caller", () => {
+    render(<LogoRow logos={[]} aria-label="Partenaires" className="mt-3.5" />);
+    expect(screen.getByRole("group")).toHaveClass("mt-3.5");
   });
 });

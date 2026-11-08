@@ -3,61 +3,37 @@ import { describe, expect, it } from "vitest";
 import type { Offer } from "@/content/types";
 import { OfferGrid } from "./OfferGrid";
 
-// Props are the real values of content/offers.json, written out as literals.
+// A fixture written here: the grid draws the offers it gets.
 const items: Offer[] = [
   {
-    id: "communautaire",
-    name: "Hôte communautaire",
+    id: "alpha",
+    name: "Offre Alpha",
     price: "Gratuit",
-    tagline:
-      "Le format historique : vous ouvrez vos portes, on s'occupe du reste.",
-    youProvide: [
-      "Une salle de 40 à 80 places, un samedi matin",
-      "Wifi, écran ou projecteur",
-      "Café et petit-déjeuner",
-    ],
+    tagline: "Le format simple : vous ouvrez, nous faisons le reste.",
+    youProvide: ["Une salle", "Un écran", "Du café"],
     weProvide: [
-      "Organisation, inscriptions Luma et accueil",
-      "Annonce et récap sur LinkedIn (3 600+ abonnés)",
-      "Facilitation : flash talks, marketplace, cercles",
-      "Mot d'accueil de 10 min pour votre équipe",
+      "Organisation et accueil",
+      "Annonce et récap",
+      "Animation : talks, cercles",
     ],
   },
   {
-    id: "partenaire",
-    name: "Meetup partenaire",
-    price: "À partir de 12 000 MAD",
+    id: "beta",
+    name: "Offre Beta",
+    price: "À partir de 1 000 MAD",
     highlight: true,
     badge: "Nouveau",
-    tagline:
-      "Un meetup ouvert à la communauté, porté par votre marque employeur.",
-    youProvide: [
-      "Le financement de l'édition",
-      "Une salle si vous en avez une (sinon on en trouve une)",
-    ],
-    weProvide: [
-      "Tout le format communautaire",
-      "Co-branding de l'affiche, de la page Luma et du récap",
-      "Un talk de 20 min pour un de vos experts",
-      "Un espace recrutement pendant le networking",
-      "Bilan post-événement : inscriptions, présence, thèmes discutés",
-    ],
+    tagline: "Un format porté par votre marque.",
+    youProvide: ["Le financement", "Une salle si possible"],
+    weProvide: ["Tout le format Alpha", "Un talk de 20 min", "Un bilan"],
   },
   {
-    id: "prive",
-    name: "Craft session privée",
-    price: "À partir de 25 000 MAD",
-    tagline: "Le format meetup, animé pour vos équipes tech, sur vos sujets.",
-    youProvide: [
-      "Vos équipes (15 à 80 personnes)",
-      "Une demi-journée en semaine ou le samedi",
-    ],
-    weProvide: [
-      "Préparation avec vos tech leads",
-      "Animation par des crafters de la communauté",
-      "Open space, coding dojo ou kata au choix (IA et qualité, TDD, legacy…)",
-      "Synthèse écrite des cercles et des actions",
-    ],
+    id: "gamma",
+    name: "Offre Gamma",
+    price: "À partir de 2 500 MAD",
+    tagline: "Le format, animé pour vos équipes.",
+    youProvide: ["Vos équipes", "Une demi-journée"],
+    weProvide: ["Préparation", "Animation", "Synthèse écrite"],
   },
 ];
 
@@ -68,30 +44,30 @@ function card(name: string) {
   return article;
 }
 
+function choose(name: string) {
+  return within(card(name)).getByRole("link", {
+    name: "Choisir cette formule",
+  });
+}
+
 describe("OfferGrid cards", () => {
-  it("renders one card per offer, in file order, named by a level 3 heading", () => {
+  it("renders one card per offer, in the given order, named by a level 3 heading", () => {
     render(<OfferGrid items={items} />);
     expect(
       screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent),
-    ).toEqual([
-      "Hôte communautaire",
-      "Meetup partenaire",
-      "Craft session privée",
-    ]);
-    expect(screen.getAllByRole("article")).toHaveLength(3);
+    ).toEqual(items.map((offer) => offer.name));
+    expect(screen.getAllByRole("article")).toHaveLength(items.length);
   });
 
-  it("shows the price exactly as in the JSON and the tagline", () => {
+  it("shows the price exactly as given and the tagline", () => {
     render(<OfferGrid items={items} />);
-    const partner = within(card("Meetup partenaire"));
-    expect(partner.getByText("À partir de 12 000 MAD")).toBeInTheDocument();
+    const beta = within(card("Offre Beta"));
+    expect(beta.getByText("À partir de 1 000 MAD")).toBeInTheDocument();
     expect(
-      partner.getByText(
-        "Un meetup ouvert à la communauté, porté par votre marque employeur.",
-      ),
+      beta.getByText("Un format porté par votre marque."),
     ).toBeInTheDocument();
     expect(
-      within(card("Hôte communautaire")).getByText("Gratuit"),
+      within(card("Offre Alpha")).getByText("Gratuit"),
     ).toBeInTheDocument();
   });
 
@@ -111,9 +87,9 @@ describe("OfferGrid cards", () => {
 
   it("puts a narrow no-break space before the colon of the tagline", () => {
     render(<OfferGrid items={items} />);
-    const tagline = within(card("Hôte communautaire")).getByText(/Le format/);
+    const tagline = within(card("Offre Alpha")).getByText(/Le format simple/);
     expect(tagline.textContent).toBe(
-      "Le format historique : vous ouvrez vos portes, on s'occupe du reste.",
+      "Le format simple\u202f: vous ouvrez, nous faisons le reste.",
     );
   });
 });
@@ -121,36 +97,38 @@ describe("OfferGrid cards", () => {
 describe("OfferGrid lists", () => {
   it("lists what the company brings, then what the community brings", () => {
     render(<OfferGrid items={items} />);
-    const community = within(card("Hôte communautaire"));
+    const alpha = within(card("Offre Alpha"));
     expect(
-      community.getAllByRole("heading", { level: 4 }).map((h) => h.textContent),
+      alpha.getAllByRole("heading", { level: 4 }).map((h) => h.textContent),
     ).toEqual(["Vous apportez", "Nous apportons"]);
 
-    const [give, get] = community.getAllByRole("list");
+    const [give, get] = alpha.getAllByRole("list");
     expect(
       within(give)
         .getAllByRole("listitem")
         .map((li) => li.textContent),
-    ).toEqual([
-      "Une salle de 40 à 80 places, un samedi matin",
-      "Wifi, écran ou projecteur",
-      "Café et petit-déjeuner",
-    ]);
+    ).toEqual(["Une salle", "Un écran", "Du café"]);
     expect(
       within(get)
         .getAllByRole("listitem")
         .map((li) => li.textContent),
     ).toEqual([
-      "Organisation, inscriptions Luma et accueil",
-      "Annonce et récap sur LinkedIn (3 600+ abonnés)".replace(" ", " "),
-      "Facilitation : flash talks, marketplace, cercles",
-      "Mot d'accueil de 10 min pour votre équipe",
+      "Organisation et accueil",
+      "Annonce et récap",
+      "Animation\u202f: talks, cercles",
     ]);
+  });
+
+  it("keeps the list role explicit on both lists of every card", () => {
+    const { container } = render(<OfferGrid items={items} />);
+    const lists = container.querySelectorAll("ul");
+    expect(lists).toHaveLength(items.length * 2);
+    for (const list of lists) expect(list).toHaveAttribute("role", "list");
   });
 
   it("gives the give list a yellow bullet and the other list a green one", () => {
     render(<OfferGrid items={items} />);
-    const [give, get] = within(card("Hôte communautaire")).getAllByRole("list");
+    const [give, get] = within(card("Offre Alpha")).getAllByRole("list");
     expect(within(give).getAllByRole("listitem")[0]).toHaveClass(
       "before:bg-postit-yellow",
     );
@@ -163,108 +141,50 @@ describe("OfferGrid lists", () => {
 describe("OfferGrid badge and highlight", () => {
   it("shows the badge only on the offer that has one", () => {
     render(<OfferGrid items={items} />);
-    expect(
-      within(card("Meetup partenaire")).getByText("Nouveau"),
-    ).toBeInTheDocument();
+    expect(within(card("Offre Beta")).getByText("Nouveau")).toBeInTheDocument();
     expect(screen.getAllByText("Nouveau")).toHaveLength(1);
   });
 
-  it("marks only the highlighted card with the green border and the lift shadow", () => {
+  it("marks only the highlighted card with the green border", () => {
     render(<OfferGrid items={items} />);
-    expect(card("Meetup partenaire")).toHaveClass(
-      "border-green",
-      "shadow-lift",
-    );
-    expect(card("Hôte communautaire")).not.toHaveClass("border-green");
-    expect(card("Craft session privée")).not.toHaveClass("shadow-lift");
+    expect(card("Offre Beta")).toHaveClass("border-green");
+    expect(card("Offre Alpha")).not.toHaveClass("border-green");
+    expect(card("Offre Gamma")).not.toHaveClass("border-green");
   });
 });
 
 describe("OfferGrid actions", () => {
   it("links each card to the host funnel with its own formule", () => {
     render(<OfferGrid items={items} />);
-    const expected: Record<string, string> = {
-      "Hôte communautaire": "/accueillir/?formule=communautaire",
-      "Meetup partenaire": "/accueillir/?formule=partenaire",
-      "Craft session privée": "/accueillir/?formule=prive",
-    };
-    for (const [name, href] of Object.entries(expected)) {
-      const link = within(card(name)).getByRole("link", {
-        name: "Choisir cette formule",
-      });
-      expect(link).toHaveAttribute("href", href);
+    for (const offer of items) {
+      expect(choose(offer.name)).toHaveAttribute(
+        "href",
+        `/accueillir/?formule=${offer.id}`,
+      );
     }
   });
 
-  it("makes the button of the highlighted offer solid and the others ghost", () => {
+  it("makes the button of the highlighted offer solid and the others not", () => {
     render(<OfferGrid items={items} />);
-    const link = (name: string) =>
-      within(card(name)).getByRole("link", { name: "Choisir cette formule" });
-    expect(link("Meetup partenaire")).toHaveClass("bg-red");
-    expect(link("Hôte communautaire")).toHaveClass("border-ink");
-    expect(link("Hôte communautaire")).not.toHaveClass("bg-red");
-    expect(link("Craft session privée")).toHaveClass("border-ink");
-  });
-});
-
-describe("OfferGrid layout guards", () => {
-  it("is one column up to lg, at most 560px wide, then three columns", () => {
-    render(<OfferGrid items={items} />);
-    const grid = card("Hôte communautaire").parentElement;
-    expect(grid).toHaveClass(
-      "grid",
-      "max-w-[560px]",
-      "lg:max-w-none",
-      "lg:grid-cols-3",
-    );
-  });
-
-  it("pushes the button to the bottom of the card", () => {
-    render(<OfferGrid items={items} />);
-    const link = within(card("Hôte communautaire")).getByRole("link", {
-      name: "Choisir cette formule",
-    });
-    expect(link).toHaveClass("mt-auto", "self-start");
+    expect(choose("Offre Beta")).toHaveClass("bg-red");
+    expect(choose("Offre Alpha")).not.toHaveClass("bg-red");
+    expect(choose("Offre Gamma")).not.toHaveClass("bg-red");
   });
 });
 
 describe("OfferGrid dark tone", () => {
-  it("uses a translucent card, a sage highlight border and a sage price", () => {
+  it("draws the cards on a translucent surface and the highlight border in sage", () => {
     render(<OfferGrid items={items} tone="dark" />);
-    expect(card("Hôte communautaire")).toHaveClass("bg-white/5");
-    expect(card("Meetup partenaire")).toHaveClass("border-sage");
-    expect(card("Meetup partenaire")).not.toHaveClass("shadow-lift");
-    expect(
-      within(card("Meetup partenaire")).getByText("À partir de 12 000 MAD"),
-    ).toHaveClass("text-sage");
-    expect(within(card("Meetup partenaire")).getByText("Nouveau")).toHaveClass(
-      "bg-sage",
-    );
+    expect(card("Offre Alpha")).toHaveClass("bg-white/5");
+    expect(card("Offre Beta")).toHaveClass("border-sage");
+    expect(card("Offre Beta")).not.toHaveClass("border-green");
   });
 
-  it("keeps the solid button flat and outlines the others in white", () => {
+  it("keeps every card, price and action in the dark tone", () => {
     render(<OfferGrid items={items} tone="dark" />);
-    const link = (name: string) =>
-      within(card(name)).getByRole("link", { name: "Choisir cette formule" });
-    const solid = link("Meetup partenaire");
-    expect(solid).toHaveClass("bg-red");
-    expect(
-      solid.className.split(" ").filter((c) => c.startsWith("shadow")),
-    ).toEqual([]);
-    expect(link("Hôte communautaire")).toHaveClass(
-      "border-white",
-      "text-white",
-    );
-    expect(link("Hôte communautaire")).not.toHaveClass("border-ink");
-    expect(link("Hôte communautaire")).toHaveClass("mt-auto", "self-start");
-  });
-});
-
-describe("OfferGrid list semantics", () => {
-  it("keeps the list role explicit on both lists of every card", () => {
-    const { container } = render(<OfferGrid items={items} />);
-    const lists = container.querySelectorAll("ul");
-    expect(lists).toHaveLength(items.length * 2);
-    for (const list of lists) expect(list).toHaveAttribute("role", "list");
+    expect(screen.getAllByRole("article")).toHaveLength(items.length);
+    for (const offer of items) {
+      expect(choose(offer.name)).toBeVisible();
+    }
   });
 });

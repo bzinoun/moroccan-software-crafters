@@ -3,13 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FilterChips } from "./FilterChips";
 
-// content/home.json, history.filters.
+// A fixture written here: the chips draw the options they get.
 const FILTERS = [
   { value: "all", label: "Tous" },
-  { value: "meetup", label: "Meetups" },
-  { value: "socrates", label: "SoCraTes Maroc" },
-  { value: "codesnack", label: "Code Snacks" },
-  { value: "online", label: "En ligne" },
+  { value: "alpha", label: "Alpha" },
+  { value: "beta", label: "Bêta" },
+  { value: "gamma", label: "Gamma" },
+  { value: "delta", label: "Delta" },
 ];
 
 function setup(value = "all", onChange = vi.fn()) {
@@ -31,17 +31,15 @@ describe("FilterChips", () => {
     expect(group).toBeInTheDocument();
     expect(
       screen.getAllByRole("button").map((button) => button.textContent),
-    ).toEqual(["Tous", "Meetups", "SoCraTes Maroc", "Code Snacks", "En ligne"]);
+    ).toEqual(FILTERS.map((filter) => filter.label));
   });
 
   it("presses only the chip of the current value", () => {
-    setup("socrates");
+    setup("beta");
     const pressed = screen
       .getAllByRole("button")
       .filter((button) => button.getAttribute("aria-pressed") === "true");
-    expect(pressed.map((button) => button.textContent)).toEqual([
-      "SoCraTes Maroc",
-    ]);
+    expect(pressed.map((button) => button.textContent)).toEqual(["Bêta"]);
     expect(screen.getByRole("button", { name: "Tous" })).toHaveAttribute(
       "aria-pressed",
       "false",
@@ -50,17 +48,17 @@ describe("FilterChips", () => {
 
   it("reports the value of the clicked chip", async () => {
     const { onChange } = setup();
-    await userEvent.click(screen.getByRole("button", { name: "Code Snacks" }));
-    expect(onChange).toHaveBeenCalledExactlyOnceWith("codesnack");
+    await userEvent.click(screen.getByRole("button", { name: "Gamma" }));
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("gamma");
   });
 
   it("selects a chip with the keyboard", async () => {
     const { onChange } = setup();
     await userEvent.tab();
     await userEvent.tab();
-    expect(screen.getByRole("button", { name: "Meetups" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Alpha" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
-    expect(onChange).toHaveBeenCalledExactlyOnceWith("meetup");
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("alpha");
   });
 
   it("makes the buttons plain buttons, not submit buttons", () => {

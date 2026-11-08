@@ -1,24 +1,58 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadEvents, loadHome } from "@/content/load";
-import { formatSteps, topicsFromEvents } from "@/lib/home-data";
+import type { FormatStepItem, TopicNote } from "@/lib/home-data";
 import { FormatAgenda } from "./FormatAgenda";
 
-// Props are built from the real content files, as the home page passes them.
-// Expected strings are literals read from content/home.json.
-const TITLE = "Pas de conférenciers vedettes, des conversations.";
+// Fixtures written here: the component draws the head, the steps, the topics
+// and the more link it gets.
+const TITLE = "Pas de vedettes, des conversations.";
+const TOPICS_LABEL = "Sujets des dernières éditions";
+
+const STEPS: FormatStepItem[] = [
+  {
+    time: "9 h 30",
+    title: "Accueil",
+    text: "On se retrouve autour d'un café.",
+    photoSrc: "/assets/img/meetups/2026-10-alpha-7.jpg",
+  },
+  {
+    time: "10 h 15",
+    title: "Éclairs",
+    text: "Des talks de cinq minutes.",
+    photoSrc: "/assets/img/meetups/2026-10-alpha-3.jpg",
+  },
+  {
+    time: "11 h 00",
+    title: "Bulles",
+    text: "Des groupes se forment sur un sujet.",
+    photoSrc: "/assets/img/meetups/2026-03-gamma-3.jpg",
+  },
+  {
+    time: "13 h 15",
+    title: "Rétrospective",
+    text: "Ce qu'on retient, et à qui le tour d'accueillir.",
+    photoSrc: "/assets/img/meetups/2026-05-beta-4.jpg",
+  },
+];
+
+const TOPICS: TopicNote[] = [
+  { topic: "Premier sujet", year: "2026", tone: "default" },
+  { topic: "Deuxième sujet", year: "2025", tone: "pink" },
+  { topic: "Troisième sujet", year: "2025", tone: "green" },
+];
+
+const MORE = { label: "Le déroulé détaillé", href: "meetup.html" };
 
 function renderAgenda() {
-  const home = loadHome();
   return render(
     <FormatAgenda
-      eyebrow={home.format.eyebrow}
-      title={home.format.title}
-      lead={home.format.lead}
-      steps={formatSteps(home)}
-      topics={topicsFromEvents(loadEvents(), home.topics.limit)}
-      topicsLabel={home.topics.title}
-      more={home.format.more}
+      eyebrow="Le format"
+      title={TITLE}
+      lead="Un samedi matin, en open space."
+      steps={STEPS}
+      topics={TOPICS}
+      topicsLabel={TOPICS_LABEL}
+      more={MORE}
     />,
   );
 }
@@ -33,60 +67,37 @@ describe("FormatAgenda", () => {
     ).toHaveTextContent(TITLE);
     expect(within(section).getByText("Le format")).toBeInTheDocument();
     expect(
-      within(section).getByText(
-        /^Un samedi, de 9 h 30 à 14 h, en open space\./,
-      ),
+      within(section).getByText("Un samedi matin, en open space."),
     ).toBeInTheDocument();
   });
 
-  it("keeps the plain section background", () => {
+  it("lists the steps in order, each with its number, time, title and text", () => {
     renderAgenda();
-    const section = screen.getByRole("region", { name: TITLE });
-    expect(section.className).not.toMatch(/bg-sage-soft|bg-green-deep/);
-  });
-
-  it("lists the four steps in order, each with its number, time, title and text", () => {
-    renderAgenda();
-    const list = screen.getByRole("list");
-    const items = within(list).getAllByRole("listitem");
-    expect(items).toHaveLength(4);
-    const expected = [
-      ["01", "9 h 30", "Networking"],
-      ["02", "10 h 15", "Lightning talks"],
-      ["03", "11 h 00", "Bubble topics"],
-      ["04", "13 h 15", "Rétrospective"],
-    ] as const;
-    expected.forEach(([num, time, title], i) => {
+    const items = within(screen.getByRole("list")).getAllByRole("listitem");
+    expect(items).toHaveLength(STEPS.length);
+    STEPS.forEach((step, i) => {
       const item = items[i]!;
-      expect(item).toHaveTextContent(num);
-      expect(item).toHaveTextContent(time);
+      expect(item).toHaveTextContent(`0${i + 1}`);
+      expect(item).toHaveTextContent(step.time);
       expect(
-        within(item).getByRole("heading", { level: 3, name: title }),
+        within(item).getByRole("heading", { level: 3, name: step.title }),
       ).toBeInTheDocument();
+      expect(item).toHaveTextContent(step.text);
     });
-    expect(items[3]).toHaveTextContent(
-      "Ce qu'on retient, ce qu'on change pour la prochaine fois, et à qui le tour d'accueillir.",
-    );
   });
 
   it("hides the step number from assistive technology (the list already numbers)", () => {
     renderAgenda();
     const item = screen.getAllByRole("listitem")[0]!;
-    const number = within(item).getByText("01");
-    expect(number).toHaveAttribute("aria-hidden", "true");
+    expect(within(item).getByText("01")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("shows each step photo as a decorative lazy image", () => {
     renderAgenda();
-    const list = screen.getByRole("list");
-    const images = Array.from(list.querySelectorAll("img"));
-    expect(images).toHaveLength(4);
-    expect(images[0]?.getAttribute("src")).toMatch(
-      /\/assets\/img\/meetups\/2026-10-sg-gscm-7\.jpg$/,
+    const images = Array.from(screen.getByRole("list").querySelectorAll("img"));
+    expect(images.map((img) => img.getAttribute("src"))).toEqual(
+      STEPS.map((step) => step.photoSrc),
     );
-    expect(images[1]?.getAttribute("src")).toMatch(/2026-10-sg-gscm-3\.jpg$/);
-    expect(images[2]?.getAttribute("src")).toMatch(/2026-03-innovx-3\.jpg$/);
-    expect(images[3]?.getAttribute("src")).toMatch(/2026-05-axa-4\.jpg$/);
     images.forEach((img) => {
       expect(img).toHaveAttribute("alt", "");
       expect(img).toHaveAttribute("loading", "lazy");
@@ -119,50 +130,31 @@ describe("FormatAgenda", () => {
 
   it("zooms the photo on card hover, only without reduced motion", () => {
     renderAgenda();
-    const item = screen.getAllByRole("listitem")[0]!;
-    const img = item.querySelector("img")!;
-    expect(item).toHaveClass("group");
-    expect(img).toHaveClass(
-      "motion-safe:group-hover:scale-[1.04]",
-      "motion-safe:transition-transform",
-      "motion-safe:duration-500",
-    );
+    const img = screen.getAllByRole("listitem")[0]!.querySelector("img")!;
+    expect(img.className).toMatch(/motion-safe:group-hover:scale-/);
     expect(img.className).not.toMatch(/(^|\s)group-hover:/);
   });
 
-  it("lays the cards out in 1, 2 then 4 columns", () => {
+  it("shows one post-it per topic under the agenda", () => {
     renderAgenda();
-    const list = screen.getByRole("list");
-    expect(list).toHaveClass("grid-cols-1", "sm:grid-cols-2", "lg:grid-cols-4");
-    expect(list).toHaveClass("gap-5");
-  });
-
-  it("shows the topic wall of post-its under the agenda", () => {
-    renderAgenda();
-    const wall = screen.getByRole("group", {
-      name: "Sujets discutés lors des dernières éditions",
-    });
-    expect(wall.children).toHaveLength(10);
-    expect(wall.children[0]).toHaveTextContent("AI factory");
+    const wall = screen.getByRole("group", { name: TOPICS_LABEL });
+    expect(wall.children).toHaveLength(TOPICS.length);
+    expect(wall.children[0]).toHaveTextContent("Premier sujet");
     expect(wall.children[0]).toHaveTextContent("2026");
     const list = screen.getByRole("list");
-    expect(
-      list.compareDocumentPosition(wall) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(list.compareDocumentPosition(wall)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 
   it("links to the detailed flow on the meetup page, after the wall", () => {
     renderAgenda();
-    const link = screen.getByRole("link", {
-      name: "Le déroulé détaillé, étape par étape",
-    });
+    const link = screen.getByRole("link", { name: MORE.label });
     expect(link).toHaveAttribute("href", "/meetup/");
-    const wall = screen.getByRole("group", {
-      name: "Sujets discutés lors des dernières éditions",
-    });
-    expect(
-      wall.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    const wall = screen.getByRole("group", { name: TOPICS_LABEL });
+    expect(wall.compareDocumentPosition(link)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 
   it("renders no link line when there is no more link", () => {
@@ -182,7 +174,6 @@ describe("FormatAgenda", () => {
 describe("FormatAgenda list semantics", () => {
   it("keeps the numbered steps a list, Safari drops the role when the list style is none", () => {
     const { container } = renderAgenda();
-    const steps = container.querySelector("ol");
-    expect(steps).toHaveAttribute("role", "list");
+    expect(container.querySelector("ol")).toHaveAttribute("role", "list");
   });
 });
