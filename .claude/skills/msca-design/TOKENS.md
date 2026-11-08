@@ -33,30 +33,29 @@ Single source: `src/app/globals.css`. When this file and the CSS differ, the CSS
 | `--color-postit-blue` | `#a9dcf5` | Blue post-it |
 | `--color-postit-orange` | `#ffc98a` | Orange post-it |
 
-There is no `--color-card`: it was the same color as `--color-white` (`bg-card` is now `bg-white` everywhere). Use `bg-white` for a card surface.
+There is no card color token: use `bg-white` for a card surface.
 
 Post-it cycle for topic walls: yellow, pink, green, blue, orange (index modulo 5).
 
 Overlay values on dark surfaces use the opacity modifier on a token: `bg-white/5`, `border-white/16`.
 
-**Dark surface rule (one value per role).** Card fill on a dark surface: `bg-white/5`. Card border on a dark surface: `border-white/16`. These are the values used most today. Replace `border-white/14` and `border-white/15` with `border-white/16`, and `bg-white/7` with `bg-white/5` (CardGrid, FactList, OfferGrid, PackageGrid, footer). Other dark overlays stay as they are: `bg-white/12` and `hover:bg-white/25` (lightbox buttons), `bg-sage/10` with `border-sage/35` (sponsor call).
+**Dark surface rule (one value per role).** Card fill on a dark surface: `bg-white/5`. Card border on a dark surface: `border-white/16`. Use these two in every dark card (CardGrid, FactList, OfferGrid, PackageGrid, footer, FAQ, edition chips). Other dark overlays: `bg-white/12` and `hover:bg-white/25` (lightbox buttons), `bg-sage/10` with `border-sage/35` (sponsor call).
 
-### Literal colors: what replaces them
+### Literal colors
 
-A literal color used twice or more has a token (`--color-line-strong`, `--shadow-postit`). A literal that is an existing token at some opacity has no token of its own: write the opacity modifier. The mapping, for the components that still carry the literal:
+A literal color used twice or more has a token (`--color-line-strong`, `--shadow-postit`). A literal that is an existing token at some opacity has no token of its own: write the opacity modifier.
 
-| Literal in a utility | Replace with |
+| Need | Utility |
 |---|---|
-| `hover:border-[#d9cfbd]`, `focus-visible:border-[#d9cfbd]` | `hover:border-line-strong`, `focus-visible:border-line-strong` |
-| `shadow-[0_10px_18px_rgba(0,0,0,0.12)]` (PostIt, LogoWall sticker) | `shadow-postit` |
-| `bg-[rgba(29,27,25,0.78)]` (photo count pill) | `bg-ink/78` |
-| `bg-[rgba(15,63,35,0.85)]` (status chip fill) | `bg-green-deep/85` |
-| `border-[rgba(169,187,163,0.55)]` (status chip border) | `border-sage/55` |
-| `bg-[linear-gradient(180deg,rgba(15,63,35,0.45)_0%,rgba(15,63,35,0.78)_60%,var(--color-green-deep)_100%)]` (dark hero overlay) | `bg-linear-to-b/srgb from-green-deep/45 via-green-deep/78 via-60% to-green-deep` |
-| `focus:shadow-[0_0_0_3px_rgba(27,107,58,0.15)]` (input focus halo) | `focus:ring-3 focus:ring-green/15` |
-| `shadow-[0_6px_18px_rgba(193,39,45,0.28)]` (primary button) | `shadow-[0_6px_18px] shadow-red/28` |
+| Logo tile hover and focus border | `hover:border-line-strong`, `focus-visible:border-line-strong` |
+| Post-it and sticker shadow | `shadow-postit` |
+| Photo count pill | `bg-ink/78` |
+| Status chip fill and border | `bg-green-deep/85`, `border-sage/55` |
+| Dark hero overlay | `bg-linear-to-b/srgb from-green-deep/45 via-green-deep/78 via-60% to-green-deep` |
+| Input focus halo | `focus:ring-3 focus:ring-green/15` |
+| Primary button glow | `shadow-[0_6px_18px] shadow-red/28` |
 
-The opacity forms mix in `oklab` where the browser supports it; the difference from the old `rgba` is below what the eye sees. Check the changed component at three widths.
+The opacity forms mix in `oklab` where the browser supports it. Check a component that uses one at three widths.
 
 Literals used once stay arbitrary values (promote on second use):
 
@@ -69,7 +68,7 @@ Literals used once stay arbitrary values (promote on second use):
 | `#e4ddd2`, `#cfc7bb` | SoCraTes hero lead, hero fact labels |
 | `#f3eee6`, `#bdb4a7` | Logo tile name and role on dark |
 | `#e8e2d9`, `rgba(15,13,12,0.94)` | Lightbox caption, backdrop |
-| `rgba(0,0,0,0.65)` | Photo gallery caption gradient end |
+| `rgba(0,0,0,0.6)`, `rgba(0,0,0,0.65)` | Photo gallery caption scrim (black has no token) |
 | `#cbbfa9`, `#b9ad99`, `#f3faf5` | Choice card hover border, choice dot border, checked choice fill |
 | `#c9a400` | "Give" bullet border |
 | `#fdecec` | Form alert fill |
@@ -112,9 +111,9 @@ Declared with `@theme inline` so each utility keeps the `var(--font-...)` refere
 | `--font-body` | `var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif` | `font-body` | Body, UI, buttons, inputs, small card titles |
 | `--font-hand` | `var(--font-caveat), "Comic Sans MS", cursive` | `font-hand` | Post-its, polaroid captions, kickers, day names, sticker text, tips, edition badge |
 
-Monospace for inline code: `font-mono` (stock stack). All three families are variable fonts, so any weight works. Fraunces loads roman and italic with the `opsz` axis.
+Monospace for inline code: `font-mono` (stock stack). All three families are variable fonts, so any weight works. Fraunces roman loads with the `opsz` axis; Caveat is not preloaded (`preload: false`).
 
-Fraunces italic is a separate font (`src/app/fonts-italic.ts`, variable `--font-fraunces-italic`) so that only the routes that show it preload its 82 KB file. The home, meetup, SoCraTes and association layouts and the article page import it and put its `.variable` class on the page wrapper. The accueillir and news list pages do not. Italic Fraunces text uses `h1 em` or `h2 em` (base layer), or the `font-display-italic` utility (laws title, article quotes): both read `--font-fraunces-italic` and fall back to the roman face when it is not set. Never write `font-display italic` for a new italic heading: the roman family has no italic face, so the browser would draw a slanted copy of the roman. A route that shows italic Fraunces imports the module in its layout or page.
+Fraunces italic is a separate font (`src/app/fonts-italic.ts`, variable `--font-fraunces-italic`) so that only the routes that show it preload its 82 KB file. The home, meetup, SoCraTes and association layouts and the article page import it and put its `.variable` class on the page wrapper. The accueillir and news list pages do not. Italic Fraunces text uses `h1 em` or `h2 em` (base layer), or the `font-display-italic` utility (laws title, article quotes): both read `--font-fraunces-italic` and fall back to the roman face when it is not set. Never write `font-display italic` for a new italic heading: the roman family has no italic face, so the browser would draw a slanted copy of the roman. A route that shows italic Fraunces imports the module in its layout or page. Trap: on `/accueillir/` and `/actualites/` an `<em>` in an `h1` or `h2` draws a slanted roman, because those routes do not load the italic face. Keep `<em>` out of the titles of those two routes, or import `fonts-italic` in their layout and put its `.variable` on the `PageFrame`.
 
 ## Type scale
 
@@ -139,34 +138,34 @@ Set in the base layer: body 17px, line-height 1.6, `-webkit-font-smoothing: anti
 
 ### Type scale tokens
 
-Each size that the site used two or more times as an arbitrary value has a token in `@theme`. The name is the size in hundredths of a rem: `text-s95` is `0.95rem`. The names carry the value on purpose: they give one place for each size with no rounding and no visible change. Merging near sizes (0.92 and 0.93 and 0.95, 0.84 and 0.85, 1.2 and 1.25) into fewer roles is a design decision for later; then rename them by role.
+Each size used two or more times has a token in `@theme`. The name is the size in hundredths of a rem: `text-s95` is `0.95rem`. The names carry the value on purpose: one place for each size, no rounding. Merging near sizes (0.92, 0.93 and 0.95; 0.84 and 0.85; 1.2 and 1.25) into fewer roles is a design decision for later; then rename them by role.
 
-A token sets the font size only (no paired line height): keep `leading-*` in its own utility as today.
+A token sets the font size only (no paired line height): keep `leading-*` in its own utility.
 
-| Replace | With | Replace | With |
+| Size | Token | Size | Token |
 |---|---|---|---|
-| `text-[0.72rem]` | `text-s72` | `text-[1.02rem]` | `text-s102` |
-| `text-[0.74rem]` | `text-s74` | `text-[1.05rem]` | `text-s105` |
-| `text-[0.76rem]` | `text-s76` | `text-[1.15rem]` | `text-s115` |
-| `text-[0.78rem]` | `text-s78` | `text-[1.2rem]` | `text-s120` |
-| `text-[0.8rem]` | `text-s80` | `text-[1.25rem]` | `text-s125` |
-| `text-[0.82rem]` | `text-s82` | `text-[1.3rem]` | `text-s130` |
-| `text-[0.84rem]` | `text-s84` | `text-[1.35rem]` | `text-s135` |
-| `text-[0.85rem]` | `text-s85` | `text-[1.4rem]` | `text-s140` |
-| `text-[0.88rem]` | `text-s88` | `text-[1.5rem]` | `text-s150` |
-| `text-[0.9rem]` | `text-s90` | `text-[1.6rem]` | `text-s160` |
-| `text-[0.92rem]` | `text-s92` | `text-[1.7rem]` | `text-s170` |
-| `text-[0.93rem]` | `text-s93` | `text-[1.8rem]` | `text-s180` |
-| `text-[0.95rem]` | `text-s95` | `text-[1.9rem]` | `text-s190` |
-| `text-[0.98rem]` | `text-s98` | | |
+| `0.72rem` | `text-s72` | `1.02rem` | `text-s102` |
+| `0.74rem` | `text-s74` | `1.05rem` | `text-s105` |
+| `0.76rem` | `text-s76` | `1.15rem` | `text-s115` |
+| `0.78rem` | `text-s78` | `1.2rem` | `text-s120` |
+| `0.8rem` | `text-s80` | `1.25rem` | `text-s125` |
+| `0.82rem` | `text-s82` | `1.3rem` | `text-s130` |
+| `0.84rem` | `text-s84` | `1.35rem` | `text-s135` |
+| `0.85rem` | `text-s85` | `1.4rem` | `text-s140` |
+| `0.88rem` | `text-s88` | `1.5rem` | `text-s150` |
+| `0.9rem` | `text-s90` | `1.6rem` | `text-s160` |
+| `0.92rem` | `text-s92` | `1.7rem` | `text-s170` |
+| `0.93rem` | `text-s93` | `1.8rem` | `text-s180` |
+| `0.95rem` | `text-s95` | `1.9rem` | `text-s190` |
+| `0.98rem` | `text-s98` | | |
 
-The rule applies to every variant too: `sm:text-[1.5rem]` becomes `sm:text-s150`, `lg:text-[1.35rem]` becomes `lg:text-s135`, and a slot string such as `[&_h2]:text-[1.6rem]` becomes `[&_h2]:text-s160`. Sizes used once stay arbitrary: `0.68`, `0.7`, `0.75`, `0.83`, `0.86`, `1.08`, `1.1`, `1.55`, `2` rem and every `clamp(...)`. A test (`src/lib/cn.test.ts`) fails when a token of `globals.css` is missing in the merge config of `src/lib/cn.ts`: add a new `--text-*`, `--shadow-*`, `--radius-*`, `--container-*`, `--ease-*` or `--font-*` token in both places, or tailwind-merge reads `text-<name>` as a text color and drops a class it should keep.
+The token applies to every variant too (`sm:text-s150`, `[&_h2]:text-s160`). Sizes used once stay arbitrary: `0.68`, `0.7`, `0.75`, `0.83`, `0.86`, `1.08`, `1.1`, `1.55`, `2` rem and every `clamp(...)`. A test (`src/lib/cn.test.ts`) fails when a token of `globals.css` is missing in the merge config of `src/lib/cn.ts`: add a new `--text-*`, `--shadow-*`, `--radius-*`, `--container-*`, `--ease-*` or `--font-*` token in both places (`TAILWIND.md` says why).
 
-Other arbitrary values that stay (checked against Tailwind 4.3, no clean utility): `border-[1.5px]` (no half-pixel border utility), `rotate-[1.5deg]` and the other rotations with a decimal (`rotate-1.5` is not generated). `sm:grid-cols-[repeat(2,1fr)]` and `repeat(4,1fr)` are `grid-cols-2` and `grid-cols-4`: apply those. `motion-safe:ease-[ease]` is `motion-safe:ease-standard` (token `--ease-standard: ease`).
+Other arbitrary values that stay (no clean utility in Tailwind 4.3): `border-[1.5px]` (no half-pixel border utility), `rotate-[1.5deg]` and the other rotations with a decimal (`rotate-1.5` is not generated), and `grid-cols-[repeat(2,1fr)]` with `grid-cols-[repeat(4,1fr)]` (not `grid-cols-2` or `grid-cols-4`: those use `minmax(0,1fr)` tracks and a long fact would overflow, see `TAILWIND.md`). `motion-safe:ease-standard` is the easing utility (token `--ease-standard: ease`).
 
 ## Spacing and layout values
 
-Tailwind's spacing scale applies; take these exact values from the former design (`git show 1353207:assets/css/style.css`).
+Tailwind's spacing scale applies. Values the layout uses:
 
 | Context | Value |
 |---|---|
@@ -186,7 +185,7 @@ Tailwind's spacing scale applies; take these exact values from the former design
 
 ## Breakpoints
 
-Tailwind defaults, mobile first. No custom breakpoints and no `max-[Npx]:` values.
+Tailwind defaults, mobile first. This is decided: no custom breakpoints and no `max-[Npx]:` values.
 
 | Prefix | Min width |
 |---|---|
@@ -195,9 +194,9 @@ Tailwind defaults, mobile first. No custom breakpoints and no `max-[Npx]:` value
 | `lg` | 1024px |
 | `xl` | 1280px |
 
-Proposal, owner to confirm: map each query of the former site (`git show 1353207:assets/css/style.css`) to the true nearest default breakpoint and accept that a layout may switch up to about 160 px away from the old query width (one-pixel edge differences at exactly 640 and 1024 px included); note it in the commit or the report. Precedent already built: header nav (old max 1024) is `lg`; the hero two-column grid (old 900) is `lg`; the brand tagline (old 640) is `max-sm:hidden`. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel).
+A width that is not a default maps to the nearest default, and a layout may switch up to about 160 px away from that width. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel, the brand tagline `max-sm:hidden`).
 
-| Old query | Use (proposal, owner to confirm) |
+| Width in the design | Use |
 |---|---|
 | 960, 900 | `lg` (columns from `lg`, one column below) |
 | 860, 800, 760 | `md` |
@@ -209,11 +208,11 @@ Proposal, owner to confirm: map each query of the former site (`git show 1353207
 - Tailwind v4 transforms use the individual properties: transition `translate`, `rotate` and `scale`, not `transform` (`motion-safe:transition-[translate,background-color,box-shadow]`).
 - Durations: button 150ms, burger 200ms, tile and card lift 200ms, image zoom 400ms to 500ms, reveal 600ms, input border 150ms, progress 300ms. Easing `ease` (utility `ease-standard`).
 - Effects in the budget: hover lifts (`hover:-translate-y-px` on buttons, `-translate-y-0.75` on tiles and cards with `shadow-lift`), image zooms (`group-hover:scale-105`-style, 1.03 to 1.04), the FAQ plus rotating 45 degrees, the reveal fade-in (opacity 0 and 16px down to rest).
-- Static rotations are part of the look: polaroids `-3deg`, `4deg`, `-1.5deg`; collage post-it `5deg`; page hero image `1.5deg` and its post-it `-4deg`; zoom image `-1.5deg`; topic post-its odd `-2deg`, even `1.5deg`, every third `-0.5deg`; logo sticker `-2deg` (hover `-0.5deg`); tips `-0.6deg` and even `0.8deg`; numbered circles `-6deg`; law circles `-8deg`; edition badge `-4deg`; success post-it `-3deg`. Use `rotate-[Ndeg]` for these.
+- Fixed rotations are part of the look: polaroids `-3deg`, `4deg`, `-1.5deg`; collage post-it `5deg`; page hero image `1.5deg` and its post-it `-4deg`; zoom image `-1.5deg`; topic post-its (index from 0) even `-2deg`, odd `1.5deg`, every third (2, 5, 8...) `-0.5deg`; logo sticker `-2deg` (hover `-0.5deg`); tips `-0.6deg` and even `0.8deg`; numbered circles `-6deg`; law circles `-8deg`; edition badge `-4deg`; success post-it `-3deg`. Use `rotate-[Ndeg]` for these (`rotate-5` for a whole-degree step).
 
 ## Layering
 
-Skip link `z-100`, lightbox `z-200`, sticky header `z-50`, collage polaroids `z-2`/`z-4`/`z-3` and post-it `z-5`, zellige corner `-z-1` inside its own stacking context (`z-1` on the dark hero, see `zellige-corner-dark`).
+Skip link `z-100`, sticky header `z-50`, the lightbox dialog in the browser top layer (no `z-index`), collage polaroids `z-2`/`z-4`/`z-3` and post-it `z-5`, zellige corner `-z-1` inside its own stacking context (`z-1` on the dark hero, see `zellige-corner-dark`).
 
 ## Base layer in `globals.css`
 
@@ -226,7 +225,7 @@ These rules apply to bare elements. A component never repeats them.
 - `:focus-visible`: 3px green outline, offset 2px, radius 4px. On a dark surface set `**:focus-visible:outline-sage` on the surface.
 - `h1` to `h4`: Fraunces 600, line-height 1.12, `margin: 0 0 0.5em`, tracking `-0.01em`, sizes from the type scale.
 - `p`: `margin: 0 0 1em`.
-- `h1 em`, `h2 em`: italic, weight 590, red, hand-drawn sage underline (SVG data URI, `100% x 0.32em` at the bottom left). Weight 590 was measured against the old faux bold (see the `CLAUDE.md` gotchas). On dark headings the emphasis is sage with no underline (override in the dark hero and dark sections).
+- `h1 em`, `h2 em`: italic, weight 590, red, hand-drawn sage underline (SVG data URI, `100% x 0.32em` at the bottom left). Weight 590 was measured against a 500 italic with a synthetic bold: 97 percent of that ink at +2.7 percent width. On dark headings the emphasis is sage with no underline (override in the dark hero and dark sections).
 
 ## Signature graphics
 
@@ -234,16 +233,20 @@ These rules apply to bare elements. A component never repeats them.
 - Khatam star: eight-point star polygon `polygon(50% 0%, 64.6% 14.6%, 85.4% 14.6%, 85.4% 35.4%, 100% 50%, 85.4% 64.6%, 85.4% 85.4%, 64.6% 85.4%, 50% 100%, 35.4% 85.4%, 14.6% 85.4%, 14.6% 64.6%, 0% 50%, 14.6% 35.4%, 14.6% 14.6%, 35.4% 14.6%)`, used as `clip-path`. SoCraTes content only. Add it as a `@utility khatam` when first needed.
 - Edition cover: double eight-point star SVG (fill `#1b6b3a`, strokes `#f3eedf` and `#a9bba3`) behind the year, on a sage zellige pattern over green-deep.
 - Cork board dots: 6x6 SVG, circle `r=.6`, fill `#c9b48f` at opacity `.5`.
-- Copy full SVG strings from the former stylesheet (`git show 1353207:assets/css/style.css`) while porting (it stays in git history as the visual reference), and keep each string in one place in `globals.css`.
+- Keep each SVG string in one place in `globals.css`.
 
 ## Progressive enhancement (`js` variant)
 
+Decided: the HTML holds all the content, and a control that needs JavaScript hides without it.
+
 An inline script in the `<head>` of the root layout adds the class `js` to `<html>` before the first paint (`src/app/js-class-script.ts`; the element has `suppressHydrationWarning` for that one class). `globals.css` defines the variant `js:` (the root element has the class `js`). Tailwind's own `not-js:` is its opposite (no JavaScript, or before the script runs, which is before the first paint).
 
-- `js:flex` applies only with JavaScript. `not-js:flex` applies only without it.
-- When the owner decides on the no-JavaScript behavior (parked items L01 to L05), build it with these variants. Use `js:` for controls that do nothing without JavaScript (filter chips, "show more" buttons, photo buttons, the mobile nav toggle): show them with `js:`, so a visitor without JavaScript never sees a dead control.
-- Use `not-js:` to open what JavaScript would open (the mobile nav panel, the rest of the funnel).
+- `js:hidden` collapses content for a visitor with JavaScript only: events and photos past the limit, the steps of the funnel that are not current. Without JavaScript they show.
+- `not-js:hidden` hides a control that does nothing without JavaScript: filter chips, "show more" buttons, the funnel progress and navigation. A visitor without JavaScript never sees a dead control.
+- A `js:` or `not-js:` utility can sit on an element that also has a display utility: the variants come after the display utilities in the built CSS.
+- The mobile nav needs neither: it is a native `<details>`.
 - The `<html>` classes from `next/font` stay on the element; the script only adds one class.
+- Tests: jsdom loads no stylesheet, so a test that checks what a visitor sees calls `setJs()` from `src/components/home/js-mode.ts`.
 
 ## Dark mode
 

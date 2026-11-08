@@ -5,13 +5,13 @@ description: Use when building or changing any UI of the Moroccan Software Craft
 
 # MSCA design
 
-The design system of the Next.js app at the repo root: Tailwind v4 tokens in `src/app/globals.css` and React components in `src/components/`. The former static site (HTML pages, `assets/css/style.css`, `assets/js/*.js`) is removed from the tree and kept in git history at commit 1353207. It is only the visual reference: read a file with `git show 1353207:assets/css/style.css`, or extract it with `git archive 1353207 | tar -x -C <empty folder>` and serve it to compare in a browser. Write the new code from the files below.
+The design system of the Next.js app at the repo root: Tailwind v4 tokens in `src/app/globals.css` and React components in `src/components/`. Write the code from the files below.
 
 ## Reference files
 
-- `TOKENS.md`: the `@theme` table (colors, radius, shadows, container, fonts), type scale, spacing, breakpoints, motion, base-layer rules. Read it before you write a color, size, breakpoint or transition.
+- `TOKENS.md`: the `@theme` table (colors, type scale, radius, shadows, container, fonts), spacing, breakpoints, motion, base-layer rules, the `js` variant. Read it before you write a color, size, breakpoint or transition.
 - `TAILWIND.md`: Tailwind rules, each with its doc link. Read it before you write or change styling code.
-- `COMPONENTS.md`: built components with their real props, and the components still to build. Read it before you build or change a component, a section or an interactive behavior.
+- `COMPONENTS.md`: every component with its real props, and the data layer. Read it before you build or change a component, a section or an interactive behavior.
 
 ## Design principles
 
@@ -29,8 +29,9 @@ The design system of the Next.js app at the repo root: Tailwind v4 tokens in `sr
 2. **Style with utilities in components.** Use whole class names, `tv()` for variants and `cn()` to merge a caller's `className` (`src/lib/cn.ts`). Do not add `@apply`, CSS Modules or a component library. `globals.css` holds tokens, the base layer and `@utility` blocks only.
 3. **Reuse a component first.** Look the need up in `COMPONENTS.md` and reuse that component and its variants. Create a new one only when nothing fits, and add its entry to the file. Contexts such as a dark surface become variants, not parent selectors.
 4. **Build mobile first on the default breakpoints** (`sm`, `md`, `lg`, `xl`). Add no custom breakpoint and no `max-[Npx]:` value.
-5. **Use native HTML for interactive parts**: `<details>` for the FAQ, `<dialog>` for the lightbox, `<button>` for actions, `<a>` for navigation, `<fieldset>` and `<legend>` for form steps.
-6. **Keep the accessibility contracts.** Same `aria-*` states (`aria-current`, `aria-expanded`, `aria-pressed`, `aria-live`), a 3px green focus ring (sage on dark surfaces), empty `alt` on decorative photos, `loading="lazy"` below the fold, a skip link, a visible label on every form control.
+5. **Use native HTML for interactive parts**: `<details>` for the FAQ and the mobile nav, `<dialog>` for the lightbox, `<button>` for actions, `<a>` for navigation, `<fieldset>` and `<legend>` for form steps.
+6. **Keep the accessibility contracts.** Same `aria-*` states (`aria-current`, `aria-expanded`, `aria-pressed`, `aria-live`), a 3px green focus ring (sage on dark surfaces), empty `alt` on decorative photos (`Photo` is the one `<img>`: lazy by default, `eager` in the first viewport), a skip link, a visible label on every form control.
 7. **Keep the motion budget.** Hover lifts, image zooms and the reveal fade-in. Put every transition and animation behind `motion-safe:`; the hover offset itself (`hover:-translate-y-px`) always applies, as in `Button`.
 8. **Show partner logos and photos only with consent.** An empty `logo` renders the monogram.
-9. **Check each finished page in a browser** at 375, 768 and 1280 px against the former site (git history 1353207), with computed styles (done criterion in `CLAUDE.md`).
+9. **Keep every page readable without JavaScript.** All content is in the HTML; a control that needs JavaScript hides with `not-js:hidden`, content that JavaScript collapses hides with `js:hidden` (`TOKENS.md`).
+10. **Check each finished page in a browser** at 375, 768 and 1280 px (the regression rule in `CLAUDE.md`).
