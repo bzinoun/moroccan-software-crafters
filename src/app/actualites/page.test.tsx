@@ -1,21 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { loadArticles } from "@/content/load";
+import { frenchSpacing } from "@/lib/french";
 import NewsPage, { metadata } from "./page";
 
+const articles = loadArticles();
+
 describe("/actualites/ page", () => {
-  it("sets the title and description of the news page", () => {
-    expect(metadata.title).toBe("Actualités · Moroccan Software Crafters");
-    expect(metadata.description).toBe(
-      "Récaps des meetups, annonces et appels à partenaires de Moroccan Software Crafters.",
-    );
+  it("sets the title and description of the news page from the content", () => {
+    expect(metadata.title).toBe(articles.meta.title);
+    expect(metadata.description).toBe(articles.meta.description);
   });
 
-  it("sets the share tags of the news page", () => {
+  it("shares the news page under its own title with the lead as description", () => {
     expect(metadata.openGraph).toMatchObject({
       type: "website",
-      title: "Actualités · Moroccan Software Crafters",
-      description:
-        "Ce qui s'est dit dans les tables rondes, et ce qui se prépare.",
+      title: articles.meta.title,
+      description: articles.lead,
     });
   });
 
@@ -24,9 +25,9 @@ describe("/actualites/ page", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Récaps, annonces, appels.",
+        name: frenchSpacing(articles.title),
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole("article")).toHaveLength(4);
+    expect(screen.getAllByRole("article")).toHaveLength(articles.items.length);
   });
 });

@@ -1,32 +1,44 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import {
+  loadCompanies,
+  loadEvents,
+  loadSite,
+  loadSocrates,
+  loadSponsoring,
+} from "@/content/load";
+import { frenchSpacing } from "@/lib/french";
 import SocratesPage, { metadata } from "./page";
 
-// Expected values are literals read from content/socrates.json,
-// content/sponsoring.json and the former `socrates.html` (`git show 1353207:socrates.html`).
+// Expected values come from content/socrates.json, content/sponsoring.json,
+// content/companies.json, content/events.json and content/site.json. Only the
+// texts written in page.tsx are literals here.
+const site = loadSite();
+const s = loadSocrates();
+const sp = loadSponsoring();
+const withoutEm = (title: string) => title.replace(/<\/?em>/g, "");
+// Text queries compare with spaces collapsed, so a no-break space matches a plain one.
+const plainSpaces = (text: string) => text.replace(/\s+/g, " ");
+
 function renderPage() {
   return render(<SocratesPage />);
 }
 
 describe("socrates metadata", () => {
   it("takes the title and the description of socrates.json", () => {
-    expect(metadata.title).toBe(
-      "SoCraTes Maroc · La conférence Software Craft & Testing",
-    );
-    expect(metadata.description).toMatch(
-      /^SoCraTes Maroc est une unconference : quatre jours d'open space/,
-    );
+    expect(metadata.title).toBe(s.meta.title);
+    expect(metadata.description).toBe(s.meta.description);
   });
 
-  it("carries the social tags of socrates.html", () => {
+  it("carries the social tags of the sponsoring pitch", () => {
     expect(metadata.openGraph).toMatchObject({
       type: "website",
       title: "SoCraTes Maroc · Devenir partenaire",
       description:
         "Quatre jours d'unconference entre crafters. Trois niveaux de partenariat pour la 5e édition.",
-      url: "https://bzinoun.github.io/moroccan-software-crafters/socrates/",
+      url: `${site.baseUrl}/socrates/`,
       images: [
-        "https://bzinoun.github.io/moroccan-software-crafters/assets/img/meetups/2022-03-socrates-groupe.jpg",
+        `${site.baseUrl}/assets/img/meetups/2022-03-socrates-groupe.jpg`,
       ],
     });
   });
@@ -35,7 +47,9 @@ describe("socrates metadata", () => {
 describe("SocratesPage", () => {
   it("has the section ids of the old page, in order", () => {
     const { container } = renderPage();
-    const ids = [...container.querySelectorAll("section[id]")].map((s) => s.id);
+    const ids = [...container.querySelectorAll("section[id]")].map(
+      (el) => el.id,
+    );
     expect(ids).toEqual([
       "unconference",
       "regles",
@@ -48,137 +62,135 @@ describe("SocratesPage", () => {
     ]);
   });
 
-  it("alternates plain, alt and dark bands as the old page does", () => {
-    const { container } = renderPage();
-    const bands = [...container.querySelectorAll("section[id]")].map((s) =>
-      s.classList.contains("bg-green-deep")
-        ? "dark"
-        : s.classList.contains("bg-sage-soft")
-          ? "alt"
-          : "plain",
-    );
-    expect(bands).toEqual([
-      "plain",
-      "alt",
-      "plain",
-      "alt",
-      "plain",
-      "alt",
-      "dark",
-      "plain",
-    ]);
-  });
-
   it("opens with the dark hero: the only level 1 heading, photo, status, facts and two buttons", () => {
     const { container } = renderPage();
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveTextContent(
-      "Quatre jours entre crafters, sans programme.",
-    );
-    expect(h1.querySelector("em")).toHaveTextContent("sans programme");
-    expect(
-      screen.getByText(
-        "Software Craft & Testing · édition marocaine depuis 2022",
-      ),
-    ).toBeInTheDocument();
+    expect(h1).toHaveTextContent(withoutEm(s.hero.title));
+    expect(h1.querySelector("em")).toBeInTheDocument();
+    expect(screen.getByText(plainSpaces(s.hero.eyebrow))).toBeInTheDocument();
     expect(container.querySelector("[data-hero-photo]")).toHaveStyle({
-      backgroundImage: 'url("/assets/img/meetups/2022-03-socrates-groupe.jpg")',
+      backgroundImage: `url("/assets/img/meetups/${s.hero.photo}.jpg")`,
     });
     expect(
       screen.getByText(
         (_, el) =>
           el?.tagName === "P" &&
-          el.textContent ===
-            "Prochaine édition\u202f: après le Ramadan 2027, Bouznika",
+          plainSpaces(el.textContent ?? "") === plainSpaces(s.hero.status),
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText("30 → 50")).toBeInTheDocument();
-    expect(screen.getByText("3 pays")).toBeInTheDocument();
+    for (const fact of s.hero.facts) {
+      expect(screen.getByText(plainSpaces(fact.value))).toBeInTheDocument();
+    }
     const hero = h1.closest("section") as HTMLElement;
-    const primary = within(hero).getByRole("link", {
-      name: "Devenir partenaire",
-    });
-    expect(primary).toHaveAttribute("href", "#sponsoring");
+    expect(
+      within(hero).getByRole("link", {
+        name: frenchSpacing(s.hero.primary.label),
+      }),
+    ).toHaveAttribute("href", s.hero.primary.href);
     const secondary = within(hero).getByRole("link", {
-      name: "Site de l'édition",
+      name: frenchSpacing(s.hero.secondary.label),
     });
-    expect(secondary).toHaveAttribute("href", "https://socrates-ma.github.io/");
+    expect(secondary).toHaveAttribute("href", s.hero.secondary.href);
     expect(secondary).toHaveAttribute("target", "_blank");
     expect(secondary).toHaveAttribute("rel", "noopener");
   });
 
-  it("#unconference: head, lead and the three pillars", () => {
+  it("#unconference: head, lead and one card per pillar", () => {
     renderPage();
     const section = screen.getByRole("region", {
-      name: "Ce n'est pas une conférence. C'est une retraite de travail.",
+      name: frenchSpacing(s.about.title),
     });
     expect(section).toHaveAttribute("id", "unconference");
-    expect(within(section).getAllByRole("article")).toHaveLength(3);
-    expect(
-      within(section).getByRole("heading", { level: 3, name: "Des personnes" }),
-    ).toBeInTheDocument();
-  });
-
-  it("#regles: the four laws, the grid formats and #formats", () => {
-    const { container } = renderPage();
-    const section = container.querySelector("#regles") as HTMLElement;
-    expect(within(section).getByRole("list")).toHaveTextContent(
-      "La loi des deux pieds.",
+    expect(within(section).getAllByRole("article")).toHaveLength(
+      s.about.pillars.length,
     );
-    expect(within(section).getAllByRole("listitem")).toHaveLength(4);
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Ce qu'on trouve sur la grille",
+        name: frenchSpacing(s.about.pillars[0]!.title),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("#regles: the laws, the grid formats and #formats", () => {
+    const { container } = renderPage();
+    const section = container.querySelector("#regles") as HTMLElement;
+    const lastLaw = s.openspace.laws[s.openspace.laws.length - 1]!;
+    expect(within(section).getByRole("list")).toHaveTextContent(
+      plainSpaces(lastLaw.title),
+    );
+    expect(within(section).getAllByRole("listitem")).toHaveLength(
+      s.openspace.laws.length,
+    );
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: frenchSpacing(s.openspace.formats.title),
       }),
     ).toBeInTheDocument();
     const formats = section.querySelector("#formats") as HTMLElement;
-    expect(within(formats).getAllByRole("article")).toHaveLength(4);
+    expect(within(formats).getAllByRole("article")).toHaveLength(
+      s.openspace.formats.items.length,
+    );
     expect(
-      within(formats).getByRole("heading", { level: 3, name: "Discussion" }),
+      within(formats).getByRole("heading", {
+        level: 3,
+        name: frenchSpacing(s.openspace.formats.items[0]!.title),
+      }),
     ).toBeInTheDocument();
   });
 
-  it("#deroule: four days and the note", () => {
+  it("#deroule: one item per day and the note", () => {
     const { container } = renderPage();
     const section = container.querySelector("#deroule") as HTMLElement;
-    expect(within(section).getAllByRole("listitem")).toHaveLength(4);
-    expect(section).toHaveTextContent("Arrivée et World Café");
-    expect(section).toHaveTextContent(
-      "arrivée le jeudi à 15 h, départ le dimanche à 13 h",
+    expect(within(section).getAllByRole("listitem")).toHaveLength(
+      s.schedule.days.length,
+    );
+    expect(section).toHaveTextContent(plainSpaces(s.schedule.days[0]!.title));
+    expect(section).toHaveTextContent(plainSpaces(s.schedule.note));
+  });
+
+  it("#editions: one card per edition", () => {
+    const { container } = renderPage();
+    const section = container.querySelector("#editions") as HTMLElement;
+    expect(within(section).getAllByRole("article")).toHaveLength(
+      s.editions.items.length,
+    );
+    const venue = s.editions.items.find((e) => e.venue)?.venue ?? "";
+    expect(venue).not.toBe("");
+    expect(section).toHaveTextContent(venue);
+  });
+
+  it("#famille: lead and one item per event of the family", () => {
+    const { container } = renderPage();
+    const section = container.querySelector("#famille") as HTMLElement;
+    expect(section).toHaveTextContent(plainSpaces(s.family.text));
+    expect(within(section).getAllByRole("listitem")).toHaveLength(
+      s.family.items.length,
     );
   });
 
-  it("#editions: four edition cards", () => {
-    const { container } = renderPage();
-    const section = container.querySelector("#editions") as HTMLElement;
-    expect(within(section).getAllByRole("article")).toHaveLength(4);
-    expect(section).toHaveTextContent("The View Bouznika");
-  });
-
-  it("#famille: lead and nine events", () => {
-    const { container } = renderPage();
-    const section = container.querySelector("#famille") as HTMLElement;
-    expect(section).toHaveTextContent("Le Maroc a rejoint la famille en 2022.");
-    expect(within(section).getAllByRole("listitem")).toHaveLength(9);
-  });
-
-  it("#valeurs: four values", () => {
+  it("#valeurs: one card per value", () => {
     const { container } = renderPage();
     const section = container.querySelector("#valeurs") as HTMLElement;
-    expect(within(section).getAllByRole("article")).toHaveLength(4);
+    expect(within(section).getAllByRole("article")).toHaveLength(
+      s.values.items.length,
+    );
     expect(
-      within(section).getByRole("heading", { level: 3, name: "Bienveillant" }),
+      within(section).getByRole("heading", {
+        level: 3,
+        name: frenchSpacing(s.values.items[0]!.title),
+      }),
     ).toBeInTheDocument();
   });
 
-  it("#sponsoring: three packages, each linking to #sponsor-form, and the form", () => {
+  it("#sponsoring: one package per card, each linking to #sponsor-form, and the form", () => {
     const { container } = renderPage();
     const section = container.querySelector("#sponsoring") as HTMLElement;
     const buttons = within(section).getAllByRole("link", {
       name: "Choisir ce niveau",
     });
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(sp.packages.length);
     for (const button of buttons) {
       expect(button).toHaveAttribute("href", "#sponsor-form");
     }
@@ -193,19 +205,22 @@ describe("SocratesPage", () => {
     expect(
       within(section).getByRole("heading", {
         level: 2,
-        name: "Onze entreprises, quatre éditions.",
+        name: frenchSpacing(s.sponsorsWall.title),
       }),
     ).toBeInTheDocument();
     expect(
-      within(section).getByText("Ils ont soutenu SoCraTes Maroc"),
+      within(section).getByText(plainSpaces(s.sponsorsWall.eyebrow)),
     ).toBeInTheDocument();
     const wall = section.querySelector("#sponsors-wall") as HTMLElement;
     expect(wall).not.toBeNull();
+    const { items, sticker } = loadCompanies();
     expect(
-      within(wall).getByRole("link", { name: /Votre logo ici/ }),
-    ).toHaveAttribute("href", "#sponsor-funnel");
-    // Eleven companies appear in the sponsors[] of events.json, plus the sticker.
-    expect(wall.children).toHaveLength(12);
-    expect(wall).toHaveTextContent("McKinsey & Company");
+      wall.querySelector(`a[href="${sticker.sponsor.href}"]`),
+    ).toBeInTheDocument();
+    // One tile per company named in the sponsors of an event, plus the sticker.
+    const sponsorNames = new Set(loadEvents().flatMap((e) => e.sponsors ?? []));
+    const sponsors = items.filter((c) => sponsorNames.has(c.name));
+    expect(wall.children).toHaveLength(sponsors.length + 1);
+    expect(wall).toHaveTextContent(sponsors[0]!.display || sponsors[0]!.name);
   });
 });

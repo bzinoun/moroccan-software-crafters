@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
+import { loadArticles, loadSite } from "@/content/load";
+import { frenchSpacing } from "@/lib/french";
 import ArticlePage, {
   dynamicParams,
   generateMetadata,
@@ -12,16 +14,17 @@ beforeEach(() => {
   };
 });
 
-const SLUG = "axa-craftsmanship-a-l-ere-de-l-ia";
+const site = loadSite();
+const { items } = loadArticles();
+// An article with a cover, so the share image can be checked.
+const article = items.find((a) => a.cover) ?? items[0]!;
+const params = () => ({ params: Promise.resolve({ slug: article.slug }) });
 
 describe("/actualites/[slug]/ page", () => {
   it("builds one static page per article of content/articles.json", () => {
-    expect(generateStaticParams()).toEqual([
-      { slug: "appel-partenaires-socrates-5e-edition" },
-      { slug: "sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code" },
-      { slug: "axa-craftsmanship-a-l-ere-de-l-ia" },
-      { slug: "innovx-l-impact-reel-de-l-ia" },
-    ]);
+    expect(generateStaticParams()).toEqual(
+      items.map((a) => ({ slug: a.slug })),
+    );
   });
 
   it("refuses slugs that were not generated", () => {
@@ -29,33 +32,27 @@ describe("/actualites/[slug]/ page", () => {
   });
 
   it("sets the document title and description from the article", async () => {
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: SLUG }),
-    });
-    expect(metadata.title).toBe(
-      "Craftsmanship à l'ère de l'IA : toute la stack passée en revue · Moroccan Software Crafters",
-    );
-    expect(metadata.description).toMatch(/^Chez AXA Assurance Maroc/);
+    const metadata = await generateMetadata(params());
+    expect(metadata.title).toBe(`${article.title} · ${site.name}`);
+    expect(metadata.description).toBe(article.excerpt);
   });
 
   it("shares the cover of the article with an absolute URL", async () => {
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ slug: SLUG }),
-    });
+    const metadata = await generateMetadata(params());
     expect(metadata.openGraph?.images).toEqual([
-      "https://bzinoun.github.io/moroccan-software-crafters/assets/img/meetups/2026-05-axa-1.jpg",
+      `${site.baseUrl}/assets/img/meetups/${article.cover}.jpg`,
     ]);
     expect(metadata.openGraph?.url).toBe(
-      "https://bzinoun.github.io/moroccan-software-crafters/actualites/axa-craftsmanship-a-l-ere-de-l-ia/",
+      `${site.baseUrl}/actualites/${article.slug}/`,
     );
   });
 
   it("renders the article of the slug", async () => {
-    render(await ArticlePage({ params: Promise.resolve({ slug: SLUG }) }));
+    render(await ArticlePage(params()));
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Craftsmanship à l'ère de l'IA : toute la stack passée en revue",
+        name: frenchSpacing(article.title),
       }),
     ).toBeInTheDocument();
     expect(

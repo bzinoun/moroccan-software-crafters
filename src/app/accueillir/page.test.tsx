@@ -1,7 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { loadEvents, loadOffers, loadSite } from "@/content/load";
+import { fmtDate } from "@/lib/derive";
 import AccueillirLayout from "./layout";
 import AccueillirPage, { metadata } from "./page";
+
+const site = loadSite();
 
 describe("accueillir page metadata", () => {
   it("takes the title and the description of accueillir.html", () => {
@@ -19,10 +23,8 @@ describe("accueillir page metadata", () => {
       title: "Accueillir un meetup Moroccan Software Crafters",
       description:
         "Gratuit ou en formule partenaire : recevez la communauté Software Craftsmanship dans vos locaux.",
-      url: "https://bzinoun.github.io/moroccan-software-crafters/accueillir/",
-      images: [
-        "https://bzinoun.github.io/moroccan-software-crafters/assets/img/meetups/2026-05-axa-1.jpg",
-      ],
+      url: `${site.baseUrl}/accueillir/`,
+      images: [`${site.baseUrl}/assets/img/meetups/2026-05-axa-1.jpg`],
     });
   });
 });
@@ -90,9 +92,13 @@ describe("AccueillirPage", () => {
 
   it("shows the last meetup as proof, with its photo", () => {
     const { container } = render(<AccueillirPage />);
-    expect(container.querySelector("#proof-text")).toHaveTextContent(
-      "Dernière édition : Société Générale GSCM, 24 octobre 2026, 110 inscrits.",
+    const latest = loadEvents().find((e) => e.type === "meetup");
+    const proof = container.querySelector("#proof-text");
+    expect(proof).toHaveTextContent(latest?.host ?? "");
+    expect(proof).toHaveTextContent(
+      fmtDate(latest?.date ?? "", { long: true }),
     );
+    expect(proof).toHaveTextContent(`${latest?.registrations} inscrits`);
     expect(
       screen.getByRole("img", { name: "Participants du dernier meetup" }),
     ).toHaveAttribute("src", "/assets/img/meetups/2026-10-sg-gscm-5.jpg");
@@ -107,14 +113,14 @@ describe("AccueillirPage", () => {
     ).toHaveAttribute("href", "/meetup/");
   });
 
-  it("puts the funnel after the aside, on step 1 with the three offers", () => {
+  it("puts the funnel after the aside, on step 1 with one choice per offer", () => {
     const { container } = render(<AccueillirPage />);
     const funnel = container.querySelector("#funnel") as HTMLElement;
     expect(funnel).toBeInTheDocument();
     expect(screen.getByRole("complementary").nextElementSibling).toBe(funnel);
-    expect(
-      within(funnel).getAllByRole("radio", { name: /Gratuit|MAD/ }),
-    ).toHaveLength(3);
+    expect(within(funnel).getAllByRole("radio")).toHaveLength(
+      loadOffers().items.length,
+    );
     expect(
       within(funnel).getByText("Étape 1 sur 4 · Formule"),
     ).toBeInTheDocument();

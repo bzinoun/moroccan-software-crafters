@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { frenchSpacing } from "./french";
 
-const NNBSP = " ";
-const NBSP = " ";
+const NNBSP = "\u202f";
+const NBSP = "\u00a0";
 
 describe("frenchSpacing", () => {
   it("replaces a normal space before ? ! : ; with a narrow no-break space", () => {

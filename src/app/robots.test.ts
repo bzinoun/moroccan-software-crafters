@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { loadSite } from "@/content/load";
 import robots, { dynamic } from "./robots";
 
 describe("robots", () => {
@@ -6,11 +7,10 @@ describe("robots", () => {
     expect(dynamic).toBe("force-static");
   });
 
-  it("allows every crawler and points to the sitemap", () => {
+  it("allows every crawler and points to the sitemap of the site", () => {
     expect(robots()).toEqual({
       rules: { userAgent: "*", allow: "/" },
-      sitemap:
-        "https://bzinoun.github.io/moroccan-software-crafters/sitemap.xml",
+      sitemap: `${loadSite().baseUrl}/sitemap.xml`,
     });
   });
 });

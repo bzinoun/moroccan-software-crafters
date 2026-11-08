@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { loadArticles } from "@/content/load";
 import { md } from "./md";
 
 function html(text: string | null | undefined): string {
@@ -232,19 +233,45 @@ describe("md unsafe input", () => {
   });
 });
 
-describe("md on the real articles", () => {
-  it("renders the announcement article with headings, a list and a link", async () => {
-    const { loadArticles } = await import("@/content/load");
-    const article = loadArticles().items[0];
-    const { container } = render(<div>{md(article?.body)}</div>);
-    expect(container.querySelectorAll("p").length).toBeGreaterThanOrEqual(4);
-    expect(container.querySelector("h3")?.textContent).toBe(
-      "Ce que vivent les partenaires",
-    );
+describe("md on an article body", () => {
+  const body = [
+    "Introduction avec un [lien](socrates.html#sponsoring).",
+    "",
+    "## Premier titre",
+    "",
+    "- un",
+    "- deux",
+    "- trois",
+    "",
+    "Conclusion.",
+  ].join("\n");
+
+  it("renders paragraphs, a heading, a list and an internal link in order", () => {
+    const { container } = render(<div>{md(body)}</div>);
+    expect(
+      [...(container.firstElementChild?.children ?? [])].map(
+        (el) => el.tagName,
+      ),
+    ).toEqual(["P", "H3", "UL", "P"]);
+    expect(container.querySelector("h3")?.textContent).toBe("Premier titre");
     expect(container.querySelectorAll("li")).toHaveLength(3);
     expect(container.querySelector("a")?.getAttribute("href")).toBe(
       "/socrates/#sponsoring",
     );
+  });
+});
+
+describe("md on the real articles", () => {
+  it("renders one block per blank-line-separated chunk of every article body", () => {
+    for (const article of loadArticles().items) {
+      const chunks = article.body.trim().split(/\r?\n\s*\r?\n/);
+      const { container, unmount } = render(<div>{md(article.body)}</div>);
+      expect(container.firstElementChild?.children, article.slug).toHaveLength(
+        chunks.length,
+      );
+      expect(container.querySelector("script"), article.slug).toBeNull();
+      unmount();
+    }
   });
 });
 
@@ -253,16 +280,16 @@ describe("md french spacing", () => {
   // before the colon becomes U+202F, as the old site did on every text node.
   it("uses a narrow no-break space before ? ! : ;", () => {
     expect(html("est à but non lucratif : le prix")).toBe(
-      "<p>est à but non lucratif : le prix</p>",
+      "<p>est à but non lucratif\u202f: le prix</p>",
     );
-    expect(html("a ? b ! c ; d")).toBe("<p>a ? b ! c ; d</p>");
+    expect(html("a ? b ! c ; d")).toBe("<p>a\u202f? b\u202f! c\u202f; d</p>");
   });
 
   it("applies to headings, list items and link text", () => {
-    expect(html("## Pourquoi : ici")).toBe("<h3>Pourquoi : ici</h3>");
-    expect(html("- tests : oui")).toBe("<ul><li>tests : oui</li></ul>");
+    expect(html("## Pourquoi : ici")).toBe("<h3>Pourquoi\u202f: ici</h3>");
+    expect(html("- tests : oui")).toBe("<ul><li>tests\u202f: oui</li></ul>");
     expect(html("[voir : ici](https://x.fr)")).toBe(
-      '<p><a href="https://x.fr" target="_blank" rel="noopener">voir : ici</a></p>',
+      '<p><a href="https://x.fr" target="_blank" rel="noopener">voir\u202f: ici</a></p>',
     );
   });
 

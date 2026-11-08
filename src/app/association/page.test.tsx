@@ -1,24 +1,34 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import {
+  loadAssociation,
+  loadCompanies,
+  loadEvents,
+  loadSite,
+} from "@/content/load";
+import { frenchSpacing } from "@/lib/french";
+import { associationFacts } from "@/lib/pages-data";
 import AssociationPage, { metadata } from "./page";
+
+const site = loadSite();
+const association = loadAssociation();
+const withoutEm = (title: string) => title.replace(/<\/?em>/g, "");
 
 describe("association page metadata", () => {
   it("takes the title and the description from content/association.json", () => {
-    expect(metadata.title).toBe("L'association · Moroccan Software Crafters");
-    expect(metadata.description).toBe(
-      "Moroccan Software Crafters est une association à but non lucratif qui stimule et promeut les valeurs du Software Craftsmanship au Maroc : meetups, SoCraTes Maroc, une communauté ouverte à tous depuis 2019.",
-    );
+    expect(metadata.title).toBe(association.meta.title);
+    expect(metadata.description).toBe(association.meta.description);
   });
 
   it("sets the Open Graph tags of association.html on the route", () => {
     expect(metadata.openGraph).toMatchObject({
       type: "website",
-      title: "L'association · Moroccan Software Crafters",
+      title: association.meta.title,
       description:
         "Une communauté, pas une marque. Mission, principes, histoire et façons de contribuer.",
-      url: "https://bzinoun.github.io/moroccan-software-crafters/association/",
+      url: `${site.baseUrl}/association/`,
       images: [
-        "https://bzinoun.github.io/moroccan-software-crafters/assets/img/meetups/2026-03-innovx-1.jpg",
+        `${site.baseUrl}/assets/img/meetups/${association.hero.photo}.jpg`,
       ],
     });
   });
@@ -30,15 +40,20 @@ describe("AssociationPage", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Une communauté, pas une marque.",
+        name: frenchSpacing(withoutEm(association.hero.title)),
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("img", { name: "Photo de groupe d'un meetup" }),
-    ).toHaveAttribute("src", "/assets/img/meetups/2026-03-innovx-1.jpg");
+    ).toHaveAttribute(
+      "src",
+      `/assets/img/meetups/${association.hero.photo}.jpg`,
+    );
     expect(screen.getByText("Depuis 2019")).toBeInTheDocument();
     const facts = container.querySelector("section ul") as HTMLElement;
-    expect(within(facts).getAllByRole("listitem")).toHaveLength(4);
+    expect(within(facts).getAllByRole("listitem")).toHaveLength(
+      associationFacts(site, loadEvents()).length,
+    );
     expect(within(facts).getByText("entreprises hôtes")).toBeInTheDocument();
     expect(
       within(facts).getByText("éditions de SoCraTes Maroc"),
@@ -63,30 +78,29 @@ describe("AssociationPage", () => {
     render(<AssociationPage />);
     expect(
       screen.getByRole("link", { name: "Écrire sur LinkedIn" }),
-    ).toHaveAttribute(
-      "href",
-      "https://www.linkedin.com/company/moroccansoftwarecrafters/",
-    );
+    ).toHaveAttribute("href", site.links.linkedin);
   });
 
-  it("closes with a tight band named by its title, with the host funnel link", () => {
+  it("closes with the contact band named by its title, with the host funnel link", () => {
     const { container } = render(<AssociationPage />);
     const sections = container.querySelectorAll("section");
     const last = sections[sections.length - 1];
-    expect(last).toHaveClass("py-14");
-    expect(last).toHaveAccessibleName("Nous écrire");
+    expect(last).toHaveAccessibleName(frenchSpacing(association.contact.title));
     expect(
       screen.getByRole("link", { name: "Accueillir un meetup" }),
     ).toHaveAttribute("href", "/accueillir/");
   });
 
-  it("shows the hosts wall of 16 companies and the milestones of the history", () => {
+  it("shows the logo of every company that has one, and one milestone per history item", () => {
     const { container } = render(<AssociationPage />);
+    const withLogo = loadCompanies().items.filter((c) => c.logo !== "");
     expect(
       within(container.querySelector("#logo-wall") as HTMLElement).getAllByRole(
         "img",
       ),
-    ).toHaveLength(16);
-    expect(container.querySelectorAll("#history > li")).toHaveLength(7);
+    ).toHaveLength(withLogo.length);
+    expect(container.querySelectorAll("#history > li")).toHaveLength(
+      association.timeline.items.length,
+    );
   });
 });

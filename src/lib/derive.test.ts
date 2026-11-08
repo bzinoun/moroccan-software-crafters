@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { loadCompanies, loadEvents, loadSite } from "@/content/load";
-import type { Event } from "@/content/types";
+import type { Company, Event } from "@/content/types";
 import {
   companyStats,
   fmtDate,
@@ -15,8 +14,84 @@ import {
   TYPE_LABEL,
 } from "./derive";
 
-const events = loadEvents();
-const companies = loadCompanies().items;
+// Fixture, newest first. Hosts and sponsors match the company names below.
+const event = (e: Partial<Event> & Pick<Event, "id" | "date">): Event => ({
+  type: "meetup",
+  title: `Event ${e.id}`,
+  city: "Casablanca",
+  ...e,
+});
+
+const events: Event[] = [
+  event({
+    id: "m3",
+    date: "2026-10-24",
+    title: "Meetup A",
+    host: "Alpha Systems",
+    registrations: 100,
+    photos: ["p-a1", "p-a2"],
+  }),
+  event({
+    id: "m2",
+    date: "2026-05-10",
+    host: "Beta",
+    city: "Rabat",
+    registrations: 50,
+  }),
+  event({ id: "m1", date: "2025-03-08", host: "Alpha Systems" }),
+  event({
+    id: "s2",
+    date: "2024-03-10",
+    type: "socrates",
+    venue: "Hotel Mer",
+    city: "Bouznika",
+    sponsors: ["Alpha Systems", "Delta"],
+  }),
+  event({
+    id: "s1",
+    date: "2022-03-11",
+    type: "socrates",
+    city: "Marrakech",
+    sponsors: ["Delta"],
+  }),
+  event({ id: "o1", date: "2021-04", type: "online", city: "En ligne" }),
+  event({
+    id: "c2",
+    date: "2019-06-22",
+    type: "codesnack",
+    host: "Gamma Labs",
+  }),
+  event({
+    id: "c1",
+    date: "2019-03-16",
+    type: "codesnack",
+    host: "Gamma Labs",
+  }),
+];
+
+const company = (
+  c: Partial<Company> & Pick<Company, "id" | "name">,
+): Company => ({
+  display: "",
+  logo: "",
+  linkedin: "",
+  ...c,
+});
+
+const companies: Company[] = [
+  company({
+    id: "alpha",
+    name: "Alpha Systems",
+    display: "Alpha Systems Morocco",
+    logo: "alpha.png",
+    linkedin: "https://www.linkedin.com/company/alpha/",
+  }),
+  company({ id: "beta", name: "Beta" }),
+  company({ id: "gamma", name: "Gamma Labs", logo: "gamma.svg" }),
+  company({ id: "delta", name: "Delta", logo: "delta.png" }),
+  company({ id: "epsilon", name: "Epsilon" }),
+];
+
 const byId = (id: string): Event => {
   const found = events.find((e) => e.id === id);
   if (!found) throw new Error(`no event ${id}`);
@@ -49,13 +124,12 @@ describe("fmtDate", () => {
 
 describe("place", () => {
   it("joins the venue and the city", () => {
-    expect(place(byId("2026-05-axa"))).toBe("Avenue Hassan II, Casablanca");
-    expect(place(byId("2022-03-socrates"))).toBe("Palais Ronsard, Marrakech");
+    expect(place(byId("s2"))).toBe("Hotel Mer, Bouznika");
   });
 
   it("returns the city alone when there is no venue", () => {
-    expect(place(byId("2026-10-sg-gscm"))).toBe("Casablanca");
-    expect(place(byId("2021-04-online"))).toBe("En ligne");
+    expect(place(byId("m3"))).toBe("Casablanca");
+    expect(place(byId("o1"))).toBe("En ligne");
   });
 });
 
@@ -87,55 +161,62 @@ describe("meetupPhotoUrl and logoUrl", () => {
 
 describe("photoItems", () => {
   it("returns one item per photo with the URL and the title and date caption", () => {
-    const items = photoItems(byId("2026-10-sg-gscm"));
-    expect(items).toHaveLength(8);
-    expect(items[0]).toEqual({
-      photo: "2026-10-sg-gscm-5",
-      src: "/assets/img/meetups/2026-10-sg-gscm-5.jpg",
-      caption: "Meetup @ Société Générale GSCM · 24 oct. 2026",
-      eventId: "2026-10-sg-gscm",
-    });
-    expect(items[1]?.photo).toBe("2026-10-sg-gscm-3");
+    expect(photoItems(byId("m3"))).toEqual([
+      {
+        photo: "p-a1",
+        src: "/assets/img/meetups/p-a1.jpg",
+        caption: "Meetup A · 24 oct. 2026",
+        eventId: "m3",
+      },
+      {
+        photo: "p-a2",
+        src: "/assets/img/meetups/p-a2.jpg",
+        caption: "Meetup A · 24 oct. 2026",
+        eventId: "m3",
+      },
+    ]);
   });
 
   it("returns an empty list for an event without photos", () => {
-    expect(photoItems(byId("2025-09-socrates"))).toEqual([]);
+    expect(photoItems(byId("s1"))).toEqual([]);
   });
 });
 
 describe("stats", () => {
-  it("computes the figures of the live home page", () => {
-    expect(stats(loadSite(), events)).toEqual({
-      events: 21,
-      meetups: 14,
-      hosts: 12,
-      avgRegistrations: "~105",
-      followers: "3 666",
-      socrates: 4,
+  const site = { since: 2019, linkedinFollowers: 3666 };
+
+  it("counts the events, the meetups, the hosts and the SoCraTes editions", () => {
+    expect(stats(site, events)).toEqual({
+      events: 8,
+      meetups: 3,
+      hosts: 2,
+      avgRegistrations: "~75",
+      followers: "3\u202f666",
+      socrates: 2,
       since: 2019,
     });
   });
 
   it("averages the registrations of the five newest meetups that have some", () => {
-    // 110, 51, 119, 89, 157 -> 526 / 5 = 105.2; the older meetups have none.
-    const list = [110, 51, 119, 89, 157, 1000].map(
-      (registrations, i): Event => ({
-        id: `m${i}`,
-        date: "2026-01-01",
-        type: "meetup",
-        title: "M",
-        city: "Casablanca",
-        registrations,
-      }),
+    // 110, 51, 119, 89, 157 -> 526 / 5 = 105.2; the sixth meetup is ignored.
+    const list = [110, 51, 119, 89, 157, 1000].map((registrations, i) =>
+      event({ id: `m${i}`, date: "2026-01-01", registrations }),
     );
-    expect(stats(loadSite(), list).avgRegistrations).toBe("~105");
+    expect(stats(site, list).avgRegistrations).toBe("~105");
+  });
+
+  it("skips a meetup without registrations when it averages", () => {
+    const list = [
+      event({ id: "a", date: "2026-03-01", registrations: 60 }),
+      event({ id: "b", date: "2026-02-01" }),
+      event({ id: "c", date: "2026-01-01", registrations: 40 }),
+    ];
+    expect(stats(site, list).avgRegistrations).toBe("~50");
   });
 
   it("returns an empty average when no meetup has registrations", () => {
-    const list: Event[] = [
-      { id: "a", date: "2019-03", type: "codesnack", title: "A", city: "X" },
-    ];
-    expect(stats(loadSite(), list)).toMatchObject({
+    const list = [event({ id: "a", date: "2019-03", type: "codesnack" })];
+    expect(stats(site, list)).toMatchObject({
       events: 1,
       meetups: 0,
       hosts: 0,
@@ -144,31 +225,32 @@ describe("stats", () => {
     });
   });
 
-  it("counts a host once and ignores events that are not meetups", () => {
-    expect(stats(loadSite(), events).hosts).toBe(12);
+  it("counts a host once and ignores the hosts of events that are not meetups", () => {
+    // Alpha hosts two meetups and Gamma Labs hosts only Code Snacks.
+    expect(stats(site, events).hosts).toBe(2);
+  });
+
+  it("separates the thousands of the followers with a narrow no-break space", () => {
+    expect(
+      stats({ since: 2019, linkedinFollowers: 1234567 }, []).followers,
+    ).toBe("1\u202f234\u202f567");
   });
 });
 
 describe("companyStats", () => {
   const st = companyStats(companies, events);
 
-  it("counts the hosted events, the sponsored editions and the years", () => {
-    expect(st["maltem"]).toEqual({
-      hosted: 2,
-      sponsored: 4,
-      years: ["2022", "2023", "2024", "2025"],
-      roles: ["host", "sponsor"],
-    });
-    expect(st["sg-gscm"]).toEqual({
+  it("counts the hosted events, the sponsored editions and the sorted years", () => {
+    expect(st["alpha"]).toEqual({
       hosted: 2,
       sponsored: 1,
-      years: ["2023", "2026"],
+      years: ["2024", "2025", "2026"],
       roles: ["host", "sponsor"],
     });
   });
 
   it("counts any event type as hosted, a Code Snack included", () => {
-    expect(st["bdsi"]).toEqual({
+    expect(st["gamma"]).toEqual({
       hosted: 2,
       sponsored: 0,
       years: ["2019"],
@@ -177,13 +259,28 @@ describe("companyStats", () => {
   });
 
   it("gives only the sponsor role to a company that never hosted", () => {
-    expect(st["keiken"]).toEqual({
+    expect(st["delta"]).toEqual({
       hosted: 0,
-      sponsored: 4,
-      years: ["2022", "2023", "2024", "2025"],
+      sponsored: 2,
+      years: ["2022", "2024"],
       roles: ["sponsor"],
     });
-    expect(st["zenika"]?.years).toEqual(["2023"]);
+  });
+
+  it("gives no year and no role to a company without events", () => {
+    expect(st["epsilon"]).toEqual({
+      hosted: 0,
+      sponsored: 0,
+      years: [],
+      roles: [],
+    });
+  });
+
+  it("matches a host on the exact company name", () => {
+    const other = [
+      event({ id: "x", date: "2026-01-01", host: "alpha systems" }),
+    ];
+    expect(companyStats(companies, other)["alpha"]?.hosted).toBe(0);
   });
 });
 
@@ -230,52 +327,39 @@ describe("TYPE_LABEL", () => {
 
 describe("logoWallTiles", () => {
   it("sorts the companies by hosted plus sponsored, keeping file order on a tie", () => {
+    // alpha 3, gamma 2, delta 2, beta 1, epsilon 0.
     const tiles = logoWallTiles(companies, events);
     expect(tiles.map((t) => t.id)).toEqual([
-      "maltem",
-      "mckinsey",
-      "inwi",
-      "keiken",
-      "gemography",
-      "sg-gscm",
-      "nimbleways",
-      "axa",
-      "innovx",
-      "bdsi",
-      "jobzyn",
-      "oracle",
-      "renault",
-      "labelvie",
-      "zenika",
-      "done",
+      "alpha",
+      "gamma",
+      "delta",
+      "beta",
+      "epsilon",
     ]);
   });
 
   it("builds a tile with the display name, the role label, the logo and the link", () => {
     const [first] = logoWallTiles(companies, events);
     expect(first).toEqual({
-      id: "maltem",
-      name: "Maltem Africa",
-      label: "Hôte de 2 meetups · Partenaire de 4 éditions SoCraTes",
-      href: "https://www.linkedin.com/company/maltem-africa/",
-      logoSrc: "/assets/img/logos/maltem.png",
-      monogram: "MA",
+      id: "alpha",
+      name: "Alpha Systems Morocco",
+      label: "Hôte de 2 meetups · Partenaire SoCraTes",
+      href: "https://www.linkedin.com/company/alpha/",
+      logoSrc: "/assets/img/logos/alpha.png",
+      monogram: "AS",
       hosted: 2,
-      sponsored: 4,
+      sponsored: 1,
     });
   });
 
-  it("uses a null link when the company has no LinkedIn page", () => {
-    const tiles = logoWallTiles(companies, events);
-    const sg = tiles.find((t) => t.id === "sg-gscm");
-    expect(sg?.href).toBeNull();
-    expect(sg?.name).toBe("SG Global Solution Centre Morocco");
-    expect(sg?.monogram).toBe("SG");
-  });
-
-  it("uses a null logo when the company has none", () => {
-    const noLogo = [{ ...companies[0]!, logo: "" }];
-    expect(logoWallTiles(noLogo, events)[0]?.logoSrc).toBeNull();
+  it("falls back to the name, a null link and a null logo when the company has none", () => {
+    const beta = logoWallTiles(companies, events).find((t) => t.id === "beta");
+    expect(beta).toMatchObject({
+      name: "Beta",
+      href: null,
+      logoSrc: null,
+      monogram: "BE",
+    });
   });
 
   it("keeps file order when sort is off and applies a filter", () => {
@@ -283,19 +367,13 @@ describe("logoWallTiles", () => {
       sort: false,
       filter: (_c, s) => s.hosted > 0 && s.sponsored === 0,
     });
-    expect(hostsOnly.map((t) => t.id)).toEqual([
-      "jobzyn",
-      "oracle",
-      "renault",
-      "labelvie",
-      "bdsi",
-    ]);
+    expect(hostsOnly.map((t) => t.id)).toEqual(["beta", "gamma"]);
   });
 
   it("uses a custom label when given", () => {
     const tiles = logoWallTiles(companies, events, {
       label: (c) => `Label ${c.id}`,
     });
-    expect(tiles[0]?.label).toBe("Label maltem");
+    expect(tiles[0]?.label).toBe("Label alpha");
   });
 });
