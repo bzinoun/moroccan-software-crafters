@@ -91,6 +91,10 @@ The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id a
 - Show a partner logo only when the company has one in `companies.json`; an empty `logo` renders the monogram.
 - Text with a number that goes stale (`linkedinFollowers`, some prose counts) is written by hand: check it at each event.
 
+## Tests use ports, not mocks
+
+A test never uses `vi.mock`, `vi.doMock`, `vi.fn`, `vi.spyOn`, `vi.stubGlobal` or `vi.stubEnv` (nor `vi.hoisted`, `vi.mocked`, `vi.importActual`, an alias or a destructure of `vi`), and never assigns a global by hand. A side effect (clock, storage, error report, motion, scroll, viewport, image probe, modal dialog) sits behind a port in `src/lib/ports/`; a config value is a plain parameter. A client component reads its ports with `usePorts()`; with no provider the real browser adapters answer. A test wraps the tree in `renderWithPorts(ui, ports)` (`src/test/ports.tsx`, over `PortsProvider`) and passes the in-memory adapters of `src/test/` (`inMemoryClock`, `inMemoryStorage`, `inMemoryLeadSubmit`, `recorder`, and so on). ESLint enforces it: `no-restricted-properties` in `eslint.config.mjs` fails on those `vi.*` calls, on `vi` aliases and on `window.x = ...` style assignments in `*.test.ts(x)` and `src/test/**`.
+
 ## Forms
 
 The host funnel (`/accueillir/`) and the SoCraTes sponsor form post to `site.json` `form.endpoint` from the browser: the 4 steps of the funnel, the `type` field, `utm_*` and referrer capture, the hidden honeypot, and the fallback chain (endpoint, then prefilled `mailto:` to `contact.email`, then the LinkedIn page). The mailto body has no length cap. Both forms have `method="dialog"` (a submit outside a `<dialog>` does nothing) and the submit button hides without JavaScript (`not-js:hidden`) next to a `NoScriptNote`, so a browser without script neither puts the answers in the URL nor navigates away. Endpoint ids are public config in `site.json`, never secrets in code.
@@ -128,7 +132,7 @@ Remaining owner decisions:
 
 - `cacheComponents` and `partialPrefetching` stay off: they imply PPR, which `output: "export"` refuses.
 - `next/link` adds the base path; plain `<img src>` and metadata icons do not, so use `assetUrl()`. `PageLink` renders a plain anchor with `assetUrl()` for a route that carries a hash (`/#historique`), because `next/link` does not scroll again on a second click.
-- `vitest.setup.ts` sets `__NEXT_TRAILING_SLASH` so `next/link` hrefs in tests match the build, and mocks `next/font/google`. `vitest.config.mts` aliases `server-only` to its empty module.
+- `vitest.setup.ts` sets `__NEXT_TRAILING_SLASH` so `next/link` hrefs in tests match the build, and nothing else. `vitest.config.mts` aliases `server-only` and `next/font/google` to plain modules (`src/test/next-font-google.ts`).
 - Interactive parts are small client components; everything else stays a server component that reads JSON at build time.
 - `stats().followers` uses `toLocaleString("fr-FR")` (U+202F separator): the output depends on the ICU data of the Node that runs the build.
 - Testing Library folds U+202F into a plain space in node text, but not in the expected string. A `getByText("... ?")` with a U+202F never matches: read `textContent` and compare it exactly, and write U+202F in test literals as `\u202f`, never as a plain space or a raw character.

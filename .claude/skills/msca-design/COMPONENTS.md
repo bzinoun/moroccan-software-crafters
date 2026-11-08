@@ -87,7 +87,7 @@ Conventions for every component:
 - Native `<dialog aria-label="Photo agrandie">` opened with `showModal()` (top layer, native Escape, focus trap, `::backdrop`; no `z-index`). Inside: close button, previous button, `<figure><img><figcaption>`, next button, labelled "Fermer", "Photo précédente", "Photo suivante". ArrowLeft and ArrowRight are handled by a `keydown` listener on `document`, added while the dialog is open (a click on the photo or caption moves focus out of the dialog, so a handler on the dialog would miss the keys). The `figcaption` is `aria-live="polite"` and stays mounted while the person steps, so a screen reader reads each new caption.
 - Classes that matter: dialog `m-0 size-full max-h-none max-w-none flex-col items-center justify-center bg-transparent px-4 py-10 text-white open:flex backdrop:bg-[rgba(15,13,12,0.94)] **:focus-visible:outline-sage` (see the dialog rule in `TAILWIND.md`). Round buttons `absolute size-12 rounded-full bg-white/12 hover:bg-white/25`; close top right, previous and next centered at the edges. Image `max-h-[calc(100vh-140px)] w-auto rounded-[6px]`; caption `text-s92 text-[#e8e2d9]` (no token for that color).
 - Behavior: several photos show "{caption} · 3 / 12" (the counter alone without a caption), step buttons and wraparound; one photo shows the caption only. Close button, Escape and a click on the dialog itself (backdrop and padding) all end in the native `close` event, whose handler clears the state, restores `document.body.style.overflow` and returns focus to the element active at `open()`. Opening focuses the close button and locks body scroll. `open()` clamps `startIndex` and ignores an empty list.
-- Tests: jsdom has no `showModal()` or `close()`; the test file stubs both on `HTMLDialogElement.prototype`. A closed dialog is not in the accessibility tree: query it by tag. Check the backdrop and the sage focus ring in a real browser.
+- Tests: jsdom has no `showModal()` or `close()`, so the Lightbox opens and closes the dialog through the `ModalDialog` port; the tests pass the in-memory adapter with `renderWithPorts`. A closed dialog is not in the accessibility tree: query it by tag. Check the backdrop and the sage focus ring in a real browser.
 - Pages: home (gallery, feature cards), news.
 
 ### FactList
@@ -276,6 +276,16 @@ Routes: `src/app/accueillir/layout.tsx` (`PageFrame page="host"` with `skip={{ h
 - `forms.ts` (pure; takes its browser dependencies as arguments) and `forms-browser.ts` (`submitFormInBrowser`, which never throws): see "Forms" in `CLAUDE.md`. `formSite(site)` picks the part of `site.json` the submit code reads.
 - `submit-outcome.tsx`: `outcomeOf(result, { success, mailto, failure: { plain, mailLead, linkedinLead } })` returns `{ kind: "success", text }` or `{ kind: "alert", content }` and logs the console errors for the team; `useLeadSubmit(submit, texts)` is the hook both forms use (guard, `busy`, `send()`).
 - `motion.ts`: `scrollBehavior()` returns `"smooth"`, or `"auto"` with `prefers-reduced-motion: reduce` or without `matchMedia`. Read at call time, so call it from handlers and effects only.
+
+## Ports context and page views
+
+### PortsProvider, usePorts, renderWithPorts
+`src/lib/ports/index.tsx` (client). `Ports` = `{ clock, storage, errorReporter, motion, scroller, viewport, imageProbe, modalDialog }`, each a small interface in its own file of `src/lib/ports/`. `browserPorts` holds the real adapters and is the context default, so the app needs no provider. `PortsProvider({ ports: Partial<Ports>, children })` replaces some ports for its subtree; the others come from the parent. `usePorts()` returns the current `Ports`. Tests use `renderWithPorts(ui, ports)` (`src/test/ports.tsx`) with the in-memory adapters of `src/test/`; see "Tests use ports, not mocks" in `CLAUDE.md`.
+
+### AccueillirView, SocratesView
+Server components that take plain props; the route `page.tsx` only loads content and calls them.
+- `src/components/accueillir/AccueillirView.tsx`: `AccueillirView({ offers, events, site, today })`, `today` is `YYYY-MM-DD` (the page passes `systemClock.now()`). Renders `HostHero`, then `HostLayout` with `ProcessSteps`, `ProofCard` (edition from the latest meetup on or before `today`, else `null`) and a link to `/meetup/` in the aside, and `HostFunnel` in the main column.
+- `src/components/socrates/SocratesView.tsx`: `SocratesView({ socrates, sponsoring, companies, events, site })`. Renders the sections of the SoCraTes page in the order listed under "SoCraTes page".
 
 ## Page-level notes
 
