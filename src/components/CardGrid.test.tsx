@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Card, CardGrid, type CardItem } from "./CardGrid";
 
 const WHO: CardItem[] = [
@@ -126,23 +126,20 @@ describe("CardGrid", () => {
     expect(screen.queryByText(/Le déroulé/)).not.toBeInTheDocument();
   });
 
-  it("renders two cards with the same title, with no duplicate key warning", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    try {
-      render(
-        <CardGrid
-          items={[
-            { title: "Même titre", text: "Premier texte." },
-            { title: "Même titre", text: "Second texte." },
-          ]}
-          columns={2}
-        />,
-      );
-      expect(screen.getAllByRole("article")).toHaveLength(2);
-      expect(error).not.toHaveBeenCalled();
-    } finally {
-      error.mockRestore();
-    }
+  it("renders two cards with the same title, each with its text", () => {
+    render(
+      <CardGrid
+        items={[
+          { title: "Même titre", text: "Premier texte." },
+          { title: "Même titre", text: "Second texte." },
+        ]}
+        columns={2}
+      />,
+    );
+    const cards = screen.getAllByRole("article");
+    expect(cards).toHaveLength(2);
+    expect(cards[0]).toHaveTextContent("Premier texte.");
+    expect(cards[1]).toHaveTextContent("Second texte.");
   });
 
   it("renders nothing for no item: no empty container", () => {

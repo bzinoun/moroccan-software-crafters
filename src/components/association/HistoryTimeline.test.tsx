@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { AssociationHistory, HistoryTimeline } from "./HistoryTimeline";
 
 const items = [
@@ -59,19 +59,19 @@ describe("HistoryTimeline", () => {
     expect(screen.getByText(/Voici/).textContent).toBe("Voici : la suite");
   });
 
-  it("keeps two milestones of the same year without a duplicate key", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("keeps two milestones of the same year and title", () => {
     render(
       <HistoryTimeline
         items={[
           { year: "2022", title: "Spring", text: "First text." },
-          { year: "2022", title: "Autumn", text: "Second text." },
+          { year: "2022", title: "Spring", text: "Second text." },
         ]}
       />,
     );
-    expect(screen.getAllByRole("listitem")).toHaveLength(2);
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    const rows = screen.getAllByRole("listitem");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("First text.");
+    expect(rows[1]).toHaveTextContent("Second text.");
   });
 
   it("renders nothing for an empty list", () => {

@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Offer } from "@/content/types";
 import { OfferGrid } from "./OfferGrid";
 
@@ -210,15 +210,13 @@ describe("OfferGrid edge cases", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("lists twice the same line without a key warning", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("lists twice the same line, both rendered", () => {
     const first = items[0]!;
     render(
       <OfferGrid
         items={[{ ...first, youProvide: ["Une salle", "Une salle"] }]}
       />,
     );
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    expect(screen.getAllByText("Une salle")).toHaveLength(2);
   });
 });

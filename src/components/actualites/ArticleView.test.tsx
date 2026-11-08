@@ -1,20 +1,16 @@
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { ArticleView as ArticleViewData } from "@/lib/pages-data";
+import { inMemoryModalDialog } from "@/test/in-memory-modal-dialog";
+import { renderWithPorts } from "@/test/ports";
 import { LightboxProvider } from "../Lightbox";
 import { ArticleView } from "./ArticleView";
 
-// jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
+// jsdom has no showModal() or close(): the in-memory ModalDialog port stands in.
+let modal = inMemoryModalDialog();
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.setAttribute("open", "");
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    if (!this.hasAttribute("open")) return;
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
+  modal = inMemoryModalDialog();
   document.body.style.overflow = "";
 });
 
@@ -61,10 +57,11 @@ const ANNOUNCE: ArticleViewData = {
 };
 
 function renderView(view: ArticleViewData) {
-  return render(
+  return renderWithPorts(
     <LightboxProvider>
       <ArticleView view={view} />
     </LightboxProvider>,
+    { modalDialog: modal },
   );
 }
 

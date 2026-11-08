@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   DRAFT_KEY,
   clearDraft,
@@ -9,6 +9,7 @@ import {
 } from "./funnel-draft";
 import { EMPTY_VALUES } from "./funnel-fields";
 import { FULL, OFFER_IDS, values } from "./funnel-test-utils";
+import { deniedStorage, inMemoryStorage } from "@/test/in-memory-storage";
 
 describe("toDraft", () => {
   it("keeps every answer and the step, without the consent", () => {
@@ -132,91 +133,97 @@ describe("restoreDraft", () => {
 const NOW = new Date(2026, 10, 7, 10, 0);
 
 describe("draft storage", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    localStorage.clear();
-  });
-
   it("writes, reads and clears under its storage key", () => {
+    const storage = inMemoryStorage();
     expect(DRAFT_KEY).toBe("msc-host-draft-v1");
-    expect(readDraft(NOW)).toBeNull();
-    writeDraft({ nom: "Sara", _step: 2 }, NOW);
-    expect(JSON.parse(localStorage.getItem("msc-host-draft-v1")!)).toEqual({
+    expect(readDraft(NOW, storage)).toBeNull();
+    writeDraft({ nom: "Sara", _step: 2 }, NOW, storage);
+    expect(JSON.parse(storage.getItem("msc-host-draft-v1")!)).toEqual({
       nom: "Sara",
       _step: 2,
       _savedAt: NOW.getTime(),
     });
-    expect(readDraft(NOW)).toMatchObject({ nom: "Sara", _step: 2 });
-    clearDraft();
-    expect(localStorage.getItem("msc-host-draft-v1")).toBeNull();
+    expect(readDraft(NOW, storage)).toMatchObject({ nom: "Sara", _step: 2 });
+    clearDraft(storage);
+    expect(storage.getItem("msc-host-draft-v1")).toBeNull();
+  });
+
+  describe("with the browser storage by default", () => {
+    afterEach(() => localStorage.clear());
+
+    it("keeps the draft in localStorage", () => {
+      writeDraft({ nom: "Sara" }, NOW);
+      expect(JSON.parse(localStorage.getItem(DRAFT_KEY)!)).toMatchObject({
+        nom: "Sara",
+      });
+      expect(readDraft(NOW)).toMatchObject({ nom: "Sara" });
+      clearDraft();
+      expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+    });
   });
 
   describe("expiry", () => {
     const DAY = 24 * 60 * 60 * 1000;
-    const store = (savedAt: unknown) =>
-      localStorage.setItem(
-        DRAFT_KEY,
-        JSON.stringify({ nom: "Sara", _savedAt: savedAt }),
-      );
+    const storeAt = (savedAt: unknown) => {
+      const storage = inMemoryStorage({
+        [DRAFT_KEY]: JSON.stringify({ nom: "Sara", _savedAt: savedAt }),
+      });
+      return storage;
+    };
 
     it("keeps a draft saved 29 days ago", () => {
-      store(NOW.getTime() - 29 * DAY);
-      expect(readDraft(NOW)).toMatchObject({ nom: "Sara" });
-      expect(localStorage.getItem(DRAFT_KEY)).not.toBeNull();
+      const storage = storeAt(NOW.getTime() - 29 * DAY);
+      expect(readDraft(NOW, storage)).toMatchObject({ nom: "Sara" });
+      expect(storage.getItem(DRAFT_KEY)).not.toBeNull();
     });
 
     it("ignores and deletes a draft saved 31 days ago", () => {
-      store(NOW.getTime() - 31 * DAY);
-      expect(readDraft(NOW)).toBeNull();
-      expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+      const storage = storeAt(NOW.getTime() - 31 * DAY);
+      expect(readDraft(NOW, storage)).toBeNull();
+      expect(storage.getItem(DRAFT_KEY)).toBeNull();
     });
 
     it("ignores and deletes a draft stamped in the future", () => {
-      store(NOW.getTime() + 10 * DAY);
-      expect(readDraft(NOW)).toBeNull();
-      expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+      const storage = storeAt(NOW.getTime() + 10 * DAY);
+      expect(readDraft(NOW, storage)).toBeNull();
+      expect(storage.getItem(DRAFT_KEY)).toBeNull();
     });
 
     it.each([undefined, null, "yesterday", Number.NaN])(
       "ignores and deletes a draft whose timestamp is %j",
       (savedAt) => {
-        store(savedAt);
-        expect(readDraft(NOW)).toBeNull();
-        expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+        const storage = storeAt(savedAt);
+        expect(readDraft(NOW, storage)).toBeNull();
+        expect(storage.getItem(DRAFT_KEY)).toBeNull();
       },
     );
 
     it("counts 30 days from the moment of the last write", () => {
-      writeDraft({ nom: "Sara" }, NOW);
-      expect(readDraft(new Date(NOW.getTime() + 29 * DAY))).not.toBeNull();
-      writeDraft({ nom: "Sara" }, new Date(NOW.getTime() + 20 * DAY));
-      expect(readDraft(new Date(NOW.getTime() + 45 * DAY))).not.toBeNull();
-      expect(readDraft(new Date(NOW.getTime() + 51 * DAY))).toBeNull();
+      const storage = inMemoryStorage();
+      writeDraft({ nom: "Sara" }, NOW, storage);
+      expect(
+        readDraft(new Date(NOW.getTime() + 29 * DAY), storage),
+      ).not.toBeNull();
+      writeDraft({ nom: "Sara" }, new Date(NOW.getTime() + 20 * DAY), storage);
+      expect(
+        readDraft(new Date(NOW.getTime() + 45 * DAY), storage),
+      ).not.toBeNull();
+      expect(readDraft(new Date(NOW.getTime() + 51 * DAY), storage)).toBeNull();
     });
   });
 
   it("reads null when the stored text is not a JSON object", () => {
-    localStorage.setItem(DRAFT_KEY, "{oops");
-    expect(readDraft(NOW)).toBeNull();
-    localStorage.setItem(DRAFT_KEY, '"text"');
-    expect(readDraft(NOW)).toBeNull();
+    const storage = inMemoryStorage({ [DRAFT_KEY]: "{oops" });
+    expect(readDraft(NOW, storage)).toBeNull();
+    storage.setItem(DRAFT_KEY, '"text"');
+    expect(readDraft(NOW, storage)).toBeNull();
   });
 
   it("never throws when the storage is unavailable", () => {
-    vi.stubGlobal("localStorage", {
-      getItem: () => {
-        throw new Error("denied");
-      },
-      setItem: () => {
-        throw new Error("denied");
-      },
-      removeItem: () => {
-        throw new Error("denied");
-      },
-    });
-    expect(readDraft(NOW)).toBeNull();
-    expect(() => writeDraft({ a: 1 }, NOW)).not.toThrow();
-    expect(() => clearDraft()).not.toThrow();
+    const storage = deniedStorage();
+    expect(readDraft(NOW, storage)).toBeNull();
+    expect(() => writeDraft({ a: 1 }, NOW, storage)).not.toThrow();
+    expect(() => clearDraft(storage)).not.toThrow();
   });
 });
 

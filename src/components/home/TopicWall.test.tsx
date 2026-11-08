@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { TopicNote } from "@/lib/home-data";
 import { TopicWall, type TopicWallNote } from "./TopicWall";
 
@@ -67,13 +67,10 @@ describe("TopicWall", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("keeps two notes with the same topic and year apart, without a key warning", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("keeps two notes with the same topic and year apart", () => {
     const twin: TopicWallNote = { topic: "Rust", year: "2026", tone: "pink" };
     render(<TopicWall label="Sujets" topics={[twin, twin]} />);
     expect(screen.getAllByText("Rust")).toHaveLength(2);
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
   });
 });
 

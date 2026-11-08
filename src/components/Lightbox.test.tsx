@@ -1,28 +1,18 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { inMemoryModalDialog } from "@/test/in-memory-modal-dialog";
+import { renderWithPorts } from "@/test/ports";
+import { renderCatching } from "@/test/render-catching";
 import { LightboxProvider, useLightbox, type LightboxItem } from "./Lightbox";
 
-// jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
-// showModal is a spy so a test can tell it from show() (a non-modal open that
-// has no top layer, no native Escape, no focus trap and no ::backdrop): show()
-// throws, so code that falls back to it fails loudly.
-// close() fires the "close" event like a browser does, which is what Escape,
-// the close button and the backdrop click all end in.
+// jsdom has no showModal() or close(): the in-memory ModalDialog port stands in.
+// It sets and removes the open attribute, records each showModal call, and
+// fires the "close" event like a browser does, which is what Escape, the close
+// button and the backdrop click all end in. Calling modal.close(dialog) plays Escape.
+let modal = inMemoryModalDialog();
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn(function showModal(
-    this: HTMLDialogElement,
-  ) {
-    this.setAttribute("open", "");
-  });
-  HTMLDialogElement.prototype.show = vi.fn(function show() {
-    throw new Error("show() opens a non-modal dialog: use showModal()");
-  });
-  HTMLDialogElement.prototype.close = function close() {
-    if (!this.hasAttribute("open")) return;
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
+  modal = inMemoryModalDialog();
   document.body.style.overflow = "";
 });
 
@@ -82,10 +72,11 @@ function Opener({
 
 function setup(items: LightboxItem[] = FOUR, start = 0) {
   const user = userEvent.setup();
-  render(
+  renderWithPorts(
     <LightboxProvider>
       <Opener items={items} start={start} />
     </LightboxProvider>,
+    { modalDialog: modal },
   );
   return user;
 }
@@ -106,8 +97,7 @@ describe("LightboxProvider", () => {
     const user = setup(FOUR, 2);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     expect(dialog()).toHaveAttribute("open");
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
-    expect(HTMLDialogElement.prototype.show).not.toHaveBeenCalled();
+    expect(modal.modalOpens).toEqual([dialog()]);
     const photo = screen.getByRole("img", {
       name: "Meetup @ Acme · 23 mai 2026",
     });
@@ -291,7 +281,7 @@ describe("closing", () => {
     const opener = screen.getByRole("button", { name: "Ouvrir" });
     await user.click(opener);
     expect(document.body.style.overflow).toBe("hidden");
-    act(() => dialog().close());
+    act(() => modal.close(dialog()));
     expect(document.body.style.overflow).toBe("");
     expect(opener).toHaveFocus();
   });
@@ -309,11 +299,12 @@ describe("focus and scroll", () => {
 
   it("returns focus to the opener that was used when there are several", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithPorts(
       <LightboxProvider>
         <Opener items={FOUR} label="Premier" />
         <Opener items={THREE} label="Second" />
       </LightboxProvider>,
+      { modalDialog: modal },
     );
     await user.click(screen.getByRole("button", { name: "Second" }));
     await user.keyboard("{ArrowRight}");
@@ -323,15 +314,16 @@ describe("focus and scroll", () => {
 
   it("opens the dialog once when open() runs again while it is open, and keeps the first opener", async () => {
     const user = userEvent.setup();
-    render(
+    renderWithPorts(
       <LightboxProvider>
         <Opener items={FOUR} label="Premier" />
         <Opener items={THREE} label="Second" />
       </LightboxProvider>,
+      { modalDialog: modal },
     );
     await user.click(screen.getByRole("button", { name: "Premier" }));
     await user.click(screen.getByRole("button", { name: "Second" }));
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
+    expect(modal.modalOpens).toHaveLength(1);
     // The second call replaced the photos.
     expect(screen.getByText(/· 1 \/ 3$/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Fermer" }));
@@ -349,16 +341,10 @@ describe("focus and scroll", () => {
 
 describe("useLightbox", () => {
   it("throws a clear error outside the provider", () => {
-    // React logs the thrown error: keep the test output quiet.
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-    try {
-      expect(() => render(<Opener items={FOUR} />)).toThrow(
-        "useLightbox must be used inside LightboxProvider",
-      );
-    } finally {
-      consoleError.mockRestore();
-    }
+    const { errors } = renderCatching(<Opener items={FOUR} />);
+    expect(errors).toHaveLength(1);
+    expect((errors[0] as Error).message).toBe(
+      "useLightbox must be used inside LightboxProvider",
+    );
   });
 });

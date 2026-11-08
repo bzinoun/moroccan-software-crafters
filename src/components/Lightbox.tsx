@@ -13,6 +13,7 @@ import {
 } from "react";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
+import { usePorts } from "@/lib/ports";
 import { Photo } from "./Photo";
 
 // Spec: the "Lightbox, LightboxProvider, useLightbox" entry in msca-design/COMPONENTS.md.
@@ -52,21 +53,25 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   const isOpen = session !== null;
+  const { modalDialog } = usePorts();
 
-  const open = useCallback((items: LightboxItem[], startIndex: number) => {
-    const dialog = dialogRef.current;
-    if (!dialog || items.length === 0) return;
-    const start = Math.min(Math.max(startIndex, 0), items.length - 1);
-    if (!dialog.open) {
-      openerRef.current =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null;
-      dialog.showModal();
-    }
-    setSession({ items, index: start });
-    closeRef.current?.focus();
-  }, []);
+  const open = useCallback(
+    (items: LightboxItem[], startIndex: number) => {
+      const dialog = dialogRef.current;
+      if (!dialog || items.length === 0) return;
+      const start = Math.min(Math.max(startIndex, 0), items.length - 1);
+      if (!dialog.open) {
+        openerRef.current =
+          document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+        modalDialog.showModal(dialog);
+      }
+      setSession({ items, index: start });
+      closeRef.current?.focus();
+    },
+    [modalDialog],
+  );
 
   const api = useMemo(() => ({ open }), [open]);
 
@@ -123,7 +128,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   // The dialog fills the screen, so a click whose target is the dialog itself
   // landed outside the photo, the caption and the buttons.
   function handleClick(event: MouseEvent<HTMLDialogElement>) {
-    if (event.target === event.currentTarget) event.currentTarget.close();
+    if (event.target === event.currentTarget) {
+      modalDialog.close(event.currentTarget);
+    }
   }
 
   const item = session ? session.items[session.index] : null;
@@ -148,7 +155,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
           type="button"
           aria-label="Fermer"
           className={cn(roundButton, "top-4 right-4")}
-          onClick={() => dialogRef.current?.close()}
+          onClick={() => {
+            if (dialogRef.current) modalDialog.close(dialogRef.current);
+          }}
         >
           ×
         </button>

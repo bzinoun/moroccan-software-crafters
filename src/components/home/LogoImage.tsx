@@ -7,6 +7,7 @@ import {
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from "react";
+import { usePorts } from "@/lib/ports";
 import { Photo } from "../Photo";
 
 type LogoImageProps = Omit<
@@ -25,11 +26,12 @@ export function LogoImage({ src, fallback, alt, ...props }: LogoImageProps) {
   const ref = useRef<HTMLImageElement>(null);
   // Remember which source failed, so a new source gets its own chance.
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const { imageProbe } = usePorts();
 
   useEffect(() => {
     const img = ref.current;
-    if (img && img.complete && img.naturalWidth === 0) setFailedSrc(src);
-  }, [src]);
+    if (img && imageProbe.hasFailedToLoad(img)) setFailedSrc(src);
+  }, [src, imageProbe]);
 
   if (failedSrc === src) return <>{fallback}</>;
 

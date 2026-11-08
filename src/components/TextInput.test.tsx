@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { recorder } from "@/test/recorder";
 import { TextInput } from "./TextInput";
 
 describe("TextInput", () => {
@@ -36,10 +37,10 @@ describe("TextInput", () => {
   });
 
   it("works controlled: onChange receives the typed value", async () => {
-    const onChange = vi.fn();
-    render(<TextInput aria-label="Nom" value="" onChange={onChange} />);
+    const onChange = recorder<[unknown]>();
+    render(<TextInput aria-label="Nom" value="" onChange={onChange.fn} />);
     await userEvent.type(screen.getByRole("textbox", { name: "Nom" }), "A");
-    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.calls).toHaveLength(1);
   });
 
   it("exposes aria-invalid to assistive technology", () => {

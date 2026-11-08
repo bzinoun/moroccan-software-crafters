@@ -7,6 +7,7 @@ import {
   type ElementType,
 } from "react";
 import { cn } from "@/lib/cn";
+import { usePorts } from "@/lib/ports";
 
 type RevealProps = ComponentPropsWithoutRef<"div"> & {
   /** The element to render, so a card, list item or article keeps its own box. */
@@ -31,24 +32,23 @@ export function Reveal({
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
   const Tag = as as ElementType;
+  const { viewport } = usePorts();
 
   useLayoutEffect(() => {
     const element = ref.current;
-    if (!element || typeof IntersectionObserver === "undefined") return;
-    if (element.getBoundingClientRect().top < window.innerHeight - 60) return;
+    if (!element || !viewport.canWatch()) return;
+    if (viewport.topOf(element) < viewport.height() - 60) return;
     element.dataset.reveal = "waiting";
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          element.dataset.reveal = "shown";
-          observer.disconnect();
-        }
-      },
+    const unwatch = viewport.watch(
+      element,
       { rootMargin: "0px 0px -60px 0px" },
+      () => {
+        element.dataset.reveal = "shown";
+        unwatch();
+      },
     );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+    return unwatch;
+  }, [viewport]);
 
   return (
     <Tag

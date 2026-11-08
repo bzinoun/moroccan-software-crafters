@@ -81,8 +81,8 @@ export function fmtDayRange(start: string, end?: string): string {
 }
 
 /** URL of an event photo from its name, base path included. */
-export function meetupPhotoUrl(name: string): string {
-  return assetUrl(`/assets/img/meetups/${name}.jpg`);
+export function meetupPhotoUrl(name: string, basePath?: string): string {
+  return assetUrl(`/assets/img/meetups/${name}.jpg`, basePath);
 }
 
 /**
@@ -99,8 +99,8 @@ export function absoluteMeetupPhoto(baseUrl: string, name: string): string {
 }
 
 /** URL of a company logo from its file name, base path included. */
-export function logoUrl(file: string): string {
-  return assetUrl(`/assets/img/logos/${file}`);
+export function logoUrl(file: string, basePath?: string): string {
+  return assetUrl(`/assets/img/logos/${file}`, basePath);
 }
 
 /**

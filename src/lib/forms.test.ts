@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { loadSite } from "@/content/load";
+import { inMemorySubmitDeps } from "@/test/in-memory-submit-deps";
 import {
   buildMailtoUrl,
   buildPayload,
@@ -9,7 +10,6 @@ import {
   readTracking,
   submitForm,
   type FormSite,
-  type SubmitDeps,
 } from "./forms";
 
 // A public-config style Formspree id, used only with a fake fetch.
@@ -37,22 +37,16 @@ const site = (over: Partial<FormSite> = {}): FormSite => ({
   ...over,
 });
 
-const okResponse = () => ({ ok: true, status: 200 }) as Response;
+type DepsOptions = Parameters<typeof inMemorySubmitDeps>[0];
 
-function makeDeps(over: Partial<SubmitDeps> = {}) {
-  const fetchMock = vi.fn(async () => okResponse());
-  const assignLocation = vi.fn();
-  const deps: SubmitDeps = {
-    fetch: fetchMock as unknown as typeof fetch,
-    assignLocation,
-    now: () => new Date("2026-11-07T10:20:30.000Z"),
+function makeDeps(over: DepsOptions = {}) {
+  return inMemorySubmitDeps({
     href: "https://bzinoun.github.io/moroccan-software-crafters/socrates/?utm_source=x#sponsor-form",
     search:
       "?utm_source=linkedin&utm_medium=post&utm_campaign=socrates27&utm_content=banner&other=1",
     referrer: "https://www.linkedin.com/",
     ...over,
-  };
-  return { deps, fetchMock, assignLocation };
+  });
 }
 
 describe("readTracking", () => {
@@ -178,7 +172,7 @@ describe("submitForm", () => {
   });
 
   it("short-circuits on a filled honeypot without any network or navigation", async () => {
-    const { deps, fetchMock, assignLocation } = makeDeps();
+    const { deps, requests, navigations } = makeDeps();
     const result = await submitForm(
       input(site({ form: { endpoint: ENDPOINT, extraFields: {} } }), {
         honeypot: "http://spam",
@@ -186,12 +180,12 @@ describe("submitForm", () => {
       deps,
     );
     expect(result).toEqual({ mode: "honeypot" });
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(assignLocation).not.toHaveBeenCalled();
+    expect(requests).toEqual([]);
+    expect(navigations).toEqual([]);
   });
 
   it("posts JSON with its headers to the endpoint and returns endpoint on 2xx", async () => {
-    const { deps, fetchMock, assignLocation } = makeDeps();
+    const { deps, requests, navigations } = makeDeps();
     const result = await submitForm(
       input(
         site({
@@ -201,19 +195,16 @@ describe("submitForm", () => {
       deps,
     );
     expect(result).toEqual({ mode: "endpoint" });
-    expect(assignLocation).not.toHaveBeenCalled();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] as unknown as [
-      string,
-      RequestInit,
-    ];
+    expect(navigations).toEqual([]);
+    expect(requests).toHaveLength(1);
+    const { url, init } = requests[0]!;
     expect(url).toBe(ENDPOINT);
-    expect(init.method).toBe("POST");
-    expect(init.headers).toEqual({
+    expect(init?.method).toBe("POST");
+    expect(init?.headers).toEqual({
       "Content-Type": "application/json",
       Accept: "application/json",
     });
-    expect(JSON.parse(init.body as string)).toEqual({
+    expect(JSON.parse(init?.body as string)).toEqual({
       access_key: "k",
       ...data,
       type: "Sponsoring SoCraTes",
@@ -231,11 +222,7 @@ describe("submitForm", () => {
   });
 
   it("returns an error result with the e-mail fallback on a non-2xx status", async () => {
-    const { deps, assignLocation } = makeDeps({
-      fetch: vi.fn(
-        async () => ({ ok: false, status: 422 }) as Response,
-      ) as unknown as typeof fetch,
-    });
+    const { deps, navigations } = makeDeps({ status: 422 });
     const result = await submitForm(
       input(
         site({
@@ -253,14 +240,12 @@ describe("submitForm", () => {
       email: EMAIL,
       url: `mailto:${EMAIL}?subject=${SUBJECT_ENCODED}&body=${BODY_ENCODED}`,
     });
-    expect(assignLocation).not.toHaveBeenCalled();
+    expect(navigations).toEqual([]);
   });
 
   it("points the error fallback to LinkedIn when there is no e-mail", async () => {
     const { deps } = makeDeps({
-      fetch: vi.fn(async () => {
-        throw new TypeError("Failed to fetch");
-      }) as unknown as typeof fetch,
+      networkError: new TypeError("Failed to fetch"),
     });
     const result = await submitForm(
       input(site({ form: { endpoint: ENDPOINT, extraFields: {} } })),
@@ -273,11 +258,7 @@ describe("submitForm", () => {
   });
 
   it("with fallbackOnError, a failed endpoint opens the prefilled mailto", async () => {
-    const { deps, assignLocation } = makeDeps({
-      fetch: vi.fn(
-        async () => ({ ok: false, status: 500 }) as Response,
-      ) as unknown as typeof fetch,
-    });
+    const { deps, navigations } = makeDeps({ status: 500 });
     const result = await submitForm(
       input(
         site({
@@ -292,15 +273,11 @@ describe("submitForm", () => {
     );
     const url = `mailto:${EMAIL}?subject=${SUBJECT_ENCODED}&body=${BODY_ENCODED}`;
     expect(result).toEqual({ mode: "mailto", url });
-    expect(assignLocation).toHaveBeenCalledWith(url);
+    expect(navigations).toEqual([url]);
   });
 
   it("with fallbackOnError and no e-mail, a failed endpoint gives the LinkedIn mode", async () => {
-    const { deps, assignLocation } = makeDeps({
-      fetch: vi.fn(
-        async () => ({ ok: false, status: 500 }) as Response,
-      ) as unknown as typeof fetch,
-    });
+    const { deps, navigations } = makeDeps({ status: 500 });
     const result = await submitForm(
       input(site({ form: { endpoint: ENDPOINT, extraFields: {} } }), {
         fallbackOnError: true,
@@ -308,40 +285,40 @@ describe("submitForm", () => {
       deps,
     );
     expect(result).toEqual({ mode: "linkedin", href: LINKEDIN });
-    expect(assignLocation).not.toHaveBeenCalled();
+    expect(navigations).toEqual([]);
   });
 
   it("without endpoint, opens the prefilled mailto to contact.email", async () => {
-    const { deps, fetchMock, assignLocation } = makeDeps();
+    const { deps, requests, navigations } = makeDeps();
     const result = await submitForm(
       input(site({ contact: { email: EMAIL } })),
       deps,
     );
     const url = `mailto:${EMAIL}?subject=${SUBJECT_ENCODED}&body=${BODY_ENCODED}`;
     expect(result).toEqual({ mode: "mailto", url });
-    expect(assignLocation).toHaveBeenCalledWith(url);
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(navigations).toEqual([url]);
+    expect(requests).toEqual([]);
   });
 
   it("uses the caller body for the mailto when given", async () => {
-    const { deps, assignLocation } = makeDeps();
+    const { deps, navigations } = makeDeps();
     await submitForm(
       input(site({ contact: { email: EMAIL } }), {
         body: "Formule : Meetup\nVille : Casablanca",
       }),
       deps,
     );
-    expect(assignLocation).toHaveBeenCalledWith(
+    expect(navigations).toEqual([
       `mailto:${EMAIL}?subject=${SUBJECT_ENCODED}&body=Formule%20%3A%20Meetup%0AVille%20%3A%20Casablanca`,
-    );
+    ]);
   });
 
   it("without endpoint and e-mail, gives the LinkedIn mode and touches nothing", async () => {
-    const { deps, fetchMock, assignLocation } = makeDeps();
+    const { deps, requests, navigations } = makeDeps();
     const result = await submitForm(input(site()), deps);
     expect(result).toEqual({ mode: "linkedin", href: LINKEDIN });
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(assignLocation).not.toHaveBeenCalled();
+    expect(requests).toEqual([]);
+    expect(navigations).toEqual([]);
   });
 
   it("with no endpoint, no e-mail and no LinkedIn link, gives none", async () => {

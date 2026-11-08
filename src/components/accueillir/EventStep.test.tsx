@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel-fields";
+import { recorder } from "@/test/recorder";
 import { EventStep } from "./EventStep";
 import type { BindText } from "./useHostFunnel";
 
@@ -76,18 +77,18 @@ describe("EventStep", () => {
   });
 
   it("reports the city the person picks", async () => {
-    const update = vi.fn();
+    const update = recorder<[string, unknown]>();
     render(
       <EventStep
         active
         values={EMPTY_VALUES}
         errors={{}}
-        update={update}
+        update={update.fn}
         bind={bindOf(EMPTY_VALUES)}
         minDate=""
       />,
     );
     await userEvent.selectOptions(screen.getByLabelText("Ville"), "Tanger");
-    expect(update).toHaveBeenLastCalledWith("ville", "Tanger");
+    expect(update.calls.at(-1)).toEqual(["ville", "Tanger"]);
   });
 });

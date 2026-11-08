@@ -1,32 +1,22 @@
 import { render, screen } from "@testing-library/react";
-import type * as NextLinkModule from "next/link";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { PageLink } from "./PageLink";
 
-// Marks the anchors that come out of next/link, to tell them from plain anchors.
-vi.mock("next/link", async (importOriginal) => {
-  const actual = await importOriginal<typeof NextLinkModule>();
-  const Link = actual.default;
-  return {
-    default: (props: React.ComponentProps<typeof Link>) => (
-      <Link {...props} data-next-link="" />
-    ),
-  };
-});
-
 describe("PageLink", () => {
-  it("sends an internal route through next/link", () => {
-    render(<PageLink href="/meetup/">Le meetup</PageLink>);
+  // A plain anchor keeps the href as written; next/link normalizes it to the
+  // site's trailing-slash form, which tells the two apart without a double.
+  it("sends an internal route through next/link, which adds the trailing slash", () => {
+    render(<PageLink href="/meetup">Le meetup</PageLink>);
     const link = screen.getByRole("link", { name: "Le meetup" });
     expect(link).toHaveAttribute("href", "/meetup/");
-    expect(link).toHaveAttribute("data-next-link");
   });
 
+  // next/link renders the same href for an external URL; linkKind in
+  // routes.test.ts guards the choice, and the target and rel test below the rest.
   it("renders a plain anchor for an external URL", () => {
     render(<PageLink href="https://example.com/page">Dehors</PageLink>);
     const link = screen.getByRole("link", { name: "Dehors" });
     expect(link).toHaveAttribute("href", "https://example.com/page");
-    expect(link).not.toHaveAttribute("data-next-link");
   });
 
   it("opens an external URL in a new tab without an opener", () => {
@@ -50,28 +40,45 @@ describe("PageLink", () => {
     }
   });
 
+  // next/link keeps "#sponsoring" unchanged, so the href cannot tell it from a
+  // plain anchor; linkKind in routes.test.ts guards the choice of element.
   it("renders a plain anchor for a hash on the same page", () => {
     render(<PageLink href="#sponsoring">Sponsoring</PageLink>);
     const link = screen.getByRole("link", { name: "Sponsoring" });
     expect(link).toHaveAttribute("href", "#sponsoring");
-    expect(link).not.toHaveAttribute("data-next-link");
   });
 
+  // next/link would give "/meetup/#sponsoring": the href as written proves a plain anchor.
   it("renders a plain anchor for a route with a hash, so a second click scrolls again", () => {
-    render(<PageLink href="/#historique">Éditions</PageLink>);
-    const link = screen.getByRole("link", { name: "Éditions" });
-    expect(link).toHaveAttribute("href", "/#historique");
-    expect(link).not.toHaveAttribute("data-next-link");
+    render(<PageLink href="/meetup#sponsoring">Sponsoring</PageLink>);
+    const link = screen.getByRole("link", { name: "Sponsoring" });
+    expect(link).toHaveAttribute("href", "/meetup#sponsoring");
   });
 
   it("adds the base path to a route with a hash", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/moroccan-software-crafters");
-    render(<PageLink href="/socrates/#sponsoring">Sponsoring</PageLink>);
+    render(
+      <PageLink
+        href="/socrates/#sponsoring"
+        basePath="/moroccan-software-crafters"
+      >
+        Sponsoring
+      </PageLink>,
+    );
     expect(screen.getByRole("link", { name: "Sponsoring" })).toHaveAttribute(
       "href",
       "/moroccan-software-crafters/socrates/#sponsoring",
     );
-    vi.unstubAllEnvs();
+  });
+
+  it("does not pass the base path on to the anchor element", () => {
+    render(
+      <PageLink href="/#offres" basePath="/base">
+        Les formules
+      </PageLink>,
+    );
+    expect(
+      screen.getByRole("link", { name: "Les formules" }),
+    ).not.toHaveAttribute("basepath");
   });
 
   it("passes the other anchor attributes through", () => {

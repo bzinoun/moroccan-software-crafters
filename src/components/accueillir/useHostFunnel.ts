@@ -33,6 +33,7 @@ import {
 import { MESSAGES, collect, emailBody, leadSubject } from "@/lib/funnel-text";
 import { validateAll, validateStep } from "@/lib/funnel-validate";
 import { scrollBehavior } from "@/lib/motion";
+import { usePorts, type Clock, type KeyValueStore } from "@/lib/ports";
 import {
   useLeadSubmit,
   type OutcomeTexts,
@@ -53,10 +54,14 @@ import { useHydrated } from "./useHydrated";
 const SERVER_STATE = { values: EMPTY_VALUES, step: 1, minDate: "" };
 
 /** The saved draft, the URL and the date of today. Browser only. */
-function readBrowserState(offerIds: readonly string[]) {
-  const minDate = tomorrowIso(new Date());
+function readBrowserState(
+  offerIds: readonly string[],
+  clock: Clock,
+  storage: KeyValueStore,
+) {
+  const minDate = tomorrowIso(clock.now());
   const restored = restoreDraft({
-    draft: readDraft(),
+    draft: readDraft(clock.now(), storage),
     search: window.location.search,
     offerIds,
     min: minDate,
@@ -120,6 +125,7 @@ export function useHostFunnel(
   site: FormSite,
   submit: Submit = submitFormInBrowser,
 ): HostFunnelState {
+  const { clock, storage, motion, scroller } = usePorts();
   const formRef = useRef<HTMLFormElement>(null);
   /** Set when the person moved: the effect then focuses and scrolls. */
   const moved = useRef(false);
@@ -129,8 +135,11 @@ export function useHostFunnel(
   const hydrated = useHydrated();
   const offerKey = offers.map((offer) => offer.id).join("\n");
   const initial = useMemo(
-    () => (hydrated ? readBrowserState(offerKey.split("\n")) : SERVER_STATE),
-    [hydrated, offerKey],
+    () =>
+      hydrated
+        ? readBrowserState(offerKey.split("\n"), clock, storage)
+        : SERVER_STATE,
+    [hydrated, offerKey, clock, storage],
   );
   const [editedValues, setValues] = useState<FunnelValues | null>(null);
   const [editedStep, setStep] = useState<number | null>(null);
@@ -157,16 +166,14 @@ export function useHostFunnel(
       ? formRef.current?.querySelector<HTMLElement>(`[name="${field}"]`)
       : document.getElementById(`step-${step}-legend`);
     target?.focus({ preventScroll: true });
-    document
-      .getElementById("funnel")
-      ?.scrollIntoView?.({ behavior: scrollBehavior(), block: "start" });
-  }, [step]);
+    scroller.toElement("funnel", scrollBehavior(motion));
+  }, [step, scroller, motion]);
 
   const update: Update = (name, value) => {
     const nextValues = { ...values, [name]: value };
     setValues(nextValues);
     setErrors((current) => withoutError(current, name));
-    writeDraft(toDraft(nextValues, step));
+    writeDraft(toDraft(nextValues, step), clock.now(), storage);
   };
 
   const bind: BindText = (name) => ({
@@ -179,11 +186,11 @@ export function useHostFunnel(
     moved.current = true;
     setStep(target);
     setAlert(null);
-    writeDraft(toDraft(values, target));
+    writeDraft(toDraft(values, target), clock.now(), storage);
   }
 
   function finish(text: string) {
-    clearDraft();
+    clearDraft(storage);
     setSuccess(text);
   }
 

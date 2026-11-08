@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { assetUrl, isExternal, pageRoute } from "./routes";
+import { describe, expect, it } from "vitest";
+import { assetUrl, isExternal, linkKind, pageRoute } from "./routes";
 
 describe("page hrefs in TypeScript", () => {
   const srcDir = path.resolve(__dirname, "..");
@@ -39,6 +39,22 @@ describe("isExternal", () => {
   });
 });
 
+describe("linkKind", () => {
+  // next/link renders the same href as a plain anchor for an external URL and
+  // for a hash alone, so the choice of element is tested here, on the value.
+  it.each([
+    ["https://example.com/page", "external"],
+    ["http://example.org", "external"],
+    ["#sponsor-form", "hash"],
+    ["/meetup#proposer", "route-hash"],
+    ["/#historique", "route-hash"],
+    ["/meetup/", "route"],
+    ["/accueillir", "route"],
+  ] as const)("classes %s as %s", (href, kind) => {
+    expect(linkKind(href)).toBe(kind);
+  });
+});
+
 describe("pageRoute", () => {
   it("maps a page id to its app route", () => {
     expect(pageRoute("home")).toBe("/");
@@ -51,19 +67,13 @@ describe("pageRoute", () => {
 });
 
 describe("assetUrl", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
   it("returns the path unchanged without a base path", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "");
-    expect(assetUrl("/assets/img/logo.png")).toBe("/assets/img/logo.png");
+    expect(assetUrl("/assets/img/logo.png", "")).toBe("/assets/img/logo.png");
   });
 
-  it("prefixes the base path when it is set", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/moroccan-software-crafters");
-    expect(assetUrl("/assets/img/logo.png")).toBe(
-      "/moroccan-software-crafters/assets/img/logo.png",
-    );
+  it("prefixes the base path when it is given", () => {
+    expect(
+      assetUrl("/assets/img/logo.png", "/moroccan-software-crafters"),
+    ).toBe("/moroccan-software-crafters/assets/img/logo.png");
   });
 });

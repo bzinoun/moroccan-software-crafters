@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Site } from "@/content/types";
 import { Brand } from "./Brand";
 
@@ -8,10 +8,6 @@ const site = {
   name: "Crafters : test",
   tagline: "Une association de test",
 } as Site;
-
-afterEach(() => {
-  vi.unstubAllEnvs();
-});
 
 describe("Brand", () => {
   it("links to the home page with the site name and the tagline", () => {
@@ -35,8 +31,7 @@ describe("Brand", () => {
   });
 
   it("shows a decorative logo that the base path prefixes", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/base");
-    render(<Brand site={site} />);
+    render(<Brand site={site} basePath="/base" />);
     const logo = screen.getByRole("presentation");
     expect(logo).toHaveAttribute("src", "/base/assets/img/logo.png");
     expect(logo).toHaveAttribute("alt", "");

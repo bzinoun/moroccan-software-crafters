@@ -1,9 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
-import { vi } from "vitest";
 import type { SubmitInput, SubmitResult } from "@/lib/forms";
 import type { PackageCard } from "@/lib/pages-data";
+import { inMemoryErrorReporter } from "@/test/in-memory-error-reporter";
+import { inMemoryLeadSubmit } from "@/test/in-memory-lead-submit";
+import { renderWithPorts } from "@/test/ports";
 import {
   LINKEDIN,
   SITE,
@@ -13,8 +15,9 @@ import {
 import { SponsorForm } from "./SponsorForm";
 
 // Shared set-up of the sponsoring tests. Everything is a fixture written here,
-// so a content edit in `sponsoring.json` cannot break a test. The submit
-// function is injected: nothing posts to a real endpoint.
+// so a content edit in `sponsoring.json` cannot break a test. The send
+// function and the error reporter are in-memory adapters: nothing posts to a
+// real endpoint and nothing reaches the console.
 
 export { LINKEDIN, SITE };
 
@@ -78,19 +81,22 @@ export const SUCCESS = "Le dossier de partenariat part sous 48 heures.";
 
 type SetupOptions = {
   result?: SubmitResult;
-  /** Replaces the default double, for example with a request that stays pending. */
-  submit?: Submit;
   /** Rendered before the form, for the package buttons of the page. */
   before?: ReactNode;
 };
 
+/**
+ * Renders the form with an in-memory send function. `lead` records the inputs
+ * and queues replies (`hold`, `failOnce`); `reporter` records what the form
+ * reports.
+ */
 export function renderSponsorForm({
   result = { mode: "endpoint" },
-  submit = vi.fn<Submit>().mockResolvedValue(result),
   before,
 }: SetupOptions = {}) {
-  const double = vi.mocked(submit);
-  const view = render(
+  const lead = inMemoryLeadSubmit(result);
+  const reporter = inMemoryErrorReporter();
+  const view = renderWithPorts(
     <>
       {before}
       <SponsorForm
@@ -98,11 +104,12 @@ export function renderSponsorForm({
         levels={LEVELS}
         packageLevels={PACKAGE_LEVELS}
         successText={SUCCESS}
-        submit={submit}
+        submit={lead.submit}
       />
     </>,
+    { errorReporter: reporter },
   );
-  return { submit: double, user: userEvent.setup(), ...view };
+  return { lead, reporter, user: userEvent.setup(), ...view };
 }
 
 export async function fillValid(user: User) {

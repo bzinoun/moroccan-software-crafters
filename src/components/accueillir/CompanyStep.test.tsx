@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { EMPTY_VALUES } from "@/lib/funnel-fields";
+import { recorder } from "@/test/recorder";
 import { CompanyStep } from "./CompanyStep";
 import type { BindText } from "./useHostFunnel";
 
@@ -55,14 +56,14 @@ describe("CompanyStep", () => {
   });
 
   it("reports the sector and the size the person picks, and an empty value for the placeholder", async () => {
-    const update = vi.fn();
+    const update = recorder<[string, unknown]>();
     const values = { ...EMPTY_VALUES, secteur: "Télécoms" as const };
     render(
       <CompanyStep
         active
         values={values}
         errors={{}}
-        update={update}
+        update={update.fn}
         bind={bind}
       />,
     );
@@ -72,13 +73,13 @@ describe("CompanyStep", () => {
       screen.getByLabelText("Secteur"),
       "Secteur public",
     );
-    expect(update).toHaveBeenLastCalledWith("secteur", "Secteur public");
+    expect(update.calls.at(-1)).toEqual(["secteur", "Secteur public"]);
     await user.selectOptions(screen.getByLabelText("Secteur"), "Choisir…");
-    expect(update).toHaveBeenLastCalledWith("secteur", "");
+    expect(update.calls.at(-1)).toEqual(["secteur", ""]);
     await user.selectOptions(
       screen.getByLabelText("Taille de l'équipe tech"),
       "100 à 500",
     );
-    expect(update).toHaveBeenLastCalledWith("taille", "100 à 500");
+    expect(update.calls.at(-1)).toEqual(["taille", "100 à 500"]);
   });
 });

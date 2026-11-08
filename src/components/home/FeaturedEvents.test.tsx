@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Event } from "@/content/types";
+import { recorder } from "@/test/recorder";
 import { FeaturedEvents } from "./FeaturedEvents";
 
 // Fixtures written here: three invented meetups with photos, newest first.
@@ -63,8 +64,9 @@ const GAMMA: Event = {
 
 const EVENTS = [ALPHA, BETA, GAMMA];
 
-function setup(onOpenPhotos = vi.fn()) {
-  render(<FeaturedEvents events={EVENTS} onOpenPhotos={onOpenPhotos} />);
+function setup() {
+  const onOpenPhotos = recorder<[Event]>();
+  render(<FeaturedEvents events={EVENTS} onOpenPhotos={onOpenPhotos.fn} />);
   return { onOpenPhotos, cards: screen.getAllByRole("article") };
 }
 
@@ -159,7 +161,7 @@ describe("FeaturedEvents", () => {
     await user.click(
       within(cards[1]!).getByRole("link", { name: /^Voir les 4 photos/ }),
     );
-    expect(onOpenPhotos).toHaveBeenCalledExactlyOnceWith(BETA);
+    expect(onOpenPhotos.calls).toEqual([[BETA]]);
   });
 
   it("keeps a plain click on the photo from following the link", () => {
@@ -172,7 +174,7 @@ describe("FeaturedEvents", () => {
 
   it("uses the singular for a single photo", () => {
     const single = { ...GAMMA, photos: ["2026-03-gamma-1"] };
-    render(<FeaturedEvents events={[single]} onOpenPhotos={vi.fn()} />);
+    render(<FeaturedEvents events={[single]} onOpenPhotos={recorder().fn} />);
     const link = screen.getByRole("link", {
       name: "Voir la photo de Meetup @ Gamma",
     });
@@ -181,19 +183,27 @@ describe("FeaturedEvents", () => {
 
   it("renders nothing when there is no event to feature", () => {
     const { container } = render(
-      <FeaturedEvents events={[]} onOpenPhotos={vi.fn()} />,
+      <FeaturedEvents events={[]} onOpenPhotos={recorder().fn} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("lists two links with the same address without a key warning", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("lists two links with the same address, each one a link of the card", () => {
     const twin = {
       ...GAMMA,
       links: { luma: "https://x.example/a", linkedin: "https://x.example/a" },
     };
-    render(<FeaturedEvents events={[twin]} onOpenPhotos={vi.fn()} />);
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    render(<FeaturedEvents events={[twin]} onOpenPhotos={recorder().fn} />);
+    const links = within(screen.getByRole("article"))
+      .getAllByRole("link")
+      .slice(1);
+    expect(links.map((link) => link.textContent)).toEqual([
+      "Récap LinkedIn, Meetup @ Gamma",
+      "Page Luma, Meetup @ Gamma",
+    ]);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "https://x.example/a",
+      "https://x.example/a",
+    ]);
   });
 });

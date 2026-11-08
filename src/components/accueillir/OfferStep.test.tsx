@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { EMPTY_VALUES } from "@/lib/funnel-fields";
+import { recorder } from "@/test/recorder";
 import { OfferStep } from "./OfferStep";
 import { OFFERS } from "./test-utils";
 
@@ -23,20 +24,20 @@ describe("OfferStep", () => {
   });
 
   it("reports the choice", async () => {
-    const update = vi.fn();
+    const update = recorder<[string, unknown]>();
     render(
       <OfferStep
         active
         offers={OFFERS}
         values={EMPTY_VALUES}
         errors={{}}
-        update={update}
+        update={update.fn}
       />,
     );
     await userEvent.click(
       screen.getByRole("radio", { name: /Meetup partenaire/ }),
     );
-    expect(update).toHaveBeenCalledWith("formule", "partenaire");
+    expect(update.calls).toEqual([["formule", "partenaire"]]);
   });
 
   it("flags the group and shows the message when there is an error", () => {

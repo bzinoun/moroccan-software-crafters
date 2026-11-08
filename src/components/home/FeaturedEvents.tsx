@@ -4,6 +4,7 @@ import type { Event } from "@/content/types";
 import { meetupPhotoUrl } from "@/lib/derive";
 import { countLabel, frenchSpacing } from "@/lib/french";
 import { eventLinks, featuredMeta } from "@/lib/home-data";
+import { withKeys } from "@/lib/keys";
 import { PageLink } from "../PageLink";
 import { Photo } from "../Photo";
 import { Reveal } from "../Reveal";
@@ -82,19 +83,21 @@ function FeatureCard({
         <TagList tags={event.topics} max={4} />
         {links.length ? (
           <div className="mt-auto flex flex-wrap gap-3.5 text-s90 font-semibold">
-            {links.map((link) => (
-              <PageLink
-                key={`${link.label}-${link.href}`}
-                href={link.href}
-                className="inline-flex min-h-11 items-center"
-              >
-                {link.label}
-                {/* The same label repeats on every card: the event names it. */}
-                <span className="sr-only">
-                  {frenchSpacing(`, ${event.title}`)}
-                </span>
-              </PageLink>
-            ))}
+            {withKeys(links, (l) => `${l.label}-${l.href}`).map(
+              ({ key, item: link }) => (
+                <PageLink
+                  key={key}
+                  href={link.href}
+                  className="inline-flex min-h-11 items-center"
+                >
+                  {link.label}
+                  {/* The same label repeats on every card: the event names it. */}
+                  <span className="sr-only">
+                    {frenchSpacing(`, ${event.title}`)}
+                  </span>
+                </PageLink>
+              ),
+            )}
           </div>
         ) : null}
       </div>

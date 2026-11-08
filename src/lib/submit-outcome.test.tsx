@@ -1,13 +1,11 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { MockInstance } from "vitest";
+import type { ReactNode } from "react";
+import { describe, expect, it } from "vitest";
+import { inMemoryErrorReporter } from "@/test/in-memory-error-reporter";
+import { inMemoryLeadSubmit } from "@/test/in-memory-lead-submit";
 import type { SubmitInput, SubmitResult } from "./forms";
-import {
-  outcomeOf,
-  useLeadSubmit,
-  type OutcomeTexts,
-  type Submit,
-} from "./submit-outcome";
+import { PortsProvider } from "./ports";
+import { outcomeOf, useLeadSubmit, type OutcomeTexts } from "./submit-outcome";
 
 const TEXTS: OutcomeTexts = {
   success: "Texte de succès.",
@@ -20,17 +18,9 @@ const TEXTS: OutcomeTexts = {
 };
 const LINKEDIN = "https://www.linkedin.com/company/example/";
 
-let errorSpy: MockInstance;
-beforeEach(() => {
-  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-});
-afterEach(() => {
-  vi.restoreAllMocks();
-});
-
 /** Renders the alert content of an outcome in a box and returns the box. */
-function alertOf(result: SubmitResult) {
-  const outcome = outcomeOf(result, TEXTS);
+function alertOf(result: SubmitResult, reporter = inMemoryErrorReporter()) {
+  const outcome = outcomeOf(result, TEXTS, reporter);
   if (outcome.kind !== "alert") throw new Error("expected an alert");
   return render(<div data-testid="box">{outcome.content}</div>).getByTestId(
     "box",
@@ -62,7 +52,8 @@ describe("outcomeOf, success", () => {
 
 describe("outcomeOf, not connected", () => {
   it("links the LinkedIn page of the result and logs the missing config", () => {
-    const box = alertOf({ mode: "linkedin", href: LINKEDIN });
+    const reporter = inMemoryErrorReporter();
+    const box = alertOf({ mode: "linkedin", href: LINKEDIN }, reporter);
     expect(box).toHaveTextContent(
       "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
     );
@@ -70,9 +61,12 @@ describe("outcomeOf, not connected", () => {
     expect(link).toHaveAttribute("href", LINKEDIN);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
-    expect(errorSpy).toHaveBeenCalledWith(
-      "[MSC] Aucun endpoint ni e-mail de contact configuré dans content/site.json",
-    );
+    expect(reporter.reports).toEqual([
+      {
+        message:
+          "[MSC] Aucun endpoint ni e-mail de contact configuré dans content/site.json",
+      },
+    ]);
   });
 
   it("names LinkedIn without a link when nothing is configured", () => {
@@ -88,11 +82,11 @@ describe("outcomeOf, failed send", () => {
   const error = new Error("HTTP 500");
 
   it("logs the error", () => {
-    alertOf({ mode: "error", error, fallback: null });
-    expect(errorSpy).toHaveBeenCalledWith(
-      "[MSC] Envoi du formulaire impossible :",
-      error,
-    );
+    const reporter = inMemoryErrorReporter();
+    alertOf({ mode: "error", error, fallback: null }, reporter);
+    expect(reporter.reports).toEqual([
+      { message: "[MSC] Envoi du formulaire impossible :", cause: error },
+    ]);
   });
 
   it("gives the plain text when there is no way to reach the team", () => {
@@ -140,25 +134,35 @@ describe("useLeadSubmit", () => {
     subject: "Sujet",
   };
 
+  function setUp() {
+    const lead = inMemoryLeadSubmit();
+    const reporter = inMemoryErrorReporter();
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <PortsProvider ports={{ errorReporter: reporter }}>
+        {children}
+      </PortsProvider>
+    );
+    const view = renderHook(() => useLeadSubmit(lead.submit, TEXTS), {
+      wrapper,
+    });
+    return { lead, reporter, ...view };
+  }
+
   it("sends the input and gives the outcome of the result", async () => {
-    const submit = vi.fn<Submit>().mockResolvedValue({ mode: "endpoint" });
-    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    const { lead, result } = setUp();
     let outcome;
     await act(async () => {
       outcome = await result.current.send(INPUT);
     });
-    expect(submit).toHaveBeenCalledWith(INPUT);
+    expect(lead.calls).toEqual([INPUT]);
     expect(outcome).toEqual({ kind: "success", text: "Texte de succès." });
     expect(result.current.busy).toBe(false);
     expect(result.current.isSending()).toBe(false);
   });
 
   it("is busy and sending while the request runs, then free", async () => {
-    let settle: (result: SubmitResult) => void = () => {};
-    const submit = vi.fn<Submit>(
-      () => new Promise<SubmitResult>((resolve) => (settle = resolve)),
-    );
-    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    const { lead, result } = setUp();
+    const { settle } = lead.hold();
     let pending: Promise<unknown> = Promise.resolve();
     act(() => {
       pending = result.current.send(INPUT);
@@ -174,14 +178,17 @@ describe("useLeadSubmit", () => {
   });
 
   it("turns a thrown error into the error alert and frees the guard", async () => {
-    const submit = vi.fn<Submit>().mockRejectedValue(new Error("boom"));
-    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    const { lead, reporter, result } = setUp();
+    const boom = new Error("boom");
+    lead.fail(boom);
     let outcome;
     await act(async () => {
       outcome = await result.current.send(INPUT);
     });
     expect(outcome).toMatchObject({ kind: "alert" });
-    expect(errorSpy).toHaveBeenCalled();
+    expect(reporter.reports).toEqual([
+      { message: "[MSC] Envoi du formulaire impossible :", cause: boom },
+    ]);
     expect(result.current.busy).toBe(false);
     expect(result.current.isSending()).toBe(false);
   });

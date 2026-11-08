@@ -1,21 +1,17 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DEFAULT_GALLERY_LIMIT } from "@/lib/home-data";
+import { inMemoryModalDialog } from "@/test/in-memory-modal-dialog";
+import { renderWithPorts } from "@/test/ports";
 import { LightboxProvider } from "../Lightbox";
 import { setJs } from "./js-mode";
 import { PhotoGallery } from "./PhotoGallery";
 
-// jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
+// jsdom has no showModal() or close(): the in-memory ModalDialog port stands in.
+let modal = inMemoryModalDialog();
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.setAttribute("open", "");
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    if (!this.hasAttribute("open")) return;
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
+  modal = inMemoryModalDialog();
   document.body.style.overflow = "";
   setJs(true);
 });
@@ -57,10 +53,11 @@ const COPY = {
 };
 
 function setup(props: Partial<Parameters<typeof PhotoGallery>[0]> = {}) {
-  render(
+  renderWithPorts(
     <LightboxProvider>
       <PhotoGallery {...COPY} limit={LIMIT} items={ITEMS} {...props} />
     </LightboxProvider>,
+    { modalDialog: modal },
   );
 }
 
@@ -211,15 +208,16 @@ describe("PhotoGallery", () => {
     setup();
     const link = openers()[1]!;
     fireEvent.click(link);
-    (document.querySelector("dialog") as HTMLDialogElement).close();
+    modal.close(document.querySelector("dialog") as HTMLDialogElement);
     expect(link).toHaveFocus();
   });
 
   it("renders nothing when there is no photo", () => {
-    const { container } = render(
+    const { container } = renderWithPorts(
       <LightboxProvider>
         <PhotoGallery {...COPY} limit={LIMIT} items={[]} />
       </LightboxProvider>,
+      { modalDialog: modal },
     );
     expect(container.querySelector("section")).toBeNull();
     expect(screen.queryByRole("heading")).not.toBeInTheDocument();

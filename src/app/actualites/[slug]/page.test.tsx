@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { loadArticles, loadEvents, loadSite } from "@/content/load";
 import { frenchSpacing } from "@/lib/french";
 import ArticlePage, {
@@ -7,12 +7,6 @@ import ArticlePage, {
   generateMetadata,
   generateStaticParams,
 } from "./page";
-
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.setAttribute("open", "");
-  };
-});
 
 const site = loadSite();
 const { items } = loadArticles();

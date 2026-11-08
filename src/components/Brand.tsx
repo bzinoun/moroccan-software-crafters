@@ -34,9 +34,17 @@ type BrandProps = VariantProps<typeof brand> & {
   site: Site;
   /** The line under the name. Defaults to the site tagline. */
   line?: string;
+  /** Prefix of the logo URL. Defaults to the build setting. */
+  basePath?: string;
 };
 
-export function Brand({ site, line = site.tagline, size, tone }: BrandProps) {
+export function Brand({
+  site,
+  line = site.tagline,
+  size,
+  tone,
+  basePath,
+}: BrandProps) {
   const styles = brand({ size, tone });
   const pixels = size === "lg" ? 52 : 44;
 
@@ -45,7 +53,7 @@ export function Brand({ site, line = site.tagline, size, tone }: BrandProps) {
       <Photo
         eager
         className={styles.logo()}
-        src={assetUrl("/assets/img/logo.png")}
+        src={assetUrl("/assets/img/logo.png", basePath)}
         alt=""
         width={pixels}
         height={pixels}

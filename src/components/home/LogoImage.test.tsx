@@ -1,19 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { inMemoryImageProbe } from "@/test/in-memory-image-probe";
+import { renderWithPorts } from "@/test/ports";
 import { LogoImage } from "./LogoImage";
 
 const FALLBACK = <span data-testid="fallback">AX</span>;
-
-function stubLoadState(complete: boolean, naturalWidth: number) {
-  vi.spyOn(HTMLImageElement.prototype, "complete", "get").mockReturnValue(
-    complete,
-  );
-  vi.spyOn(HTMLImageElement.prototype, "naturalWidth", "get").mockReturnValue(
-    naturalWidth,
-  );
-}
-
-afterEach(() => vi.restoreAllMocks());
 
 describe("LogoImage", () => {
   it("renders the image with its attributes while it loads", () => {
@@ -49,26 +40,26 @@ describe("LogoImage", () => {
   });
 
   it("shows the fallback when the load already failed before the page became interactive", () => {
-    stubLoadState(true, 0);
-    render(
+    renderWithPorts(
       <LogoImage
         src="/assets/img/logos/typo.png"
         alt="AXA"
         fallback={FALLBACK}
       />,
+      { imageProbe: inMemoryImageProbe(["/assets/img/logos/typo.png"]) },
     );
     expect(screen.queryByRole("img", { name: "AXA" })).not.toBeInTheDocument();
     expect(screen.getByTestId("fallback")).toBeInTheDocument();
   });
 
   it("keeps the image when it is already loaded", () => {
-    stubLoadState(true, 120);
-    render(
+    renderWithPorts(
       <LogoImage
         src="/assets/img/logos/axa.png"
         alt="AXA"
         fallback={FALLBACK}
       />,
+      { imageProbe: inMemoryImageProbe(["/assets/img/logos/typo.png"]) },
     );
     expect(screen.getByRole("img", { name: "AXA" })).toBeInTheDocument();
     expect(screen.queryByTestId("fallback")).not.toBeInTheDocument();

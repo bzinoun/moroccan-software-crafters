@@ -8,9 +8,12 @@ import {
   type SubmitResult,
 } from "./forms";
 
-export function browserDeps(): SubmitDeps {
+/** `fetchFn` is for a test; the default reads `window.fetch` when it is called. */
+export function browserDeps(
+  fetchFn: typeof fetch = (...args) => window.fetch(...args),
+): SubmitDeps {
   return {
-    fetch: (...args) => window.fetch(...args),
+    fetch: fetchFn,
     assignLocation: (url) => {
       window.location.href = url;
     },
@@ -21,6 +24,10 @@ export function browserDeps(): SubmitDeps {
   };
 }
 
-export function submitFormInBrowser(input: SubmitInput): Promise<SubmitResult> {
-  return submitForm(input, browserDeps());
+/** `deps` is for a test, which passes an in-memory fetch instead of the network. */
+export function submitFormInBrowser(
+  input: SubmitInput,
+  deps: SubmitDeps = browserDeps(),
+): Promise<SubmitResult> {
+  return submitForm(input, deps);
 }

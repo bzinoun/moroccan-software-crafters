@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ComponentPropsWithoutRef } from "react";
-import { assetUrl, isExternal } from "@/lib/routes";
+import { assetUrl, linkKind } from "@/lib/routes";
 
 // The one anchor of the site for an href that may be an internal route, an
 // external URL or a hash on the same page.
@@ -12,12 +12,21 @@ import { assetUrl, isExternal } from "@/lib/routes";
 //   needs the base path added by hand for a route.
 export function PageLink({
   href,
+  basePath,
   ...rest
-}: Omit<ComponentPropsWithoutRef<"a">, "href"> & { href: string }) {
-  if (isExternal(href)) {
-    return <a href={href} target="_blank" rel="noopener" {...rest} />;
+}: Omit<ComponentPropsWithoutRef<"a">, "href"> & {
+  href: string;
+  /** Prefix of a route with a hash. Defaults to the build setting. */
+  basePath?: string;
+}) {
+  switch (linkKind(href)) {
+    case "external":
+      return <a href={href} target="_blank" rel="noopener" {...rest} />;
+    case "hash":
+      return <a href={href} {...rest} />;
+    case "route-hash":
+      return <a href={assetUrl(href, basePath)} {...rest} />;
+    case "route":
+      return <Link href={href} {...rest} />;
   }
-  if (href.startsWith("#")) return <a href={href} {...rest} />;
-  if (href.includes("#")) return <a href={assetUrl(href)} {...rest} />;
-  return <Link href={href} {...rest} />;
 }

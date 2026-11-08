@@ -32,7 +32,16 @@ function headerCta(page: PageId | undefined, siteCta: Cta): HeaderCta {
 const linkClass =
   "border-b border-line py-3 text-s95 font-medium text-ink-soft no-underline hover:text-red aria-[current=page]:text-red lg:border-b-2 lg:border-transparent lg:py-1 lg:aria-[current=page]:border-red lg:aria-[current=page]:text-ink";
 
-export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
+export function SiteHeader({
+  site,
+  page,
+  basePath,
+}: {
+  site: Site;
+  page?: PageId;
+  /** Prefix of the logo and of the hash links. Defaults to the build setting. */
+  basePath?: string;
+}) {
   const current = page === undefined ? undefined : pageRoute(page);
   const cta = headerCta(page, site.cta);
   const links = site.nav.map((link) => {
@@ -41,6 +50,7 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
       <PageLink
         key={link.href}
         href={link.href}
+        basePath={basePath}
         aria-current={active ? "page" : undefined}
         className={linkClass}
       >
@@ -52,7 +62,7 @@ export function SiteHeader({ site, page }: { site: Site; page?: PageId }) {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur-[10px] backdrop-saturate-[1.4]">
       <Container className="flex h-18 items-center gap-6">
-        <Brand site={site} />
+        <Brand site={site} basePath={basePath} />
         {/* Below lg: the menu, a native disclosure. From lg up: the row of links. */}
         <NavToggle>
           {links}

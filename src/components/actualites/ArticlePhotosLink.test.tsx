@@ -1,20 +1,17 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { PhotoItem } from "@/lib/derive";
+import { inMemoryModalDialog } from "@/test/in-memory-modal-dialog";
+import { renderWithPorts } from "@/test/ports";
+import { renderCatching } from "@/test/render-catching";
 import { LightboxProvider } from "../Lightbox";
 import { ArticlePhotosLink } from "./ArticlePhotosLink";
 
-// jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
+// jsdom has no showModal() or close(): the in-memory ModalDialog port stands in.
+let modal = inMemoryModalDialog();
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.setAttribute("open", "");
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    if (!this.hasAttribute("open")) return;
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
+  modal = inMemoryModalDialog();
   document.body.style.overflow = "";
 });
 
@@ -34,10 +31,11 @@ const photos: PhotoItem[] = [
 ];
 
 function renderLink() {
-  return render(
+  return renderWithPorts(
     <LightboxProvider>
       <ArticlePhotosLink label="Les 2 photos" photos={photos} />
     </LightboxProvider>,
+    { modalDialog: modal },
   );
 }
 
@@ -91,15 +89,17 @@ describe("ArticlePhotosLink", () => {
     expect(
       screen.getByRole("dialog", { name: "Photo agrandie" }),
     ).toHaveAttribute("open");
-    (document.querySelector("dialog") as HTMLDialogElement).close();
+    modal.close(document.querySelector("dialog") as HTMLDialogElement);
     expect(link).toHaveFocus();
   });
 
   it("throws when no LightboxProvider is above it", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() =>
-      render(<ArticlePhotosLink label="Les 2 photos" photos={photos} />),
-    ).toThrow("useLightbox must be used inside LightboxProvider");
-    error.mockRestore();
+    const { errors } = renderCatching(
+      <ArticlePhotosLink label="Les 2 photos" photos={photos} />,
+    );
+    expect(errors).toHaveLength(1);
+    expect((errors[0] as Error).message).toBe(
+      "useLightbox must be used inside LightboxProvider",
+    );
   });
 });

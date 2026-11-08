@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Company, Event } from "@/content/types";
 import {
   absoluteImageUrl,
@@ -179,34 +179,25 @@ describe("place", () => {
 });
 
 describe("meetupPhotoUrl and logoUrl", () => {
-  const original = process.env.NEXT_PUBLIC_BASE_PATH;
-  afterEach(() => {
-    if (original === undefined) delete process.env.NEXT_PUBLIC_BASE_PATH;
-    else process.env.NEXT_PUBLIC_BASE_PATH = original;
-  });
-
   it("builds the photo and logo URLs from the asset folders", () => {
-    delete process.env.NEXT_PUBLIC_BASE_PATH;
-    expect(meetupPhotoUrl("2026-05-axa-1")).toBe(
+    expect(meetupPhotoUrl("2026-05-axa-1", "")).toBe(
       "/assets/img/meetups/2026-05-axa-1.jpg",
     );
-    expect(logoUrl("axa.png")).toBe("/assets/img/logos/axa.png");
+    expect(logoUrl("axa.png", "")).toBe("/assets/img/logos/axa.png");
   });
 
   it("adds the base path of the deployment", () => {
-    process.env.NEXT_PUBLIC_BASE_PATH = "/moroccan-software-crafters";
-    expect(meetupPhotoUrl("2026-05-axa-1")).toBe(
+    const basePath = "/moroccan-software-crafters";
+    expect(meetupPhotoUrl("2026-05-axa-1", basePath)).toBe(
       "/moroccan-software-crafters/assets/img/meetups/2026-05-axa-1.jpg",
     );
-    expect(logoUrl("bdsi.svg")).toBe(
+    expect(logoUrl("bdsi.svg", basePath)).toBe(
       "/moroccan-software-crafters/assets/img/logos/bdsi.svg",
     );
   });
 });
 
 describe("absoluteImageUrl and absoluteMeetupPhoto", () => {
-  afterEach(() => vi.unstubAllEnvs());
-
   // `baseUrl` of the site already carries the GitHub Pages base path.
   const baseUrl = "https://example.org/base";
 
@@ -225,13 +216,6 @@ describe("absoluteImageUrl and absoluteMeetupPhoto", () => {
   it("builds the absolute URL of a meetup photo from its name", () => {
     expect(absoluteMeetupPhoto(baseUrl, "2026-05-axa-1")).toBe(
       "https://example.org/base/assets/img/meetups/2026-05-axa-1.jpg",
-    );
-  });
-
-  it("does not add the base path of the build a second time", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/other");
-    expect(absoluteMeetupPhoto(baseUrl, "x")).toBe(
-      "https://example.org/base/assets/img/meetups/x.jpg",
     );
   });
 });

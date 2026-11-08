@@ -1,21 +1,17 @@
-import { fireEvent, render, within } from "@testing-library/react";
+import { fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Event, Home } from "@/content/types";
+import { inMemoryModalDialog } from "@/test/in-memory-modal-dialog";
+import { renderWithPorts } from "@/test/ports";
 import { LightboxProvider } from "../Lightbox";
 import { HistorySection } from "./HistorySection";
 import { setJs } from "./js-mode";
 
-// jsdom has no showModal() or close() on HTMLDialogElement: stub them here.
+// jsdom has no showModal() or close(): the in-memory ModalDialog port stands in.
+let modal = inMemoryModalDialog();
 beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = function showModal() {
-    this.setAttribute("open", "");
-  };
-  HTMLDialogElement.prototype.close = function close() {
-    if (!this.hasAttribute("open")) return;
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
+  modal = inMemoryModalDialog();
   document.body.style.overflow = "";
   setJs(true);
 });
@@ -218,10 +214,11 @@ const EVENTS: Event[] = [
 ];
 
 function setup(props: Partial<Parameters<typeof HistorySection>[0]> = {}) {
-  const view = render(
+  const view = renderWithPorts(
     <LightboxProvider>
       <HistorySection history={HISTORY} events={EVENTS} {...props} />
     </LightboxProvider>,
+    { modalDialog: modal },
   );
   const section = view.container.querySelector("section#historique");
   if (!(section instanceof HTMLElement)) throw new Error("no #historique");
@@ -568,17 +565,18 @@ describe("HistorySection photo links", () => {
     const link = within(sg!).getByRole("link", { name: /^Voir les 8 photos/ });
     fireEvent.click(link);
     expect(link).not.toHaveFocus();
-    (document.querySelector("dialog") as HTMLDialogElement).close();
+    modal.close(document.querySelector("dialog") as HTMLDialogElement);
     expect(link).toHaveFocus();
   });
 });
 
 describe("HistorySection without an event", () => {
   it("renders no section, no chips and no orphan heading", () => {
-    const { container } = render(
+    const { container } = renderWithPorts(
       <LightboxProvider>
         <HistorySection history={HISTORY} events={[]} />
       </LightboxProvider>,
+      { modalDialog: modal },
     );
     expect(container.querySelector("section")).toBeNull();
     expect(container).not.toHaveTextContent("Sept ans de meetups.");

@@ -1,19 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type * as NextLinkModule from "next/link";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { recorder } from "@/test/recorder";
 import { Button } from "./Button";
-
-// Marks the anchors that come out of next/link, to tell them from plain anchors.
-vi.mock("next/link", async (importOriginal) => {
-  const actual = await importOriginal<typeof NextLinkModule>();
-  const Link = actual.default;
-  return {
-    default: (props: React.ComponentProps<typeof Link>) => (
-      <Link {...props} data-next-link="" />
-    ),
-  };
-});
 
 // The glow utilities of an element (the base transition lists the property
 // name box-shadow, which is not a glow utility).
@@ -56,27 +45,38 @@ describe("Button", () => {
     expect(link).toHaveAttribute("target", "_blank");
   });
 
+  // next/link would give "/meetup/#proposer": the href as written proves a plain anchor.
+  it("keeps a route with a hash as a plain anchor so a second click scrolls again", () => {
+    render(<Button href="/meetup#proposer">Proposer un sujet</Button>);
+    expect(
+      screen.getByRole("link", { name: "Proposer un sujet" }),
+    ).toHaveAttribute("href", "/meetup#proposer");
+  });
+
+  // next/link keeps "#sponsor-form" unchanged, so the href cannot tell it from a
+  // plain anchor; linkKind in routes.test.ts guards the choice of element.
   it("keeps a hash-only href as a plain anchor so a second click scrolls again", () => {
     render(<Button href="#sponsor-form">Choisir ce niveau</Button>);
     const link = screen.getByRole("link", { name: "Choisir ce niveau" });
     expect(link).toHaveAttribute("href", "#sponsor-form");
-    expect(link).not.toHaveAttribute("data-next-link");
   });
 
-  it("sends an internal route through next/link", () => {
-    render(<Button href="/accueillir/">Accueillir un meetup</Button>);
+  // A plain anchor keeps the href as written; next/link normalizes it to the
+  // site's trailing-slash form.
+  it("sends an internal route through next/link, which adds the trailing slash", () => {
+    render(<Button href="/accueillir">Accueillir un meetup</Button>);
     expect(
       screen.getByRole("link", { name: "Accueillir un meetup" }),
-    ).toHaveAttribute("data-next-link");
+    ).toHaveAttribute("href", "/accueillir/");
   });
 
   it("renders a button element when there is no href", async () => {
-    const onClick = vi.fn();
-    render(<Button onClick={onClick}>Envoyer</Button>);
+    const clicks = recorder<[unknown]>();
+    render(<Button onClick={clicks.fn}>Envoyer</Button>);
     const button = screen.getByRole("button", { name: "Envoyer" });
     expect(button).toHaveAttribute("type", "button");
     await userEvent.setup().click(button);
-    expect(onClick).toHaveBeenCalledOnce();
+    expect(clicks.calls).toHaveLength(1);
   });
 
   it.each([

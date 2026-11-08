@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Site } from "@/content/types";
 import { SiteHeader } from "./SiteHeader";
 
@@ -158,14 +158,18 @@ describe("SiteHeader", () => {
   });
 
   it("renders the hash nav link as a plain anchor with the base path, in both copies", () => {
-    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/moroccan-software-crafters");
-    render(<SiteHeader site={site} page="home" />);
+    render(
+      <SiteHeader
+        site={site}
+        page="home"
+        basePath="/moroccan-software-crafters"
+      />,
+    );
     for (const nav of [mainNav(), mobileNav()]) {
       expect(
         within(nav).getByRole("link", { name: "Éditions" }),
       ).toHaveAttribute("href", "/moroccan-software-crafters/#historique");
     }
-    vi.unstubAllEnvs();
   });
 
   it("renders the mobile menu as a closed disclosure, readable with no script", () => {

@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { NumberedList } from "./NumberedList";
 
 const steps = [
@@ -41,19 +41,21 @@ describe("NumberedList", () => {
     expect(item.querySelector("strong + span")?.textContent).toBe("Oui : non");
   });
 
-  it("keeps two steps with the same title without a duplicate key", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("keeps two steps with the same title and text", () => {
     render(
       <NumberedList
         items={[
           { title: "Vote", text: "Vote for a bubble." },
-          { title: "Vote", text: "Vote again." },
+          { title: "Vote", text: "Vote for a bubble." },
         ]}
       />,
     );
-    expect(screen.getAllByRole("listitem")).toHaveLength(2);
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(items.map((li) => li.textContent)).toEqual([
+      "1Vote" + "Vote for a bubble.",
+      "2Vote" + "Vote for a bubble.",
+    ]);
   });
 
   it("renders nothing for an empty list", () => {

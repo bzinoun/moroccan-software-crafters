@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { recorder } from "@/test/recorder";
 import { Pill, PillGroup } from "./PillGroup";
 
 describe("PillGroup and Pill", () => {
@@ -88,14 +89,14 @@ describe("PillGroup and Pill", () => {
   });
 
   it("checks several checkboxes and reports each change", async () => {
-    const onChange = vi.fn();
+    const onChange = recorder<[unknown]>();
     render(
       <PillGroup aria-label="Sur place">
         <Pill
           type="checkbox"
           name="equipements"
           value="Wifi"
-          onChange={onChange}
+          onChange={onChange.fn}
         >
           Wifi invités
         </Pill>
@@ -112,7 +113,7 @@ describe("PillGroup and Pill", () => {
       screen.getByRole("checkbox", { name: "Wifi invités" }),
     ).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Parking" })).toBeChecked();
-    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.calls).toHaveLength(1);
   });
 
   it("keeps the input reachable by keyboard", async () => {

@@ -1,7 +1,7 @@
 // The saved draft of the host funnel: what is written to `localStorage`, and
 // how a saved draft plus `?formule=<id>` becomes the answers and the step to
-// open. The storage helpers take no argument and read `localStorage` at call
-// time, so call them from handlers and effects only.
+// open. The storage helpers take the store as their last argument; the default
+// reads `localStorage` at call time, so call them from handlers and effects only.
 
 import { parseIsoDay } from "./dates";
 import {
@@ -17,6 +17,7 @@ import {
   pick,
 } from "./funnel-fields";
 import type { FunnelValues } from "./funnel-fields";
+import { browserStorage, type KeyValueStore } from "./ports/key-value-store";
 
 export const DRAFT_KEY = "msc-host-draft-v1";
 
@@ -135,11 +136,12 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * The saved draft, or null. A draft is deleted when it is older than
  * `DRAFT_MAX_AGE_DAYS` or has no valid past timestamp. `now` is the test clock.
  */
-export function readDraft(now: Date = new Date()): Draft | null {
+export function readDraft(
+  now: Date = new Date(),
+  storage: KeyValueStore = browserStorage,
+): Draft | null {
   try {
-    const parsed: unknown = JSON.parse(
-      localStorage.getItem(DRAFT_KEY) || "null",
-    );
+    const parsed: unknown = JSON.parse(storage.getItem(DRAFT_KEY) || "null");
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
       return null;
     }
@@ -149,7 +151,7 @@ export function readDraft(now: Date = new Date()): Draft | null {
       typeof savedAt === "number" ? now.getTime() - savedAt : Number.NaN;
     // A stamp in the future (a clock that was set ahead) would extend the 30 days.
     if (!(age >= 0 && age <= DRAFT_MAX_AGE_DAYS * DAY_MS)) {
-      clearDraft();
+      clearDraft(storage);
       return null;
     }
     return draft;
@@ -159,9 +161,13 @@ export function readDraft(now: Date = new Date()): Draft | null {
 }
 
 /** Saves the draft with the time of the write, which starts the 30 days. */
-export function writeDraft(draft: Draft, now: Date = new Date()): void {
+export function writeDraft(
+  draft: Draft,
+  now: Date = new Date(),
+  storage: KeyValueStore = browserStorage,
+): void {
   try {
-    localStorage.setItem(
+    storage.setItem(
       DRAFT_KEY,
       JSON.stringify({ ...draft, _savedAt: now.getTime() }),
     );
@@ -170,9 +176,9 @@ export function writeDraft(draft: Draft, now: Date = new Date()): void {
   }
 }
 
-export function clearDraft(): void {
+export function clearDraft(storage: KeyValueStore = browserStorage): void {
   try {
-    localStorage.removeItem(DRAFT_KEY);
+    storage.removeItem(DRAFT_KEY);
   } catch {
     // nothing to clean
   }

@@ -1,4 +1,5 @@
 import { frenchSpacing } from "@/lib/french";
+import { withKeys } from "@/lib/keys";
 import { Section } from "../Section";
 import { SectionHead } from "../SectionHead";
 
@@ -21,9 +22,9 @@ export function HistoryTimeline({ items }: HistoryTimelineProps) {
       role="list"
       className="relative m-0 list-none p-0 before:absolute before:top-2.5 before:bottom-2.5 before:left-[61px] before:w-0.5 before:bg-line before:content-[''] sm:before:left-17.5"
     >
-      {items.map((item) => (
+      {withKeys(items, (i) => `${i.year}-${i.title}`).map(({ key, item }) => (
         <li
-          key={`${item.year}-${item.title}`}
+          key={key}
           className="relative grid grid-cols-[48px_1fr] gap-7 py-3.5 after:absolute after:top-6 after:left-[55px] after:size-3.5 after:rounded-full after:border-3 after:border-red after:bg-paper after:content-[''] sm:grid-cols-[56px_1fr] sm:gap-9 sm:after:left-16"
         >
           <span className="text-right font-display text-s115 leading-[1.2] font-semibold text-green sm:text-s150">

@@ -1,33 +1,44 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import type * as ContentLoad from "@/content/load";
+import { describe, expect, it } from "vitest";
+import {
+  loadCompanies,
+  loadEvents,
+  loadSite,
+  loadSocrates,
+  loadSponsoring,
+} from "@/content/load";
+import { SocratesView } from "./SocratesView";
 
 // The content of the page with its lists emptied: a section whose body is an
 // empty list leaves no heading behind.
-vi.mock("@/content/load", async (importOriginal) => {
-  const actual = await importOriginal<typeof ContentLoad>();
-  const real = actual.loadSocrates();
-  return {
-    ...actual,
-    loadSocrates: () => ({
-      ...real,
-      editions: { ...real.editions, items: [] },
-      family: { ...real.family, items: [] },
-      schedule: { ...real.schedule, days: [] },
-      openspace: {
-        ...real.openspace,
-        laws: [],
-        formats: { ...real.openspace.formats, items: [] },
-      },
-    }),
-  };
-});
+const real = loadSocrates();
+const emptied = {
+  ...real,
+  editions: { ...real.editions, items: [] },
+  family: { ...real.family, items: [] },
+  schedule: { ...real.schedule, days: [] },
+  openspace: {
+    ...real.openspace,
+    laws: [],
+    formats: { ...real.openspace.formats, items: [] },
+  },
+};
 
-import SocratesPage from "./page";
+function renderView() {
+  return render(
+    <SocratesView
+      socrates={emptied}
+      sponsoring={loadSponsoring()}
+      companies={loadCompanies()}
+      events={loadEvents()}
+      site={loadSite()}
+    />,
+  );
+}
 
-describe("SocratesPage with empty lists", () => {
+describe("SocratesView with empty lists", () => {
   it("renders no section for a list that is empty", () => {
-    const { container } = render(<SocratesPage />);
+    const { container } = renderView();
     const ids = [...container.querySelectorAll("section[id]")].map(
       (el) => el.id,
     );
@@ -39,7 +50,7 @@ describe("SocratesPage with empty lists", () => {
   });
 
   it("leaves no empty container behind", () => {
-    const { container } = render(<SocratesPage />);
+    const { container } = renderView();
     expect(container.querySelector("#formats")).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { recorder } from "@/test/recorder";
 import { FunnelNav } from "./FunnelNav";
 
 describe("FunnelNav", () => {
@@ -13,13 +14,13 @@ describe("FunnelNav", () => {
   });
 
   it("calls onPrev from Retour, a plain button, on the next steps", async () => {
-    const onPrev = vi.fn();
-    render(<FunnelNav step={2} busy={false} onPrev={onPrev} />);
+    const onPrev = recorder<[]>();
+    render(<FunnelNav step={2} busy={false} onPrev={onPrev.fn} />);
     const prev = screen.getByRole("button", { name: "Retour" });
     expect(prev).toHaveAttribute("id", "prev");
     expect(prev).toHaveAttribute("type", "button");
     await userEvent.click(prev);
-    expect(onPrev).toHaveBeenCalledTimes(1);
+    expect(onPrev.calls).toHaveLength(1);
   });
 
   it("names the last step button Envoyer ma demande", () => {

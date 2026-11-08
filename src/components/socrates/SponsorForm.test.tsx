@@ -1,7 +1,6 @@
 import { act, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { SubmitResult } from "@/lib/forms";
-import { pendingResult } from "../accueillir/test-utils";
 import { PackageGrid } from "./PackageGrid";
 import {
   LINKEDIN,
@@ -11,16 +10,11 @@ import {
   fillValid,
   renderSponsorForm,
   submitButton,
-  type Submit,
 } from "./test-utils";
 
 // The rules of the e-mail and of the phone number are tested in
 // `validation.test.ts`; here each behavior of the form is tested once.
 // Levels, site and success text are fixtures from `test-utils.tsx`.
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 const setup = (result?: SubmitResult) => renderSponsorForm({ result });
 
@@ -113,7 +107,7 @@ describe("SponsorForm fields", () => {
 
 describe("SponsorForm validation", () => {
   it("shows every error on an empty submit, focuses the first field and sends nothing", async () => {
-    const { submit, user } = setup();
+    const { lead, user } = setup();
     await user.click(submitButton());
     expect(
       screen.getByText("Indiquez le nom de l'entreprise."),
@@ -132,7 +126,7 @@ describe("SponsorForm validation", () => {
     expect(screen.getByLabelText("Fonction (facultatif)")).not.toHaveAttribute(
       "aria-invalid",
     );
-    expect(submit).not.toHaveBeenCalled();
+    expect(lead.calls).toEqual([]);
   });
 
   it("treats a blank value as empty", async () => {
@@ -145,7 +139,7 @@ describe("SponsorForm validation", () => {
   });
 
   it("rejects a wrong phone number, focuses it and sends nothing", async () => {
-    const { submit, user } = setup();
+    const { lead, user } = setup();
     await fillValid(user);
     const tel = screen.getByRole("textbox", { name: "Téléphone" });
     await user.clear(tel);
@@ -157,7 +151,7 @@ describe("SponsorForm validation", () => {
       ),
     ).toBeInTheDocument();
     expect(tel).toHaveFocus();
-    expect(submit).not.toHaveBeenCalled();
+    expect(lead.calls).toEqual([]);
   });
 
   it("clears the error of a field as soon as the visitor edits it", async () => {
@@ -197,7 +191,7 @@ describe("SponsorForm validation", () => {
 
 describe("SponsorForm submit", () => {
   it("sends the trimmed values with the type and the subject of the old form", async () => {
-    const { submit, user } = setup();
+    const { lead, user } = setup();
     await fillValid(user);
     await user.type(screen.getByLabelText("Fonction (facultatif)"), " CTO ");
     await user.type(
@@ -208,8 +202,8 @@ describe("SponsorForm submit", () => {
       screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
     );
     await user.click(submitButton());
-    expect(submit).toHaveBeenCalledTimes(1);
-    expect(submit).toHaveBeenCalledWith({
+    expect(lead.calls).toHaveLength(1);
+    expect(lead.calls[0]).toEqual({
       site: SITE,
       data: {
         entreprise: "Acme",
@@ -227,32 +221,30 @@ describe("SponsorForm submit", () => {
   });
 
   it("sends 'À discuter' when the visitor picks no level", async () => {
-    const { submit, user } = setup();
+    const { lead, user } = setup();
     await fillValid(user);
     await user.click(submitButton());
-    expect(submit.mock.calls[0]![0].data.niveau).toBe("À discuter");
-    expect(submit.mock.calls[0]![0].subject).toBe(
+    expect(lead.calls[0]!.data.niveau).toBe("À discuter");
+    expect(lead.calls[0]!.subject).toBe(
       "Partenariat SoCraTes · Acme · À discuter",
     );
   });
 
   it("passes the honeypot value as typed, and shows the thanks panel as if it worked", async () => {
-    const { submit, user } = setup({ mode: "honeypot" });
+    const { lead, user } = setup({ mode: "honeypot" });
     await fillValid(user);
     await user.type(
       document.getElementById("s-hp") as HTMLInputElement,
       " http://spam ",
     );
     await user.click(submitButton());
-    expect(submit.mock.calls[0]![0].honeypot).toBe(" http://spam ");
+    expect(lead.calls[0]!.honeypot).toBe(" http://spam ");
     expect(document.getElementById("s-success")).not.toHaveAttribute("hidden");
   });
 
   it("marks the button busy, keeps its focus and sends once while the request runs", async () => {
-    const { promise, settle } = pendingResult();
-    const { submit, user } = renderSponsorForm({
-      submit: vi.fn<Submit>().mockReturnValue(promise),
-    });
+    const { lead, user } = renderSponsorForm();
+    const { settle } = lead.hold();
     await fillValid(user);
     await user.click(submitButton());
     const busy = screen.getByRole("button", { name: "Envoi…" });
@@ -260,15 +252,15 @@ describe("SponsorForm submit", () => {
     expect(busy).toHaveFocus();
     await user.click(busy);
     await user.click(busy);
-    expect(submit).toHaveBeenCalledTimes(1);
+    expect(lead.calls).toHaveLength(1);
     await act(async () => settle({ mode: "endpoint" }));
     expect(document.getElementById("sponsor-form")).toHaveAttribute("hidden");
   });
 
   it("gives back the button and shows the failure alert when the send throws", async () => {
-    const log = vi.spyOn(console, "error").mockImplementation(() => {});
-    const { submit, user } = setup();
-    submit.mockRejectedValue(new Error("boom"));
+    const { lead, reporter, user } = setup();
+    const boom = new Error("boom");
+    lead.fail(boom);
     await fillValid(user);
     await user.click(submitButton());
     const alert = document.getElementById("s-alert") as HTMLElement;
@@ -280,18 +272,20 @@ describe("SponsorForm submit", () => {
     expect(submitButton()).toHaveTextContent(
       "Recevoir le dossier de partenariat",
     );
-    expect(log).toHaveBeenCalled();
+    expect(reporter.reports).toEqual([
+      { message: "[MSC] Envoi du formulaire impossible :", cause: boom },
+    ]);
     expect(screen.getByLabelText("Entreprise")).toHaveValue("  Acme  ");
   });
 
   it("can send again after a failure", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    const { submit, user } = setup();
-    submit.mockRejectedValueOnce(new Error("boom"));
+    const { lead, reporter, user } = setup();
+    lead.failOnce(new Error("boom"));
     await fillValid(user);
     await user.click(submitButton());
     await user.click(submitButton());
-    expect(submit).toHaveBeenCalledTimes(2);
+    expect(lead.calls).toHaveLength(2);
+    expect(reporter.reports).toHaveLength(1);
     expect(document.getElementById("s-success")).not.toHaveAttribute("hidden");
   });
 });
@@ -373,9 +367,8 @@ describe("SponsorForm results", () => {
   });
 
   it("error: logs it, keeps the answers and offers the LinkedIn link of the fallback", async () => {
-    const log = vi.spyOn(console, "error").mockImplementation(() => {});
     const error = new Error("HTTP 500");
-    const { user } = setup({
+    const { reporter, user } = setup({
       mode: "error",
       error,
       fallback: {
@@ -392,16 +385,14 @@ describe("SponsorForm results", () => {
     expect(
       within(alert).getByRole("link", { name: "LinkedIn" }),
     ).toHaveAttribute("href", LINKEDIN);
-    expect(log).toHaveBeenCalledWith(
-      "[MSC] Envoi du formulaire impossible :",
-      error,
-    );
+    expect(reporter.reports).toEqual([
+      { message: "[MSC] Envoi du formulaire impossible :", cause: error },
+    ]);
     expect(screen.getByLabelText("Entreprise")).toHaveValue("  Acme  ");
     expect(submitButton()).toBeEnabled();
   });
 
   it("error with a mail fallback: links to the prefilled mail", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
     const { user } = setup({
       mode: "error",
       error: new Error("HTTP 500"),
@@ -420,7 +411,6 @@ describe("SponsorForm results", () => {
   });
 
   it("error with no way to reach the team: the plain sentence, without a link", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
     const { user } = setup({
       mode: "error",
       error: new Error("x"),
@@ -436,8 +426,7 @@ describe("SponsorForm results", () => {
   });
 
   it("hides the previous alert at the next submit", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    const { submit, user } = setup({
+    const { lead, user } = setup({
       mode: "error",
       error: new Error("x"),
       fallback: null,
@@ -445,7 +434,7 @@ describe("SponsorForm results", () => {
     await fillValid(user);
     await user.click(submitButton());
     expect(document.getElementById("s-alert")).not.toHaveAttribute("hidden");
-    submit.mockResolvedValueOnce({ mode: "endpoint" });
+    lead.answerOnce({ mode: "endpoint" });
     await user.click(submitButton());
     expect(document.getElementById("s-success")).not.toHaveAttribute("hidden");
   });
@@ -531,11 +520,11 @@ describe("SponsorForm level preselection", () => {
   });
 
   it("sends the preselected level", async () => {
-    const { submit, user } = renderSponsorForm({ before: grid });
+    const { lead, user } = renderSponsorForm({ before: grid });
     await user.click(chooseLevel("Supporter"));
     await fillValid(user);
     await user.click(submitButton());
-    expect(submit.mock.calls[0]![0].data.niveau).toBe("Supporter");
+    expect(lead.calls[0]!.data.niveau).toBe("Supporter");
   });
 
   it("keeps the jump to the form: the button is still a link to the form", () => {
@@ -543,9 +532,14 @@ describe("SponsorForm level preselection", () => {
     expect(chooseLevel("Supporter")).toHaveAttribute("href", "#sponsor-form");
   });
 
-  it("listens to no click on the document", () => {
-    const spy = vi.spyOn(document, "addEventListener");
-    renderSponsorForm({ before: grid });
-    expect(spy).not.toHaveBeenCalledWith("click", expect.anything());
+  it("changes the level only through the button: a click elsewhere keeps it", async () => {
+    const { user } = renderSponsorForm({ before: grid });
+    await user.click(screen.getByRole("heading", { name: PACKAGES[0]!.name }));
+    await user.click(document.body);
+    expect(screen.getByRole("radio", { name: "À discuter" })).toBeChecked();
+    await user.click(chooseLevel("Supporter"));
+    expect(
+      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
+    ).toBeChecked();
   });
 });

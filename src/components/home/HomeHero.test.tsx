@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { HomeHero } from "./HomeHero";
 
 // A fixture written here: the hero draws the copy, the note and the collage it gets.
@@ -124,14 +124,16 @@ describe("HomeHero collage size", () => {
     );
   });
 
-  it("draws the same photo twice in the collage without a key warning", () => {
-    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("draws the same photo twice in the collage", () => {
     const twin = [collage[0]!, collage[0]!];
     const { container } = render(
       <HomeHero hero={hero} note={note} collage={twin} />,
     );
     expect(container.querySelectorAll("figure")).toHaveLength(2);
-    expect(error).not.toHaveBeenCalled();
-    error.mockRestore();
+    expect(
+      Array.from(container.querySelectorAll("figure img")).map((img) =>
+        img.getAttribute("src"),
+      ),
+    ).toEqual([collage[0]!.src, collage[0]!.src]);
   });
 });

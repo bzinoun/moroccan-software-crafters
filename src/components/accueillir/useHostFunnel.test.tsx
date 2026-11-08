@@ -1,23 +1,21 @@
 import { act, renderHook } from "@testing-library/react";
 import type { FormEvent } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel-fields";
 import {
   NOW,
   OFFERS,
   SITE,
-  pendingResult,
   savedDraft,
   storeDraft,
-  submit,
   setUpFunnelEnvironment,
 } from "./test-utils";
 import { useHostFunnel } from "./useHostFunnel";
 
 // The hook has no form element here: it tests the state, not the focus.
-// Nothing posts anywhere: the hook gets the `submit` double of the test utils.
+// Nothing posts anywhere: the hook gets the in-memory send of the test utils.
 
-setUpFunnelEnvironment();
+const env = setUpFunnelEnvironment();
 
 // The fixed date is Saturday 7 November 2026: the first date allowed is the 8th.
 const FUTURE = "2026-11-14";
@@ -33,11 +31,21 @@ const VALID_ANSWERS = {
   telephone: "0612345678",
 } satisfies Partial<FunnelValues>;
 
-const submitEvent = () =>
-  ({ preventDefault: vi.fn() }) as unknown as FormEvent<HTMLFormElement>;
+/** A form event whose `preventDefault` calls are recorded in `prevented`. */
+function recordingSubmitEvent() {
+  const prevented: true[] = [];
+  const event = {
+    preventDefault: () => prevented.push(true),
+  } as unknown as FormEvent<HTMLFormElement>;
+  return { event, prevented };
+}
+
+const submitEvent = () => recordingSubmitEvent().event;
 
 function renderFunnelHook() {
-  return renderHook(() => useHostFunnel(OFFERS, SITE, submit));
+  return renderHook(() => useHostFunnel(OFFERS, SITE, env.lead.submit), {
+    wrapper: env.wrapper,
+  });
 }
 
 describe("useHostFunnel, first render and draft", () => {
@@ -90,8 +98,8 @@ describe("useHostFunnel, first render and draft", () => {
 describe("useHostFunnel, the offers prop", () => {
   it("keeps the answers and the step when the parent passes a new array of the same offers", () => {
     const { result, rerender } = renderHook(
-      ({ offers }) => useHostFunnel(offers, SITE, submit),
-      { initialProps: { offers: OFFERS } },
+      ({ offers }) => useHostFunnel(offers, SITE, env.lead.submit),
+      { initialProps: { offers: OFFERS }, wrapper: env.wrapper },
     );
     act(() => result.current.update("entreprise", "Acme"));
     act(() => result.current.update("consent", true));
@@ -122,6 +130,13 @@ describe("useHostFunnel, moving between steps", () => {
     expect(result.current.values.formule).toBe("prive");
   });
 
+  it("keeps the browser from submitting the form natively", () => {
+    const { result } = renderFunnelHook();
+    const { event, prevented } = recordingSubmitEvent();
+    act(() => result.current.onSubmit(event));
+    expect(prevented).toHaveLength(1);
+  });
+
   it("clears the error of a field when the person edits it", () => {
     const { result } = renderFunnelHook();
     act(() => result.current.onSubmit(submitEvent()));
@@ -140,15 +155,14 @@ describe("useHostFunnel, last step", () => {
   }
 
   it("sends the answers once when the form is submitted twice while the request runs", async () => {
-    const { promise, settle } = pendingResult();
-    submit.mockReturnValue(promise);
+    const { settle } = env.lead.hold();
     const { result } = openOnLastStep({});
 
     act(() => {
       result.current.onSubmit(submitEvent());
       result.current.onSubmit(submitEvent());
     });
-    expect(submit).toHaveBeenCalledTimes(1);
+    expect(env.lead.calls).toHaveLength(1);
     expect(result.current.busy).toBe(true);
 
     await act(async () => settle({ mode: "endpoint" }));
@@ -157,7 +171,7 @@ describe("useHostFunnel, last step", () => {
   });
 
   it("accepts a new submit once the request is over", async () => {
-    submit.mockRejectedValueOnce(new Error("boom"));
+    env.lead.failOnce(new Error("boom"));
     const { result } = openOnLastStep({});
 
     await act(async () => result.current.onSubmit(submitEvent()));
@@ -166,7 +180,7 @@ describe("useHostFunnel, last step", () => {
     expect(result.current.success).toBeNull();
 
     await act(async () => result.current.onSubmit(submitEvent()));
-    expect(submit).toHaveBeenCalledTimes(2);
+    expect(env.lead.calls).toHaveLength(2);
     expect(result.current.success).not.toBeNull();
   });
 
@@ -184,7 +198,7 @@ describe("useHostFunnel, last step", () => {
 
     act(() => result.current.onSubmit(submitEvent()));
 
-    expect(submit).not.toHaveBeenCalled();
+    expect(env.lead.calls).toHaveLength(0);
     expect(result.current.step).toBe(2);
     expect(result.current.errors).toEqual({
       date: "Indiquez une date à venir.",
@@ -195,7 +209,7 @@ describe("useHostFunnel, last step", () => {
   it("stays on the last step when only the last step has errors", () => {
     const { result } = openOnLastStep({ telephone: "" });
     act(() => result.current.onSubmit(submitEvent()));
-    expect(submit).not.toHaveBeenCalled();
+    expect(env.lead.calls).toHaveLength(0);
     expect(result.current.step).toBe(4);
     expect(result.current.errors).toEqual({
       telephone: "Indiquez votre numéro.",

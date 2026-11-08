@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { recorder } from "@/test/recorder";
 import { FilterChips } from "./FilterChips";
 import { setJs } from "./js-mode";
 
@@ -21,13 +22,14 @@ const FILTERS = [
   { value: "delta", label: "Delta" },
 ];
 
-function setup(value = "all", onChange = vi.fn()) {
+function setup(value = "all") {
+  const onChange = recorder<[string]>();
   render(
     <FilterChips
       label="Filtrer les événements"
       options={FILTERS}
       value={value}
-      onChange={onChange}
+      onChange={onChange.fn}
     />,
   );
   return { onChange };
@@ -58,7 +60,7 @@ describe("FilterChips", () => {
   it("reports the value of the clicked chip", async () => {
     const { onChange } = setup();
     await userEvent.click(screen.getByRole("button", { name: "Gamma" }));
-    expect(onChange).toHaveBeenCalledExactlyOnceWith("gamma");
+    expect(onChange.calls).toEqual([["gamma"]]);
   });
 
   it("selects a chip with the keyboard", async () => {
@@ -67,7 +69,7 @@ describe("FilterChips", () => {
     await userEvent.tab();
     expect(screen.getByRole("button", { name: "Alpha" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
-    expect(onChange).toHaveBeenCalledExactlyOnceWith("alpha");
+    expect(onChange.calls).toEqual([["alpha"]]);
   });
 
   it("makes the buttons plain buttons, not submit buttons", () => {

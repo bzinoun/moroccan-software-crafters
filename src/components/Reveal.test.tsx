@@ -1,71 +1,13 @@
 import { act, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { inMemoryViewport } from "@/test/in-memory-viewport";
+import { renderWithPorts } from "@/test/ports";
 import { Reveal } from "./Reveal";
 
-// A controllable IntersectionObserver: jsdom has none.
-class FakeObserver {
-  static instances: FakeObserver[] = [];
-  observed: Element[] = [];
-  disconnected = false;
-  constructor(
-    private callback: IntersectionObserverCallback,
-    readonly options?: IntersectionObserverInit,
-  ) {
-    FakeObserver.instances.push(this);
-  }
-  observe(element: Element) {
-    this.observed.push(element);
-  }
-  unobserve() {}
-  disconnect() {
-    this.disconnected = true;
-  }
-  takeRecords() {
-    return [];
-  }
-  report(isIntersecting: boolean) {
-    this.callback(
-      this.observed.map(
-        (target) => ({ isIntersecting, target }) as IntersectionObserverEntry,
-      ),
-      this as unknown as IntersectionObserver,
-    );
-  }
-}
-
-function lastObserver() {
-  const observer = FakeObserver.instances.at(-1);
-  if (!observer) throw new Error("no IntersectionObserver was created");
-  return observer;
-}
-
-// jsdom has no layout: every rect is zero, so each test places the element itself.
-function placeAt(top: number) {
-  vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
-    top,
-    bottom: top + 100,
-    left: 0,
-    right: 100,
-    width: 100,
-    height: 100,
-    x: 0,
-    y: top,
-    toJSON: () => ({}),
-  });
-}
+const HEIGHT = 768;
 
 describe("Reveal", () => {
-  beforeEach(() => {
-    FakeObserver.instances = [];
-    // Default: well below the fold (the test viewport is 768px high).
-    placeAt(2000);
-  });
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
-  });
-
   it("shows its content when the browser has no IntersectionObserver", () => {
     render(<Reveal>Hôte : une entreprise</Reveal>);
     const reveal = screen.getByText(/une entreprise/);
@@ -79,9 +21,18 @@ describe("Reveal", () => {
     expect(html).not.toContain("data-reveal");
   });
 
+  it("shows its content when the browser cannot report visibility", () => {
+    const viewport = inMemoryViewport({ canWatch: false });
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
+    expect(screen.getByText("Les formules")).not.toHaveAttribute("data-reveal");
+    expect(viewport.watches).toHaveLength(0);
+  });
+
   it("waits, out of sight, once mounted, until it scrolls into view", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    render(<Reveal>Les formules</Reveal>);
+    // Default: well below the fold (the viewport is 768px high).
+    renderWithPorts(<Reveal>Les formules</Reveal>, {
+      viewport: inMemoryViewport(),
+    });
     expect(screen.getByText("Les formules")).toHaveAttribute(
       "data-reveal",
       "waiting",
@@ -89,52 +40,63 @@ describe("Reveal", () => {
   });
 
   it("never hides content that is already in view at load, so it cannot flash", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    placeAt(window.innerHeight - 61);
-    render(<Reveal>Les formules</Reveal>);
+    const viewport = inMemoryViewport({ height: HEIGHT, top: HEIGHT - 61 });
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
     expect(screen.getByText("Les formules")).not.toHaveAttribute("data-reveal");
-    expect(FakeObserver.instances).toHaveLength(0);
+    expect(viewport.watches).toHaveLength(0);
   });
 
   it("hides content that sits within 60px of the viewport bottom, as the old site did", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    placeAt(window.innerHeight - 60);
-    render(<Reveal>Les formules</Reveal>);
+    const viewport = inMemoryViewport({ height: HEIGHT, top: HEIGHT - 60 });
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
     expect(screen.getByText("Les formules")).toHaveAttribute(
       "data-reveal",
       "waiting",
     );
   });
 
-  it("observes itself with a 60px bottom margin", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    render(<Reveal>Les formules</Reveal>);
-    const observer = lastObserver();
-    expect(observer.observed).toEqual([screen.getByText("Les formules")]);
-    expect(observer.options?.rootMargin).toBe("0px 0px -60px 0px");
+  it("watches itself with a 60px bottom margin", () => {
+    const viewport = inMemoryViewport();
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
+    expect(viewport.watches).toHaveLength(1);
+    expect(viewport.watches[0]!.element).toBe(screen.getByText("Les formules"));
+    expect(viewport.watches[0]!.rootMargin).toBe("0px 0px -60px 0px");
   });
 
-  it("stays waiting while out of view, then shows once and stops observing", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    render(<Reveal>Les formules</Reveal>);
+  it("stays waiting while out of view, then shows once and stops watching", () => {
+    const viewport = inMemoryViewport();
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
     const reveal = screen.getByText("Les formules");
-    const observer = lastObserver();
 
-    act(() => observer.report(false));
     expect(reveal).toHaveAttribute("data-reveal", "waiting");
-    expect(observer.disconnected).toBe(false);
+    expect(viewport.watches[0]!.stopped).toBe(false);
 
-    act(() => observer.report(true));
+    act(() => viewport.becomeVisible());
     expect(reveal).toHaveAttribute("data-reveal", "shown");
-    expect(observer.disconnected).toBe(true);
+    expect(viewport.watches[0]!.stopped).toBe(true);
   });
 
-  it("stops observing when it unmounts", () => {
-    vi.stubGlobal("IntersectionObserver", FakeObserver);
-    const { unmount } = render(<Reveal>Les formules</Reveal>);
-    const observer = lastObserver();
+  it("stays waiting when the observer reports an entry that is not in view", () => {
+    const viewport = inMemoryViewport();
+    renderWithPorts(<Reveal>Les formules</Reveal>, { viewport });
+    const reveal = screen.getByText("Les formules");
+
+    act(() => viewport.report({ isIntersecting: false }));
+    expect(reveal).toHaveAttribute("data-reveal", "waiting");
+    expect(viewport.watches[0]!.stopped).toBe(false);
+
+    act(() => viewport.report({ isIntersecting: true }));
+    expect(reveal).toHaveAttribute("data-reveal", "shown");
+  });
+
+  it("stops watching when it unmounts", () => {
+    const viewport = inMemoryViewport();
+    const { unmount } = renderWithPorts(<Reveal>Les formules</Reveal>, {
+      viewport,
+    });
+    expect(viewport.watches[0]!.stopped).toBe(false);
     unmount();
-    expect(observer.disconnected).toBe(true);
+    expect(viewport.watches[0]!.stopped).toBe(true);
   });
 
   it("applies the waiting look only to people who accept motion", () => {

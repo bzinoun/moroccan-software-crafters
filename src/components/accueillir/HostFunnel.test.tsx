@@ -1,14 +1,14 @@
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
-import { DRAFT_KEY } from "@/lib/funnel-draft";
+import { describe, expect, it } from "vitest";
+import { PortsProvider } from "@/lib/ports";
+import { deniedStorage } from "@/test/in-memory-storage";
 import { HostFunnel } from "./HostFunnel";
 import {
   LINKEDIN,
   OFFERS,
   SITE,
-  pendingResult,
   chooseOffer,
   fillContact,
   legend,
@@ -18,16 +18,14 @@ import {
   fillStep2,
   sendRequest,
   storeDraft,
-  stubReducedMotion,
-  submit,
   toStep2,
   toStep3,
   toStep4,
   setUpFunnelEnvironment,
 } from "./test-utils";
 
-// Nothing here posts anywhere: the funnel gets the `submit` double of the test
-// utils. The offers are a fixture: a content edit must not break this file. The
+// Nothing here posts anywhere: the funnel gets the in-memory send of the test
+// utils (`env.lead`). The offers are a fixture: a content edit must not break this file. The
 // rules of the fields are tested in `funnel-validate.test.ts` and
 // `funnel-draft.test.ts`; here each behavior is tested once.
 
@@ -117,22 +115,30 @@ describe("HostFunnel first render", () => {
 
   it("hydrates the static HTML without a mismatch, then shows the saved draft", async () => {
     storeDraft({ formule: "prive", entreprise: "Acme", _step: 3 });
-    const html = renderToString(
-      <HostFunnel offers={OFFERS} site={SITE} submit={submit} />,
+    const tree = (
+      <PortsProvider ports={env.ports}>
+        <HostFunnel offers={OFFERS} site={SITE} submit={env.lead.submit} />
+      </PortsProvider>
     );
+    const html = renderToString(tree);
     const host = document.createElement("div");
     host.innerHTML = html;
     document.body.append(host);
-    await act(async () => {
-      hydrateRoot(
-        host,
-        <HostFunnel offers={OFFERS} site={SITE} submit={submit} />,
-      );
-    });
-    expect(env.errorSpy).not.toHaveBeenCalled();
-    expect(screen.getByText("Étape 3 sur 4 · Votre entreprise")).toBeVisible();
-    expect(screen.getByLabelText("Nom de l'entreprise")).toHaveValue("Acme");
-    host.remove();
+    const mismatches: unknown[] = [];
+    try {
+      await act(async () => {
+        hydrateRoot(host, tree, {
+          onRecoverableError: (error) => mismatches.push(error),
+        });
+      });
+      expect(mismatches).toEqual([]);
+      expect(
+        screen.getByText("Étape 3 sur 4 · Votre entreprise"),
+      ).toBeVisible();
+      expect(screen.getByLabelText("Nom de l'entreprise")).toHaveValue("Acme");
+    } finally {
+      host.remove();
+    }
   });
 
   it("can take the focus from the skip link: the funnel has tabindex -1", () => {
@@ -201,21 +207,17 @@ describe("moving between steps", () => {
     expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
     expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
     expect(legend(2)).toHaveFocus();
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: "smooth",
-      block: "start",
-    });
+    expect(env.scroller.scrolls).toEqual([
+      { id: "funnel", behavior: "smooth" },
+    ]);
     expect(screen.getByRole("button", { name: "Retour" })).toBeVisible();
   });
 
   it("scrolls without animation when the person asks for reduced motion", async () => {
-    stubReducedMotion(true);
+    env.reduceMotion();
     const { user } = setup();
     await toStep2(user);
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: "auto",
-      block: "start",
-    });
+    expect(env.scroller.scrolls).toEqual([{ id: "funnel", behavior: "auto" }]);
   });
 
   it("goes back with Retour and keeps the answers", async () => {
@@ -430,7 +432,7 @@ describe("step 4, the contact", () => {
       "aria-invalid",
       "true",
     );
-    expect(submit).not.toHaveBeenCalled();
+    expect(env.lead.calls).toHaveLength(0);
   });
 
   it("preselects the e-mail preference", async () => {
@@ -444,8 +446,8 @@ describe("sending", () => {
   it("sends the answers with the type, the subject and the French e-mail body", async () => {
     const { user } = setup();
     await sendRequest(user);
-    expect(submit).toHaveBeenCalledTimes(1);
-    expect(submit).toHaveBeenCalledWith({
+    expect(env.lead.calls).toHaveLength(1);
+    expect(env.lead.calls[0]).toEqual({
       site: SITE,
       data: {
         formule: "Meetup partenaire",
@@ -487,8 +489,7 @@ describe("sending", () => {
 
   // The guard against a double click is tested on the hook (`useHostFunnel.test.tsx`).
   it("marks the button busy and keeps its focus until the answer comes", async () => {
-    const { promise, settle } = pendingResult();
-    submit.mockReturnValue(promise);
+    const { settle } = env.lead.hold();
     const { user } = setup();
     await sendRequest(user);
     const busy = screen.getByRole("button", { name: "Envoi…" });
@@ -499,7 +500,7 @@ describe("sending", () => {
   });
 
   it("gives back the button and shows the failure alert when the send throws", async () => {
-    submit.mockRejectedValue(new Error("boom"));
+    env.lead.fail(new Error("boom"));
     const { user } = setup();
     await sendRequest(user);
     const alert = await screen.findByRole("alert");
@@ -508,27 +509,28 @@ describe("sending", () => {
     );
     const button = screen.getByRole("button", { name: "Envoyer ma demande" });
     expect(button).not.toHaveAttribute("aria-disabled");
-    expect(env.errorSpy).toHaveBeenCalledWith(
-      "[MSC] Envoi du formulaire impossible :",
-      expect.any(Error),
-    );
+    expect(env.reporter.reports).toEqual([
+      {
+        message: "[MSC] Envoi du formulaire impossible :",
+        cause: new Error("boom"),
+      },
+    ]);
     expect(screen.getByLabelText("Prénom et nom")).toHaveValue("Sara Alaoui");
   });
 
   it("can send again after a failure", async () => {
-    submit.mockRejectedValueOnce(new Error("boom"));
+    env.lead.failOnce(new Error("boom"));
     const { user } = setup();
     await sendRequest(user);
     await screen.findByRole("alert");
     await user.click(next());
-    expect(submit).toHaveBeenCalledTimes(2);
+    expect(env.lead.calls).toHaveLength(2);
     expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
   });
 
   it("clears the failure alert while the next try runs", async () => {
-    submit.mockRejectedValueOnce(new Error("boom"));
-    const { promise } = pendingResult();
-    submit.mockReturnValueOnce(promise);
+    env.lead.failOnce(new Error("boom"));
+    env.lead.hold();
     const { user } = setup();
     await sendRequest(user);
     await screen.findByRole("alert");
@@ -555,11 +557,11 @@ describe("sending", () => {
         "Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.",
       ),
     ).toBeInTheDocument();
-    expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+    expect(savedDraft()).toBeNull();
   });
 
   it("tells the person to send the prefilled e-mail when the mail client opened", async () => {
-    submit.mockResolvedValue({ mode: "mailto", url: "mailto:x@y.ma" });
+    env.lead.answer({ mode: "mailto", url: "mailto:x@y.ma" });
     const { user } = setup({ ...SITE, contact: { email: "x@y.ma" } });
     await sendRequest(user);
     expect(
@@ -570,7 +572,7 @@ describe("sending", () => {
   });
 
   it("shows the LinkedIn link and keeps the form when nothing receives the request", async () => {
-    submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
+    env.lead.answer({ mode: "linkedin", href: linkedin });
     const { user } = setup();
     await sendRequest(user);
     const alert = await screen.findByRole("alert");
@@ -581,7 +583,7 @@ describe("sending", () => {
     expect(link).toHaveAttribute("href", linkedin);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
-    expect(env.errorSpy).toHaveBeenCalled();
+    expect(env.reporter.reports).toHaveLength(1);
     expect(
       screen.getByRole("button", { name: "Envoyer ma demande" }),
     ).toBeEnabled();
@@ -591,7 +593,7 @@ describe("sending", () => {
   });
 
   it("shows the same alert, without a link, when no LinkedIn page is configured", async () => {
-    submit.mockResolvedValue({ mode: "none" });
+    env.lead.answer({ mode: "none" });
     const { user } = setup();
     await sendRequest(user);
     const alert = await screen.findByRole("alert");
@@ -602,7 +604,7 @@ describe("sending", () => {
   });
 
   it("explains a failed send, keeps the answers and offers the e-mail address", async () => {
-    submit.mockResolvedValue({
+    env.lead.answer({
       mode: "error",
       error: new Error("HTTP 500"),
       fallback: {
@@ -621,7 +623,7 @@ describe("sending", () => {
       "href",
       "mailto:x@y.ma?subject=s",
     );
-    expect(env.errorSpy).toHaveBeenCalled();
+    expect(env.reporter.reports).toHaveLength(1);
     expect(
       screen.getByRole("button", { name: "Envoyer ma demande" }),
     ).toBeEnabled();
@@ -629,7 +631,7 @@ describe("sending", () => {
   });
 
   it("offers the LinkedIn page after a failed send when there is no e-mail address", async () => {
-    submit.mockResolvedValue({
+    env.lead.answer({
       mode: "error",
       error: new Error("HTTP 500"),
       fallback: { kind: "linkedin", href: linkedin },
@@ -646,7 +648,7 @@ describe("sending", () => {
   });
 
   it("clears the alert when the person changes step", async () => {
-    submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
+    env.lead.answer({ mode: "linkedin", href: linkedin });
     const { user } = setup();
     await sendRequest(user);
     await screen.findByText(/pas encore relié/);
@@ -655,7 +657,7 @@ describe("sending", () => {
   });
 
   it("passes the trap value to the submit code and shows the success panel as if it worked", async () => {
-    submit.mockResolvedValue({ mode: "honeypot" });
+    env.lead.answer({ mode: "honeypot" });
     const { user, container } = setup();
     await toStep4(user);
     await fillContact(user);
@@ -663,15 +665,15 @@ describe("sending", () => {
       target: { value: " https://spam.example " },
     });
     await user.click(next());
-    expect(submit).toHaveBeenCalledTimes(1);
-    expect(submit.mock.calls[0]![0].honeypot).toBe(" https://spam.example ");
+    expect(env.lead.calls).toHaveLength(1);
+    expect(env.lead.calls[0]!.honeypot).toBe(" https://spam.example ");
     expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
     expect(
       screen.getByText(
         "Un membre de l'équipe vous recontacte sous 48 heures pour valider la date et la logistique.",
       ),
     ).toBeInTheDocument();
-    expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
+    expect(savedDraft()).toBeNull();
   });
 
   // The decision to go back is tested on the hook; this checks what the person sees.
@@ -689,7 +691,7 @@ describe("sending", () => {
     ).toBeVisible();
     await fillContact(user);
     await user.click(next());
-    expect(submit).not.toHaveBeenCalled();
+    expect(env.lead.calls).toHaveLength(0);
     expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
     expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
     expect(screen.getByLabelText("Date souhaitée")).toHaveFocus();
@@ -762,18 +764,7 @@ describe("the draft", () => {
   });
 
   it("works when the storage is unavailable", async () => {
-    vi.stubGlobal("localStorage", {
-      getItem: () => {
-        throw new Error("denied");
-      },
-      setItem: () => {
-        throw new Error("denied");
-      },
-      removeItem: () => {
-        throw new Error("denied");
-      },
-    });
-    const { user } = setup();
+    const { user } = renderFunnel(SITE, { storage: deniedStorage() });
     await toStep2(user);
     expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
   });

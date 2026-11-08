@@ -2,6 +2,8 @@ import { useRef, useState, type ReactNode } from "react";
 import { PageLink } from "@/components/PageLink";
 import { frenchSpacing } from "./french";
 import type { ContactFallback, SubmitInput, SubmitResult } from "./forms";
+import { consoleReporter, type ErrorReporter } from "./ports/error-reporter";
+import { usePorts } from "./ports";
 
 // What a lead form shows once `submitForm` answered. Both forms (host funnel
 // and SoCraTes sponsor form) call `outcomeOf`; each passes its own texts. Both
@@ -72,8 +74,15 @@ function Failure({
   return <>{frenchSpacing(texts.plain)}</>;
 }
 
-/** Maps a result to the success text or the alert content. Logs what the team needs to see. */
-export function outcomeOf(result: SubmitResult, texts: OutcomeTexts): Outcome {
+/**
+ * Maps a result to the success text or the alert content. Reports what the
+ * team needs to see through `reporter` (the browser console by default).
+ */
+export function outcomeOf(
+  result: SubmitResult,
+  texts: OutcomeTexts,
+  reporter: ErrorReporter = consoleReporter,
+): Outcome {
   switch (result.mode) {
     case "endpoint":
     case "honeypot":
@@ -82,7 +91,7 @@ export function outcomeOf(result: SubmitResult, texts: OutcomeTexts): Outcome {
       return { kind: "success", text: texts.mailto };
     case "linkedin":
     case "none":
-      console.error(
+      reporter.report(
         "[MSC] Aucun endpoint ni e-mail de contact configuré dans content/site.json",
       );
       return {
@@ -94,7 +103,7 @@ export function outcomeOf(result: SubmitResult, texts: OutcomeTexts): Outcome {
         ),
       };
     case "error":
-      console.error("[MSC] Envoi du formulaire impossible :", result.error);
+      reporter.report("[MSC] Envoi du formulaire impossible :", result.error);
       return {
         kind: "alert",
         content: <Failure fallback={result.fallback} texts={texts.failure} />,
@@ -111,6 +120,7 @@ export type Submit = (input: SubmitInput) => Promise<SubmitResult>;
  * net that turns a thrown error into the error outcome.
  */
 export function useLeadSubmit(submit: Submit, texts: OutcomeTexts) {
+  const { errorReporter } = usePorts();
   const [busy, setBusy] = useState(false);
   // `busy` is one render late for a double click: the ref answers at once.
   const running = useRef(false);
@@ -119,7 +129,7 @@ export function useLeadSubmit(submit: Submit, texts: OutcomeTexts) {
     running.current = true;
     setBusy(true);
     try {
-      return outcomeOf(await submit(input), texts);
+      return outcomeOf(await submit(input), texts, errorReporter);
     } catch (cause) {
       // The submit code reports failures as a result; this is a safety net.
       return outcomeOf(
@@ -129,6 +139,7 @@ export function useLeadSubmit(submit: Submit, texts: OutcomeTexts) {
           fallback: null,
         },
         texts,
+        errorReporter,
       );
     } finally {
       running.current = false;
