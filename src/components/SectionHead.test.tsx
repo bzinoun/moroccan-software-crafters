@@ -53,7 +53,7 @@ describe("SectionHead", () => {
     expect(screen.getByText(CENTERED.eyebrow)).toHaveClass("before:hidden");
     rerender(<SectionHead align="start" {...CENTERED} />);
     expect(screen.getByText(CENTERED.eyebrow)).not.toHaveClass("before:hidden");
-    expect(screen.getByText(CENTERED.eyebrow)).toHaveClass("before:w-[22px]");
+    expect(screen.getByText(CENTERED.eyebrow)).toHaveClass("before:w-5.5");
   });
 
   it("lets an explicit marker win over the centered default", () => {

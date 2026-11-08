@@ -10,7 +10,7 @@ const linkClass =
 export function SiteFooter({ site }: { site: Site }) {
   return (
     // The sage focus indicator replaces the global green one on this dark surface.
-    <footer className="bg-green-deep pt-14 pb-10 text-[0.92rem] text-on-dark **:focus-visible:outline-sage">
+    <footer className="bg-green-deep pt-14 pb-10 text-s92 text-on-dark **:focus-visible:outline-sage">
       <Container className="flex flex-wrap items-start justify-between gap-8">
         <Brand site={site} line={site.mission} size="lg" tone="dark" />
         <nav
@@ -24,7 +24,7 @@ export function SiteFooter({ site }: { site: Site }) {
             </PageLink>
           ))}
         </nav>
-        <p className="w-full border-t border-white/16 pt-5 text-[0.84rem] text-on-dark-muted">
+        <p className="w-full border-t border-white/16 pt-5 text-s84 text-on-dark-muted">
           {frenchSpacing(site.footer.legal)}
         </p>
       </Container>

@@ -18,7 +18,7 @@ export function FormAlert({
       role="alert"
       hidden={empty}
       className={cn(
-        "mt-4 rounded-sm bg-[#fdecec] px-3.5 py-3 text-[0.92rem] text-red-dark",
+        "mt-4 rounded-sm bg-[#fdecec] px-3.5 py-3 text-s92 text-red-dark",
         className,
       )}
       {...props}

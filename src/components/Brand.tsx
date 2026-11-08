@@ -12,9 +12,9 @@ const brand = tv({
   slots: {
     root: "flex items-center gap-[0.7rem] no-underline",
     logo: "",
-    // The old <strong> asked for 700, but only the 600 face loaded, so the name was 600 wide.
-    name: "font-display text-[1.05rem] leading-[1.1] font-semibold",
-    line: "block text-[0.72rem] font-medium tracking-[0.02em] max-sm:hidden",
+    // Only the 600 face is loaded, so the name is 600 wide.
+    name: "font-display text-s105 leading-[1.1] font-semibold",
+    line: "block text-s72 font-medium tracking-[0.02em] max-sm:hidden",
   },
   variants: {
     size: {
@@ -22,7 +22,7 @@ const brand = tv({
       lg: { logo: "size-13" },
     },
     tone: {
-      // The old stylesheet let the global `a:hover` turn the light brand dark green.
+      // The global `a:hover` turns the light brand dark green.
       light: { root: "text-ink hover:text-green-dark", line: "text-muted" },
       dark: { root: "text-white", line: "text-on-dark-muted" },
     },

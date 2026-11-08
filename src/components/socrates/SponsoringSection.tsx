@@ -11,9 +11,9 @@ import { PackageGrid } from "./PackageGrid";
 import { SponsorForm } from "./SponsorForm";
 import { SponsorLayout } from "./SponsorLayout";
 
-// The #sponsoring section of the former `socrates.html` (`git show 1353207:socrates.html`): the dark band with the arguments, the
-// trusted partners, the three packages, the in-kind card, the note, and the
-// form beside its FAQ. Texts come from content/sponsoring.json.
+// The #sponsoring section: the dark band with the arguments, the trusted
+// partners, the three packages, the in-kind card, the note, and the form
+// beside its FAQ. Texts come from content/sponsoring.json.
 
 type SponsoringSectionProps = {
   /** `loadSponsoring()`. */
@@ -52,7 +52,7 @@ export function SponsoringSection({
         <CardGrid items={sp.arguments} columns={2} tone="dark" />
       </div>
       <div className="mt-10 mb-14 rounded-card border border-sage/35 bg-sage/10 px-6.5 py-6">
-        <h3 id="trust-title" className="mb-[0.4rem] text-[1.4rem]">
+        <h3 id="trust-title" className="mb-[0.4rem] text-s140">
           {frenchSpacing(sp.trust.title)}
         </h3>
         <LogoRow
@@ -66,7 +66,7 @@ export function SponsoringSection({
       <div id="in-kind" className="mt-5.5">
         <Card tone="dark" title={sp.inKind.title} text={sp.inKind.text} />
       </div>
-      <p className="mt-7 mb-0 text-center text-[0.92rem] text-on-dark-muted">
+      <p className="mt-7 mb-0 text-center text-s92 text-on-dark-muted">
         {frenchSpacing(sp.note)}
       </p>
       <SponsorLayout title={sp.form.title} lead={sp.form.lead} faq={sp.faq}>

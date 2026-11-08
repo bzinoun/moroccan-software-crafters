@@ -207,6 +207,19 @@ describe("stepping", () => {
     expect(screen.getByText(/· 1 \/ 4$/)).toBeInTheDocument();
   });
 
+  it("announces the new photo: the caption sits in one polite live region that stays mounted", async () => {
+    const user = setup(FOUR, 0);
+    await user.click(screen.getByRole("button", { name: "Ouvrir" }));
+    const caption = screen.getByText(/· 1 \/ 4$/);
+    expect(caption.closest("[aria-live]")).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+    await user.click(screen.getByRole("button", { name: "Photo suivante" }));
+    // Same node, new text: a screen reader reads a change, not a new element.
+    expect(screen.getByText(/· 2 \/ 4$/)).toBe(caption);
+  });
+
   it("wraps around at both ends", async () => {
     const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));

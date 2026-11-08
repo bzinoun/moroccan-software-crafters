@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Card, CardGrid, type CardItem } from "./CardGrid";
 
 const WHO: CardItem[] = [
@@ -97,6 +97,57 @@ describe("CardGrid", () => {
     expect(
       screen.getByRole("link", { name: "En savoir plus →" }),
     ).toBeInTheDocument();
+  });
+
+  it("falls back to En savoir plus for an empty label", () => {
+    render(
+      <CardGrid
+        items={[
+          { title: "Le meetup", text: "Texte.", href: "/meetup/", label: "" },
+        ]}
+        columns={2}
+      />,
+    );
+    expect(
+      screen.getByRole("link", { name: "En savoir plus →" }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders no link for an empty href", () => {
+    render(
+      <CardGrid
+        items={[
+          { title: "Le meetup", text: "Texte.", href: "", label: "Le déroulé" },
+        ]}
+        columns={2}
+      />,
+    );
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Le déroulé/)).not.toBeInTheDocument();
+  });
+
+  it("renders two cards with the same title, with no duplicate key warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      render(
+        <CardGrid
+          items={[
+            { title: "Même titre", text: "Premier texte." },
+            { title: "Même titre", text: "Second texte." },
+          ]}
+          columns={2}
+        />,
+      );
+      expect(screen.getAllByRole("article")).toHaveLength(2);
+      expect(error).not.toHaveBeenCalled();
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it("renders nothing for no item: no empty container", () => {
+    const { container } = render(<CardGrid items={[]} columns={3} />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it.each([

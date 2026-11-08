@@ -10,8 +10,8 @@ type TagListProps = Omit<ComponentPropsWithoutRef<"ul">, "children"> & {
 };
 
 // Spec: the "TagList" entry in msca-design/COMPONENTS.md.
-// Pills of topics. The default margins (0.2rem above, 1rem below) are the old
-// ones; the timeline and the article cards pass their own through `className`.
+// Pills of topics. The default margins are 0.2rem above and 1rem below; the
+// timeline and the article cards pass their own through `className`.
 export function TagList({ tags, max, className, ...props }: TagListProps) {
   if (!tags || tags.length === 0) return null;
   const shown = max === undefined ? tags : tags.slice(0, max);
@@ -27,7 +27,7 @@ export function TagList({ tags, max, className, ...props }: TagListProps) {
       {shown.map((tag, index) => (
         <li
           key={`${index}-${tag}`}
-          className="rounded-full bg-paper-2 px-[9px] py-[3px] text-[0.76rem] text-ink-soft"
+          className="rounded-full bg-paper-2 px-[9px] py-[3px] text-s76 text-ink-soft"
         >
           {frenchSpacing(tag)}
         </li>

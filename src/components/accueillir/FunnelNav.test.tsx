@@ -54,4 +54,13 @@ describe("FunnelNav", () => {
       screen.getByRole("button", { name: "Continuer" }),
     ).not.toHaveAttribute("aria-disabled");
   });
+
+  it("is a control for script only: it is gone for a visitor with no script", () => {
+    render(<FunnelNav step={2} busy={false} onPrev={() => {}} />);
+    const bar = screen.getByRole("button", { name: "Continuer" }).parentElement;
+    expect(bar).toHaveClass("not-js:hidden");
+    expect(bar).toContainElement(
+      screen.getByRole("button", { name: "Retour" }),
+    );
+  });
 });

@@ -18,8 +18,7 @@ import {
   type SponsorLevels,
 } from "./useSponsorForm";
 
-// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md; port
-// of the sponsor form of the former `socrates.html` (`git show 1353207:socrates.html`).
+// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md.
 // The view of the form; the state, the validation and the send live in
 // `useSponsorForm`.
 

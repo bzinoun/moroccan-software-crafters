@@ -6,18 +6,19 @@ describe("404 page", () => {
   it("keeps the site header and footer around the message", () => {
     render(<NotFound />);
     expect(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("navigation", { name: "Navigation principale" }),
+    ).not.toHaveLength(0);
     expect(screen.getByRole("banner")).toBeInTheDocument();
     expect(screen.getByRole("contentinfo")).toBeInTheDocument();
   });
 
   it("marks no nav link as the current page", () => {
     render(<NotFound />);
-    const nav = screen.getByRole("navigation", {
+    for (const nav of screen.getAllByRole("navigation", {
       name: "Navigation principale",
-    });
-    expect(nav.querySelectorAll("[aria-current='page']")).toHaveLength(0);
+    })) {
+      expect(nav.querySelectorAll("[aria-current='page']")).toHaveLength(0);
+    }
   });
 
   it("shows a French heading and a link to the home page", () => {

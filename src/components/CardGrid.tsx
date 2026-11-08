@@ -3,8 +3,7 @@ import { frenchSpacing } from "@/lib/french";
 import { PageLink } from "./PageLink";
 import { Reveal } from "./Reveal";
 
-// Spec: the "CardGrid, Card" entry in msca-design/COMPONENTS.md; port of
-// `.cards`, `.card` and `.more` and of the `card()` helper of the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`).
+// Spec: the "CardGrid, Card" entry in msca-design/COMPONENTS.md.
 
 export type CardItem = {
   title: string;
@@ -15,17 +14,19 @@ export type CardItem = {
   label?: string;
 };
 
+const DEFAULT_LABEL = "En savoir plus";
+
 const cardStyles = tv({
   slots: {
     card: "rounded-card border px-5.5 py-6",
-    title: "mb-[0.4rem] text-[1.15rem]",
-    text: "m-0 text-[0.95rem]",
+    title: "mb-[0.4rem] text-s115",
+    text: "m-0 text-s95",
   },
   variants: {
     tone: {
       light: { card: "border-line bg-white", text: "text-ink-soft" },
       dark: {
-        card: "border-white/14 bg-white/5",
+        card: "border-white/16 bg-white/5",
         title: "text-white",
         text: "text-on-dark",
       },
@@ -40,32 +41,25 @@ type CardProps = CardItem & {
   className?: string;
 };
 
-export function Card({
-  title,
-  text,
-  href,
-  label = "En savoir plus",
-  tone,
-  className,
-}: CardProps) {
+export function Card({ title, text, href, label, tone, className }: CardProps) {
   const styles = cardStyles({ tone });
-  const linkClass = "mt-3 inline-block text-[0.9rem] font-semibold";
-  const linkText = `${frenchSpacing(label)} →`;
+  const linkClass = "mt-3 inline-block text-s90 font-semibold";
+  // An empty label or href counts as a missing one.
+  const linkText = `${frenchSpacing(label || DEFAULT_LABEL)} →`;
   return (
     <Reveal as="article" className={cn(styles.card(), className)}>
       <h3 className={styles.title()}>{frenchSpacing(title)}</h3>
       <p className={styles.text()}>{frenchSpacing(text)}</p>
-      {href === undefined ? null : (
+      {href ? (
         <PageLink className={linkClass} href={href}>
           {linkText}
         </PageLink>
-      )}
+      ) : null}
     </Reveal>
   );
 }
 
-// Columns are mobile first. Old queries: 960 is `lg`, 600 is `sm`.
-// Three columns use six tracks from `lg`: each card spans two, so an
+// Columns are mobile first. Three columns use six tracks from `lg`: each card spans two, so an
 // incomplete last row stays centered (two left over: columns 2 to 5; one:
 // columns 3 and 4). On the two-column layout between `sm` and `lg`, a lone
 // last card takes the whole row.
@@ -89,10 +83,11 @@ type CardGridProps = {
 };
 
 export function CardGrid({ items, columns, tone, className }: CardGridProps) {
+  if (items.length === 0) return null;
   return (
     <div className={cn(gridStyles({ columns }), className)}>
-      {items.map((item) => (
-        <Card key={item.title} {...item} tone={tone} />
+      {items.map((item, index) => (
+        <Card key={`${index}-${item.title}`} {...item} tone={tone} />
       ))}
     </div>
   );

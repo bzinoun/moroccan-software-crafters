@@ -65,3 +65,10 @@ describe("PackageGrid", () => {
     ]);
   });
 });
+
+describe("PackageGrid with no package", () => {
+  it("renders nothing: no empty grid", () => {
+    const { container } = render(<PackageGrid packages={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});

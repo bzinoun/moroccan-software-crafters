@@ -31,8 +31,7 @@ import {
 // State of the SoCraTes sponsor form, as `useHostFunnel` is for the funnel: the
 // errors, the level, the validation, the send and the thanks. The component
 // keeps the view. One step: validate, send through `submit`, then the thanks
-// panel or an alert. The validation, the messages and the focus moves are the
-// old ones (`simpleForm` in the former `assets/js/pages.js`).
+// panel or an alert.
 
 const TYPE = "Sponsoring SoCraTes";
 const MAILTO_SUCCESS =
@@ -160,7 +159,7 @@ export function useSponsorForm({
         data,
         type: TYPE,
         subject: `Partenariat SoCraTes · ${data.entreprise} · ${data.niveau}`,
-        // As typed: the old form did not trim the trap field.
+        // As typed: the trap field is not trimmed.
         honeypot: String(values.get(HONEYPOT_FIELD) ?? ""),
       }),
     );

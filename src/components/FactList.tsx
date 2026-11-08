@@ -3,19 +3,19 @@ import type { VariantProps } from "tailwind-variants/config";
 import { cn, tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 
-// Spec: the "FactList" entry in msca-design/COMPONENTS.md; port of `.facts`.
+// Spec: the "FactList" entry in msca-design/COMPONENTS.md.
 // A row of figures: a big value and a short label in a bordered cell. Two
-// columns on mobile, four from `sm` (old 700px query). The tracks are
-// `1fr`, not `minmax(0,1fr)`: a column grows to its widest value, as in the old
-// site, so "9 h 30 → 14 h" never overflows its cell at 375px. Inside `PageHero`
+// columns on mobile, four from `sm`. The tracks are `1fr`, not `minmax(0,1fr)`:
+// a column grows to its widest value, so "9 h 30 → 14 h" never overflows its
+// cell at 375px (`grid-cols-2` would use `minmax(0,1fr)`). Inside `PageHero`
 // pass `sm:grid-cols-[repeat(2,1fr)]` in `className` to keep two columns.
-export const factListStyles = tv({
+const factListStyles = tv({
   slots: {
     list: "m-0 grid list-none grid-cols-[repeat(2,1fr)] gap-3.5 p-0 sm:grid-cols-[repeat(4,1fr)]",
     item: "rounded-sm border px-4 py-3.5",
     value:
-      "block font-display text-[1.6rem] leading-[1.1] font-semibold whitespace-nowrap",
-    label: "text-[0.84rem]",
+      "block font-display text-s160 leading-[1.1] font-semibold whitespace-nowrap",
+    label: "text-s84",
   },
   variants: {
     tone: {
@@ -25,7 +25,7 @@ export const factListStyles = tv({
         label: "text-ink-soft",
       },
       dark: {
-        item: "border-white/16 bg-white/7",
+        item: "border-white/16 bg-white/5",
         value: "text-sage",
         label: "text-[#cfc7bb]",
       },

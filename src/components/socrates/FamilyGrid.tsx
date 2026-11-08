@@ -2,9 +2,9 @@ import { frenchSpacing } from "@/lib/french";
 import type { FamilyItem } from "@/lib/pages-data";
 import { Photo } from "../Photo";
 
-// Spec: the "FamilyGrid" entry in msca-design/COMPONENTS.md; port of `.family`.
-// The old list kept the browser defaults for a list (a 40px start padding and a
-// 17px bottom margin): the port keeps them so the cards sit where they did.
+// Spec: the "FamilyGrid" entry in msca-design/COMPONENTS.md.
+// The list keeps the browser defaults for a list (a 40px start padding and a
+// 17px bottom margin) so the cards sit where they always did.
 
 type FamilyGridProps = {
   /** `socratesFamily(loadSocrates())`: the logo url is final, base path included. */
@@ -12,6 +12,7 @@ type FamilyGridProps = {
 };
 
 export function FamilyGrid({ items }: FamilyGridProps) {
+  if (items.length === 0) return null;
   return (
     <ul
       role="list"
@@ -29,10 +30,10 @@ export function FamilyGrid({ items }: FamilyGridProps) {
             height={72}
             className="mx-auto mb-2 size-18 object-contain"
           />
-          <b className="block text-[0.85rem] font-semibold">
+          <b className="block text-s85 font-semibold">
             {frenchSpacing(item.name)}
           </b>
-          <span className="text-[0.76rem] text-muted">
+          <span className="text-s76 text-muted">
             {frenchSpacing(item.country)}
           </span>
         </li>

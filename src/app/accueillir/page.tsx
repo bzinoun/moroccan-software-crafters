@@ -90,7 +90,7 @@ export default function AccueillirPage() {
                   : null
               }
             />
-            <p className="mt-5 text-[0.9rem] text-muted">
+            <p className="mt-5 text-s90 text-muted">
               {frenchSpacing("Vous voulez d'abord comprendre le format ?")}{" "}
               <Link href={"/meetup/"}>
                 {frenchSpacing("Le déroulé d'un meetup, étape par étape.")}

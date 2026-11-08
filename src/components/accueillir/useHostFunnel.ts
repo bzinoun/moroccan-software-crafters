@@ -5,7 +5,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -40,21 +39,16 @@ import {
   type Submit,
 } from "@/lib/submit-outcome";
 import { withoutError } from "@/lib/validation";
+import { useHydrated } from "./useHydrated";
 
-// State of the host funnel (port of the state machine of the former `assets/js/funnel.js` (`git show 1353207:assets/js/funnel.js`)):
-// the answers, the step, the saved draft, the validation and the submit. The
-// first render is step 1 with empty answers, the same on the server and in the
-// browser, so the exported HTML shows the offers. `useSyncExternalStore` makes
-// that possible with no effect: while React hydrates it reads the server
-// snapshot (not in the browser yet), then it renders again with the browser
-// snapshot, and only then are the saved draft, `?formule=` and today's date
-// read. The docs of `useSearchParams` ask for a Suspense boundary, which would
+// State of the host funnel: the answers, the step, the saved draft, the
+// validation and the submit. The first render is step 1 with empty answers, the
+// same on the server and in the browser, so the exported HTML shows the offers.
+// `useHydrated` makes that possible with no effect: while React hydrates it is
+// false (not in the browser yet), then it renders again with true, and only
+// then are the saved draft, `?formule=` and today's date read. The docs of `useSearchParams` ask for a Suspense boundary, which would
 // leave only a fallback in the exported HTML; `location.search` is read in the
 // same place as the draft instead.
-
-const subscribeNever = () => () => {};
-const inBrowser = () => true;
-const onServer = () => false;
 
 const SERVER_STATE = { values: EMPTY_VALUES, step: 1, minDate: "" };
 
@@ -70,7 +64,7 @@ function readBrowserState(offerIds: readonly string[]) {
   return { ...restored, minDate };
 }
 
-export type Update = <K extends keyof FunnelValues>(
+type Update = <K extends keyof FunnelValues>(
   name: K,
   value: FunnelValues[K],
 ) => void;
@@ -105,7 +99,7 @@ const OUTCOME_TEXTS: OutcomeTexts = {
   },
 };
 
-export type HostFunnelState = {
+type HostFunnelState = {
   formRef: RefObject<HTMLFormElement | null>;
   values: FunnelValues;
   step: number;
@@ -132,7 +126,7 @@ export function useHostFunnel(
   /** A field to focus once its step is shown (the final check jumps back). */
   const fieldAfterMove = useRef<ErrorField | null>(null);
   // The state of the browser at load, then what the person changed on top of it.
-  const hydrated = useSyncExternalStore(subscribeNever, inBrowser, onServer);
+  const hydrated = useHydrated();
   const offerKey = offers.map((offer) => offer.id).join("\n");
   const initial = useMemo(
     () => (hydrated ? readBrowserState(offerKey.split("\n")) : SERVER_STATE),

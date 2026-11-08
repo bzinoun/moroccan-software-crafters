@@ -50,3 +50,10 @@ describe("FamilyGrid", () => {
     }
   });
 });
+
+describe("FamilyGrid with no item", () => {
+  it("renders nothing: no empty list", () => {
+    const { container } = render(<FamilyGrid items={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});

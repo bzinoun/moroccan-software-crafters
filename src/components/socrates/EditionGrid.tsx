@@ -3,17 +3,14 @@ import type { EditionCard as EditionCardData } from "@/lib/pages-data";
 import { Reveal } from "../Reveal";
 import { Photo } from "../Photo";
 
-// Spec: the "EditionGrid, EditionCard" entry in msca-design/COMPONENTS.md; port of
-// `.edition-grid` and `.edition`. One column, two from `sm` (old 560px), four
-// from `lg` (old 960px).
+// Spec: the "EditionGrid, EditionCard" entry in msca-design/COMPONENTS.md.
+// One column, two from `sm`, four from `lg`.
 
-// The cover without a photo: the sage zellige tile over deep green, a radial
-// vignette on top (both are the old `.edition .cover` background layers).
-const ZELLIGE_SAGE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23a9bba3' stroke-opacity='.4' stroke-width='1.1'%3E%3Cpath d='M12 12h16v16H12zM20 8.7 31.3 20 20 31.3 8.7 20z'/%3E%3Cpath d='M20 0v8.7M20 31.3V40M0 20h8.7M31.3 20H40M0 0l12 12M40 0 28 12M0 40l12-12M40 40 28 28'/%3E%3C/g%3E%3C/svg%3E\")";
-
+// The cover without a photo: the sage zellige tile (`--zellige-sage` in
+// globals.css) over deep green, a radial vignette on top.
 const COVER_ART = {
-  backgroundImage: `radial-gradient(circle, var(--color-green-deep) 0 34%, transparent 70%), ${ZELLIGE_SAGE}`,
+  backgroundImage:
+    "radial-gradient(circle, var(--color-green-deep) 0 34%, transparent 70%), var(--zellige-sage)",
   backgroundPosition: "center",
   backgroundSize: "auto, 32px",
 } as const;
@@ -62,30 +59,30 @@ export function EditionCard({ edition }: { edition: EditionCardData }) {
         ) : (
           <YearStar year={edition.year} />
         )}
-        <span className="absolute top-3 left-3 -rotate-4 bg-postit-yellow px-3 py-1 font-hand text-[1.3rem] shadow-[0_4px_10px_rgba(0,0,0,0.2)]">
+        <span className="absolute top-3 left-3 -rotate-4 bg-postit-yellow px-3 py-1 font-hand text-s130 shadow-[0_4px_10px_rgba(0,0,0,0.2)]">
           {frenchSpacing(edition.edition)}
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 px-5 pt-[18px] pb-5">
-        <h3 className="m-0 text-[1.15rem]">{frenchSpacing(edition.title)}</h3>
-        <span className="min-h-[3.2em] text-[0.88rem] text-muted">
+      <div className="flex flex-1 flex-col gap-1.5 px-5 pt-4.5 pb-5">
+        <h3 className="m-0 text-s115">{frenchSpacing(edition.title)}</h3>
+        <span className="min-h-[3.2em] text-s88 text-muted">
           {frenchSpacing(edition.where)}
         </span>
         <div className="mt-1.5 mb-1 flex gap-4">
           <div>
-            <b className="block font-display text-[1.4rem] leading-none text-green">
+            <b className="block font-display text-s140 leading-none font-bold text-green">
               {edition.participants}
             </b>
-            <span className="text-[0.76rem] text-muted">crafters</span>
+            <span className="text-s76 text-muted">crafters</span>
           </div>
           <div>
-            <b className="block font-display text-[1.4rem] leading-none text-green">
+            <b className="block font-display text-s140 leading-none font-bold text-green">
               {edition.partners}
             </b>
-            <span className="text-[0.76rem] text-muted">partenaires</span>
+            <span className="text-s76 text-muted">partenaires</span>
           </div>
         </div>
-        <p className="m-0 text-[0.92rem] text-ink-soft">
+        <p className="m-0 text-s92 text-ink-soft">
           {frenchSpacing(edition.text)}
         </p>
       </div>
@@ -99,10 +96,14 @@ type EditionGridProps = {
 };
 
 export function EditionGrid({ editions }: EditionGridProps) {
+  if (editions.length === 0) return null;
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {editions.map((edition) => (
-        <EditionCard key={edition.year} edition={edition} />
+        <EditionCard
+          key={`${edition.year}-${edition.edition}`}
+          edition={edition}
+        />
       ))}
     </div>
   );

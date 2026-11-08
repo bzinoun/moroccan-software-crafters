@@ -13,7 +13,7 @@ type RevealProps = ComponentPropsWithoutRef<"div"> & {
   as?: "div" | "li" | "article" | "section";
 };
 
-// Spec: the "Reveal" entry in msca-design/COMPONENTS.md; port of `initReveal`.
+// Spec: the "Reveal" entry in msca-design/COMPONENTS.md.
 // Fade-in on scroll: the content starts 16px low and transparent, then rises
 // to rest once, when it comes within 60px of the viewport bottom.
 // The server HTML carries no reveal state, so the content shows without
@@ -54,7 +54,7 @@ export function Reveal({
     <Tag
       ref={ref}
       className={cn(
-        "motion-safe:data-[reveal=shown]:transition-[opacity,translate] motion-safe:data-[reveal=shown]:duration-600 motion-safe:data-[reveal=shown]:ease-[ease] motion-safe:data-[reveal=waiting]:translate-y-4 motion-safe:data-[reveal=waiting]:opacity-0",
+        "motion-safe:data-[reveal=shown]:transition-[opacity,translate] motion-safe:data-[reveal=shown]:duration-600 motion-safe:data-[reveal=shown]:ease-standard motion-safe:data-[reveal=waiting]:translate-y-4 motion-safe:data-[reveal=waiting]:opacity-0",
         className,
       )}
       {...props}

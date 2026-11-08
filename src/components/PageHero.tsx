@@ -7,10 +7,10 @@ import { Lead } from "./Lead";
 import { PostIt } from "./PostIt";
 import { Photo } from "./Photo";
 
-// Spec: the "PageHero" entry in msca-design/COMPONENTS.md; port of `.page-hero`.
+// Spec: the "PageHero" entry in msca-design/COMPONENTS.md.
 // The hero of an inner page: text and facts on the left, a tilted photo with an
 // overlapping post-it on the right, one zellige corner. The two columns start
-// at `lg` (the old site switched at 900px); the photo then stacks under the text.
+// at `lg`; below it the photo stacks under the text.
 
 type PageHeroProps = {
   eyebrow: string;

@@ -4,10 +4,10 @@ import { FormPanel } from "../FormPanel";
 import { Lead } from "../Lead";
 import { FaqList } from "../home/Faq";
 
-// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md; port of
-// `.sponsor-layout`. Two columns from `lg` (old 900px): the intro with the FAQ
-// (0.9fr) and the white form panel (1.1fr), 72px under the offers. The panel
-// stays white with ink text inside the dark section.
+// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md.
+// Two columns from `lg`: the intro with the FAQ (0.9fr) and the white form
+// panel (1.1fr), 72px under the offers. The panel stays white with ink text
+// inside the dark section.
 
 type SponsorLayoutProps = {
   /** `loadSponsoring().form.title`. */
@@ -29,8 +29,8 @@ export function SponsorLayout({
   return (
     <div className="mt-18 grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr]">
       <div>
-        <h3 className="text-[1.8rem]">{frenchSpacing(title)}</h3>
-        <Lead tone="dark" className="text-[1.05rem]">
+        <h3 className="text-s180">{frenchSpacing(title)}</h3>
+        <Lead tone="dark" className="text-s105">
           {lead}
         </Lead>
         <FaqList id="sponsor-faq" tone="dark" items={faq} className="mt-7" />

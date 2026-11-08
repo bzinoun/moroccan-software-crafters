@@ -164,7 +164,7 @@ describe("Button", () => {
     );
     expect(
       shadowClasses(screen.getByRole("link", { name: "Avec lueur" })),
-    ).toHaveLength(1);
+    ).not.toHaveLength(0);
     expect(
       shadowClasses(screen.getByRole("link", { name: "Sans lueur" })),
     ).toEqual([]);

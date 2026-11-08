@@ -74,6 +74,46 @@ describe("HostFunnel first render", () => {
     expect(html).toContain('id="host-form"');
   });
 
+  describe("for a visitor with no script", () => {
+    function serverForm() {
+      const host = document.createElement("div");
+      host.innerHTML = renderToString(
+        <HostFunnel offers={OFFERS} site={SITE} />,
+      );
+      return host;
+    }
+
+    it("has every step in the HTML, none hidden", () => {
+      const steps = [...serverForm().querySelectorAll("fieldset[data-step]")];
+      expect(steps.map((step) => step.getAttribute("data-step"))).toEqual([
+        "1",
+        "2",
+        "3",
+        "4",
+      ]);
+      expect(steps.filter((step) => step.hasAttribute("hidden"))).toEqual([]);
+    });
+
+    it("hides the steps after the first for visitors with script", () => {
+      const steps = [...serverForm().querySelectorAll("fieldset[data-step]")];
+      expect(steps.map((step) => step.classList.contains("js:hidden"))).toEqual(
+        [false, true, true, true],
+      );
+    });
+
+    it("hides the step buttons and the progress, and shows how to reach the team", () => {
+      const host = serverForm();
+      expect(host.querySelector("#next")?.parentElement).toHaveClass(
+        "not-js:hidden",
+      );
+      expect(host.querySelector("#progress-label")).toHaveClass(
+        "not-js:hidden",
+      );
+      const link = within(host).getByRole("link", { name: "LinkedIn" });
+      expect(link).toHaveAttribute("href", LINKEDIN);
+    });
+  });
+
   it("hydrates the static HTML without a mismatch, then shows the saved draft", async () => {
     storeDraft({ formule: "prive", entreprise: "Acme", _step: 3 });
     const html = renderToString(

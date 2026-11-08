@@ -2,8 +2,7 @@ import { cloneElement, type ReactElement } from "react";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 
-// Spec: the "Form primitives" entry in msca-design/COMPONENTS.md; port of
-// `.field`, `.opt`, `.help` and `.error`.
+// Spec: the "Form primitives" entry in msca-design/COMPONENTS.md.
 
 type ControlProps = {
   id?: string;
@@ -25,13 +24,13 @@ type FieldErrorProps = {
  */
 export function FieldError({ id, children }: FieldErrorProps) {
   return (
-    <p id={id} className="mt-[5px] mb-[1em] text-[0.84rem] text-red">
+    <p id={id} className="mt-[5px] mb-[1em] text-s84 text-red">
       {frenchSpacing(children)}
     </p>
   );
 }
 
-const LABEL_CLASS = "mb-1.5 block text-[0.93rem] font-semibold";
+const LABEL_CLASS = "mb-1.5 block text-s93 font-semibold";
 
 type FieldProps = {
   /** Id of the control (or of the group). Help and error ids derive from it. */
@@ -68,8 +67,8 @@ export function Field({
   className,
   children,
 }: FieldProps) {
-  // An empty string still renders the paragraph: it keeps the margins it had in
-  // the old form (the date help is empty until a date is picked).
+  // An empty string still renders the paragraph and its margins (the date help
+  // is empty until a date is picked).
   const helpId = help !== undefined ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const own = children.props;
@@ -100,7 +99,7 @@ export function Field({
     ...(group && label ? { "aria-labelledby": `${id}-label` } : {}),
   });
   return (
-    <div className={cn("mb-[18px]", className)}>
+    <div className={cn("mb-4.5", className)}>
       {labelContent ? (
         group ? (
           <span id={`${id}-label`} className={LABEL_CLASS}>

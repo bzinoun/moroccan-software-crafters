@@ -1,6 +1,6 @@
 import { frenchSpacing } from "@/lib/french";
 
-// Port of `.recap`: the summary at the top of step 4. The labels are ours; the
+// The summary at the top of step 4. The labels are ours; the
 // values are what the person typed, so they stay as typed.
 
 type RecapProps = {

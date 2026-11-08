@@ -7,8 +7,7 @@ import { frenchSpacing } from "@/lib/french";
 import { Photo } from "../Photo";
 
 // Spec: the "HostLayout (HostHero, ProcessSteps, ProofCard)" entry in
-// msca-design/COMPONENTS.md; port of `.host-hero`, `.host-layout`, `.host-aside`,
-// `.steps` and `.proof`.
+// msca-design/COMPONENTS.md.
 
 type HostHeroProps = { eyebrow: string; title: string; lead: string };
 
@@ -30,18 +29,21 @@ export type ProcessStep = { title: string; text: string };
 /** What happens after the request: numbered steps with a green round digit. */
 export function ProcessSteps({ steps }: { steps: readonly ProcessStep[] }) {
   return (
-    <ol role="list" className="my-7 grid list-none gap-[18px] p-0">
+    <ol role="list" className="my-7 grid list-none gap-4.5 p-0">
       {steps.map((step, index) => (
-        <li key={step.title} className="grid grid-cols-[38px_1fr] gap-3.5">
+        <li
+          key={`${index}-${step.title}`}
+          className="grid grid-cols-[38px_1fr] gap-3.5"
+        >
           <b
             aria-hidden="true"
-            className="grid size-[38px] place-items-center rounded-full bg-green font-display font-bold text-white"
+            className="grid size-9.5 place-items-center rounded-full bg-green font-display font-bold text-white"
           >
             {index + 1}
           </b>
           <div>
             <strong className="block">{frenchSpacing(step.title)}</strong>
-            <span className="text-[0.93rem] text-ink-soft">
+            <span className="text-s93 text-ink-soft">
               {frenchSpacing(step.text)}
             </span>
           </div>
@@ -51,14 +53,14 @@ export function ProcessSteps({ steps }: { steps: readonly ProcessStep[] }) {
   );
 }
 
-export type ProofEdition = {
+type ProofEdition = {
   host?: string;
   /** "YYYY-MM-DD". */
   date: string;
   registrations?: number;
 };
 
-// The text of the former `accueillir.html` (`git show 1353207:accueillir.html`) before the script rewrites it from the events.
+// The sentence shown while no meetup is known.
 const FALLBACK_PROOF = "Société Générale GSCM, 24 octobre 2026, 110 inscrits.";
 
 type ProofCardProps = {
@@ -85,9 +87,9 @@ export function ProofCard({ src, alt, edition }: ProofCardProps) {
         alt={alt}
         width={92}
         height={70}
-        className="h-[70px] w-[92px] rounded-sm object-cover"
+        className="h-17.5 w-23 rounded-sm object-cover"
       />
-      <p id="proof-text" className="m-0 text-[0.9rem] text-ink-soft">
+      <p id="proof-text" className="m-0 text-s90 text-ink-soft">
         <strong>{frenchSpacing("Dernière édition :")}</strong>{" "}
         {frenchSpacing(detail)}
       </p>
@@ -106,7 +108,7 @@ type HostLayoutProps = {
 export function HostLayout({ aside, children }: HostLayoutProps) {
   return (
     <Container className="grid items-start gap-12 pb-22 lg:grid-cols-[0.85fr_1.15fr]">
-      <aside className="lg:sticky lg:top-[100px]">{aside}</aside>
+      <aside className="lg:sticky lg:top-25">{aside}</aside>
       {children}
     </Container>
   );

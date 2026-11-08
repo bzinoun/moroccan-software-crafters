@@ -71,6 +71,10 @@ export default function SocratesPage() {
   const companies = loadCompanies();
   const wall = sponsorsWall(companies, loadEvents());
   const hero = s.hero;
+  const laws = socratesLaws(s);
+  const formats = s.openspace.formats;
+  const editions = socratesEditionCards(s);
+  const family = socratesFamily(s);
 
   return (
     <>
@@ -105,53 +109,63 @@ export default function SocratesPage() {
         columns={3}
       />
 
-      <Section variant="alt" id="regles" aria-labelledby="rules-title">
-        <SectionHead
-          marker="khatam"
-          eyebrow={s.openspace.eyebrow}
-          title={frenchSpacing(s.openspace.title)}
-          lead={s.openspace.lead}
-          titleId="rules-title"
-        />
-        <OpenSpaceLaws laws={socratesLaws(s)} />
-        <h3 className="mt-12 mb-[18px]">
-          {frenchSpacing(s.openspace.formats.title)}
-        </h3>
-        <div id="formats">
-          <CardGrid items={s.openspace.formats.items} columns={4} />
-        </div>
-      </Section>
+      {laws.length > 0 || formats.items.length > 0 ? (
+        <Section variant="alt" id="regles" aria-labelledby="rules-title">
+          <SectionHead
+            marker="khatam"
+            eyebrow={s.openspace.eyebrow}
+            title={s.openspace.title}
+            lead={s.openspace.lead}
+            titleId="rules-title"
+          />
+          <OpenSpaceLaws laws={laws} />
+          {formats.items.length > 0 ? (
+            <>
+              <h3 className="mt-12 mb-4.5">{frenchSpacing(formats.title)}</h3>
+              <div id="formats">
+                <CardGrid items={formats.items} columns={4} />
+              </div>
+            </>
+          ) : null}
+        </Section>
+      ) : null}
 
-      <Section id="deroule" aria-labelledby="schedule-title">
-        <SectionHead
-          marker="khatam"
-          eyebrow={s.schedule.eyebrow}
-          title={frenchSpacing(s.schedule.title)}
-          titleId="schedule-title"
-        />
-        <DayStrip days={s.schedule.days} note={s.schedule.note} />
-      </Section>
+      {s.schedule.days.length > 0 ? (
+        <Section id="deroule" aria-labelledby="schedule-title">
+          <SectionHead
+            marker="khatam"
+            eyebrow={s.schedule.eyebrow}
+            title={s.schedule.title}
+            titleId="schedule-title"
+          />
+          <DayStrip days={s.schedule.days} note={s.schedule.note} />
+        </Section>
+      ) : null}
 
-      <Section variant="alt" id="editions" aria-labelledby="editions-title">
-        <SectionHead
-          marker="khatam"
-          eyebrow={s.editions.eyebrow}
-          title={frenchSpacing(s.editions.title)}
-          titleId="editions-title"
-        />
-        <EditionGrid editions={socratesEditionCards(s)} />
-      </Section>
+      {editions.length > 0 ? (
+        <Section variant="alt" id="editions" aria-labelledby="editions-title">
+          <SectionHead
+            marker="khatam"
+            eyebrow={s.editions.eyebrow}
+            title={s.editions.title}
+            titleId="editions-title"
+          />
+          <EditionGrid editions={editions} />
+        </Section>
+      ) : null}
 
-      <Section id="famille" aria-labelledby="family-title">
-        <SectionHead
-          marker="khatam"
-          eyebrow={s.family.eyebrow}
-          title={frenchSpacing(s.family.title)}
-          lead={s.family.text}
-          titleId="family-title"
-        />
-        <FamilyGrid items={socratesFamily(s)} />
-      </Section>
+      {family.length > 0 ? (
+        <Section id="famille" aria-labelledby="family-title">
+          <SectionHead
+            marker="khatam"
+            eyebrow={s.family.eyebrow}
+            title={s.family.title}
+            lead={s.family.text}
+            titleId="family-title"
+          />
+          <FamilyGrid items={family} />
+        </Section>
+      ) : null}
 
       <CardsSection
         id="valeurs"
@@ -177,7 +191,7 @@ export default function SocratesPage() {
         <SectionHead
           align="center"
           eyebrow={s.sponsorsWall.eyebrow}
-          title={frenchSpacing(s.sponsorsWall.title)}
+          title={s.sponsorsWall.title}
           titleId="sponsors-title"
         />
         <LogoWall

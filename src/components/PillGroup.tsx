@@ -2,8 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 
-// Spec: the "Form primitives" entry in msca-design/COMPONENTS.md; port of
-// `.pills` and `.pill`.
+// Spec: the "Form primitives" entry in msca-design/COMPONENTS.md.
 
 type PillGroupProps = Omit<ComponentProps<"div">, "role"> & {
   /** `radiogroup` for single choice pills, `group` (default) for checkboxes. */
@@ -49,7 +48,7 @@ export function Pill({ type, children, className, ...props }: PillProps) {
         className="peer pointer-events-none absolute opacity-0"
         {...props}
       />
-      <span className="inline-block cursor-pointer rounded-full border-[1.5px] border-line bg-white px-4 py-[0.55rem] text-[0.93rem] font-medium peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green">
+      <span className="inline-block cursor-pointer rounded-full border-[1.5px] border-line bg-white px-4 py-[0.55rem] text-s93 font-medium peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green">
         {frenchSpacing(children)}
       </span>
     </label>

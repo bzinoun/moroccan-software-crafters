@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { NavToggle } from "./NavToggle";
@@ -12,74 +12,96 @@ function renderNav() {
   );
 }
 
+// The menu is a native disclosure: it opens with no script. The script adds
+// Escape, the focus return and the close on a link.
+const menu = () => screen.getByRole("group");
+const summary = () =>
+  screen.getByText("Menu").closest("summary") as HTMLElement;
+
 describe("NavToggle", () => {
-  it("starts closed", () => {
+  it("is a native disclosure named Menu, closed at first", () => {
     renderNav();
-    const nav = screen.getByRole("navigation", {
-      name: "Navigation principale",
-    });
-    expect(nav).not.toHaveAttribute("data-open", "true");
-    // Hidden below lg until data-open is true, so closed links stay out of the tab order.
-    expect(nav).toHaveClass("max-lg:hidden");
-    expect(
-      screen.getByRole("button", { name: "Ouvrir le menu" }),
-    ).toHaveAttribute("aria-expanded", "false");
+    expect(menu().tagName).toBe("DETAILS");
+    expect(menu()).not.toHaveAttribute("open");
+    expect(summary().tagName).toBe("SUMMARY");
   });
 
-  it("opens on a click: aria-expanded true on the button and data-open on the nav", async () => {
+  it("holds the nav links in a navigation landmark", () => {
+    renderNav();
+    const nav = within(menu()).getByRole("navigation", {
+      name: "Navigation principale",
+    });
+    expect(within(nav).getByRole("link", { name: "SoCraTes" })).toHaveAttribute(
+      "href",
+      "/socrates/",
+    );
+  });
+
+  it("opens on a click on the summary", async () => {
     const user = userEvent.setup();
     renderNav();
-    await user.click(screen.getByRole("button", { name: "Ouvrir le menu" }));
-    expect(
-      screen.getByRole("button", { name: "Ouvrir le menu" }),
-    ).toHaveAttribute("aria-expanded", "true");
-    expect(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
-    ).toHaveAttribute("data-open", "true");
+    await user.click(summary());
+    expect(menu()).toHaveAttribute("open");
   });
 
   it("closes again on a second click", async () => {
     const user = userEvent.setup();
     renderNav();
-    const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
-    await user.click(toggle);
-    await user.click(toggle);
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
-    ).not.toHaveAttribute("data-open", "true");
+    await user.click(summary());
+    await user.click(summary());
+    expect(menu()).not.toHaveAttribute("open");
   });
 
-  it("closes when a link inside the nav is clicked", async () => {
+  it("closes on Escape and gives the focus back to the summary", async () => {
     const user = userEvent.setup();
     renderNav();
-    const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
-    await user.click(toggle);
-    await user.click(screen.getByRole("link", { name: "SoCraTes" }));
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
-    ).not.toHaveAttribute("data-open", "true");
+    await user.click(summary());
+    await user.click(screen.getByRole("navigation"));
+    expect(summary()).not.toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(menu()).not.toHaveAttribute("open");
+    expect(summary()).toHaveFocus();
   });
 
-  it("keeps the menu open when a click lands on the nav but not on a link", async () => {
+  it("closes on Escape pressed on a link inside the menu", async () => {
     const user = userEvent.setup();
     renderNav();
-    const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
-    await user.click(toggle);
-    await user.click(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
+    await user.click(summary());
+    await user.tab();
+    expect(screen.getByRole("link", { name: "Le meetup" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(menu()).not.toHaveAttribute("open");
+    expect(summary()).toHaveFocus();
+  });
+
+  it("leaves the focus alone when Escape is pressed with the menu closed", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button>Autre</button>
+        <NavToggle>
+          <a href="/meetup/">Le meetup</a>
+        </NavToggle>
+      </>,
     );
-    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    screen.getByRole("button", { name: "Autre" }).focus();
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button", { name: "Autre" })).toHaveFocus();
   });
 
-  it("links the toggle to the nav it controls", () => {
+  it("closes when a link inside the menu is clicked", async () => {
+    const user = userEvent.setup();
     renderNav();
-    const nav = screen.getByRole("navigation", {
-      name: "Navigation principale",
-    });
-    expect(
-      screen.getByRole("button", { name: "Ouvrir le menu" }),
-    ).toHaveAttribute("aria-controls", nav.id);
+    await user.click(summary());
+    await user.click(screen.getByRole("link", { name: "SoCraTes" }));
+    expect(menu()).not.toHaveAttribute("open");
+  });
+
+  it("keeps the menu open when a click lands on the panel but not on a link", async () => {
+    const user = userEvent.setup();
+    renderNav();
+    await user.click(summary());
+    await user.click(screen.getByRole("navigation"));
+    expect(menu()).toHaveAttribute("open");
   });
 });

@@ -5,11 +5,11 @@ import { PageLink } from "./PageLink";
 
 // Spec: the "Button" entry under "Built" in msca-design/COMPONENTS.md.
 // Hover lifts the button by 1px; a disabled or aria-disabled button stays flat.
-export const buttonStyles = tv({
+const buttonStyles = tv({
   base: [
     "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-transparent",
     "font-body text-base leading-none font-semibold no-underline",
-    "motion-safe:transition-[translate,background-color,box-shadow] motion-safe:duration-150 motion-safe:ease-[ease]",
+    "motion-safe:transition-[translate,background-color,box-shadow] motion-safe:duration-150 motion-safe:ease-standard",
     "hover:-translate-y-px",
     "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
     // A busy button is aria-disabled, not disabled, so it keeps the focus.
@@ -18,7 +18,7 @@ export const buttonStyles = tv({
   variants: {
     variant: {
       primary:
-        "bg-red text-white shadow-[0_6px_18px_rgba(193,39,45,0.28)] hover:bg-red-dark",
+        "bg-red text-white shadow-[0_6px_18px] shadow-red/28 hover:bg-red-dark",
       // Red pill without the glow, for a dark surface.
       "primary-flat": "bg-red text-white hover:bg-red-dark",
       // White pill with red text, for the green band.
@@ -32,7 +32,7 @@ export const buttonStyles = tv({
       md: "px-[1.35rem] py-[0.85rem]",
       // tailwind-merge drops an earlier leading-* when a later text-* size follows,
       // so the small size repeats leading-none after its own font size.
-      sm: "px-[1.05rem] py-[0.6rem] text-[0.92rem] leading-none",
+      sm: "px-[1.05rem] py-[0.6rem] text-s92 leading-none",
     },
   },
   defaultVariants: { variant: "primary", size: "md" },
@@ -45,7 +45,7 @@ type AsLink = Styles &
 type AsButton = Styles &
   ComponentPropsWithoutRef<"button"> & { href?: undefined };
 
-export type ButtonProps = AsLink | AsButton;
+type ButtonProps = AsLink | AsButton;
 
 export function Button(props: ButtonProps) {
   if (props.href !== undefined) {

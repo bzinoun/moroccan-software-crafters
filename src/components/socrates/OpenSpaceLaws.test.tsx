@@ -51,3 +51,10 @@ describe("OpenSpaceLaws", () => {
     }
   });
 });
+
+describe("OpenSpaceLaws with no law", () => {
+  it("renders nothing: no empty list", () => {
+    const { container } = render(<OpenSpaceLaws laws={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});

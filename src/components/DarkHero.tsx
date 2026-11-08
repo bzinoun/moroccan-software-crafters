@@ -7,8 +7,7 @@ import { FactList, type Fact } from "./FactList";
 import { HeroEm } from "./HeroEm";
 import { Lead } from "./Lead";
 
-// Spec: the "DarkHero, StatusChip" entry in msca-design/COMPONENTS.md; port of
-// `.hero-dark` and `.status-chip`.
+// Spec: the "DarkHero, StatusChip" entry in msca-design/COMPONENTS.md.
 
 // A pill with a translucent green fill, a sage edge line and a 14px sage khatam
 // before the text. `leading-[1.3]` follows the size on purpose: tailwind-merge
@@ -21,7 +20,7 @@ export function StatusChip({
   return (
     <p
       className={cn(
-        "mt-[1.4rem] mb-0 inline-flex items-center gap-[0.55rem] rounded-[18px] border border-[rgba(169,187,163,0.55)] bg-[rgba(15,63,35,0.85)] py-[0.45rem] pr-4 pl-3 text-[0.92rem] leading-[1.3] font-medium text-balance text-cream before:size-3.5 before:shrink-0 before:bg-sage before:content-[''] before:[clip-path:polygon(50%_0%,64.6%_14.6%,85.4%_14.6%,85.4%_35.4%,100%_50%,85.4%_64.6%,85.4%_85.4%,64.6%_85.4%,50%_100%,35.4%_85.4%,14.6%_85.4%,14.6%_64.6%,0%_50%,14.6%_35.4%,14.6%_14.6%,35.4%_14.6%)]",
+        "mt-[1.4rem] mb-0 inline-flex items-center gap-[0.55rem] rounded-[18px] border border-sage/55 bg-green-deep/85 py-[0.45rem] pr-4 pl-3 text-s92 leading-[1.3] font-medium text-balance text-cream before:size-3.5 before:shrink-0 before:bg-sage before:content-[''] before:[clip-path:polygon(50%_0%,64.6%_14.6%,85.4%_14.6%,85.4%_35.4%,100%_50%,85.4%_64.6%,85.4%_85.4%,64.6%_85.4%,50%_100%,35.4%_85.4%,14.6%_85.4%,14.6%_64.6%,0%_50%,14.6%_35.4%,14.6%_14.6%,35.4%_14.6%)]",
         className,
       )}
       {...props}
@@ -71,7 +70,7 @@ export function DarkHero({
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,63,35,0.45)_0%,rgba(15,63,35,0.78)_60%,var(--color-green-deep)_100%)]"
+        className="absolute inset-0 bg-linear-to-b/srgb from-green-deep/45 via-green-deep/78 via-60% to-green-deep"
       />
       <Container className="relative z-1">
         <div className="max-w-[820px]">
@@ -84,10 +83,7 @@ export function DarkHero({
           >
             <HeroEm text={title} />
           </h1>
-          <Lead
-            tone="dark"
-            className="max-w-[64ch] text-[1.2rem] text-[#e4ddd2]"
-          >
+          <Lead tone="dark" className="max-w-[64ch] text-s120 text-[#e4ddd2]">
             {lead}
           </Lead>
           {actions ? (

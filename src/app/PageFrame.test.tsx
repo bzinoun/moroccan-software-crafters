@@ -18,11 +18,20 @@ const navLabel = (href: string): string => {
   if (!link) throw new Error(`no nav link to ${href}`);
   return link.label;
 };
+// The header holds the links twice (the row and the mobile menu); both must agree.
 function currentLinks() {
-  const nav = screen.getByRole("navigation", { name: "Navigation principale" });
-  return [...nav.querySelectorAll("a[aria-current='page']")].map(
-    (a) => a.textContent,
+  const navs = screen.getAllByRole("navigation", {
+    name: "Navigation principale",
+  });
+  const perNav = navs.map((nav) =>
+    [...nav.querySelectorAll("a[aria-current='page']")].map(
+      (a) => a.textContent,
+    ),
   );
+  expect(perNav.every((labels) => labels.join() === perNav[0]?.join())).toBe(
+    true,
+  );
+  return perNav[0] ?? [];
 }
 
 describe("PageFrame", () => {

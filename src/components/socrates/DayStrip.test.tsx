@@ -35,3 +35,10 @@ describe("DayStrip", () => {
     expect(container.querySelectorAll("p")).toHaveLength(DAYS.length);
   });
 });
+
+describe("DayStrip with no day", () => {
+  it("renders nothing, the note included", () => {
+    const { container } = render(<DayStrip days={[]} note={NOTE} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});

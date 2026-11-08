@@ -16,9 +16,8 @@ import { frenchSpacing } from "@/lib/french";
 import { Photo } from "./Photo";
 
 // Spec: the "Lightbox" entry under "Built" in msca-design/COMPONENTS.md.
-// Ported from the lightbox of the former `assets/js/cms.js` (`git show 1353207:assets/js/cms.js`). One native dialog is rendered
-// once by the provider; the gallery, the feature cards and the articles call
-// `useLightbox().open(items, startIndex)`.
+// One native dialog is rendered once by the provider; the gallery, the feature
+// cards and the articles call `useLightbox().open(items, startIndex)`.
 
 export type LightboxItem = {
   /** Final URL of the photo, already built with `assetUrl()` by the caller. */
@@ -92,9 +91,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // A document-level listener, like the old site: a click on the photo, the
-  // caption or the padding moves focus to the page, out of the dialog, and a
-  // handler on the dialog would stop receiving the arrow keys.
+  // A document-level listener: a click on the photo, the caption or the padding
+  // moves focus to the page, out of the dialog, and a handler on the dialog
+  // would stop receiving the arrow keys.
   useEffect(() => {
     if (!isOpen) return;
     function handleKeyDown(event: globalThis.KeyboardEvent) {
@@ -170,7 +169,11 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
               alt={caption}
               className="max-h-[calc(100vh-140px)] w-auto rounded-[6px]"
             />
-            <figcaption className="mt-3 text-center text-[0.92rem] text-[#e8e2d9]">
+            {/* Polite live region: the text changes in place at each step, so a screen reader announces the new photo. */}
+            <figcaption
+              aria-live="polite"
+              className="mt-3 text-center text-s92 text-[#e8e2d9]"
+            >
               {figcaption}
             </figcaption>
           </figure>

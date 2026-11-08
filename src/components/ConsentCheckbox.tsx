@@ -30,15 +30,15 @@ export function ConsentCheckbox({
   const inputId = id ?? generatedId;
   const errorId = error ? `${inputId}-error` : undefined;
   return (
-    <div className={cn("mb-[18px]", className)}>
-      <label className="grid grid-cols-[22px_1fr] items-start gap-[10px] text-[0.88rem] text-ink-soft">
+    <div className={cn("mb-4.5", className)}>
+      <label className="grid grid-cols-[22px_1fr] items-start gap-2.5 text-s88 text-ink-soft">
         <input
           {...props}
           type="checkbox"
           id={inputId}
           aria-invalid={error ? true : undefined}
           aria-describedby={errorId}
-          className="mt-0.5 mr-0 mb-0 ml-0 size-5 accent-green"
+          className="mt-0.5 size-5 accent-green"
         />
         <span>{frenchSpacing(children)}</span>
       </label>

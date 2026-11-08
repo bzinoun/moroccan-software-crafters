@@ -2,9 +2,7 @@ import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { Photo } from "./Photo";
 
-// Spec: the "StepRows, StepRow, TipList" entry in msca-design/COMPONENTS.md;
-// port of `.step-row`, `.time-tag`, `.kicker` and `.tips`, and of the steps
-// code of the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`).
+// Spec: the "StepRows, StepRow, TipList" entry in msca-design/COMPONENTS.md.
 
 export type Step = {
   /** Anchor id of the row. */
@@ -36,10 +34,10 @@ export function TipList({ tips, className }: TipListProps) {
         className,
       )}
     >
-      {tips.map((tip) => (
+      {tips.map((tip, index) => (
         <li
-          key={tip}
-          className="w-fit max-w-full rotate-[-0.6deg] bg-postit-yellow px-3.5 pt-2.5 pb-3 font-hand text-[1.25rem] [line-height:1.2] shadow-[0_6px_12px_rgba(0,0,0,0.08)] even:rotate-[0.8deg] even:bg-postit-green"
+          key={`${index}-${tip}`}
+          className="w-fit max-w-full rotate-[-0.6deg] bg-postit-yellow px-3.5 pt-2.5 pb-3 font-hand text-s125 [line-height:1.2] shadow-[0_6px_12px_rgba(0,0,0,0.08)] even:rotate-[0.8deg] even:bg-postit-green"
         >
           {frenchSpacing(tip)}
         </li>
@@ -50,9 +48,9 @@ export function TipList({ tips, className }: TipListProps) {
 
 type StepRowProps = { step: Step };
 
-// Two equal columns from `md` (old query 860px); the photo comes first on
-// mobile. Even rows move the photo to the right.
-export function StepRow({ step }: StepRowProps) {
+// Two equal columns from `md`; the photo comes first on mobile. Even rows
+// move the photo to the right.
+function StepRow({ step }: StepRowProps) {
   return (
     <article
       id={step.id}
@@ -64,15 +62,15 @@ export function StepRow({ step }: StepRowProps) {
           alt=""
           className="aspect-[4/3] w-full rounded-card object-cover shadow-lift"
         />
-        <span className="absolute top-3.5 left-3.5 rounded-full bg-ink px-[11px] py-1.5 text-[0.82rem] font-semibold text-white">
+        <span className="absolute top-3.5 left-3.5 rounded-full bg-ink px-[11px] py-1.5 text-s82 font-semibold text-white">
           {frenchSpacing(step.time)}
         </span>
       </div>
       <div>
-        <div className="mb-[0.2rem] font-hand text-[1.6rem] leading-[1.1] text-green">
+        <div className="mb-[0.2rem] font-hand text-s160 leading-[1.1] text-green">
           {frenchSpacing(step.kicker)}
         </div>
-        <h3 className="text-[1.8rem]">{frenchSpacing(step.title)}</h3>
+        <h3 className="text-s180">{frenchSpacing(step.title)}</h3>
         <p className="text-ink-soft">{frenchSpacing(step.text)}</p>
         <TipList tips={step.tips ?? []} />
       </div>

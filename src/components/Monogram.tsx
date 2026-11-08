@@ -6,14 +6,14 @@ import { cn, tv } from "@/lib/cn";
 // The initials tile that stands in for a missing company logo. The initials
 // come from `monogram(name)` in src/lib/derive.ts (the first letters of the
 // first two words, uppercased); this component only draws them.
-export const monogramStyles = tv({
+const monogramStyles = tv({
   base: "grid place-items-center bg-green-soft font-display font-semibold text-green-dark",
   variants: {
     size: {
       // Logo wall: the 84px logo box.
-      lg: "size-21 rounded-[14px] text-[1.6rem]",
+      lg: "size-21 rounded-card text-s160",
       // Compact logo wall: the 60px logo box.
-      md: "size-15 rounded-[14px] text-[1.2rem]",
+      md: "size-15 rounded-card text-s120",
       // Logo row: a 56px bordered square; the text keeps the body size.
       sm: "size-14 rounded-xl border border-line",
     },

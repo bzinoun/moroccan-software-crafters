@@ -2,15 +2,15 @@ import type { ComponentProps } from "react";
 import { cn, tv } from "@/lib/cn";
 
 // The white card that holds a lead form (the host funnel and the SoCraTes
-// sponsor form): rounded, `card` background, ink text, lifted shadow. The ink
+// sponsor form): round corners, white background, ink text, a raised look. The ink
 // text stays on the card inside a dark section. The funnel is `roomy`, the
-// sponsor panel `snug`, as the old pages had them.
+// sponsor panel `snug`.
 
 const panelStyles = tv({
   base: "rounded-[20px] bg-white text-ink shadow-lift",
   variants: {
     spacing: {
-      roomy: "px-[18px] py-[22px] sm:p-8",
+      roomy: "px-4.5 py-5.5 sm:p-8",
       snug: "p-7",
     },
   },

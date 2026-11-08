@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { FunnelStep } from "./FunnelStep";
 
@@ -50,5 +51,34 @@ describe("FunnelStep", () => {
     expect(
       screen.getByRole("group", { name: "Votre entreprise" }),
     ).toBeInTheDocument();
+  });
+
+  // The HTML a visitor with no script receives: the server render. Only the
+  // `js` variant of the stylesheet hides a step, so without script every step
+  // shows; with script the hidden steps are hidden from the first paint.
+  describe("in the HTML before any script runs", () => {
+    function serverStep(active: boolean) {
+      const host = document.createElement("div");
+      host.innerHTML = renderToString(
+        <FunnelStep step={3} active={active} title="Votre entreprise">
+          <input aria-label="Champ" />
+        </FunnelStep>,
+      );
+      return host.querySelector("fieldset") as HTMLElement;
+    }
+
+    it("does not hide a step that is not the current one", () => {
+      expect(serverStep(false)).not.toHaveAttribute("hidden");
+    });
+
+    it("hides that step for visitors with script only", () => {
+      expect(serverStep(false)).toHaveClass("js:hidden");
+    });
+
+    it("never hides the current step", () => {
+      const step = serverStep(true);
+      expect(step).not.toHaveAttribute("hidden");
+      expect(step).not.toHaveClass("js:hidden");
+    });
   });
 });

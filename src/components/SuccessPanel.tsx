@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { PostIt } from "@/components/PostIt";
 import { frenchSpacing } from "@/lib/french";
 
-// Port of `.success`: shown in place of a lead form once the request is sent.
+// Shown in place of a lead form once the request is sent.
 // A status region named by its title. It takes focus (tabIndex -1) when it
 // appears, so a screen reader reads it. Ids derive from `id`.
 
@@ -57,7 +57,7 @@ export function SuccessPanel({
     >
       <PostIt
         color="green"
-        className="mx-auto mb-6 w-[200px] -rotate-3 text-[1.5rem]"
+        className="mx-auto mb-6 w-[200px] -rotate-3 text-s150"
       >
         {stamp}
       </PostIt>

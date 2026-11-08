@@ -49,6 +49,11 @@ describe("CardsSection", () => {
     );
   });
 
+  it("renders nothing for no card: no orphan heading", () => {
+    const { container } = renderSection({ items: [] });
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("opens with the eyebrow and the title as a level 2 heading", () => {
     renderSection();
     expect(screen.getByText("Ce qu'on fait")).toBeInTheDocument();
@@ -128,7 +133,7 @@ describe("CardsSection", () => {
 
   it("passes the marker to the eyebrow", () => {
     const { rerender } = renderSection({ eyebrow: "Valeurs" });
-    expect(screen.getByText("Valeurs")).toHaveClass("before:w-[22px]");
+    expect(screen.getByText("Valeurs")).toHaveClass("before:w-5.5");
     rerender(
       <CardsSection
         id="mission"

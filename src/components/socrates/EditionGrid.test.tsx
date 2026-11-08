@@ -96,3 +96,10 @@ describe("EditionGrid", () => {
     expect(within(card("2024")).getByText("3e édition")).toBeInTheDocument();
   });
 });
+
+describe("EditionGrid with no edition", () => {
+  it("renders nothing: no empty grid", () => {
+    const { container } = render(<EditionGrid editions={[]} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+});

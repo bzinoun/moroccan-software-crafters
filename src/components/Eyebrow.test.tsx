@@ -22,14 +22,14 @@ describe("Eyebrow", () => {
 
   it("uses the rule marker by default", () => {
     render(<Eyebrow>Le format</Eyebrow>);
-    expect(screen.getByText("Le format")).toHaveClass("before:w-[22px]");
+    expect(screen.getByText("Le format")).toHaveClass("before:w-5.5");
   });
 
   it("uses the khatam marker instead of the rule when asked", () => {
     render(<Eyebrow marker="khatam">La conférence</Eyebrow>);
     const eyebrow = screen.getByText("La conférence");
     expect(eyebrow).toHaveClass("before:size-3.5");
-    expect(eyebrow).not.toHaveClass("before:w-[22px]");
+    expect(eyebrow).not.toHaveClass("before:w-5.5");
   });
 
   it("takes the marker out of the layout when the marker is none", () => {

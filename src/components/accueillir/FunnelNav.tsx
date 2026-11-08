@@ -2,11 +2,12 @@ import { Button } from "@/components/Button";
 import { TOTAL_STEPS } from "@/lib/funnel-fields";
 import { nextLabel } from "@/lib/funnel-text";
 
-// Port of `.funnel-nav`: Retour (ghost, hidden on step 1) and the primary
-// button pushed right. Below `sm` the buttons stack at full width. The primary
-// button submits the form, so the Enter key in a field acts like a click; the
-// form handler does the work. While busy the button is marked aria-disabled,
-// not disabled, so it keeps the focus; the form handler ignores the submit.
+// Retour (ghost, absent on step 1) and the primary button pushed right. Below
+// `sm` the buttons stack at full width. The primary button submits the form, so
+// the Enter key in a field acts like a click; the form handler does the work.
+// While busy the button is marked aria-disabled, not disabled, so it keeps the
+// focus; the form handler ignores the submit. With no script the form cannot
+// move or send, so the whole bar is gone (`NoScriptNote` replaces it).
 
 type FunnelNavProps = {
   step: number;
@@ -16,7 +17,7 @@ type FunnelNavProps = {
 
 export function FunnelNav({ step, busy, onPrev }: FunnelNavProps) {
   return (
-    <div className="mt-[26px] flex flex-col gap-3 border-t border-line pt-[22px] sm:flex-row sm:justify-between">
+    <div className="mt-6.5 flex flex-col gap-3 border-t border-line pt-5.5 not-js:hidden sm:flex-row sm:justify-between">
       <Button
         id="prev"
         variant="ghost"

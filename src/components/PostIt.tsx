@@ -7,10 +7,10 @@ import { frenchSpacing } from "@/lib/french";
 // The hand-made note: Caveat 1.35rem, ink on a post-it color, square corners.
 // The parent sets rotation, position and width through `className`.
 // The line height is an arbitrary property, not `leading-*`: tailwind-merge
-// drops a `leading-*` utility when a caller adds a text size (1.15rem, 1.25rem,
-// 1.5rem on the old site), and an arbitrary property is never merged away.
-export const postItStyles = tv({
-  base: "w-[170px] p-[16px_18px_20px] font-hand text-[1.35rem] [line-height:1.15] text-ink shadow-[0_10px_18px_rgba(0,0,0,0.12)]",
+// drops a `leading-*` utility when a caller adds a text size, and an arbitrary
+// property is never merged away.
+const postItStyles = tv({
+  base: "w-[170px] p-[16px_18px_20px] font-hand text-s135 [line-height:1.15] text-ink shadow-postit",
   variants: {
     color: {
       yellow: "bg-postit-yellow",

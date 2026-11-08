@@ -5,14 +5,14 @@ import { Container } from "./Container";
 
 // Spec: the "Section" entry in msca-design/COMPONENTS.md.
 // A page band with the site wrap inside. Pages alternate plain and alt.
-// The dark variant restyles what the section holds, as the old site did:
-// white h2 and h3, a sage emphasis without the hand-drawn mark, a sage focus indicator.
+// The dark variant restyles what the section holds: white h2 and h3, a sage
+// emphasis without the hand-drawn mark, a sage focus indicator.
 // Eyebrow and lead follow through their own props: `tone="dark"` on
 // SectionHead, Eyebrow and Lead. A Button on this surface uses the
 // `primary-flat` or `ghost-on-dark` variant.
 // Anchor scroll offset: the base layer sets `scroll-padding-top: 84px` on
 // `html`, which clears the 72px header for every `id` target.
-export const sectionStyles = tv({
+const sectionStyles = tv({
   base: "",
   variants: {
     variant: {

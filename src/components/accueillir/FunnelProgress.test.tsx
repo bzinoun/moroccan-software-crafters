@@ -22,4 +22,14 @@ describe("FunnelProgress", () => {
     ]);
     expect(container.querySelector("[data-done]")).toBeNull();
   });
+
+  it("is gone for a visitor with no script: all the steps show at once", () => {
+    const { container } = render(<FunnelProgress step={1} />);
+    expect(container.querySelector("[aria-hidden='true']")).toHaveClass(
+      "not-js:hidden",
+    );
+    expect(screen.getByText("Étape 1 sur 4 · Formule")).toHaveClass(
+      "not-js:hidden",
+    );
+  });
 });

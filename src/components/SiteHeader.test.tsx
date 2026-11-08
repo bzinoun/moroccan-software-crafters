@@ -40,8 +40,22 @@ const site: Site = {
   },
 };
 
+// Two copies of the links: the row from `lg` up, and the panel of the mobile
+// menu (a native disclosure). The stylesheet shows one of them.
+function navs() {
+  return screen.getAllByRole("navigation", { name: "Navigation principale" });
+}
+
+function mobileNav() {
+  return within(screen.getByRole("group")).getByRole("navigation", {
+    name: "Navigation principale",
+  });
+}
+
 function mainNav() {
-  return screen.getByRole("navigation", { name: "Navigation principale" });
+  const row = navs().find((nav) => nav.closest("details") === null);
+  if (!row) throw new Error("No desktop navigation");
+  return row;
 }
 
 describe("SiteHeader", () => {
@@ -58,49 +72,48 @@ describe("SiteHeader", () => {
 
   it("renders the 5 nav links with mapped hrefs", () => {
     render(<SiteHeader site={site} page="home" />);
-    const nav = mainNav();
-    expect(nav).toHaveAttribute("id", "nav");
-    expect(
-      within(nav).getByRole("link", { name: "Le meetup" }),
-    ).toHaveAttribute("href", "/meetup/");
-    expect(within(nav).getByRole("link", { name: "Éditions" })).toHaveAttribute(
-      "href",
-      "/#historique",
-    );
-    expect(within(nav).getByRole("link", { name: "SoCraTes" })).toHaveAttribute(
-      "href",
-      "/socrates/",
-    );
-    expect(
-      within(nav).getByRole("link", { name: "Actualités" }),
-    ).toHaveAttribute("href", "/actualites/");
-    expect(
-      within(nav).getByRole("link", { name: "L'association" }),
-    ).toHaveAttribute("href", "/association/");
+    for (const nav of [mainNav(), mobileNav()]) {
+      expect(
+        within(nav).getByRole("link", { name: "Le meetup" }),
+      ).toHaveAttribute("href", "/meetup/");
+      expect(
+        within(nav).getByRole("link", { name: "Éditions" }),
+      ).toHaveAttribute("href", "/#historique");
+      expect(
+        within(nav).getByRole("link", { name: "SoCraTes" }),
+      ).toHaveAttribute("href", "/socrates/");
+      expect(
+        within(nav).getByRole("link", { name: "Actualités" }),
+      ).toHaveAttribute("href", "/actualites/");
+      expect(
+        within(nav).getByRole("link", { name: "L'association" }),
+      ).toHaveAttribute("href", "/association/");
+    }
   });
 
-  it("renders the CTA twice: in the nav and after it", () => {
+  it("renders the CTA twice: in the mobile menu and after the nav", () => {
     render(<SiteHeader site={site} page="home" />);
     const ctas = screen.getAllByRole("link", { name: "Accueillir un meetup" });
     expect(ctas).toHaveLength(2);
     const [inNav, trailing] = ctas;
-    // The in-nav CTA shows below lg, the trailing one from lg up.
-    expect(inNav).toHaveClass("lg:hidden");
+    // The menu CTA shows below lg (the menu is gone from lg up), the trailing one from lg up.
     expect(inNav).toHaveAttribute("href", "/accueillir/");
-    expect(mainNav()).toContainElement(inNav as HTMLElement);
+    expect(mobileNav()).toContainElement(inNav as HTMLElement);
+    expect(mainNav()).not.toContainElement(inNav as HTMLElement);
     expect(trailing).toHaveClass("max-lg:hidden");
     expect(trailing).toHaveAttribute("href", "/accueillir/");
   });
 
   it("marks the current page link with aria-current on meetup", () => {
     render(<SiteHeader site={site} page="meetup" />);
-    const nav = mainNav();
-    expect(
-      within(nav).getByRole("link", { name: "Le meetup" }),
-    ).toHaveAttribute("aria-current", "page");
-    expect(
-      within(nav).getByRole("link", { name: "SoCraTes" }),
-    ).not.toHaveAttribute("aria-current");
+    for (const nav of [mainNav(), mobileNav()]) {
+      expect(
+        within(nav).getByRole("link", { name: "Le meetup" }),
+      ).toHaveAttribute("aria-current", "page");
+      expect(
+        within(nav).getByRole("link", { name: "SoCraTes" }),
+      ).not.toHaveAttribute("aria-current");
+    }
   });
 
   it.each([
@@ -144,10 +157,11 @@ describe("SiteHeader", () => {
     }
   });
 
-  it("renders the burger button closed and bound to the nav", () => {
+  it("renders the mobile menu as a closed disclosure, readable with no script", () => {
     render(<SiteHeader site={site} page="home" />);
-    const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(toggle).toHaveAttribute("aria-controls", "nav");
+    const menu = screen.getByRole("group");
+    expect(menu.tagName).toBe("DETAILS");
+    expect(menu).not.toHaveAttribute("open");
+    expect(within(menu).getByText("Menu")).toBeInTheDocument();
   });
 });

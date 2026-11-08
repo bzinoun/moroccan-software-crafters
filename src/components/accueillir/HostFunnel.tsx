@@ -13,13 +13,15 @@ import { ContactStep } from "./ContactStep";
 import { EventStep } from "./EventStep";
 import { FunnelNav } from "./FunnelNav";
 import { FunnelProgress } from "./FunnelProgress";
+import { NoScriptNote } from "./NoScriptNote";
 import { OfferStep } from "./OfferStep";
 import { useHostFunnel } from "./useHostFunnel";
 
-// Spec: the "HostFunnel" entry in msca-design/COMPONENTS.md; port of
-// former `assets/js/funnel.js` (`git show 1353207:assets/js/funnel.js`). The state lives in `useHostFunnel`, the four steps in
-// their own files; this component lays them out in the card. The card can take
-// focus (tabIndex -1) so the skip link of the page lands on it.
+// Spec: the "HostFunnel" entry in msca-design/COMPONENTS.md. The state lives in
+// `useHostFunnel`, the four steps in their own files; this component lays them
+// out in the card. The card can take focus (tabIndex -1) so the skip link of
+// the page lands on it. With no script the form shows every step and a note
+// that points to LinkedIn, because it cannot send.
 
 type HostFunnelProps = {
   /** `offers.json` items. */
@@ -63,6 +65,7 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
         <ContactStep {...stepProps} active={step === 4} offers={offers} />
         <FormAlert id="form-alert">{alert}</FormAlert>
         <FunnelNav step={step} busy={busy} onPrev={onPrev} />
+        <NoScriptNote linkedin={site.links?.linkedin} />
       </form>
 
       <SuccessPanel

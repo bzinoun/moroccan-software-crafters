@@ -6,8 +6,8 @@ import { frenchSpacing } from "@/lib/french";
 // Spec: the "Eyebrow, Lead, SectionHead, SectionFoot" entry in msca-design/COMPONENTS.md.
 // The intro paragraph under a title: 1.15rem, soft ink, 60 characters wide.
 // The bottom margin comes from the base layer rule for paragraphs.
-export const leadStyles = tv({
-  base: "max-w-[60ch] text-[1.15rem]",
+const leadStyles = tv({
+  base: "max-w-[60ch] text-s115",
   variants: {
     tone: {
       default: "text-ink-soft",
