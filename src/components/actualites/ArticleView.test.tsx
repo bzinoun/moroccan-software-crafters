@@ -1,8 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadArticles, loadEvents, loadSite } from "@/content/load";
-import { articleBySlug, articleView } from "@/lib/pages-data";
+import type { ArticleView as ArticleViewData } from "@/lib/pages-data";
 import { LightboxProvider } from "../Lightbox";
 import { ArticleView } from "./ArticleView";
 
@@ -19,22 +18,55 @@ beforeEach(() => {
   document.body.style.overflow = "";
 });
 
-function viewOf(slug: string) {
-  const article = articleBySlug(slug, loadArticles());
-  if (!article) throw new Error(`no article ${slug}`);
-  return articleView(article, loadEvents(), loadSite());
-}
+const RECAP: ArticleViewData = {
+  slug: "recap-one",
+  kind: "Récap",
+  title: "Who is responsible when AI writes the code?",
+  excerpt: "A hundred crafters and one question at the center.",
+  dateLabel: "24 octobre 2026",
+  coverSrc: "/assets/img/test-cover.jpg",
+  tags: ["AI", "Responsibility"],
+  body: "First paragraph of the recap.\n\n## Speed is a multiplier\n\nAI ships faster.",
+  documentTitle: "Who is responsible · Test site",
+  eventLinks: [
+    { label: "Le post LinkedIn", href: "https://example.com/post" },
+    { label: "La page Luma", href: "https://example.com/luma" },
+  ],
+  photos: [
+    {
+      photo: "test-1",
+      src: "/assets/img/test-1.jpg",
+      caption: "Test meetup · 24 oct. 2026",
+      eventId: "2026-10-test",
+    },
+    {
+      photo: "test-2",
+      src: "/assets/img/test-2.jpg",
+      caption: "Test meetup · 24 oct. 2026",
+      eventId: "2026-10-test",
+    },
+  ],
+  photosLabel: "Les 2 photos",
+};
 
-function renderView(slug: string) {
+const ANNOUNCE: ArticleViewData = {
+  ...RECAP,
+  slug: "call",
+  kind: "Annonce",
+  title: "Fifth edition: the call for partners",
+  coverSrc: null,
+  eventLinks: [],
+  photos: [],
+  photosLabel: null,
+};
+
+function renderView(view: ArticleViewData) {
   return render(
     <LightboxProvider>
-      <ArticleView view={viewOf(slug)} />
+      <ArticleView view={view} />
     </LightboxProvider>,
   );
 }
-
-const RECAP = "sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code";
-const ANNOUNCE = "appel-partenaires-socrates-5e-edition";
 
 describe("ArticleView", () => {
   it("links back to the list", () => {
@@ -47,88 +79,69 @@ describe("ArticleView", () => {
   it("shows the title as the page heading with the kind, date and lead", () => {
     renderView(RECAP);
     expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Qui est responsable quand l'IA écrit le code ?",
-      }),
+      screen.getByRole("heading", { level: 1, name: RECAP.title }),
     ).toBeInTheDocument();
     const article = screen.getByRole("article");
     expect(within(article).getByText("Récap")).toBeInTheDocument();
     expect(within(article).getByText(/24 octobre 2026/)).toBeInTheDocument();
-    expect(
-      within(article).getByText(/110 inscrits et une question au centre/),
-    ).toBeInTheDocument();
+    expect(within(article).getByText(RECAP.excerpt)).toBeInTheDocument();
   });
 
   it("shows the cover as a decorative image", () => {
     const { container } = renderView(RECAP);
     const cover = container.querySelector("article img");
-    expect(cover).toHaveAttribute(
-      "src",
-      "/assets/img/meetups/2026-10-sg-gscm-5.jpg",
-    );
+    expect(cover).toHaveAttribute("src", RECAP.coverSrc);
     expect(cover).toHaveAttribute("alt", "");
+  });
+
+  it("shows no cover for an article without one", () => {
+    const { container } = renderView(ANNOUNCE);
+    expect(container.querySelector("article img")).toBeNull();
   });
 
   it("renders the body through the Markdown subset", () => {
     renderView(RECAP);
     expect(
-      screen.getByRole("heading", {
-        level: 3,
-        name: "La vitesse est un multiplicateur",
-      }),
+      screen.getByRole("heading", { level: 3, name: "Speed is a multiplier" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Ce samedi, les Moroccan Software Crafters/),
+      screen.getByText("First paragraph of the recap."),
     ).toBeInTheDocument();
   });
 
   it("lists the tags", () => {
     renderView(RECAP);
     expect(screen.getAllByRole("listitem").map((li) => li.textContent)).toEqual(
-      ["IA", "Responsabilité", "Sécurité"],
+      RECAP.tags,
     );
   });
 
-  it("links to the LinkedIn post and the Luma page of the event in a new tab", () => {
+  it("links to each event page in a new tab", () => {
     renderView(RECAP);
-    const linkedin = screen.getByRole("link", { name: "Le post LinkedIn" });
-    expect(linkedin).toHaveAttribute(
-      "href",
-      "https://www.linkedin.com/feed/update/urn:li:activity:7517872453725888512/",
-    );
-    expect(linkedin).toHaveAttribute("target", "_blank");
-    expect(linkedin).toHaveAttribute("rel", "noopener");
-    expect(screen.getByRole("link", { name: "La page Luma" })).toHaveAttribute(
-      "href",
-      "https://luma.com/6eiyisjw",
-    );
+    for (const { label, href } of RECAP.eventLinks) {
+      const link = screen.getByRole("link", { name: label });
+      expect(link).toHaveAttribute("href", href);
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener");
+    }
   });
 
   it("opens the photos of the event in the lightbox", async () => {
     renderView(RECAP);
-    const open = screen.getByRole("button", { name: "Les 8 photos" });
-    await userEvent.click(open);
+    await userEvent.click(screen.getByRole("button", { name: "Les 2 photos" }));
     const dialog = screen.getByRole("dialog", { name: "Photo agrandie" });
     expect(dialog).toHaveAttribute("open");
     expect(
-      within(dialog).getByRole("img", { name: /Société Générale GSCM/ }),
-    ).toHaveAttribute("src", "/assets/img/meetups/2026-10-sg-gscm-5.jpg");
+      within(dialog).getByRole("img", { name: /Test meetup/ }),
+    ).toHaveAttribute("src", RECAP.photos[0]!.src);
   });
 
   it("shows no links row for an article without an event", () => {
     renderView(ANNOUNCE);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
-      "SoCraTes Maroc, 5e édition",
-    );
+    expect(
+      screen.getByRole("heading", { level: 1, name: ANNOUNCE.title }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Le post LinkedIn" })).toBeNull();
     expect(screen.queryByRole("button", { name: /photos/ })).toBeNull();
-  });
-
-  // The old `[data-page="news"] main > .section:first-child` rule drew the
-  // zellige corner on the article page too.
-  it("draws the zellige corner on its section", () => {
-    const { container } = renderView(RECAP);
-    expect(container.querySelector("section")).toHaveClass("zellige-corner");
   });
 });

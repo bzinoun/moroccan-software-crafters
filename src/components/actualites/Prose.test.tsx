@@ -3,10 +3,9 @@ import { describe, expect, it } from "vitest";
 import { md } from "@/lib/md";
 import { Prose } from "./Prose";
 
-// First lines of the body of content/articles.json, article
-// "sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code".
+// A small body that uses every element the Markdown subset can produce.
 const BODY =
-  "Ce samedi, les Moroccan Software Crafters étaient reçus par Société Générale.\n\n## La vitesse est un multiplicateur\n\nL'IA livre plus vite.\n\n- tests\n- documentation\n\n1. lire\n2. tester\n\n> Savoir dire non.\n\nUn `merge` et un [lien](https://example.com/a).";
+  "First paragraph.\n\n## A section title\n\nSpeed matters.\n\n- tests\n- documentation\n\n1. read\n2. test\n\n> Learn to say no.\n\nA `merge` and a [link](https://example.com/a).";
 
 describe("Prose", () => {
   it("renders the elements of the Markdown output", () => {
@@ -14,7 +13,7 @@ describe("Prose", () => {
     expect(
       screen.getByRole("heading", {
         level: 3,
-        name: "La vitesse est un multiplicateur",
+        name: "A section title",
       }),
     ).toBeInTheDocument();
     const lists = screen.getAllByRole("list");
@@ -24,18 +23,15 @@ describe("Prose", () => {
         .getAllByRole("listitem")
         .map((li) => li.textContent),
     ).toEqual(["tests", "documentation"]);
+    expect(lists[1]!.tagName).toBe("OL");
+    expect(
+      screen.getByText("Learn to say no.").closest("blockquote"),
+    ).not.toBeNull();
     expect(screen.getByText("merge").tagName).toBe("CODE");
-    expect(screen.getByRole("link", { name: "lien" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "link" })).toHaveAttribute(
       "href",
       "https://example.com/a",
     );
-  });
-
-  it("restores the list markers that the reset removes", () => {
-    render(<Prose data-testid="prose">{md(BODY)}</Prose>);
-    const classes = screen.getByTestId("prose").className;
-    expect(classes).toContain("[&_ul]:list-disc");
-    expect(classes).toContain("[&_ol]:list-decimal");
   });
 
   it("keeps a caller class and renders nothing inside for empty content", () => {

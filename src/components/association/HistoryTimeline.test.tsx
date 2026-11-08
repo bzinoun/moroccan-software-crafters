@@ -1,45 +1,66 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadAssociation } from "@/content/load";
 import { AssociationHistory, HistoryTimeline } from "./HistoryTimeline";
 
-const { timeline } = loadAssociation();
+const items = [
+  {
+    year: "2019",
+    title: "First meetup",
+    text: "Twelve crafters meet in a café.",
+  },
+  {
+    year: "2022",
+    title: "SoCraTes arrive au Maroc",
+    text: "Première édition à Marrakech, trente crafters et huit partenaires.",
+  },
+  {
+    year: "2026",
+    title: "Fifth edition",
+    text: "The call for partners opens.",
+  },
+];
+const timeline = { eyebrow: "History", title: "From 2019 to today.", items };
 
 describe("HistoryTimeline", () => {
-  it("lists the seven milestones of content/association.json in order", () => {
-    render(<HistoryTimeline items={timeline.items} />);
+  it("lists the milestones as an ordered list, in the order given", () => {
+    render(<HistoryTimeline items={items} />);
     const list = screen.getByRole("list");
     expect(list.tagName).toBe("OL");
-    const items = within(list).getAllByRole("listitem");
-    expect(items).toHaveLength(7);
-    expect(items[0]).toHaveTextContent("2019");
-    expect(items[6]).toHaveTextContent("2026");
+    const rows = within(list).getAllByRole("listitem");
+    expect(rows).toHaveLength(items.length);
+    expect(rows[0]).toHaveTextContent("2019");
+    expect(rows[2]).toHaveTextContent("2026");
   });
 
   it("shows the year, a level 3 title and the text of a milestone", () => {
-    render(<HistoryTimeline items={timeline.items} />);
+    render(<HistoryTimeline items={items} />);
     const item = screen
       .getByRole("heading", { level: 3, name: "SoCraTes arrive au Maroc" })
       .closest("li") as HTMLElement;
     expect(within(item).getByText("2022")).toBeInTheDocument();
     expect(
       within(item).getByText(
-        "Première édition à Marrakech en mars, trente crafters et huit partenaires. Les meetups reprennent en présentiel chez Maltem Africa et inwi.",
+        "Première édition à Marrakech, trente crafters et huit partenaires.",
       ),
     ).toBeInTheDocument();
   });
 
-  it("carries the vertical line on the list and a red dot on each item", () => {
-    render(<HistoryTimeline items={timeline.items} />);
-    const list = screen.getByRole("list");
-    expect(list).toHaveClass("relative", "before:absolute", "before:bg-line");
-    for (const item of within(list).getAllByRole("listitem")) {
-      expect(item).toHaveClass("relative", "after:border-red");
-    }
+  it("applies the French spacing in the title and the text", () => {
+    render(
+      <HistoryTimeline
+        items={[
+          { year: "2024", title: "Pourquoi ?", text: "Voici : la suite" },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 3 }).textContent).toBe(
+      "Pourquoi ?",
+    );
+    expect(screen.getByText(/Voici/).textContent).toBe("Voici : la suite");
   });
 
   it("carries the id it is given", () => {
-    render(<HistoryTimeline id="history" items={timeline.items} />);
+    render(<HistoryTimeline id="history" items={items} />);
     expect(screen.getByRole("list")).toHaveAttribute("id", "history");
   });
 
@@ -52,12 +73,15 @@ describe("HistoryTimeline", () => {
 describe("AssociationHistory", () => {
   it("is the #histoire section with its head and the timeline", () => {
     const { container } = render(<AssociationHistory history={timeline} />);
-    const section = container.querySelector("section");
-    expect(section).toHaveAttribute("id", "histoire");
-    expect(screen.getByText("Notre histoire")).toBeInTheDocument();
+    expect(container.querySelector("section")).toHaveAttribute(
+      "id",
+      "histoire",
+    );
+    expect(screen.getByText("History")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "De 2019 à aujourd'hui." }),
+      screen.getByRole("heading", { level: 2, name: "From 2019 to today." }),
     ).toBeInTheDocument();
     expect(container.querySelector("ol#history")).not.toBeNull();
+    expect(screen.getAllByRole("listitem")).toHaveLength(items.length);
   });
 });

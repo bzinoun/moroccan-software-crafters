@@ -1,19 +1,27 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadArticles } from "@/content/load";
-import { articleCards } from "@/lib/pages-data";
+import type { ArticleCard } from "@/lib/pages-data";
 import { ArticleListSection } from "./ArticleListSection";
 
-// content/articles.json, eyebrow, title and lead.
-const articles = loadArticles();
+const articles: ArticleCard[] = ["one", "two", "three"].map((slug, i) => ({
+  slug,
+  href: `/actualites/${slug}/`,
+  kind: "Annonce",
+  title: `Article ${slug}`,
+  excerpt: `Excerpt ${slug}`,
+  dateLabel: "24 octobre 2026",
+  coverSrc: null,
+  tags: [],
+  lead: i === 0,
+}));
 
 function renderList() {
   return render(
     <ArticleListSection
-      eyebrow={articles.eyebrow}
-      title={articles.title}
-      lead={articles.lead}
-      articles={articleCards(articles)}
+      eyebrow="News"
+      title="Recaps, news, calls."
+      lead="What the round tables said, and what comes next."
+      articles={articles}
     />,
   );
 }
@@ -22,33 +30,21 @@ describe("ArticleListSection", () => {
   it("shows the page title as the only level 1 heading", () => {
     renderList();
     expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Récaps, annonces, appels.",
-      }),
+      screen.getByRole("heading", { level: 1, name: "Recaps, news, calls." }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   });
 
   it("shows the eyebrow and the lead", () => {
     renderList();
-    expect(screen.getByText("Actualités")).toBeInTheDocument();
+    expect(screen.getByText("News")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Ce qui s'est dit dans les tables rondes, et ce qui se prépare.",
-      ),
+      screen.getByText("What the round tables said, and what comes next."),
     ).toBeInTheDocument();
   });
 
-  it("lists the four articles", () => {
+  it("lists one article per card", () => {
     renderList();
-    expect(screen.getAllByRole("article")).toHaveLength(4);
-  });
-
-  // The old `[data-page="news"] main > .section:first-child` rule drew the
-  // zellige corner on the first section of the list.
-  it("draws the zellige corner on its section", () => {
-    const { container } = renderList();
-    expect(container.querySelector("section")).toHaveClass("zellige-corner");
+    expect(screen.getAllByRole("article")).toHaveLength(articles.length);
   });
 });

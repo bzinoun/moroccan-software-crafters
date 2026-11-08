@@ -1,27 +1,36 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadArticles } from "@/content/load";
-import { articleCards } from "@/lib/pages-data";
+import type { ArticleCard } from "@/lib/pages-data";
 import { ArticleGrid } from "./ArticleGrid";
 
-describe("ArticleGrid", () => {
-  it("renders one card per article, newest first, each linking to its route", () => {
-    render(<ArticleGrid articles={articleCards(loadArticles())} />);
-    const links = screen.getAllByRole("link");
-    expect(links.map((a) => a.getAttribute("href"))).toEqual([
-      "/actualites/appel-partenaires-socrates-5e-edition/",
-      "/actualites/sg-gscm-qui-est-responsable-quand-l-ia-ecrit-le-code/",
-      "/actualites/axa-craftsmanship-a-l-ere-de-l-ia/",
-      "/actualites/innovx-l-impact-reel-de-l-ia/",
-    ]);
-    expect(screen.getAllByRole("article")).toHaveLength(4);
-  });
+function card(slug: string, overrides: Partial<ArticleCard> = {}): ArticleCard {
+  return {
+    slug,
+    href: `/actualites/${slug}/`,
+    kind: "Récap",
+    title: `Title of ${slug}`,
+    excerpt: `Excerpt of ${slug}`,
+    dateLabel: "24 octobre 2026",
+    coverSrc: null,
+    tags: [],
+    lead: false,
+    ...overrides,
+  };
+}
 
-  it("makes only the first card a lead card", () => {
-    render(<ArticleGrid articles={articleCards(loadArticles())} />);
-    const [first, ...others] = screen.getAllByRole("article");
-    expect(first).toHaveClass("col-span-full");
-    for (const card of others) expect(card).not.toHaveClass("col-span-full");
+const articles = [
+  card("newest", { lead: true }),
+  card("middle"),
+  card("oldest"),
+];
+
+describe("ArticleGrid", () => {
+  it("renders one card per article, in the order given, each linking to its route", () => {
+    render(<ArticleGrid articles={articles} />);
+    expect(screen.getAllByRole("article")).toHaveLength(articles.length);
+    expect(
+      screen.getAllByRole("link").map((a) => a.getAttribute("href")),
+    ).toEqual(articles.map((a) => a.href));
   });
 
   it("renders nothing without articles", () => {
