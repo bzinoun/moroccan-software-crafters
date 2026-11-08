@@ -1,24 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { loadOffers } from "@/content/load";
 import { EMPTY_VALUES } from "@/lib/funnel";
 import { OfferStep } from "./OfferStep";
-
-const offers = loadOffers().items;
+import { OFFERS } from "./test-utils";
 
 describe("OfferStep", () => {
   it("shows one choice card per offer, with the chosen one checked", () => {
     render(
       <OfferStep
         active
-        offers={offers}
+        offers={OFFERS}
         values={{ ...EMPTY_VALUES, formule: "prive" }}
         errors={{}}
         update={() => {}}
       />,
     );
-    expect(screen.getAllByRole("radio")).toHaveLength(3);
+    expect(screen.getAllByRole("radio")).toHaveLength(OFFERS.length);
     expect(
       screen.getByRole("radio", { name: /Craft session privée/ }),
     ).toBeChecked();
@@ -29,7 +27,7 @@ describe("OfferStep", () => {
     render(
       <OfferStep
         active
-        offers={offers}
+        offers={OFFERS}
         values={EMPTY_VALUES}
         errors={{}}
         update={update}
@@ -45,7 +43,7 @@ describe("OfferStep", () => {
     render(
       <OfferStep
         active
-        offers={offers}
+        offers={OFFERS}
         values={EMPTY_VALUES}
         errors={{ formule: "Choisissez une formule pour continuer." }}
         update={() => {}}
@@ -64,7 +62,7 @@ describe("OfferStep", () => {
     const { container } = render(
       <OfferStep
         active={false}
-        offers={offers}
+        offers={OFFERS}
         values={EMPTY_VALUES}
         errors={{}}
         update={() => {}}

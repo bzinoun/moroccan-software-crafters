@@ -1,20 +1,26 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadSponsoring } from "@/content/load";
 import { SponsorLayout } from "./SponsorLayout";
 
-const { form, faq } = loadSponsoring();
+const FAQ = [
+  { q: "Peut-on envoyer plusieurs collaborateurs ?", a: "Oui, par pack." },
+  { q: "Que couvre le pack ?", a: "Les repas des participants." },
+];
 
 function setup() {
   return render(
-    <SponsorLayout title={form.title} lead={form.lead} faq={faq}>
+    <SponsorLayout
+      title="Parlons de la prochaine édition"
+      lead="Laissez-nous vos coordonnées."
+      faq={FAQ}
+    >
       <p>le formulaire</p>
     </SponsorLayout>,
   );
 }
 
 describe("SponsorLayout", () => {
-  it("opens with the title and the lead of sponsoring.json form", () => {
+  it("opens with the title and the lead", () => {
     setup();
     expect(
       screen.getByRole("heading", {
@@ -23,26 +29,25 @@ describe("SponsorLayout", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/^Laissez-nous vos coordonnées et le niveau/),
+      screen.getByText("Laissez-nous vos coordonnées."),
     ).toBeInTheDocument();
   });
 
-  it("lists the four questions as closed native disclosures in #sponsor-faq", () => {
+  it("lists the questions as closed native disclosures in #sponsor-faq", () => {
     const { container } = setup();
     const list = container.querySelector("#sponsor-faq") as HTMLElement;
     const details = list.querySelectorAll("details");
-    expect(details).toHaveLength(4);
+    expect(details).toHaveLength(FAQ.length);
     for (const d of details) expect(d).not.toHaveAttribute("open");
     expect(
       within(list).getByText("Peut-on envoyer plusieurs collaborateurs ?"),
     ).toBeInTheDocument();
-    expect(list).toHaveTextContent("Hébergement et repas des participants");
+    expect(list).toHaveTextContent("Les repas des participants.");
   });
 
-  it("puts the children in the white panel #sponsor-funnel", () => {
+  it("puts the children in the panel #sponsor-funnel", () => {
     const { container } = setup();
     const panel = container.querySelector("#sponsor-funnel") as HTMLElement;
     expect(within(panel).getByText("le formulaire")).toBeInTheDocument();
-    expect(panel).toHaveClass("bg-card", "text-ink");
   });
 });

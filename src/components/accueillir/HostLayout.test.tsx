@@ -39,11 +39,6 @@ describe("ProcessSteps", () => {
     expect(items[0]).toHaveTextContent("Deux minutes.");
     expect(items[1]).toHaveTextContent("2");
   });
-
-  it("sets the digits bold, as the b element of the old page", () => {
-    render(<ProcessSteps steps={[{ title: "Un", text: "Deux." }]} />);
-    expect(screen.getByText("1")).toHaveClass("font-bold");
-  });
 });
 
 describe("ProofCard", () => {

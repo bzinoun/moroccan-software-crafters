@@ -1,11 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadOffers } from "@/content/load";
 import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel";
 import { ContactStep } from "./ContactStep";
+import { OFFERS } from "./test-utils";
 import type { BindText } from "./useHostFunnel";
-
-const offers = loadOffers().items;
 
 function renderStep(values: FunnelValues, errors = {}) {
   const bind: BindText = (name) => ({
@@ -16,7 +14,7 @@ function renderStep(values: FunnelValues, errors = {}) {
   return render(
     <ContactStep
       active
-      offers={offers}
+      offers={OFFERS}
       values={values}
       errors={errors}
       update={() => {}}

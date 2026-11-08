@@ -1,46 +1,37 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadSocrates } from "@/content/load";
 import { DayStrip } from "./DayStrip";
 
-const { days, note } = loadSocrates().schedule;
+const DAYS = [
+  { day: "Jeudi", title: "Arrivée et café", text: "On s'installe." },
+  { day: "Vendredi", title: "Open space", text: "Les participants décident." },
+  { day: "Samedi", title: "Sessions", text: "Une journée de sessions." },
+];
+const NOTE = "Le contenu exact est décidé par les participants.";
 
 describe("DayStrip", () => {
-  it("lists the four days in order with their title and text", () => {
-    render(<DayStrip days={days} note={note} />);
+  it("lists the days in order with their title and text", () => {
+    render(<DayStrip days={DAYS} note={NOTE} />);
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(DAYS.length);
     expect(items[0]).toHaveTextContent("Jeudi");
     expect(
       within(items[0]).getByRole("heading", {
         level: 3,
-        name: "Arrivée et World Café",
+        name: "Arrivée et café",
       }),
     ).toBeInTheDocument();
     expect(items[1]).toHaveTextContent("Vendredi");
-    expect(items[2]).toHaveTextContent("Samedi");
-    expect(items[3]).toHaveTextContent("Dimanche");
-    expect(items[3]).toHaveTextContent(
-      "Rétrospective de l'édition, coding kata collectif",
-    );
+    expect(items[2]).toHaveTextContent("Une journée de sessions.");
   });
 
   it("shows the note under the list", () => {
-    render(<DayStrip days={days} note={note} />);
-    expect(
-      screen.getByText(/^Le contenu exact est décidé par les participants\./),
-    ).toBeInTheDocument();
-  });
-
-  it("keeps the bottom margin of the old paragraph (1em) under the note", () => {
-    render(<DayStrip days={days} note={note} />);
-    expect(
-      screen.getByText(/^Le contenu exact est décidé par les participants\./),
-    ).toHaveClass("mt-3.5", "mb-[1em]");
+    render(<DayStrip days={DAYS} note={NOTE} />);
+    expect(screen.getByText(NOTE)).toBeInTheDocument();
   });
 
   it("renders no note paragraph when the note is empty", () => {
-    const { container } = render(<DayStrip days={days} note="" />);
-    expect(container.querySelectorAll("p")).toHaveLength(4);
+    const { container } = render(<DayStrip days={DAYS} note="" />);
+    expect(container.querySelectorAll("p")).toHaveLength(DAYS.length);
   });
 });

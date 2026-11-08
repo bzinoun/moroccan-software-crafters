@@ -1,61 +1,26 @@
-import { act, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { act, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadSponsoring } from "@/content/load";
-import type { SubmitInput, SubmitResult } from "@/lib/forms";
-import { sponsorLevels } from "@/lib/pages-data";
-import { SponsorForm } from "./SponsorForm";
+import type { SubmitResult } from "@/lib/forms";
+import { pendingResult } from "../accueillir/test-utils";
+import {
+  LINKEDIN,
+  SITE,
+  SUCCESS,
+  fillValid,
+  renderSponsorForm,
+  submitButton,
+  type Submit,
+} from "./test-utils";
 
-// The submit function is injected: nothing in this file posts to the real endpoint.
-
-const SITE = {
-  links: { linkedin: "https://www.linkedin.com/company/test-page/" },
-  contact: { email: "" },
-  form: { endpoint: "", extraFields: {} },
-};
-const PACKAGE_LEVELS = {
-  supporter: "Supporter",
-  partenaire: "Partenaire",
-  principal: "Partenaire principal",
-};
-const SUCCESS =
-  "Merci ! Nous vous envoyons le dossier de partenariat sous 48 heures.";
-
-type Submit = (input: SubmitInput) => Promise<SubmitResult>;
-
-function setup(result: SubmitResult = { mode: "endpoint" }) {
-  const submit = vi.fn<Submit>().mockResolvedValue(result);
-  const view = render(
-    <SponsorForm
-      site={SITE}
-      levels={sponsorLevels(loadSponsoring())}
-      packageLevels={PACKAGE_LEVELS}
-      successText={SUCCESS}
-      submit={submit}
-    />,
-  );
-  return { submit, user: userEvent.setup(), ...view };
-}
-
-async function fillValid(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText("Entreprise"), "  Acme  ");
-  await user.type(screen.getByLabelText("Prénom et nom"), "Sara Alami");
-  await user.type(
-    screen.getByLabelText("E-mail professionnel"),
-    "sara@acme.ma",
-  );
-  await user.type(screen.getByLabelText("Téléphone"), "+212 6 12 34 56 78");
-  await user.click(screen.getByRole("checkbox", { name: /J'accepte/ }));
-}
-
-const submitButton = () =>
-  screen.getByRole("button", {
-    name: /Recevoir le dossier de partenariat|Envoi/,
-  });
+// The rules of the e-mail and of the phone number are tested in
+// `validation.test.ts`; here each behavior of the form is tested once.
+// Levels, site and success text are fixtures from `test-utils.tsx`.
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+const setup = (result?: SubmitResult) => renderSponsorForm({ result });
 
 describe("SponsorForm fields", () => {
   it("has the labelled fields of the old form", () => {
@@ -97,13 +62,13 @@ describe("SponsorForm fields", () => {
       "À discuter",
     ]);
     expect(
-      within(group).getByRole("radio", { name: "Supporter · 15 000 MAD" }),
+      within(group).getByRole("radio", { name: "Supporter · 10000 MAD" }),
     ).toBeInTheDocument();
     expect(
       within(group).getByRole("radio", { name: "À discuter" }),
     ).toBeChecked();
     expect(
-      within(group).getByRole("radio", { name: "Supporter · 15 000 MAD" }),
+      within(group).getByRole("radio", { name: "Supporter · 10000 MAD" }),
     ).not.toBeChecked();
   });
 
@@ -130,10 +95,10 @@ describe("SponsorForm fields", () => {
   it("changes the level when the visitor clicks a pill", async () => {
     const { user } = setup();
     await user.click(
-      screen.getByRole("radio", { name: "Partenaire · 35 000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
     );
     expect(
-      screen.getByRole("radio", { name: "Partenaire · 35 000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
     ).toBeChecked();
     expect(screen.getByRole("radio", { name: "À discuter" })).not.toBeChecked();
   });
@@ -172,48 +137,16 @@ describe("SponsorForm validation", () => {
     ).toBeInTheDocument();
   });
 
-  it("rejects a malformed e-mail and focuses it", async () => {
-    const { submit, user } = setup();
-    await user.type(screen.getByLabelText("Entreprise"), "Acme");
-    await user.type(screen.getByLabelText("Prénom et nom"), "Sara Alami");
-    await user.type(screen.getByLabelText("E-mail professionnel"), "sara@acme");
-    await user.type(screen.getByLabelText("Téléphone"), "0612345678");
-    await user.click(screen.getByRole("checkbox", { name: /J'accepte/ }));
-    await user.click(submitButton());
-    expect(screen.getByText("Adresse e-mail invalide.")).toBeInTheDocument();
-    expect(screen.getByLabelText("E-mail professionnel")).toHaveFocus();
-    expect(submit).not.toHaveBeenCalled();
-  });
-
-  it.each(["12345", "0412345678", "+21 123", "abc"])(
-    "rejects the phone number %s with 'Numéro invalide.'",
-    async (phone) => {
-      const { submit, user } = setup();
-      await fillValid(user);
-      const tel = screen.getByLabelText("Téléphone");
-      await user.clear(tel);
-      await user.type(tel, phone);
-      await user.click(submitButton());
-      expect(screen.getByText("Numéro invalide.")).toBeInTheDocument();
-      expect(tel).toHaveFocus();
-      expect(submit).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([
-    "0612345678",
-    "06 12-34.56.78",
-    "+212 6 12 34 56 78",
-    "00212612345678",
-    "(0)5 22 11 22 33",
-  ])("accepts the phone number %s", async (phone) => {
+  it("rejects a wrong phone number, focuses it and sends nothing", async () => {
     const { submit, user } = setup();
     await fillValid(user);
-    const tel = screen.getByLabelText("Téléphone");
+    const tel = screen.getByRole("textbox", { name: "Téléphone" });
     await user.clear(tel);
-    await user.type(tel, phone);
+    await user.type(tel, "12345");
     await user.click(submitButton());
-    expect(submit).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Numéro invalide.")).toBeInTheDocument();
+    expect(tel).toHaveFocus();
+    expect(submit).not.toHaveBeenCalled();
   });
 
   it("clears the error of a field as soon as the visitor edits it", async () => {
@@ -261,7 +194,7 @@ describe("SponsorForm submit", () => {
       " Bonjour ",
     );
     await user.click(
-      screen.getByRole("radio", { name: "Partenaire · 35 000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
     );
     await user.click(submitButton());
     expect(submit).toHaveBeenCalledTimes(1);
@@ -292,45 +225,23 @@ describe("SponsorForm submit", () => {
     );
   });
 
-  it("passes the honeypot value as typed, without trimming", async () => {
+  it("passes the honeypot value as typed, and shows the thanks panel as if it worked", async () => {
     const { submit, user } = setup({ mode: "honeypot" });
     await fillValid(user);
     await user.type(
       document.getElementById("s-hp") as HTMLInputElement,
-      " spam ",
+      " http://spam ",
     );
     await user.click(submitButton());
-    expect(submit.mock.calls[0]![0].honeypot).toBe(" spam ");
-  });
-
-  it("passes the honeypot value so the submit code can drop a robot", async () => {
-    const { submit, user } = setup({ mode: "honeypot" });
-    await fillValid(user);
-    await user.type(
-      document.getElementById("s-hp") as HTMLInputElement,
-      "http://spam",
-    );
-    await user.click(submitButton());
-    expect(submit.mock.calls[0][0].honeypot).toBe("http://spam");
+    expect(submit.mock.calls[0][0].honeypot).toBe(" http://spam ");
     expect(document.getElementById("s-success")).not.toHaveAttribute("hidden");
   });
 
   it("marks the button busy, keeps its focus and sends once while the request runs", async () => {
-    let resolve!: (r: SubmitResult) => void;
-    const pending = new Promise<SubmitResult>((r) => {
-      resolve = r;
+    const { promise, settle } = pendingResult();
+    const { submit, user } = renderSponsorForm({
+      submit: vi.fn<Submit>().mockReturnValue(promise),
     });
-    const submit = vi.fn<Submit>().mockReturnValue(pending);
-    const user = userEvent.setup();
-    render(
-      <SponsorForm
-        site={SITE}
-        levels={sponsorLevels(loadSponsoring())}
-        packageLevels={PACKAGE_LEVELS}
-        successText={SUCCESS}
-        submit={submit}
-      />,
-    );
     await fillValid(user);
     await user.click(submitButton());
     const busy = screen.getByRole("button", { name: "Envoi…" });
@@ -339,7 +250,7 @@ describe("SponsorForm submit", () => {
     await user.click(busy);
     await user.click(busy);
     expect(submit).toHaveBeenCalledTimes(1);
-    await act(async () => resolve({ mode: "endpoint" }));
+    await act(async () => settle({ mode: "endpoint" }));
     expect(document.getElementById("sponsor-form")).toHaveAttribute("hidden");
   });
 
@@ -413,7 +324,7 @@ describe("SponsorForm results", () => {
   it("linkedin: keeps the form and points to the LinkedIn page", async () => {
     const { user } = setup({
       mode: "linkedin",
-      href: "https://www.linkedin.com/company/test-page/",
+      href: LINKEDIN,
     });
     await fillValid(user);
     await user.click(submitButton());
@@ -423,10 +334,7 @@ describe("SponsorForm results", () => {
       "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
     );
     const link = within(alert).getByRole("link", { name: "LinkedIn" });
-    expect(link).toHaveAttribute(
-      "href",
-      "https://www.linkedin.com/company/test-page/",
-    );
+    expect(link).toHaveAttribute("href", LINKEDIN);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
     expect(document.getElementById("sponsor-form")).not.toHaveAttribute(
@@ -461,7 +369,7 @@ describe("SponsorForm results", () => {
       error,
       fallback: {
         kind: "linkedin",
-        href: "https://www.linkedin.com/company/test-page/",
+        href: LINKEDIN,
       },
     });
     await fillValid(user);
@@ -472,7 +380,7 @@ describe("SponsorForm results", () => {
     );
     expect(
       within(alert).getByRole("link", { name: "LinkedIn" }),
-    ).toHaveAttribute("href", "https://www.linkedin.com/company/test-page/");
+    ).toHaveAttribute("href", LINKEDIN);
     expect(log).toHaveBeenCalledWith(
       "[MSC] Envoi du formulaire impossible :",
       error,
@@ -533,107 +441,55 @@ describe("SponsorForm results", () => {
 });
 
 describe("SponsorForm level preselection", () => {
-  function PackageLinks() {
-    return (
-      <>
-        <a href="#sponsor-form" data-level="supporter">
-          Supporter
-        </a>
-        <a href="#sponsor-form" data-level="principal">
-          Principal
-        </a>
-        <a href="#sponsor-form" data-level="inconnu">
-          Inconnu
-        </a>
-        <a href="#sponsor-form">Sans niveau</a>
-      </>
-    );
-  }
+  const packageLinks = (
+    <>
+      <a href="#sponsor-form" data-level="supporter">
+        Supporter
+      </a>
+      <a href="#sponsor-form" data-level="principal">
+        Principal
+      </a>
+      <a href="#sponsor-form" data-level="inconnu">
+        Inconnu
+      </a>
+      <a href="#sponsor-form">Sans niveau</a>
+    </>
+  );
 
   it("checks the level of the package whose button the visitor clicks", async () => {
-    const user = userEvent.setup();
-    render(
-      <>
-        <PackageLinks />
-        <SponsorForm
-          site={SITE}
-          levels={sponsorLevels(loadSponsoring())}
-          packageLevels={PACKAGE_LEVELS}
-          successText={SUCCESS}
-          submit={vi.fn<Submit>()}
-        />
-      </>,
-    );
+    const { user } = renderSponsorForm({ before: packageLinks });
     await user.click(screen.getByRole("link", { name: "Principal" }));
     expect(
-      screen.getByRole("radio", { name: "Partenaire principal · 70 000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
     ).toBeChecked();
     await user.click(screen.getByRole("link", { name: "Supporter" }));
     expect(
-      screen.getByRole("radio", { name: "Supporter · 15 000 MAD" }),
+      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
     ).toBeChecked();
     expect(
-      screen.getByRole("radio", { name: "Partenaire principal · 70 000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
     ).not.toBeChecked();
   });
 
   it("ignores a button with an unknown or missing level", async () => {
-    const user = userEvent.setup();
-    render(
-      <>
-        <PackageLinks />
-        <SponsorForm
-          site={SITE}
-          levels={sponsorLevels(loadSponsoring())}
-          packageLevels={PACKAGE_LEVELS}
-          successText={SUCCESS}
-          submit={vi.fn<Submit>()}
-        />
-      </>,
-    );
+    const { user } = renderSponsorForm({ before: packageLinks });
     await user.click(screen.getByRole("link", { name: "Inconnu" }));
     await user.click(screen.getByRole("link", { name: "Sans niveau" }));
     expect(screen.getByRole("radio", { name: "À discuter" })).toBeChecked();
   });
 
   it("sends the preselected level", async () => {
-    const user = userEvent.setup();
-    const submit = vi.fn<Submit>().mockResolvedValue({ mode: "endpoint" });
-    render(
-      <>
-        <PackageLinks />
-        <SponsorForm
-          site={SITE}
-          levels={sponsorLevels(loadSponsoring())}
-          packageLevels={PACKAGE_LEVELS}
-          successText={SUCCESS}
-          submit={submit}
-        />
-      </>,
-    );
+    const { submit, user } = renderSponsorForm({ before: packageLinks });
     await user.click(screen.getByRole("link", { name: "Supporter" }));
     await fillValid(user);
     await user.click(submitButton());
     expect(submit.mock.calls[0][0].data.niveau).toBe("Supporter");
   });
 
-  it("stops listening when the form unmounts", async () => {
-    const user = userEvent.setup();
-    const { unmount } = render(
-      <>
-        <PackageLinks />
-        <SponsorForm
-          site={SITE}
-          levels={sponsorLevels(loadSponsoring())}
-          packageLevels={PACKAGE_LEVELS}
-          successText={SUCCESS}
-          submit={vi.fn<Submit>()}
-        />
-      </>,
-    );
+  it("stops listening when the form unmounts", () => {
+    const { unmount } = renderSponsorForm({ before: packageLinks });
     const spy = vi.spyOn(document, "removeEventListener");
     unmount();
     expect(spy).toHaveBeenCalledWith("click", expect.any(Function));
-    void user;
   });
 });

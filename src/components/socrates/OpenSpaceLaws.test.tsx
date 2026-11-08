@@ -1,49 +1,52 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadSocrates } from "@/content/load";
-import { socratesLaws } from "@/lib/pages-data";
+import type { LawItem } from "@/lib/pages-data";
 import { OpenSpaceLaws } from "./OpenSpaceLaws";
 
-// Props come from content/socrates.json (openspace.laws), as the page passes them.
-const laws = () => socratesLaws(loadSocrates());
+// Laws as `socratesLaws` gives them: the last one is the main law.
+const LAWS: LawItem[] = [
+  { title: "Première loi.", text: "Texte de la première.", main: false },
+  { title: "Deuxième loi.", text: "Texte de la deuxième.", main: false },
+  {
+    title: "La loi des deux pieds.",
+    text: "Texte de la dernière.",
+    main: true,
+  },
+];
 
 describe("OpenSpaceLaws", () => {
-  it("is an ordered list of the four laws, titles as level 3 headings", () => {
-    render(<OpenSpaceLaws laws={laws()} />);
+  it("is an ordered list of the laws, titles as level 3 headings", () => {
+    render(<OpenSpaceLaws laws={LAWS} />);
     const list = screen.getByRole("list");
     expect(list.tagName).toBe("OL");
     const items = within(list).getAllByRole("listitem");
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(LAWS.length);
     expect(
       within(items[0]).getByRole("heading", {
         level: 3,
-        name: "Qui que soient les gens qui viennent, ce sont les bonnes personnes.",
+        name: "Première loi.",
       }),
     ).toBeInTheDocument();
-    expect(items[0]).toHaveTextContent(
-      "Une session à trois peut être la meilleure du week-end.",
-    );
+    expect(items[0]).toHaveTextContent("Texte de la première.");
   });
 
-  it("keeps the order of the JSON", () => {
-    render(<OpenSpaceLaws laws={laws()} />);
+  it("keeps the given order", () => {
+    render(<OpenSpaceLaws laws={LAWS} />);
     const titles = screen
       .getAllByRole("heading", { level: 3 })
       .map((h) => h.textContent);
     expect(titles).toEqual([
-      "Qui que soient les gens qui viennent, ce sont les bonnes personnes.",
-      "Quoi qu'il arrive, c'est la seule chose qui pouvait arriver.",
-      "Ça commence quand ça commence.",
+      "Première loi.",
+      "Deuxième loi.",
       "La loi des deux pieds.",
     ]);
   });
 
-  it("sets the last law apart on the deep green band", () => {
-    render(<OpenSpaceLaws laws={laws()} />);
+  it("sets the main law apart from the others", () => {
+    render(<OpenSpaceLaws laws={LAWS} />);
     const items = screen.getAllByRole("listitem");
-    expect(items[3]).toHaveClass("bg-green-deep");
-    expect(items[3]).toHaveTextContent("La loi des deux pieds.");
-    for (const item of items.slice(0, 3)) {
+    expect(items[2]).toHaveClass("bg-green-deep");
+    for (const item of items.slice(0, 2)) {
       expect(item).not.toHaveClass("bg-green-deep");
     }
   });

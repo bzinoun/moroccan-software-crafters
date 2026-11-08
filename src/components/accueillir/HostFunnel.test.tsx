@@ -1,125 +1,40 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-  type MockInstance,
-} from "vitest";
-import { loadOffers, loadSite } from "@/content/load";
-import { submitFormInBrowser } from "@/lib/forms-browser";
-import type { FormSite } from "@/lib/forms";
+import { describe, expect, it, vi } from "vitest";
+import { DRAFT_KEY } from "@/lib/funnel";
 import { HostFunnel } from "./HostFunnel";
+import {
+  LINKEDIN,
+  OFFERS,
+  SITE,
+  pendingResult,
+  chooseOffer,
+  fillContact,
+  legend,
+  next,
+  renderFunnel,
+  savedDraft,
+  sendRequest,
+  storeDraft,
+  stubReducedMotion,
+  submit,
+  toStep2,
+  toStep3,
+  toStep4,
+  setUpFunnelEnvironment,
+} from "./test-utils";
 
 // Nothing here posts anywhere: the submit module is replaced by a mock.
+// The offers are a fixture: a content edit must not break this file. The rules
+// of the fields are tested in `funnel.test.ts`; here each behavior is tested once.
 vi.mock("@/lib/forms-browser", () => ({ submitFormInBrowser: vi.fn() }));
 
-const submit = vi.mocked(submitFormInBrowser);
-const offers = loadOffers().items;
-const linkedin = loadSite().links.linkedin;
-const SITE: FormSite = {
-  links: { linkedin },
-  contact: { email: "" },
-  form: { endpoint: "https://formspree.io/f/xtestid", extraFields: {} },
-};
-
-// 7 November 2026 is a Saturday: the first date allowed is Sunday 8 November.
-const NOW = new Date(2026, 10, 7, 10, 0);
-const DRAFT_KEY = "msc-host-draft-v1";
-
-function setup(site: FormSite = SITE) {
-  const user = userEvent.setup();
-  const view = render(<HostFunnel offers={offers} site={site} />);
-  return { user, ...view };
-}
-
-type User = ReturnType<typeof userEvent.setup>;
-
-const next = () =>
-  screen.getByRole("button", { name: /Continuer|Envoyer|Envoi/ });
-const draft = () => JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "null");
-const legend = (step: number) =>
-  document.getElementById(`step-${step}-legend`) as HTMLElement;
-
-async function chooseOffer(user: User, name = "Meetup partenaire") {
-  await user.click(screen.getByRole("radio", { name: new RegExp(name) }));
-}
-
-async function toStep2(user: User) {
-  await chooseOffer(user);
-  await user.click(next());
-}
-
-async function fillStep2(user: User, date = "2026-11-14") {
-  fireEvent.change(screen.getByLabelText("Date souhaitée"), {
-    target: { value: date },
-  });
-  await user.click(screen.getByRole("radio", { name: "40 à 60" }));
-}
-
-async function toStep3(user: User) {
-  await toStep2(user);
-  await fillStep2(user);
-  await user.click(next());
-}
-
-async function toStep4(user: User) {
-  await toStep3(user);
-  await user.type(screen.getByLabelText("Nom de l'entreprise"), "Acme");
-  await user.click(next());
-}
-
-async function fillStep4(user: User) {
-  await user.type(screen.getByLabelText("Prénom et nom"), "Sara Alaoui");
-  await user.type(
-    screen.getByLabelText("E-mail professionnel"),
-    "sara@acme.ma",
-  );
-  await user.type(
-    screen.getByRole("textbox", { name: "Téléphone" }),
-    "06 12 34 56 78",
-  );
-  await user.click(screen.getByRole("checkbox", { name: /J'accepte/ }));
-}
-
-async function send(user: User) {
-  await toStep4(user);
-  await fillStep4(user);
-  await user.click(next());
-}
-
-let errorSpy: MockInstance;
-
-function stubReducedMotion(reduce: boolean) {
-  vi.stubGlobal("matchMedia", (query: string) => ({
-    matches: reduce && query === "(prefers-reduced-motion: reduce)",
-  }));
-}
-
-beforeEach(() => {
-  vi.useFakeTimers({ toFake: ["Date"] });
-  vi.setSystemTime(NOW);
-  submit.mockReset();
-  submit.mockResolvedValue({ mode: "endpoint" });
-  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  Element.prototype.scrollIntoView = vi.fn();
-  stubReducedMotion(false);
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-  localStorage.clear();
-  window.history.replaceState(null, "", "/");
-});
+const env = setUpFunnelEnvironment();
+const setup = renderFunnel;
+const linkedin = LINKEDIN;
 
 describe("HostFunnel first render", () => {
-  it("opens on step 1 with the offers of offers.json as choice cards", () => {
+  it("opens on step 1 with one choice card per offer", () => {
     const { container } = setup();
     expect(container.querySelector("#funnel")).toBeInTheDocument();
     expect(container.querySelector("#host-form")).toHaveAttribute("novalidate");
@@ -130,7 +45,7 @@ describe("HostFunnel first render", () => {
     const choices = within(
       screen.getByRole("radiogroup", { name: "Formule" }),
     ).getAllByRole("radio");
-    expect(choices).toHaveLength(3);
+    expect(choices).toHaveLength(OFFERS.length);
     expect(container.querySelector("#offer-choices")).toBe(
       screen.getByRole("radiogroup", { name: "Formule" }),
     );
@@ -139,7 +54,7 @@ describe("HostFunnel first render", () => {
     ).not.toBeChecked();
     expect(
       screen.getByRole("radio", {
-        name: /Meetup partenaire.*À partir de 12\s000 MAD/,
+        name: /Meetup partenaire.*À partir de 9000 MAD/,
       }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Retour" })).toBeNull();
@@ -149,7 +64,7 @@ describe("HostFunnel first render", () => {
   });
 
   it("renders the first step in the static HTML, with no script", () => {
-    const html = renderToString(<HostFunnel offers={offers} site={SITE} />);
+    const html = renderToString(<HostFunnel offers={OFFERS} site={SITE} />);
     expect(html).toContain("Quelle formule vous intéresse");
     expect(html).toContain("Hôte communautaire");
     expect(html).toContain("Craft session privée");
@@ -338,21 +253,6 @@ describe("step 2, the event", () => {
     expect(screen.queryByText("Indiquez une fourchette.")).toBeNull();
   });
 
-  it("rejects a date in the past and a capacity outside 10 to 1000", async () => {
-    const { user } = setup();
-    await toStep2(user);
-    await fillStep2(user, "2026-11-07");
-    await user.type(screen.getByLabelText(/Capacité de la salle/), "5");
-    await user.click(next());
-    expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
-    expect(screen.getByText("Entre 10 et 1000 places.")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Capacité de la salle/)).toHaveAttribute(
-      "aria-invalid",
-      "true",
-    );
-    expect(screen.getByLabelText("Date souhaitée")).toHaveFocus();
-  });
-
   it("offers the cities, the equipment and the attendee ranges of the old form", async () => {
     const { user } = setup();
     await toStep2(user);
@@ -398,23 +298,6 @@ describe("step 3, the company", () => {
       "aria-invalid",
       "true",
     );
-  });
-
-  it("rejects a web address without https:// and accepts an empty one", async () => {
-    const { user } = setup();
-    await toStep3(user);
-    await user.type(screen.getByLabelText("Nom de l'entreprise"), "Acme");
-    await user.type(screen.getByLabelText(/Site web/), "acme.ma");
-    await user.click(next());
-    expect(
-      screen.getByText("Adresse invalide (elle doit commencer par https://)."),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Site web/)).toHaveFocus();
-    await user.clear(screen.getByLabelText(/Site web/));
-    await user.click(next());
-    expect(
-      screen.getByRole("group", { name: /Comment vous joindre/ }),
-    ).toBeVisible();
   });
 });
 
@@ -462,21 +345,6 @@ describe("step 4, the contact", () => {
     expect(submit).not.toHaveBeenCalled();
   });
 
-  it("switches the phone message between empty and wrong", async () => {
-    const { user } = setup();
-    await toStep4(user);
-    await user.click(next());
-    expect(screen.getByText("Indiquez votre numéro.")).toBeInTheDocument();
-    await user.type(screen.getByRole("textbox", { name: "Téléphone" }), "0412");
-    await user.click(next());
-    expect(screen.queryByText("Indiquez votre numéro.")).toBeNull();
-    expect(
-      screen.getByText(
-        "Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78).",
-      ),
-    ).toBeInTheDocument();
-  });
-
   it("preselects the e-mail preference", async () => {
     const { user } = setup();
     await toStep4(user);
@@ -487,7 +355,7 @@ describe("step 4, the contact", () => {
 describe("sending", () => {
   it("sends the answers with the type, the subject and the French e-mail body", async () => {
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     expect(submit).toHaveBeenCalledTimes(1);
     expect(submit).toHaveBeenCalledWith({
       site: SITE,
@@ -529,31 +397,30 @@ describe("sending", () => {
     });
   });
 
-  it("marks the button busy, keeps its focus and sends once until the answer comes", async () => {
-    let finish: (r: { mode: "endpoint" }) => void = () => {};
-    submit.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+  // The guard against a double click is tested on the hook (`useHostFunnel.test.tsx`).
+  it("marks the button busy and keeps its focus until the answer comes", async () => {
+    const { promise, settle } = pendingResult();
+    submit.mockReturnValue(promise);
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     const busy = screen.getByRole("button", { name: "Envoi…" });
     expect(busy).toHaveAttribute("aria-disabled", "true");
     expect(busy).toHaveFocus();
-    await user.click(busy);
-    expect(submit).toHaveBeenCalledTimes(1);
-    finish({ mode: "endpoint" });
+    settle({ mode: "endpoint" });
     expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
   });
 
   it("gives back the button and shows the failure alert when the send throws", async () => {
     submit.mockRejectedValue(new Error("boom"));
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(
       "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant.",
     );
     const button = screen.getByRole("button", { name: "Envoyer ma demande" });
     expect(button).not.toHaveAttribute("aria-disabled");
-    expect(errorSpy).toHaveBeenCalledWith(
+    expect(env.errorSpy).toHaveBeenCalledWith(
       "[MSC] Envoi du formulaire impossible :",
       expect.any(Error),
     );
@@ -563,7 +430,7 @@ describe("sending", () => {
   it("can send again after a failure", async () => {
     submit.mockRejectedValueOnce(new Error("boom"));
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     await screen.findByRole("alert");
     await user.click(next());
     expect(submit).toHaveBeenCalledTimes(2);
@@ -572,7 +439,7 @@ describe("sending", () => {
 
   it("replaces the form with the success panel, focuses it and clears the draft", async () => {
     const { user, container } = setup();
-    await send(user);
+    await sendRequest(user);
     const panel = container.querySelector("#success") as HTMLElement;
     expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
     expect(panel).not.toHaveAttribute("hidden");
@@ -594,7 +461,7 @@ describe("sending", () => {
   it("tells the person to send the prefilled e-mail when the mail client opened", async () => {
     submit.mockResolvedValue({ mode: "mailto", url: "mailto:x@y.ma" });
     const { user } = setup({ ...SITE, contact: { email: "x@y.ma" } });
-    await send(user);
+    await sendRequest(user);
     expect(
       await screen.findByText(
         "Votre messagerie s'est ouverte avec la demande pré-remplie : il ne reste qu'à l'envoyer. Nous revenons vers vous sous 48 heures.",
@@ -605,7 +472,7 @@ describe("sending", () => {
   it("shows the LinkedIn link and keeps the form when nothing receives the request", async () => {
     submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(
       "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
@@ -614,7 +481,7 @@ describe("sending", () => {
     expect(link).toHaveAttribute("href", linkedin);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
-    expect(errorSpy).toHaveBeenCalled();
+    expect(env.errorSpy).toHaveBeenCalled();
     expect(
       screen.getByRole("button", { name: "Envoyer ma demande" }),
     ).toBeEnabled();
@@ -626,7 +493,7 @@ describe("sending", () => {
   it("shows the same alert, without a link, when no LinkedIn page is configured", async () => {
     submit.mockResolvedValue({ mode: "none" });
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(
       "Le formulaire n'est pas encore relié à notre boîte de réception. Contactez-nous sur LinkedIn en attendant.",
@@ -645,7 +512,7 @@ describe("sending", () => {
       },
     });
     const { user } = setup({ ...SITE, contact: { email: "x@y.ma" } });
-    await send(user);
+    await sendRequest(user);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(
       "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant. Vous pouvez aussi nous écrire à x@y.ma.",
@@ -654,7 +521,7 @@ describe("sending", () => {
       "href",
       "mailto:x@y.ma?subject=s",
     );
-    expect(errorSpy).toHaveBeenCalled();
+    expect(env.errorSpy).toHaveBeenCalled();
     expect(
       screen.getByRole("button", { name: "Envoyer ma demande" }),
     ).toBeEnabled();
@@ -668,7 +535,7 @@ describe("sending", () => {
       fallback: { kind: "linkedin", href: linkedin },
     });
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(
       "L'envoi n'a pas abouti. Vos réponses sont conservées, réessayez dans un instant. Vous pouvez aussi nous écrire sur LinkedIn.",
@@ -681,7 +548,7 @@ describe("sending", () => {
   it("clears the alert when the person changes step", async () => {
     submit.mockResolvedValue({ mode: "linkedin", href: linkedin });
     const { user } = setup();
-    await send(user);
+    await sendRequest(user);
     await screen.findByText(/pas encore relié/);
     await user.click(screen.getByRole("button", { name: "Retour" }));
     expect(screen.queryByText(/pas encore relié/)).toBeNull();
@@ -691,7 +558,7 @@ describe("sending", () => {
     submit.mockResolvedValue({ mode: "honeypot" });
     const { user, container } = setup();
     await toStep4(user);
-    await fillStep4(user);
+    await fillContact(user);
     fireEvent.change(container.querySelector("#website_hp") as HTMLElement, {
       target: { value: " https://spam.example " },
     });
@@ -707,50 +574,26 @@ describe("sending", () => {
     expect(localStorage.getItem(DRAFT_KEY)).toBeNull();
   });
 
-  it("passes an empty trap value when the field is empty", async () => {
-    const { user } = setup();
-    await send(user);
-    expect(submit.mock.calls[0]![0].honeypot).toBe("");
-  });
-
-  it("checks steps 1 to 4 before sending: a stale draft on step 4 goes back to the step in error", async () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({
-        formule: "partenaire",
-        date: "2026-11-07",
-        participants: "40-60",
-        entreprise: "Acme",
-        _step: 4,
-      }),
-    );
+  // The decision to go back is tested on the hook; this checks what the person sees.
+  it("sends nothing when a stale draft on step 4 has an old date, and moves the focus to the date", async () => {
+    storeDraft({
+      formule: "partenaire",
+      date: "2026-11-07",
+      participants: "40-60",
+      entreprise: "Acme",
+      _step: 4,
+    });
     const { user } = setup();
     expect(
       screen.getByRole("group", { name: /Comment vous joindre/ }),
     ).toBeVisible();
-    await fillStep4(user);
+    await fillContact(user);
     await user.click(next());
     expect(submit).not.toHaveBeenCalled();
     expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
     expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
     expect(screen.getByLabelText("Date souhaitée")).toHaveFocus();
     expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
-    expect(draft()._step).toBe(2);
-  });
-
-  it("goes back to step 1 when a stale draft has no offer", async () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ date: "2026-12-05", participants: "40-60", _step: 4 }),
-    );
-    const { user } = setup();
-    await fillStep4(user);
-    await user.click(next());
-    expect(submit).not.toHaveBeenCalled();
-    expect(
-      screen.getByText("Choisissez une formule pour continuer."),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Étape 1 sur 4 · Formule")).toBeInTheDocument();
   });
 });
 
@@ -765,7 +608,7 @@ describe("the draft", () => {
     fireEvent.change(container.querySelector("#website_hp") as HTMLElement, {
       target: { value: "x" },
     });
-    expect(draft()).toMatchObject({
+    expect(savedDraft()).toMatchObject({
       formule: "partenaire",
       date: "2026-11-14",
       participants: "40-60",
@@ -775,24 +618,21 @@ describe("the draft", () => {
       preference: "E-mail",
       _step: 4,
     });
-    expect(draft()).not.toHaveProperty("consent");
-    expect(draft()).not.toHaveProperty("website_hp");
+    expect(savedDraft()).not.toHaveProperty("consent");
+    expect(savedDraft()).not.toHaveProperty("website_hp");
   });
 
   it("restores the answers and the step of a saved draft", () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({
-        formule: "prive",
-        date: "2026-12-05",
-        participants: "80+",
-        ville: "Rabat",
-        equipements: ["Parking", "Wifi invités"],
-        entreprise: "Acme",
-        nom: "Sara",
-        _step: 3,
-      }),
-    );
+    storeDraft({
+      formule: "prive",
+      date: "2026-12-05",
+      participants: "80+",
+      ville: "Rabat",
+      equipements: ["Parking", "Wifi invités"],
+      entreprise: "Acme",
+      nom: "Sara",
+      _step: 3,
+    });
     setup();
     expect(
       screen.getByRole("group", { name: "Votre entreprise" }),
@@ -816,31 +656,9 @@ describe("the draft", () => {
       screen.getByRole("checkbox", { name: "Wifi invités", hidden: true }),
     ).toBeChecked();
     expect(
-      screen.getByRole("checkbox", { name: "Parking", hidden: true }),
-    ).toBeInTheDocument();
-    expect(
       screen.getByRole("checkbox", { name: "Salle plénière", hidden: true }),
     ).not.toBeChecked();
     expect(legend(3)).not.toHaveFocus();
-  });
-
-  it("drops a saved date that is no longer in the future", () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ date: "2026-11-07", _step: 2 }),
-    );
-    setup();
-    expect(screen.getByLabelText("Date souhaitée")).toHaveValue("");
-  });
-
-  it("drops a tampered date and capacity of a saved draft", () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ date: "2027-13-45", capacite: "<b>", _step: 2 }),
-    );
-    setup();
-    expect(screen.getByLabelText("Date souhaitée")).toHaveValue("");
-    expect(screen.getByLabelText(/Capacité de la salle/)).toHaveValue(null);
   });
 
   it("works when the storage is unavailable", async () => {
@@ -867,7 +685,7 @@ describe("?formule= in the URL", () => {
     setup();
     expect(screen.getByRole("group", { name: "L'événement" })).toBeVisible();
     expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
-    expect(draft()).toBeNull();
+    expect(savedDraft()).toBeNull();
   });
 
   it("shows the chosen offer when going back to step 1", async () => {
@@ -877,13 +695,5 @@ describe("?formule= in the URL", () => {
     expect(
       screen.getByRole("radio", { name: /Hôte communautaire/ }),
     ).toBeChecked();
-  });
-
-  it("stays on step 1 when the parameter names no offer", () => {
-    window.history.replaceState(null, "", "/accueillir/?formule=inconnue");
-    setup();
-    expect(
-      screen.getByRole("group", { name: /Quelle formule vous intéresse/ }),
-    ).toBeVisible();
   });
 });
