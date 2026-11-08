@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { frauncesItalic } from "../fonts-italic";
 import { PageFrame } from "../PageFrame";
 
 export default function AssociationLayout({
@@ -6,5 +7,9 @@ export default function AssociationLayout({
 }: {
   children: ReactNode;
 }) {
-  return <PageFrame page="association">{children}</PageFrame>;
+  return (
+    <PageFrame page="association" className={frauncesItalic.variable}>
+      {children}
+    </PageFrame>
+  );
 }

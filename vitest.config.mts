@@ -5,7 +5,17 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // Next resolves `server-only` itself in a build; the tests run outside
+      // Next, so they get the empty module, as in the Next jest guide.
+      "server-only": fileURLToPath(
+        new URL(
+          "./node_modules/next/dist/compiled/server-only/empty.js",
+          import.meta.url,
+        ),
+      ),
+    },
   },
   test: {
     environment: "jsdom",

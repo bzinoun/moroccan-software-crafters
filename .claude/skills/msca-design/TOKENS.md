@@ -8,7 +8,7 @@ Single source: `src/app/globals.css`. When this file and the CSS differ, the CSS
 
 | Token | Value | Role |
 |---|---|---|
-| `--color-white` | `#fff` | Text on red, green and ink fills, polaroid frame, input background, headings on dark surfaces |
+| `--color-white` | `#fff` | Text on red, green and ink fills, polaroid frame, input background, headings on dark surfaces, card surfaces |
 | `--color-red` | `#c1272d` | Main accent: primary button fill, eyebrow text and rule, heading emphasis, active nav, step numbers, timeline dots, errors, invalid borders |
 | `--color-red-dark` | `#9b1c22` | Primary button hover, SoCraTes badge text, form alert text |
 | `--color-green` | `#1b6b3a` | Links, focus ring, data numbers, prices, years, CTA band fill, highlighted offer border, checked inputs, progress, numbered circles |
@@ -25,19 +25,40 @@ Single source: `src/app/globals.css`. When this file and the CSS differ, the CSS
 | `--color-muted` | `#6a645c` | Meta text, hints, help, notes |
 | `--color-paper` | `#fbf7f0` | Page background, mobile nav panel, recap box, timeline dot fill |
 | `--color-paper-2` | `#f3ece1` | Stats band, image placeholders, tag pills, inline code |
-| `--color-card` | `#ffffff` | Card surfaces |
 | `--color-line` | `#e4dbcd` | Every 1px border and divider, progress track |
+| `--color-line-strong` | `#d9cfbd` | Hover and focus border of a logo tile |
 | `--color-postit-yellow` | `#ffe774` | Default post-it, sticker, tips, edition badge, "give" bullets |
 | `--color-postit-pink` | `#ffb3cf` | Pink post-it |
 | `--color-postit-green` | `#b9eba0` | Green post-it, offer bullet, even tips |
 | `--color-postit-blue` | `#a9dcf5` | Blue post-it |
 | `--color-postit-orange` | `#ffc98a` | Orange post-it |
 
+There is no `--color-card`: it was the same color as `--color-white` (`bg-card` is now `bg-white` everywhere). Use `bg-white` for a card surface.
+
 Post-it cycle for topic walls: yellow, pink, green, blue, orange (index modulo 5).
 
 Overlay values on dark surfaces use the opacity modifier on a token: `bg-white/5`, `border-white/16`.
 
-### Colors without a token yet (use as arbitrary values, promote on second use)
+**Dark surface rule (one value per role).** Card fill on a dark surface: `bg-white/5`. Card border on a dark surface: `border-white/16`. These are the values used most today. Replace `border-white/14` and `border-white/15` with `border-white/16`, and `bg-white/7` with `bg-white/5` (CardGrid, FactList, OfferGrid, PackageGrid, footer). Other dark overlays stay as they are: `bg-white/12` and `hover:bg-white/25` (lightbox buttons), `bg-sage/10` with `border-sage/35` (sponsor call).
+
+### Literal colors: what replaces them
+
+A literal color used twice or more has a token (`--color-line-strong`, `--shadow-postit`). A literal that is an existing token at some opacity has no token of its own: write the opacity modifier. The mapping, for the components that still carry the literal:
+
+| Literal in a utility | Replace with |
+|---|---|
+| `hover:border-[#d9cfbd]`, `focus-visible:border-[#d9cfbd]` | `hover:border-line-strong`, `focus-visible:border-line-strong` |
+| `shadow-[0_10px_18px_rgba(0,0,0,0.12)]` (PostIt, LogoWall sticker) | `shadow-postit` |
+| `bg-[rgba(29,27,25,0.78)]` (photo count pill) | `bg-ink/78` |
+| `bg-[rgba(15,63,35,0.85)]` (status chip fill) | `bg-green-deep/85` |
+| `border-[rgba(169,187,163,0.55)]` (status chip border) | `border-sage/55` |
+| `bg-[linear-gradient(180deg,rgba(15,63,35,0.45)_0%,rgba(15,63,35,0.78)_60%,var(--color-green-deep)_100%)]` (dark hero overlay) | `bg-linear-to-b/srgb from-green-deep/45 via-green-deep/78 via-60% to-green-deep` |
+| `focus:shadow-[0_0_0_3px_rgba(27,107,58,0.15)]` (input focus halo) | `focus:ring-3 focus:ring-green/15` |
+| `shadow-[0_6px_18px_rgba(193,39,45,0.28)]` (primary button) | `shadow-[0_6px_18px] shadow-red/28` |
+
+The opacity forms mix in `oklab` where the browser supports it; the difference from the old `rgba` is below what the eye sees. Check the changed component at three widths.
+
+Literals used once stay arbitrary values (promote on second use):
 
 | Value | Role |
 |---|---|
@@ -48,12 +69,10 @@ Overlay values on dark surfaces use the opacity modifier on a token: `bg-white/5
 | `#e4ddd2`, `#cfc7bb` | SoCraTes hero lead, hero fact labels |
 | `#f3eee6`, `#bdb4a7` | Logo tile name and role on dark |
 | `#e8e2d9`, `rgba(15,13,12,0.94)` | Lightbox caption, backdrop |
-| `rgba(29,27,25,0.78)` | Photo count pill |
-| `#d9cfbd`, `#cbbfa9`, `#b9ad99`, `#f3faf5` | Logo tile hover border, choice card hover border, choice dot border, checked choice fill |
+| `rgba(0,0,0,0.65)` | Photo gallery caption gradient end |
+| `#cbbfa9`, `#b9ad99`, `#f3faf5` | Choice card hover border, choice dot border, checked choice fill |
 | `#c9a400` | "Give" bullet border |
 | `#fdecec` | Form alert fill |
-| `rgba(15,63,35,0.85)`, `rgba(169,187,163,0.55)` | Status chip fill and border |
-| `rgba(169,187,163,0.1)`, `rgba(169,187,163,0.35)` | Sponsor call fill and border |
 
 ## Radius
 
@@ -71,7 +90,9 @@ Other radii stay as utilities or arbitrary values: `rounded-full` (buttons, chip
 | `--shadow-card` | `0 1px 2px rgba(29,27,25,.06), 0 8px 24px rgba(29,27,25,.08)` | `shadow-card` | Feature and article cards at rest |
 | `--shadow-lift` | `0 2px 4px rgba(29,27,25,.08), 0 18px 40px rgba(29,27,25,.14)` | `shadow-lift` | Hover lift, polaroids, hero and split images, funnel panel, mobile nav panel, highlighted offer, article cover |
 
-One-off shadows stay arbitrary values: primary button `0_6px_18px_rgba(193,39,45,0.28)` (removed on dark surfaces and the CTA band), post-it `0_10px_18px_rgba(0,0,0,0.12)`, tips `0_6px_12px_rgba(0,0,0,0.08)`, edition badge `0_4px_10px_rgba(0,0,0,0.2)`, SoCraTes photo `0_20px_50px_rgba(0,0,0,0.35)`, topic board `inset_0_0_40px_rgba(0,0,0,0.12)`, input focus halo `0_0_0_3px_rgba(27,107,58,0.15)`.
+| `--shadow-postit` | `0 10px 18px rgba(0,0,0,.12)` | `shadow-postit` | Post-it, logo sticker |
+
+One-off shadows stay arbitrary values: tips `0_6px_12px_rgba(0,0,0,0.08)`, edition badge `0_4px_10px_rgba(0,0,0,0.2)`, SoCraTes photo `0_20px_50px_rgba(0,0,0,0.35)`, topic board `inset_0_0_40px_rgba(0,0,0,0.12)`. The primary button glow and the input focus halo use a colored shadow with the color from a token (see the literal color table above).
 
 ## Container
 
@@ -93,6 +114,8 @@ Declared with `@theme inline` so each utility keeps the `var(--font-...)` refere
 
 Monospace for inline code: `font-mono` (stock stack). All three families are variable fonts, so any weight works. Fraunces loads roman and italic with the `opsz` axis.
 
+Fraunces italic is a separate font (`src/app/fonts-italic.ts`, variable `--font-fraunces-italic`) so that only the routes that show it preload its 82 KB file. The home, meetup, SoCraTes and association layouts and the article page import it and put its `.variable` class on the page wrapper. The accueillir and news list pages do not. Italic Fraunces text uses `h1 em` or `h2 em` (base layer), or the `font-display-italic` utility (laws title, article quotes): both read `--font-fraunces-italic` and fall back to the roman face when it is not set. Never write `font-display italic` for a new italic heading: the roman family has no italic face, so the browser would draw a slanted copy of the roman. A route that shows italic Fraunces imports the module in its layout or page.
+
 ## Type scale
 
 Set in the base layer: body 17px, line-height 1.6, `-webkit-font-smoothing: antialiased`.
@@ -113,6 +136,33 @@ Set in the base layer: body 17px, line-height 1.6, `-webkit-font-smoothing: anti
 | Big numbers | 1.4rem to 2.4rem, Fraunces 600, green (agenda counter red) | stats `clamp(1.8rem, 3vw, 2.4rem)` |
 | Hand font | 1.15rem to 1.7rem | post-it 1.35rem, kicker 1.6rem, day 1.7rem |
 | Small UI | `0.72rem` to `0.9rem` | badges 0.72rem 700 uppercase tracking `0.05em`; meta 0.8rem muted |
+
+### Type scale tokens
+
+Each size that the site used two or more times as an arbitrary value has a token in `@theme`. The name is the size in hundredths of a rem: `text-s95` is `0.95rem`. The names carry the value on purpose: they give one place for each size with no rounding and no visible change. Merging near sizes (0.92 and 0.93 and 0.95, 0.84 and 0.85, 1.2 and 1.25) into fewer roles is a design decision for later; then rename them by role.
+
+A token sets the font size only (no paired line height): keep `leading-*` in its own utility as today.
+
+| Replace | With | Replace | With |
+|---|---|---|---|
+| `text-[0.72rem]` | `text-s72` | `text-[1.02rem]` | `text-s102` |
+| `text-[0.74rem]` | `text-s74` | `text-[1.05rem]` | `text-s105` |
+| `text-[0.76rem]` | `text-s76` | `text-[1.15rem]` | `text-s115` |
+| `text-[0.78rem]` | `text-s78` | `text-[1.2rem]` | `text-s120` |
+| `text-[0.8rem]` | `text-s80` | `text-[1.25rem]` | `text-s125` |
+| `text-[0.82rem]` | `text-s82` | `text-[1.3rem]` | `text-s130` |
+| `text-[0.84rem]` | `text-s84` | `text-[1.35rem]` | `text-s135` |
+| `text-[0.85rem]` | `text-s85` | `text-[1.4rem]` | `text-s140` |
+| `text-[0.88rem]` | `text-s88` | `text-[1.5rem]` | `text-s150` |
+| `text-[0.9rem]` | `text-s90` | `text-[1.6rem]` | `text-s160` |
+| `text-[0.92rem]` | `text-s92` | `text-[1.7rem]` | `text-s170` |
+| `text-[0.93rem]` | `text-s93` | `text-[1.8rem]` | `text-s180` |
+| `text-[0.95rem]` | `text-s95` | `text-[1.9rem]` | `text-s190` |
+| `text-[0.98rem]` | `text-s98` | | |
+
+The rule applies to every variant too: `sm:text-[1.5rem]` becomes `sm:text-s150`, `lg:text-[1.35rem]` becomes `lg:text-s135`, and a slot string such as `[&_h2]:text-[1.6rem]` becomes `[&_h2]:text-s160`. Sizes used once stay arbitrary: `0.68`, `0.7`, `0.75`, `0.83`, `0.86`, `1.08`, `1.1`, `1.55`, `2` rem and every `clamp(...)`. A test (`src/lib/cn.test.ts`) fails when a token of `globals.css` is missing in the merge config of `src/lib/cn.ts`: add a new `--text-*`, `--shadow-*`, `--radius-*`, `--container-*`, `--ease-*` or `--font-*` token in both places, or tailwind-merge reads `text-<name>` as a text color and drops a class it should keep.
+
+Other arbitrary values that stay (checked against Tailwind 4.3, no clean utility): `border-[1.5px]` (no half-pixel border utility), `rotate-[1.5deg]` and the other rotations with a decimal (`rotate-1.5` is not generated). `sm:grid-cols-[repeat(2,1fr)]` and `repeat(4,1fr)` are `grid-cols-2` and `grid-cols-4`: apply those. `motion-safe:ease-[ease]` is `motion-safe:ease-standard` (token `--ease-standard: ease`).
 
 ## Spacing and layout values
 
@@ -157,7 +207,7 @@ Proposal, owner to confirm: map each query of the former site (`git show 1353207
 
 - Prefix every transition and animation with `motion-safe:`; the reduced-motion case then needs no extra rule. The smooth scroll in the base layer has its own reduced-motion rule.
 - Tailwind v4 transforms use the individual properties: transition `translate`, `rotate` and `scale`, not `transform` (`motion-safe:transition-[translate,background-color,box-shadow]`).
-- Durations: button 150ms, burger 200ms, tile and card lift 200ms, image zoom 400ms to 500ms, reveal 600ms, input border 150ms, progress 300ms. Easing `ease`.
+- Durations: button 150ms, burger 200ms, tile and card lift 200ms, image zoom 400ms to 500ms, reveal 600ms, input border 150ms, progress 300ms. Easing `ease` (utility `ease-standard`).
 - Effects in the budget: hover lifts (`hover:-translate-y-px` on buttons, `-translate-y-0.75` on tiles and cards with `shadow-lift`), image zooms (`group-hover:scale-105`-style, 1.03 to 1.04), the FAQ plus rotating 45 degrees, the reveal fade-in (opacity 0 and 16px down to rest).
 - Static rotations are part of the look: polaroids `-3deg`, `4deg`, `-1.5deg`; collage post-it `5deg`; page hero image `1.5deg` and its post-it `-4deg`; zoom image `-1.5deg`; topic post-its odd `-2deg`, even `1.5deg`, every third `-0.5deg`; logo sticker `-2deg` (hover `-0.5deg`); tips `-0.6deg` and even `0.8deg`; numbered circles `-6deg`; law circles `-8deg`; edition badge `-4deg`; success post-it `-3deg`. Use `rotate-[Ndeg]` for these.
 
@@ -185,6 +235,15 @@ These rules apply to bare elements. A component never repeats them.
 - Edition cover: double eight-point star SVG (fill `#1b6b3a`, strokes `#f3eedf` and `#a9bba3`) behind the year, on a sage zellige pattern over green-deep.
 - Cork board dots: 6x6 SVG, circle `r=.6`, fill `#c9b48f` at opacity `.5`.
 - Copy full SVG strings from the former stylesheet (`git show 1353207:assets/css/style.css`) while porting (it stays in git history as the visual reference), and keep each string in one place in `globals.css`.
+
+## Progressive enhancement (`js` variant)
+
+An inline script in the `<head>` of the root layout adds the class `js` to `<html>` before the first paint (`src/app/js-class-script.ts`; the element has `suppressHydrationWarning` for that one class). `globals.css` defines the variant `js:` (the root element has the class `js`). Tailwind's own `not-js:` is its opposite (no JavaScript, or before the script runs, which is before the first paint).
+
+- `js:flex` applies only with JavaScript. `not-js:flex` applies only without it.
+- When the owner decides on the no-JavaScript behavior (parked items L01 to L05), build it with these variants. Use `js:` for controls that do nothing without JavaScript (filter chips, "show more" buttons, photo buttons, the mobile nav toggle): show them with `js:`, so a visitor without JavaScript never sees a dead control.
+- Use `not-js:` to open what JavaScript would open (the mobile nav panel, the rest of the funnel).
+- The `<html>` classes from `next/font` stay on the element; the script only adds one class.
 
 ## Dark mode
 

@@ -9,6 +9,13 @@
 @source not "../**/*.test.*";
 /* The merge config holds token names (a key named like a stock utility), no classes. */
 @source not "../lib/cn.ts";
+/* The string "italic" there is a font option, not a utility. */
+@source not "../app/fonts-italic.ts";
+
+/* `js:` styles apply once the inline script of the root layout set the `js`
+   class on the root element; `not-js:` styles apply while it is not set (no
+   JavaScript, or before the script runs, which is before the first paint). */
+@custom-variant js (:where(html.js) &);
 
 @theme {
   /* Drop the stock Tailwind palette: only the site colors exist. */
@@ -31,13 +38,45 @@
   --color-muted: #6a645c;
   --color-paper: #fbf7f0;
   --color-paper-2: #f3ece1;
-  --color-card: #ffffff;
   --color-line: #e4dbcd;
+  --color-line-strong: #d9cfbd;
   --color-postit-yellow: #ffe774;
   --color-postit-pink: #ffb3cf;
   --color-postit-green: #b9eba0;
   --color-postit-blue: #a9dcf5;
   --color-postit-orange: #ffc98a;
+
+  /* Type scale. The name is the size in hundredths of a rem (s95 is 0.95rem),
+     so a size used on the site more than once has one token and no rounding.
+     Sizes used once stay arbitrary values. No line height is paired: set it
+     in its own utility. */
+  --text-s72: 0.72rem;
+  --text-s74: 0.74rem;
+  --text-s76: 0.76rem;
+  --text-s78: 0.78rem;
+  --text-s80: 0.8rem;
+  --text-s82: 0.82rem;
+  --text-s84: 0.84rem;
+  --text-s85: 0.85rem;
+  --text-s88: 0.88rem;
+  --text-s90: 0.9rem;
+  --text-s92: 0.92rem;
+  --text-s93: 0.93rem;
+  --text-s95: 0.95rem;
+  --text-s98: 0.98rem;
+  --text-s102: 1.02rem;
+  --text-s105: 1.05rem;
+  --text-s115: 1.15rem;
+  --text-s120: 1.2rem;
+  --text-s125: 1.25rem;
+  --text-s130: 1.3rem;
+  --text-s135: 1.35rem;
+  --text-s140: 1.4rem;
+  --text-s150: 1.5rem;
+  --text-s160: 1.6rem;
+  --text-s170: 1.7rem;
+  --text-s180: 1.8rem;
+  --text-s190: 1.9rem;
 
   --radius-card: 14px;
   --radius-sm: 8px;
@@ -46,6 +85,10 @@
     0 1px 2px rgba(29, 27, 25, 0.06), 0 8px 24px rgba(29, 27, 25, 0.08);
   --shadow-lift:
     0 2px 4px rgba(29, 27, 25, 0.08), 0 18px 40px rgba(29, 27, 25, 0.14);
+
+  --shadow-postit: 0 10px 18px rgba(0, 0, 0, 0.12);
+
+  --ease-standard: ease;
 
   --container-wrap: 1180px;
 }
@@ -86,8 +129,8 @@
     display: block;
   }
 
-  /* Tailwind's reset strips the underline; the old site kept the browser
-     default, and the links that must not have one carry no-underline. */
+  /* Tailwind's reset strips the underline; this restores the browser default,
+     and the links that must not have one carry no-underline. */
   a {
     color: var(--color-green);
     text-decoration: underline;
@@ -135,14 +178,13 @@
   }
 
   /* Hand-drawn marker underline under the italic words in headings.
-     The old site loaded only Fraunces italic 500 and the browser drew a
-     synthetic bold on it for the 600 heading: 500 letter widths, strokes about
-     15 percent heavier (ink of "vraiment" at 62 px: 3648 px at 500, 4179 px
-     with the faux bold). The variable font here has real weights, so 590 gives
-     97 percent of that ink (4054 px) at +2.7 percent width (249.4 px against
-     242.8 px at 1280 px). 600 would be closer in ink but 3.0 percent wider. */
+     Weight 590 was measured against the look of the first design, a 500 italic
+     with a synthetic bold: strokes about 15 percent heavier than a true 500.
+     The variable font has real weights, and 590 gives 97 percent of that ink
+     at +2.7 percent width (600 is closer in ink but 3.0 percent wider). */
   h1 em,
   h2 em {
+    font-family: var(--font-fraunces-italic, var(--font-display));
     font-style: italic;
     font-weight: 590;
     color: var(--color-red);
@@ -159,6 +201,14 @@
     --zellige-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%231b6b3a' stroke-opacity='.28' stroke-width='1.1'%3E%3Cpath d='M12 12h16v16H12zM20 8.7 31.3 20 20 31.3 8.7 20z'/%3E%3Cpath d='M20 0v8.7M20 31.3V40M0 20h8.7M31.3 20H40M0 0l12 12M40 0 28 12M0 40l12-12M40 40 28 28'/%3E%3C/g%3E%3C/svg%3E");
     --zellige-sage: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23a9bba3' stroke-opacity='.4' stroke-width='1.1'%3E%3Cpath d='M12 12h16v16H12zM20 8.7 31.3 20 20 31.3 8.7 20z'/%3E%3Cpath d='M20 0v8.7M20 31.3V40M0 20h8.7M31.3 20H40M0 0l12 12M40 0 28 12M0 40l12-12M40 40 28 28'/%3E%3C/g%3E%3C/svg%3E");
   }
+}
+
+/* Fraunces italic. The italic face is a separate font (src/app/fonts-italic.ts)
+   that only some routes load; its variable is set on the page wrapper there.
+   Where the variable is missing the roman face stands in. */
+@utility font-display-italic {
+  font-family: var(--font-fraunces-italic, var(--font-display));
+  font-style: italic;
 }
 
 @utility zellige-corner {
