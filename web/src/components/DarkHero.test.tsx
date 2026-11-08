@@ -53,6 +53,23 @@ describe("DarkHero", () => {
     );
   });
 
+  it("lightens the emphasis weight so the title keeps the two lines of the old page", () => {
+    render(<DarkHero {...SOCRATES} />);
+    // Fraunces italic at 76.8px, 1280px wide: the line "sans programme."
+    // has 283px + the emphasis + 17px to fit in the 820px column. The emphasis
+    // is 513.1px at 500 (the old faux bold), 527.6px at the global 590 (third
+    // line) and about 516px at 520 (fits with 4px to spare).
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass(
+      "[&_em]:font-[520]",
+    );
+  });
+
+  it("draws the zellige corner in sage above the photo", () => {
+    const { container } = render(<DarkHero {...SOCRATES} />);
+    const section = container.querySelector("section");
+    expect(section).toHaveClass("zellige-corner", "zellige-corner-dark");
+  });
+
   it("marks the eyebrow with a khatam in cream", () => {
     render(<DarkHero {...SOCRATES} />);
     const eyebrow = screen.getByText(/Software Craft & Testing/);

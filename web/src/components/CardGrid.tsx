@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { cn, tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { isExternal, toRoute } from "@/lib/routes";
+import { PageLink } from "./PageLink";
 import { Reveal } from "./Reveal";
 
 // Spec: the "CardGrid, Card" entry in msca-design/COMPONENTS.md; port of
@@ -61,9 +61,9 @@ export function Card({
           {linkText}
         </a>
       ) : (
-        <Link className={linkClass} href={toRoute(href)}>
+        <PageLink className={linkClass} href={toRoute(href)}>
           {linkText}
-        </Link>
+        </PageLink>
       )}
     </Reveal>
   );

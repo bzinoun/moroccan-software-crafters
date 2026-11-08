@@ -21,7 +21,13 @@ export function TextInput({
   className,
   ...props
 }: ComponentProps<"input">) {
+  // Preflight removes the inner padding of a date field, which made it 2px
+  // shorter than the old one: restore the 48px of the old form.
   return (
-    <input type={type} className={cn(controlStyles(), className)} {...props} />
+    <input
+      type={type}
+      className={cn(controlStyles(), type === "date" && "min-h-12", className)}
+      {...props}
+    />
   );
 }

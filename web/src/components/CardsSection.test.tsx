@@ -156,3 +156,32 @@ describe("CardsSection (lead and titleId)", () => {
     expect(screen.queryByRole("region")).toBeNull();
   });
 });
+
+describe("CardsSection (marker)", () => {
+  it("draws the rule marker by default and the khatam when asked", () => {
+    const { rerender } = render(
+      <CardsSection
+        id="mission"
+        eyebrow="Valeurs et code de conduite"
+        title="Un titre."
+        items={a.mission.items}
+        columns={3}
+      />,
+    );
+    const plain = screen.getByText("Valeurs et code de conduite").className;
+    rerender(
+      <CardsSection
+        id="mission"
+        marker="khatam"
+        eyebrow="Valeurs et code de conduite"
+        title="Un titre."
+        items={a.mission.items}
+        columns={3}
+      />,
+    );
+    const khatam = screen.getByText("Valeurs et code de conduite");
+    expect(khatam.className).not.toBe(plain);
+    expect(khatam.className).toContain("clip-path");
+    expect(plain).not.toContain("clip-path");
+  });
+});

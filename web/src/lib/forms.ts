@@ -61,7 +61,9 @@ export function buildMailtoUrl(
   subject: string,
   body: string,
 ): string {
-  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // encodeURIComponent throws on a lone surrogate (a cut emoji): replace it first.
+  const encode = (text: string) => encodeURIComponent(text.toWellFormed());
+  return `mailto:${email}?subject=${encode(subject)}&body=${encode(body)}`;
 }
 
 type PayloadInput = {

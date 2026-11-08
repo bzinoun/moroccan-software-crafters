@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useId } from "react";
 import type { Sticker } from "@/content/types";
 import type { LogoTile as LogoTileData } from "@/lib/derive";
@@ -6,6 +5,7 @@ import { cn, tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import { toRoute } from "@/lib/routes";
 import { Monogram } from "../Monogram";
+import { PageLink } from "../PageLink";
 import { LogoImage } from "./LogoImage";
 
 // Spec: the "LogoWall, LogoTile, LogoSticker, Monogram" entry in msca-design/COMPONENTS.md.
@@ -140,7 +140,7 @@ export function LogoSticker({ sticker, compact = false }: LogoStickerProps) {
   const id = useId();
   const styles = stickerStyles({ compact });
   return (
-    <Link
+    <PageLink
       className={styles.base()}
       href={toRoute(sticker.href)}
       aria-labelledby={`${id}-t ${id}-l`}
@@ -157,7 +157,7 @@ export function LogoSticker({ sticker, compact = false }: LogoStickerProps) {
         {" "}
         <span aria-hidden="true">→</span>
       </span>
-    </Link>
+    </PageLink>
   );
 }
 

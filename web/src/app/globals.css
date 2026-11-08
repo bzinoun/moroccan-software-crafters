@@ -157,6 +157,7 @@
 @layer base {
   :root {
     --zellige-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%231b6b3a' stroke-opacity='.28' stroke-width='1.1'%3E%3Cpath d='M12 12h16v16H12zM20 8.7 31.3 20 20 31.3 8.7 20z'/%3E%3Cpath d='M20 0v8.7M20 31.3V40M0 20h8.7M31.3 20H40M0 0l12 12M40 0 28 12M0 40l12-12M40 40 28 28'/%3E%3C/g%3E%3C/svg%3E");
+    --zellige-sage: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23a9bba3' stroke-opacity='.4' stroke-width='1.1'%3E%3Cpath d='M12 12h16v16H12zM20 8.7 31.3 20 20 31.3 8.7 20z'/%3E%3Cpath d='M20 0v8.7M20 31.3V40M0 20h8.7M31.3 20H40M0 0l12 12M40 0 28 12M0 40l12-12M40 40 28 28'/%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
@@ -169,11 +170,11 @@
     position: absolute;
     top: 0;
     right: 0;
-    z-index: -1;
+    z-index: var(--zellige-z, -1);
     width: min(380px, 48vw);
     aspect-ratio: 1;
     pointer-events: none;
-    background: var(--zellige-green) right top / 40px;
+    background: var(--zellige-image, var(--zellige-green)) right top / 40px;
     -webkit-mask-image: radial-gradient(
       circle at 100% 0,
       #000 0 30%,
@@ -181,4 +182,12 @@
     );
     mask-image: radial-gradient(circle at 100% 0, #000 0 30%, transparent 72%);
   }
+}
+
+/* Sage tile, above the photo of a dark hero. Put it next to zellige-corner:
+   it only sets the two variables the corner reads. The default corner sits at
+   z-index -1, which is under the photo layer and its gradient. */
+@utility zellige-corner-dark {
+  --zellige-image: var(--zellige-sage);
+  --zellige-z: 1;
 }

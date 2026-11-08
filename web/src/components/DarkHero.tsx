@@ -60,7 +60,7 @@ export function DarkHero({
 }: DarkHeroProps) {
   return (
     <section
-      className="zellige-corner overflow-hidden bg-green-deep pt-30 pb-18 text-cream **:focus-visible:outline-sage"
+      className="zellige-corner overflow-hidden bg-green-deep pt-30 pb-18 text-cream zellige-corner-dark **:focus-visible:outline-sage"
       aria-labelledby={titleId}
     >
       <div
@@ -80,7 +80,7 @@ export function DarkHero({
           </Eyebrow>
           <h1
             id={titleId}
-            className="text-[clamp(2.6rem,6vw,4.8rem)] text-white [&_em]:bg-none [&_em]:text-sage"
+            className="text-[clamp(2.6rem,6vw,4.8rem)] text-white [&_em]:bg-none [&_em]:font-[520] [&_em]:text-sage"
           >
             <HeroEm text={title} />
           </h1>

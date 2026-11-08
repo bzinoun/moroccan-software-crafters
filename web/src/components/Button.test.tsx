@@ -3,6 +3,17 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
+// Marks the anchors that come out of next/link, to tell them from plain anchors.
+vi.mock("next/link", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/link")>();
+  const Link = actual.default;
+  return {
+    default: (props: React.ComponentProps<typeof Link>) => (
+      <Link {...props} data-next-link="" />
+    ),
+  };
+});
+
 // The glow utilities of an element (the base transition lists the property
 // name box-shadow, which is not a glow utility).
 const shadowClasses = (el: HTMLElement) =>
@@ -24,6 +35,20 @@ describe("Button", () => {
     const link = screen.getByRole("link", { name: "Dehors" });
     expect(link).toHaveAttribute("href", "https://example.com/");
     expect(link).toHaveAttribute("target", "_blank");
+  });
+
+  it("keeps a hash-only href as a plain anchor so a second click scrolls again", () => {
+    render(<Button href="#sponsor-form">Choisir ce niveau</Button>);
+    const link = screen.getByRole("link", { name: "Choisir ce niveau" });
+    expect(link).toHaveAttribute("href", "#sponsor-form");
+    expect(link).not.toHaveAttribute("data-next-link");
+  });
+
+  it("sends an internal route through next/link", () => {
+    render(<Button href="/accueillir/">Accueillir un meetup</Button>);
+    expect(
+      screen.getByRole("link", { name: "Accueillir un meetup" }),
+    ).toHaveAttribute("data-next-link");
   });
 
   it("renders a button element when there is no href", async () => {

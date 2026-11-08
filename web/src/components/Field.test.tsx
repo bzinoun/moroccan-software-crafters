@@ -92,6 +92,30 @@ describe("Field", () => {
     expect(input).not.toHaveAttribute("aria-invalid");
   });
 
+  it("keeps an empty help paragraph in the page: it takes its margins, as in the old form", () => {
+    const { container } = render(
+      <Field id="date" label="Date souhaitée" help="">
+        <TextInput name="date" type="date" />
+      </Field>,
+    );
+    const help = container.querySelector("#date-help") as HTMLElement;
+    expect(help).toBeEmptyDOMElement();
+    expect(help).toHaveClass("mt-[5px]", "mb-[1em]");
+    expect(screen.getByLabelText("Date souhaitée")).not.toHaveAttribute(
+      "aria-describedby",
+    );
+  });
+
+  it("gives the help and the error the old bottom margin of one line", () => {
+    render(
+      <Field id="date" label="Date" help="Aide." error="Erreur.">
+        <TextInput name="date" type="date" />
+      </Field>,
+    );
+    expect(screen.getByText("Aide.")).toHaveClass("mb-[1em]");
+    expect(screen.getByText("Erreur.")).toHaveClass("mb-[1em]");
+  });
+
   it("swaps the error text between an empty and a wrong value", () => {
     const { rerender } = render(
       <Field id="s-tel" label="Téléphone" error="Indiquez votre numéro.">

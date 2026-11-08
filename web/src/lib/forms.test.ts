@@ -90,6 +90,43 @@ describe("buildMailtoUrl", () => {
       `mailto:${EMAIL}?subject=${SUBJECT_ENCODED}&body=${BODY_ENCODED}`,
     );
   });
+
+  it("percent-encodes accents as UTF-8", () => {
+    expect(buildMailtoUrl(EMAIL, "Réunion à Rabat", "Équipe tech")).toBe(
+      `mailto:${EMAIL}?subject=R%C3%A9union%20%C3%A0%20Rabat&body=%C3%89quipe%20tech`,
+    );
+  });
+
+  it("percent-encodes an emoji as four UTF-8 bytes", () => {
+    expect(buildMailtoUrl(EMAIL, "Merci 🙏", "Bravo 🎉")).toBe(
+      `mailto:${EMAIL}?subject=Merci%20%F0%9F%99%8F&body=Bravo%20%F0%9F%8E%89`,
+    );
+  });
+
+  it("encodes a plus sign in an e-mail address of the body", () => {
+    expect(buildMailtoUrl(EMAIL, "s", "E-mail : sara+crafters@acme.ma")).toBe(
+      `mailto:${EMAIL}?subject=s&body=E-mail%20%3A%20sara%2Bcrafters%40acme.ma`,
+    );
+  });
+
+  it("encodes line breaks, LF and CRLF", () => {
+    expect(buildMailtoUrl(EMAIL, "s", "a\nb\r\nc")).toBe(
+      `mailto:${EMAIL}?subject=s&body=a%0Ab%0D%0Ac`,
+    );
+  });
+
+  it("keeps a 3000-character message whole, with no length cap", () => {
+    const message = "é".repeat(3000);
+    const url = buildMailtoUrl(EMAIL, "s", message);
+    expect(url).toBe(`mailto:${EMAIL}?subject=s&body=${"%C3%A9".repeat(3000)}`);
+    expect(decodeURIComponent(url.split("&body=")[1]!)).toBe(message);
+  });
+
+  it("does not throw on a lone surrogate: it becomes U+FFFD", () => {
+    expect(buildMailtoUrl(EMAIL, "a\ud83d", "b\ude00c")).toBe(
+      `mailto:${EMAIL}?subject=a%EF%BF%BD&body=b%EF%BF%BDc`,
+    );
+  });
 });
 
 describe("buildPayload", () => {

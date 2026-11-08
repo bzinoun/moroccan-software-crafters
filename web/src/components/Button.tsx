@@ -1,8 +1,7 @@
-import Link from "next/link";
 import type { ComponentPropsWithoutRef } from "react";
 import type { VariantProps } from "tailwind-variants/config";
 import { cn, tv } from "@/lib/cn";
-import { isExternal } from "@/lib/routes";
+import { PageLink } from "./PageLink";
 
 // Spec: the "Button" entry under "Built" in msca-design/COMPONENTS.md.
 // Hover lifts the button by 1px; a disabled button stays flat.
@@ -50,12 +49,7 @@ export function Button(props: ButtonProps) {
   if (props.href !== undefined) {
     const { variant, size, className, href, ...rest } = props;
     const classes = cn(buttonStyles({ variant, size }), className);
-    // next/link adds the base path to internal routes; external URLs stay plain anchors.
-    return isExternal(href) ? (
-      <a className={classes} href={href} {...rest} />
-    ) : (
-      <Link className={classes} href={href} {...rest} />
-    );
+    return <PageLink className={classes} href={href} {...rest} />;
   }
   const { variant, size, className, type = "button", ...rest } = props;
   return (

@@ -12,6 +12,8 @@ type CardsSectionProps = {
   id: string;
   /** `alt` for the sage background. */
   variant?: "plain" | "alt";
+  /** Eyebrow marker; `khatam` for SoCraTes content. Default: the one of `SectionHead`. */
+  marker?: "rule" | "khatam" | "none";
   eyebrow: string;
   title: string;
   /** Sentence under the title. */
@@ -26,6 +28,7 @@ type CardsSectionProps = {
 export function CardsSection({
   id,
   variant = "plain",
+  marker,
   eyebrow,
   title,
   lead,
@@ -36,6 +39,7 @@ export function CardsSection({
   return (
     <Section id={id} variant={variant} aria-labelledby={titleId}>
       <SectionHead
+        marker={marker}
         eyebrow={eyebrow}
         title={frenchSpacing(title)}
         lead={lead}

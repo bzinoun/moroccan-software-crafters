@@ -20,6 +20,18 @@ describe("TextInput", () => {
     expect(input).toHaveAttribute("placeholder", "+212 6 12 34 56 78");
   });
 
+  it("keeps the 48 px height of the old date input: Preflight removes its inner padding", () => {
+    const { container } = render(<TextInput type="date" aria-label="Date" />);
+    expect(container.querySelector("input")).toHaveClass("min-h-12");
+  });
+
+  it("leaves other types without a minimum height", () => {
+    render(<TextInput aria-label="Nom" />);
+    expect(screen.getByRole("textbox", { name: "Nom" })).not.toHaveClass(
+      "min-h-12",
+    );
+  });
+
   it("defaults to the text type", () => {
     render(<TextInput aria-label="Nom" />);
     expect(screen.getByRole("textbox", { name: "Nom" })).toHaveAttribute(

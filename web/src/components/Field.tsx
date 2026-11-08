@@ -20,7 +20,7 @@ type FieldErrorProps = {
 /** The red message under a control. Shown only when the field is invalid. */
 export function FieldError({ id, children }: FieldErrorProps) {
   return (
-    <p id={id} className="mt-[5px] mb-0 text-[0.84rem] text-red">
+    <p id={id} className="mt-[5px] mb-[1em] text-[0.84rem] text-red">
       {frenchSpacing(children)}
     </p>
   );
@@ -35,6 +35,7 @@ type FieldProps = {
   label?: string;
   /** `true` adds "(facultatif)"; a string adds that text instead. */
   optional?: boolean | string;
+  /** Text under the control. An empty string keeps the paragraph, empty. */
   help?: string;
   /** The message, shown when the field is invalid. An empty or missing value means valid. */
   error?: string;
@@ -62,13 +63,16 @@ export function Field({
   className,
   children,
 }: FieldProps) {
-  const helpId = help ? `${id}-help` : undefined;
+  // An empty string still renders the paragraph: it keeps the margins it had in
+  // the old form (the date help is empty until a date is picked).
+  const helpId = help !== undefined ? `${id}-help` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const own = children.props;
   const controlId = own.id ?? id;
   const describedBy =
-    [own["aria-describedby"], helpId, errorId].filter(Boolean).join(" ") ||
-    undefined;
+    [own["aria-describedby"], help ? helpId : undefined, errorId]
+      .filter(Boolean)
+      .join(" ") || undefined;
   const invalid = Boolean(error) || own["aria-invalid"] === true;
   const suffix = optional === true ? "(facultatif)" : optional || undefined;
   const labelContent = label ? (
@@ -104,9 +108,9 @@ export function Field({
         )
       ) : null}
       {control}
-      {help && helpId ? (
-        <p id={helpId} className="mt-[5px] mb-0 text-[0.83rem] text-muted">
-          {frenchSpacing(help)}
+      {helpId ? (
+        <p id={helpId} className="mt-[5px] mb-[1em] text-[0.83rem] text-muted">
+          {help ? frenchSpacing(help) : null}
         </p>
       ) : null}
       {error && errorId ? <FieldError id={errorId}>{error}</FieldError> : null}
