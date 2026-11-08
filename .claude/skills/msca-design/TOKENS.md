@@ -1,6 +1,6 @@
 # MSCA design tokens (Tailwind v4 `@theme`)
 
-Single source: `web/src/app/globals.css`. When this file and the CSS differ, the CSS wins; update this file. A token named `--color-red` creates the utilities `bg-red`, `text-red`, `border-red`, `outline-red`, `fill-red` and their opacity forms (`bg-red/20`). Use the token name in a utility, never its hex value.
+Single source: `src/app/globals.css`. When this file and the CSS differ, the CSS wins; update this file. A token named `--color-red` creates the utilities `bg-red`, `text-red`, `border-red`, `outline-red`, `fill-red` and their opacity forms (`bg-red/20`). Use the token name in a utility, never its hex value.
 
 ## Colors
 
@@ -116,7 +116,7 @@ Set in the base layer: body 17px, line-height 1.6, `-webkit-font-smoothing: anti
 
 ## Spacing and layout values
 
-Tailwind's spacing scale applies; take these exact values from the old design.
+Tailwind's spacing scale applies; take these exact values from the former design (`git show 1353207:assets/css/style.css`).
 
 | Context | Value |
 |---|---|
@@ -145,7 +145,7 @@ Tailwind defaults, mobile first. No custom breakpoints and no `max-[Npx]:` value
 | `lg` | 1024px |
 | `xl` | 1280px |
 
-Proposal, owner to confirm: map each query of the old site to the true nearest default breakpoint and accept that a layout may switch up to about 160 px away from the old query width (one-pixel edge differences at exactly 640 and 1024 px included); note it in the commit or the report. Precedent already built: header nav (old max 1024) is `lg`; the hero two-column grid (old 900) is `lg`; the brand tagline (old 640) is `max-sm:hidden`. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel).
+Proposal, owner to confirm: map each query of the former site (`git show 1353207:assets/css/style.css`) to the true nearest default breakpoint and accept that a layout may switch up to about 160 px away from the old query width (one-pixel edge differences at exactly 640 and 1024 px included); note it in the commit or the report. Precedent already built: header nav (old max 1024) is `lg`; the hero two-column grid (old 900) is `lg`; the brand tagline (old 640) is `max-sm:hidden`. Use the `max-*` form only to hide or reshape below one breakpoint (the nav panel).
 
 | Old query | Use (proposal, owner to confirm) |
 |---|---|
@@ -176,7 +176,7 @@ These rules apply to bare elements. A component never repeats them.
 - `:focus-visible`: 3px green outline, offset 2px, radius 4px. On a dark surface set `**:focus-visible:outline-sage` on the surface.
 - `h1` to `h4`: Fraunces 600, line-height 1.12, `margin: 0 0 0.5em`, tracking `-0.01em`, sizes from the type scale.
 - `p`: `margin: 0 0 1em`.
-- `h1 em`, `h2 em`: italic, weight 590, red, hand-drawn sage underline (SVG data URI, `100% x 0.32em` at the bottom left). Weight 590 was measured against the old faux bold (see `web/CLAUDE.md` gotchas). On dark headings the emphasis is sage with no underline (override in the dark hero and dark sections).
+- `h1 em`, `h2 em`: italic, weight 590, red, hand-drawn sage underline (SVG data URI, `100% x 0.32em` at the bottom left). Weight 590 was measured against the old faux bold (see the `CLAUDE.md` gotchas). On dark headings the emphasis is sage with no underline (override in the dark hero and dark sections).
 
 ## Signature graphics
 
@@ -184,7 +184,7 @@ These rules apply to bare elements. A component never repeats them.
 - Khatam star: eight-point star polygon `polygon(50% 0%, 64.6% 14.6%, 85.4% 14.6%, 85.4% 35.4%, 100% 50%, 85.4% 64.6%, 85.4% 85.4%, 64.6% 85.4%, 50% 100%, 35.4% 85.4%, 14.6% 85.4%, 14.6% 64.6%, 0% 50%, 14.6% 35.4%, 14.6% 14.6%, 35.4% 14.6%)`, used as `clip-path`. SoCraTes content only. Add it as a `@utility khatam` when first needed.
 - Edition cover: double eight-point star SVG (fill `#1b6b3a`, strokes `#f3eedf` and `#a9bba3`) behind the year, on a sage zellige pattern over green-deep.
 - Cork board dots: 6x6 SVG, circle `r=.6`, fill `#c9b48f` at opacity `.5`.
-- Copy full SVG strings from the old stylesheet at the root while porting (it stays as the visual reference), and keep each string in one place in `globals.css`.
+- Copy full SVG strings from the former stylesheet (`git show 1353207:assets/css/style.css`) while porting (it stays in git history as the visual reference), and keep each string in one place in `globals.css`.
 
 ## Dark mode
 

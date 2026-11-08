@@ -1,4 +1,4 @@
-# Tailwind rules for `web/`
+# Tailwind rules for the app
 
 Tailwind v4 (CSS first, no `tailwind.config`). Each rule is one line plus the doc page behind it. Links checked against tailwindcss.com on 2026-11-06.
 

@@ -1,11 +1,11 @@
 ---
 name: msca-design
-description: Use when building or changing any UI of the Moroccan Software Crafters site in `web/` (pages, components, styles, Tailwind). Holds the design principles, the `@theme` tokens, the Tailwind rules and the component inventory.
+description: Use when building or changing any UI of the Moroccan Software Crafters site (pages, components, styles, Tailwind). Holds the design principles, the `@theme` tokens, the Tailwind rules and the component inventory.
 ---
 
 # MSCA design
 
-The design system of the Next.js app in `web/`: Tailwind v4 tokens in `web/src/app/globals.css` and React components in `web/src/components/`. The old static site at the repo root (HTML pages, `assets/css`, `assets/js`) is only the visual reference while pages are ported; look at it in a browser to match a section, and write the new code from the files below.
+The design system of the Next.js app at the repo root: Tailwind v4 tokens in `src/app/globals.css` and React components in `src/components/`. The former static site (HTML pages, `assets/css/style.css`, `assets/js/*.js`) is removed from the tree and kept in git history at commit 1353207. It is only the visual reference: read a file with `git show 1353207:assets/css/style.css`, or extract it with `git archive 1353207 | tar -x -C <empty folder>` and serve it to compare in a browser. Write the new code from the files below.
 
 ## Reference files
 
@@ -33,4 +33,4 @@ The design system of the Next.js app in `web/`: Tailwind v4 tokens in `web/src/a
 6. **Keep the accessibility contracts.** Same `aria-*` states (`aria-current`, `aria-expanded`, `aria-pressed`, `aria-live`), a 3px green focus ring (sage on dark surfaces), empty `alt` on decorative photos, `loading="lazy"` below the fold, a skip link, a visible label on every form control.
 7. **Keep the motion budget.** Hover lifts, image zooms and the reveal fade-in. Put every transition and animation behind `motion-safe:`; the hover offset itself (`hover:-translate-y-px`) always applies, as in `Button`.
 8. **Show partner logos and photos only with consent.** An empty `logo` renders the monogram.
-9. **Check each finished page in a browser** at 375, 768 and 1280 px against the old site, with computed styles (done criterion in `web/CLAUDE.md`).
+9. **Check each finished page in a browser** at 375, 768 and 1280 px against the former site (git history 1353207), with computed styles (done criterion in `CLAUDE.md`).
