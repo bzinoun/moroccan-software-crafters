@@ -21,6 +21,24 @@ const shadowClasses = (el: HTMLElement) =>
   el.className.split(" ").filter((name) => name.startsWith("shadow"));
 
 describe("Button", () => {
+  // jsdom loads no CSS: the class list is the only trace of the style.
+  it("styles aria-disabled as it styles disabled, so a busy button keeps the focus and looks off", () => {
+    render(
+      <>
+        <Button disabled>Off</Button>
+        <Button aria-disabled>Busy</Button>
+      </>,
+    );
+    for (const state of ["disabled", "aria-disabled"]) {
+      const name = state === "disabled" ? "Off" : "Busy";
+      expect(screen.getByRole("button", { name })).toHaveClass(
+        `${state}:cursor-not-allowed`,
+        `${state}:opacity-55`,
+        `${state}:hover:translate-y-0`,
+      );
+    }
+  });
+
   it("renders a link with its label and href when href is set", () => {
     render(<Button href="/accueillir/">Accueillir un meetup</Button>);
     const link = screen.getByRole("link", { name: "Accueillir un meetup" });

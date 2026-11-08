@@ -4,7 +4,7 @@ import { cn, tv } from "@/lib/cn";
 import { PageLink } from "./PageLink";
 
 // Spec: the "Button" entry under "Built" in msca-design/COMPONENTS.md.
-// Hover lifts the button by 1px; a disabled button stays flat.
+// Hover lifts the button by 1px; a disabled or aria-disabled button stays flat.
 export const buttonStyles = tv({
   base: [
     "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-transparent",
@@ -12,6 +12,8 @@ export const buttonStyles = tv({
     "motion-safe:transition-[translate,background-color,box-shadow] motion-safe:duration-150 motion-safe:ease-[ease]",
     "hover:-translate-y-px",
     "disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
+    // A busy button is aria-disabled, not disabled, so it keeps the focus.
+    "aria-disabled:cursor-not-allowed aria-disabled:opacity-55 aria-disabled:hover:translate-y-0",
   ],
   variants: {
     variant: {

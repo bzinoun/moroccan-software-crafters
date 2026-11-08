@@ -28,14 +28,27 @@ describe("FunnelStep", () => {
   });
 
   it("makes the legend focusable by script, not by the tab key", () => {
-    render(
+    const { container } = render(
       <FunnelStep step={1} active title="Quelle formule vous intéresse ?">
         <span />
       </FunnelStep>,
     );
-    expect(screen.getByText(/Quelle formule/)).toHaveAttribute(
-      "tabindex",
-      "-1",
+    expect(container.querySelector("legend")).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("gives the step a real level 2 heading inside its legend", () => {
+    const { container } = render(
+      <FunnelStep step={3} active title="Votre entreprise">
+        <span />
+      </FunnelStep>,
     );
+    const heading = screen.getByRole("heading", {
+      level: 2,
+      name: "Votre entreprise",
+    });
+    expect(container.querySelector("legend")).toContainElement(heading);
+    expect(
+      screen.getByRole("group", { name: "Votre entreprise" }),
+    ).toBeInTheDocument();
   });
 });

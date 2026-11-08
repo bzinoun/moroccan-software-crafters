@@ -34,4 +34,14 @@ describe("Honeypot", () => {
     const { container } = render(<Honeypot value="x" readOnly />);
     expect(container.querySelector("input")).toHaveValue("x");
   });
+
+  it("keeps its fixed attributes when a caller passes the same ones", () => {
+    const { container } = render(
+      <Honeypot tabIndex={0} autoComplete="on" {...{ type: "email" }} />,
+    );
+    const input = container.querySelector("input") as HTMLInputElement;
+    expect(input).toHaveAttribute("tabindex", "-1");
+    expect(input).toHaveAttribute("autocomplete", "off");
+    expect(input).toHaveAttribute("type", "text");
+  });
 });

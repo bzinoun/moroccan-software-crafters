@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel";
+import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel-fields";
 import { ContactStep } from "./ContactStep";
 import { OFFERS } from "./test-utils";
 import type { BindText } from "./useHostFunnel";

@@ -1,9 +1,10 @@
-import type { ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { frenchSpacing } from "./french";
-import type { ContactFallback, SubmitResult } from "./forms";
+import type { ContactFallback, SubmitInput, SubmitResult } from "./forms";
 
 // What a lead form shows once `submitForm` answered. Both forms (host funnel
-// and SoCraTes sponsor form) call `outcomeOf`; each passes its own texts.
+// and SoCraTes sponsor form) call `outcomeOf`; each passes its own texts. Both
+// also share the send lifecycle in `useLeadSubmit`.
 
 /** The three sentences of the failed-send alert, as each page wrote them. */
 export type FailureTexts = {
@@ -102,4 +103,41 @@ export function outcomeOf(result: SubmitResult, texts: OutcomeTexts): Outcome {
         content: <Failure fallback={result.fallback} texts={texts.failure} />,
       };
   }
+}
+
+/** The send function of a form: the browser one, or a double in a test. */
+export type Submit = (input: SubmitInput) => Promise<SubmitResult>;
+
+/**
+ * The lifecycle of one lead send, shared by both forms: a guard against a
+ * second send while one runs, the `busy` state for the button, and a safety
+ * net that turns a thrown error into the error outcome.
+ */
+export function useLeadSubmit(submit: Submit, texts: OutcomeTexts) {
+  const [busy, setBusy] = useState(false);
+  // `busy` is one render late for a double click: the ref answers at once.
+  const running = useRef(false);
+
+  async function send(input: SubmitInput): Promise<Outcome> {
+    running.current = true;
+    setBusy(true);
+    try {
+      return outcomeOf(await submit(input), texts);
+    } catch (cause) {
+      // The submit code reports failures as a result; this is a safety net.
+      return outcomeOf(
+        {
+          mode: "error",
+          error: cause instanceof Error ? cause : new Error(String(cause)),
+          fallback: null,
+        },
+        texts,
+      );
+    } finally {
+      running.current = false;
+      setBusy(false);
+    }
+  }
+
+  return { busy, isSending: () => running.current, send };
 }

@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
+import { EMPTY_VALUES, type FunnelValues } from "@/lib/funnel-fields";
 import { EventStep } from "./EventStep";
 import type { BindText } from "./useHostFunnel";
 
@@ -61,9 +62,32 @@ describe("EventStep", () => {
     );
   });
 
+  it("requires every attendee range, so the browser reads the group as required", () => {
+    renderStep();
+    const ranges = screen.getAllByRole("radio");
+    expect(ranges).toHaveLength(4);
+    for (const range of ranges) expect(range).toBeRequired();
+  });
+
   it("offers the attendee ranges and the cities", () => {
     renderStep();
     expect(screen.getAllByRole("radio")).toHaveLength(4);
     expect(screen.getByLabelText("Ville")).toHaveValue("Casablanca");
+  });
+
+  it("reports the city the person picks", async () => {
+    const update = vi.fn();
+    render(
+      <EventStep
+        active
+        values={EMPTY_VALUES}
+        errors={{}}
+        update={update}
+        bind={bindOf(EMPTY_VALUES)}
+        minDate=""
+      />,
+    );
+    await userEvent.selectOptions(screen.getByLabelText("Ville"), "Tanger");
+    expect(update).toHaveBeenLastCalledWith("ville", "Tanger");
   });
 });

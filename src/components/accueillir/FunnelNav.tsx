@@ -1,5 +1,6 @@
 import { Button } from "@/components/Button";
-import { TOTAL_STEPS, nextLabel } from "@/lib/funnel";
+import { TOTAL_STEPS } from "@/lib/funnel-fields";
+import { nextLabel } from "@/lib/funnel-text";
 
 // Port of `.funnel-nav`: Retour (ghost, hidden on step 1) and the primary
 // button pushed right. Below `sm` the buttons stack at full width. The primary
@@ -29,7 +30,7 @@ export function FunnelNav({ step, busy, onPrev }: FunnelNavProps) {
         id="next"
         type="submit"
         aria-disabled={busy || undefined}
-        className="w-full whitespace-nowrap aria-disabled:cursor-not-allowed aria-disabled:opacity-55 aria-disabled:hover:translate-y-0 sm:ml-auto sm:w-auto"
+        className="w-full whitespace-nowrap sm:ml-auto sm:w-auto"
       >
         {nextLabel(Math.min(step, TOTAL_STEPS), busy)}
       </Button>

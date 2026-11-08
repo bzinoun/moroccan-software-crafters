@@ -44,6 +44,20 @@ describe("SuccessPanel", () => {
     );
   });
 
+  // jsdom loads no CSS, so the only trace of the tone is its class: the panel
+  // stays ink inside a dark section, whose rule would turn the heading white.
+  it("keeps the heading in the color of the panel for the ink tone only", () => {
+    const { rerender } = render(
+      <SuccessPanel id="a" hidden={false} stamp="s" text="x" tone="ink" />,
+    );
+    const heading = screen.getByRole("heading", {
+      name: "Demande bien reçue.",
+    });
+    expect(heading).toHaveClass("[&&]:text-ink");
+    rerender(<SuccessPanel id="a" hidden={false} stamp="s" text="x" />);
+    expect(heading).not.toHaveClass("[&&]:text-ink");
+  });
+
   it("applies French spacing to the text", () => {
     render(
       <SuccessPanel

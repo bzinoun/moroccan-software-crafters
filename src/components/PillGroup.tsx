@@ -10,15 +10,21 @@ type PillGroupProps = Omit<ComponentProps<"div">, "role"> & {
   role?: "group" | "radiogroup";
 };
 
-/** The wrapping row of pills. Name it with `aria-labelledby` or `aria-label`. */
+/**
+ * The wrapping row of pills. Name it with `aria-labelledby` or `aria-label`.
+ * `aria-invalid` is not supported on a plain `group`: it is kept on a
+ * `radiogroup` only, and the invalid state of a plain group goes on its pills.
+ */
 export function PillGroup({
   role = "group",
   className,
+  "aria-invalid": invalid,
   ...props
 }: PillGroupProps) {
   return (
     <div
       role={role}
+      aria-invalid={role === "radiogroup" ? invalid : undefined}
       className={cn("flex flex-wrap gap-2", className)}
       {...props}
     />

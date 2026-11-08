@@ -1,13 +1,13 @@
 import { tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import type { PackageCard } from "@/lib/pages-data";
-import { Button } from "../Button";
 import { Reveal } from "../Reveal";
+import { ChooseLevelLink } from "./ChooseLevelLink";
 
 // Spec: port of `.offers` and `.offer` of the former `socrates.html` (`git show 1353207:socrates.html`), on the dark section.
 // One column (560px wide, centered) below `lg` (old 960px), three columns from `lg`.
-// Each button is a link to `#sponsor-form` that carries `data-level={package id}`;
-// `SponsorForm` listens for it and checks the matching level.
+// Each button is a `ChooseLevelLink`: a link to `#sponsor-form` that also tells
+// `SponsorForm` which package was chosen, so it checks the matching level.
 
 const offerStyles = tv({
   base: "relative flex flex-col rounded-card border-[1.5px] bg-white/5 px-6.5 py-7 text-cream",
@@ -57,14 +57,13 @@ function Offer({ pack }: { pack: PackageCard }) {
           </li>
         ))}
       </ul>
-      <Button
+      <ChooseLevelLink
+        packageId={pack.id}
         variant={pack.highlight ? "primary-flat" : "ghost-on-dark"}
-        href="#sponsor-form"
-        data-level={pack.id}
         className="mt-auto self-start"
       >
         Choisir ce niveau
-      </Button>
+      </ChooseLevelLink>
     </Reveal>
   );
 }

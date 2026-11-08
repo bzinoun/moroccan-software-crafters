@@ -1,8 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockInstance } from "vitest";
-import type { SubmitResult } from "./forms";
-import { outcomeOf, type OutcomeTexts } from "./submit-outcome";
+import type { SubmitInput, SubmitResult } from "./forms";
+import {
+  outcomeOf,
+  useLeadSubmit,
+  type OutcomeTexts,
+  type Submit,
+} from "./submit-outcome";
 
 const TEXTS: OutcomeTexts = {
   success: "Texte de succès.",
@@ -124,5 +129,60 @@ describe("outcomeOf, failed send", () => {
     expect(link).toHaveAttribute("href", LINKEDIN);
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener");
+  });
+});
+
+describe("useLeadSubmit", () => {
+  const INPUT: SubmitInput = {
+    site: {},
+    data: { email: "sara@acme.ma" },
+    type: "Test",
+    subject: "Sujet",
+  };
+
+  it("sends the input and gives the outcome of the result", async () => {
+    const submit = vi.fn<Submit>().mockResolvedValue({ mode: "endpoint" });
+    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    let outcome;
+    await act(async () => {
+      outcome = await result.current.send(INPUT);
+    });
+    expect(submit).toHaveBeenCalledWith(INPUT);
+    expect(outcome).toEqual({ kind: "success", text: "Texte de succès." });
+    expect(result.current.busy).toBe(false);
+    expect(result.current.isSending()).toBe(false);
+  });
+
+  it("is busy and sending while the request runs, then free", async () => {
+    let settle: (result: SubmitResult) => void = () => {};
+    const submit = vi.fn<Submit>(
+      () => new Promise<SubmitResult>((resolve) => (settle = resolve)),
+    );
+    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    let pending: Promise<unknown> = Promise.resolve();
+    act(() => {
+      pending = result.current.send(INPUT);
+    });
+    expect(result.current.busy).toBe(true);
+    expect(result.current.isSending()).toBe(true);
+    await act(async () => {
+      settle({ mode: "endpoint" });
+      await pending;
+    });
+    expect(result.current.busy).toBe(false);
+    expect(result.current.isSending()).toBe(false);
+  });
+
+  it("turns a thrown error into the error alert and frees the guard", async () => {
+    const submit = vi.fn<Submit>().mockRejectedValue(new Error("boom"));
+    const { result } = renderHook(() => useLeadSubmit(submit, TEXTS));
+    let outcome;
+    await act(async () => {
+      outcome = await result.current.send(INPUT);
+    });
+    expect(outcome).toMatchObject({ kind: "alert" });
+    expect(errorSpy).toHaveBeenCalled();
+    expect(result.current.busy).toBe(false);
+    expect(result.current.isSending()).toBe(false);
   });
 });

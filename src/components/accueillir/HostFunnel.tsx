@@ -2,10 +2,13 @@
 
 import { Button } from "@/components/Button";
 import { FormAlert } from "@/components/FormAlert";
+import { FormPanel } from "@/components/FormPanel";
 import { SuccessPanel } from "@/components/SuccessPanel";
 import type { FormSite } from "@/lib/forms";
-import { MESSAGES, type FunnelOffer } from "@/lib/funnel";
+import { type FunnelOffer } from "@/lib/funnel-fields";
+import { MESSAGES } from "@/lib/funnel-text";
 import { toRoute } from "@/lib/routes";
+import type { Submit } from "@/lib/submit-outcome";
 import { CompanyStep } from "./CompanyStep";
 import { ContactStep } from "./ContactStep";
 import { EventStep } from "./EventStep";
@@ -24,9 +27,11 @@ type HostFunnelProps = {
   offers: readonly FunnelOffer[];
   /** Delivery settings of `site.json`: `form`, `contact` and `links.linkedin`. */
   site: FormSite;
+  /** The send function. Tests pass a fake; the default posts from the browser. */
+  submit?: Submit;
 };
 
-export function HostFunnel({ offers, site }: HostFunnelProps) {
+export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
   const {
     formRef,
     values,
@@ -40,15 +45,11 @@ export function HostFunnel({ offers, site }: HostFunnelProps) {
     bind,
     onPrev,
     onSubmit,
-  } = useHostFunnel(offers, site);
+  } = useHostFunnel(offers, site, submit);
   const stepProps = { values, errors, update, bind };
 
   return (
-    <div
-      id="funnel"
-      tabIndex={-1}
-      className="rounded-[20px] bg-card px-[18px] py-[22px] text-ink shadow-lift outline-hidden sm:p-8"
-    >
+    <FormPanel id="funnel" tabIndex={-1} className="outline-hidden">
       <form
         id="host-form"
         ref={formRef}
@@ -77,6 +78,6 @@ export function HostFunnel({ offers, site }: HostFunnelProps) {
           </Button>
         </p>
       </SuccessPanel>
-    </div>
+    </FormPanel>
   );
 }

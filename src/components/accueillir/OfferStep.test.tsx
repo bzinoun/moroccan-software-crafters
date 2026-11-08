@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { EMPTY_VALUES } from "@/lib/funnel";
+import { EMPTY_VALUES } from "@/lib/funnel-fields";
 import { OfferStep } from "./OfferStep";
 import { OFFERS } from "./test-utils";
 

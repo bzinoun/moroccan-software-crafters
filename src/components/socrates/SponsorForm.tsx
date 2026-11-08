@@ -1,27 +1,7 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-  type ReactNode,
-} from "react";
-import {
-  HONEYPOT_FIELD,
-  type FormSite,
-  type SubmitInput,
-  type SubmitResult,
-} from "@/lib/forms";
-import { submitFormInBrowser } from "@/lib/forms-browser";
-import type { SponsorLevel } from "@/lib/pages-data";
-import {
-  outcomeOf,
-  type Outcome,
-  type OutcomeTexts,
-} from "@/lib/submit-outcome";
-import { isValidEmail, normalizePhone, validPhone } from "@/lib/validation";
+import { type FormSite } from "@/lib/forms";
+import type { Submit } from "@/lib/submit-outcome";
 import { Button } from "../Button";
 import { ConsentCheckbox } from "../ConsentCheckbox";
 import { Field } from "../Field";
@@ -32,163 +12,45 @@ import { Pill, PillGroup } from "../PillGroup";
 import { SuccessPanel } from "../SuccessPanel";
 import { TextArea } from "../TextArea";
 import { TextInput } from "../TextInput";
+import {
+  useSponsorForm,
+  type PackageLevels,
+  type SponsorLevels,
+} from "./useSponsorForm";
 
 // Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md; port
-// of the sponsor form of the former `socrates.html` (`git show 1353207:socrates.html`) and of `simpleForm` in the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`).
-// One step: validate, send through `submitFormInBrowser`, then the thanks panel
-// or an alert. The validation, the messages and the focus moves are the old ones.
+// of the sponsor form of the former `socrates.html` (`git show 1353207:socrates.html`).
+// The view of the form; the state, the validation and the send live in
+// `useSponsorForm`.
 
-const TYPE = "Sponsoring SoCraTes";
 const SUBMIT_LABEL = "Recevoir le dossier de partenariat";
-const MAILTO_SUCCESS =
-  "Votre messagerie s'est ouverte avec la demande pré-remplie : il ne reste qu'à l'envoyer.";
-const RETRY = "L'envoi n'a pas abouti. Réessayez dans un instant";
-const FAILURE_TEXTS = {
-  plain: `${RETRY}.`,
-  mailLead: `${RETRY}, ou écrivez-nous à`,
-  linkedinLead: `${RETRY}, ou écrivez-nous sur`,
-};
-
-type FieldName = "entreprise" | "nom" | "email" | "telephone" | "consent";
-type Errors = Partial<Record<FieldName, string>>;
 
 type SponsorFormProps = {
   /** The parts of `site.json` the submit code reads: `links.linkedin`, `contact.email`, `form`. */
   site: FormSite;
   /** `sponsorLevels(loadSponsoring())`. */
-  levels: { options: readonly SponsorLevel[]; defaultValue: string };
-  /** Package id to level value: a click on `[data-level="<id>"]` checks that level. */
-  packageLevels: Readonly<Record<string, string>>;
+  levels: SponsorLevels;
+  /** Package id to level value: choosing a package checks that level. */
+  packageLevels: PackageLevels;
   /** `loadSponsoring().form.success`. */
   successText: string;
   /** The send function. Tests pass a fake; the default posts from the browser. */
-  submit?: (input: SubmitInput) => Promise<SubmitResult>;
+  submit?: Submit;
 };
 
-export function SponsorForm({
-  site,
-  levels,
-  packageLevels,
-  successText,
-  submit = submitFormInBrowser,
-}: SponsorFormProps) {
-  const [errors, setErrors] = useState<Errors>({});
-  const [niveau, setNiveau] = useState(levels.defaultValue);
-  const [sending, setSending] = useState(false);
-  const [alert, setAlert] = useState<ReactNode>(null);
-  const [thanks, setThanks] = useState<string | null>(null);
-  const outcomeTexts: OutcomeTexts = {
-    success: successText,
-    mailto: MAILTO_SUCCESS,
-    failure: FAILURE_TEXTS,
-  };
-  /** Synchronous guard: `sending` state is one render late for a double click. */
-  const inFlight = useRef(false);
-
-  // The package buttons live elsewhere in the page: listen for their clicks.
-  useEffect(() => {
-    function onClick(event: MouseEvent) {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-      const id = target.closest("[data-level]")?.getAttribute("data-level");
-      const level = id ? packageLevels[id] : undefined;
-      if (level) setNiveau(level);
-    }
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
-  }, [packageLevels]);
-
-  // A field stops being invalid as soon as the visitor edits it.
-  function onChange(event: ChangeEvent<HTMLFormElement>) {
-    const target: unknown = event.target;
-    if (!(
-      target instanceof HTMLInputElement ||
-      target instanceof HTMLTextAreaElement
-    )) {
-      return;
-    }
-    const name = target.name as FieldName;
-    setErrors((current) => {
-      if (!(name in current)) return current;
-      const rest = { ...current };
-      delete rest[name];
-      return rest;
-    });
-  }
-
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (inFlight.current) return;
-    const form = event.currentTarget;
-    setAlert(null);
-
-    const values = new FormData(form);
-    const get = (name: string) => String(values.get(name) ?? "").trim();
-    const found: Errors = {};
-    if (!get("entreprise"))
-      found.entreprise = "Indiquez le nom de l'entreprise.";
-    if (!get("nom")) found.nom = "Indiquez votre nom.";
-    if (!get("email") || !isValidEmail(get("email"))) {
-      found.email = "Adresse e-mail invalide.";
-    }
-    if (!get("telephone")) found.telephone = "Indiquez votre numéro.";
-    else if (!validPhone(get("telephone")))
-      found.telephone = "Numéro invalide.";
-    if (!values.has("consent")) {
-      found.consent = "Votre accord est nécessaire pour envoyer la demande.";
-    }
-    setErrors(found);
-    const first = (
-      ["entreprise", "nom", "email", "telephone", "consent"] as const
-    ).find((name) => found[name]);
-    if (first) {
-      (form.elements.namedItem(first) as HTMLElement | null)?.focus();
-      return;
-    }
-
-    const data = {
-      entreprise: get("entreprise"),
-      nom: get("nom"),
-      fonction: get("fonction"),
-      email: get("email"),
-      telephone: normalizePhone(get("telephone")),
-      niveau,
-      message: get("message"),
-    };
-    inFlight.current = true;
-    setSending(true);
-    try {
-      const result = await submit({
-        site,
-        data,
-        type: TYPE,
-        subject: `Partenariat SoCraTes · ${data.entreprise} · ${data.niveau}`,
-        // As typed: the old form did not trim the trap field.
-        honeypot: String(values.get(HONEYPOT_FIELD) ?? ""),
-      });
-      showOutcome(outcomeOf(result, outcomeTexts));
-    } catch (cause) {
-      // The submit code reports failures as a result; this is a safety net.
-      showOutcome(
-        outcomeOf(
-          {
-            mode: "error",
-            error: cause instanceof Error ? cause : new Error(String(cause)),
-            fallback: null,
-          },
-          outcomeTexts,
-        ),
-      );
-    } finally {
-      inFlight.current = false;
-      setSending(false);
-    }
-  }
-
-  function showOutcome(outcome: Outcome) {
-    if (outcome.kind === "success") setThanks(outcome.text);
-    else setAlert(outcome.content);
-  }
+export function SponsorForm(props: SponsorFormProps) {
+  const { levels } = props;
+  const {
+    errors,
+    niveau,
+    setNiveau,
+    busy,
+    alert,
+    thanks,
+    successText,
+    onChange,
+    onSubmit,
+  } = useSponsorForm(props);
 
   return (
     <>
@@ -266,10 +128,11 @@ export function SponsorForm({
         <Button
           type="submit"
           id="s-submit"
-          aria-disabled={sending || undefined}
-          className="mt-2 w-full aria-disabled:cursor-not-allowed aria-disabled:opacity-55 aria-disabled:hover:translate-y-0"
+          aria-disabled={busy || undefined}
+          variant="primary-flat"
+          className="mt-2 w-full"
         >
-          {sending ? "Envoi…" : SUBMIT_LABEL}
+          {busy ? "Envoi…" : SUBMIT_LABEL}
         </Button>
       </form>
       <SuccessPanel
@@ -277,7 +140,7 @@ export function SponsorForm({
         hidden={thanks === null}
         stamp="Merci !"
         headingLevel={3}
-        headingClassName="text-ink!"
+        tone="ink"
         text={thanks ?? successText}
       />
     </>

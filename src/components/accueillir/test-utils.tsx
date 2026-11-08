@@ -2,14 +2,14 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, vi, type MockInstance } from "vitest";
 import type { FormSite, SubmitResult } from "@/lib/forms";
-import { submitFormInBrowser } from "@/lib/forms-browser";
-import { DRAFT_KEY, type FunnelOffer } from "@/lib/funnel";
+import type { Submit } from "@/lib/submit-outcome";
+import { DRAFT_KEY } from "@/lib/funnel-draft";
+import { type FunnelOffer } from "@/lib/funnel-fields";
 import { HostFunnel } from "./HostFunnel";
 
-// Shared set-up of the funnel and of the sponsor form tests. A test file that
-// uses `submit` or `setUpFunnelEnvironment` must replace the submit module first:
-// `vi.mock("@/lib/forms-browser", () => ({ submitFormInBrowser: vi.fn() }))`.
-// Nothing here posts anywhere.
+// Shared set-up of the funnel and of the sponsor form tests. The forms take
+// their send function as a prop (or an argument of the hook): `submit` is the
+// double that the tests inject. Nothing here posts anywhere.
 
 export type User = ReturnType<typeof userEvent.setup>;
 
@@ -46,8 +46,8 @@ export const SITE: FormSite = {
 // 7 November 2026 is a Saturday: the first date allowed is Sunday 8 November.
 export const NOW = new Date(2026, 10, 7, 10, 0);
 
-/** The mocked submit module (see the note at the top of this file). */
-export const submit = vi.mocked(submitFormInBrowser);
+/** The send function that the funnel tests inject. */
+export const submit = vi.fn<Submit>();
 
 /** A result that the test settles by hand, to look at the state while a request runs. */
 export function pendingResult() {
@@ -90,8 +90,12 @@ export function setUpFunnelEnvironment() {
   return env;
 }
 
+/** Saves a draft as the page would have, at the fixed time of the tests. */
 export function storeDraft(draft: Record<string, unknown>) {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  localStorage.setItem(
+    DRAFT_KEY,
+    JSON.stringify({ _savedAt: NOW.getTime(), ...draft }),
+  );
 }
 
 export const savedDraft = () =>
@@ -99,7 +103,9 @@ export const savedDraft = () =>
 
 export function renderFunnel(site: FormSite = SITE) {
   const user = userEvent.setup();
-  const view = render(<HostFunnel offers={OFFERS} site={site} />);
+  const view = render(
+    <HostFunnel offers={OFFERS} site={site} submit={submit} />,
+  );
   return { user, ...view };
 }
 

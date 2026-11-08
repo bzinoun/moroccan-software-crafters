@@ -2,8 +2,10 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -11,48 +13,69 @@ import {
 } from "react";
 import { HONEYPOT_FIELD, type FormSite } from "@/lib/forms";
 import { submitFormInBrowser } from "@/lib/forms-browser";
+import { tomorrowIso } from "@/lib/dates";
 import {
-  EMPTY_VALUES,
-  LEAD_TYPE,
-  MESSAGES,
-  TOTAL_STEPS,
   clearDraft,
-  collect,
-  emailBody,
-  leadSubject,
   readDraft,
   restoreDraft,
   toDraft,
-  tomorrowIso,
-  validateAll,
-  validateStep,
   writeDraft,
+} from "@/lib/funnel-draft";
+import {
+  EMPTY_VALUES,
+  LEAD_TYPE,
+  TOTAL_STEPS,
   type ErrorField,
   type FieldErrors,
   type FunnelOffer,
   type FunnelValues,
-} from "@/lib/funnel";
+  type TextField,
+} from "@/lib/funnel-fields";
+import { MESSAGES, collect, emailBody, leadSubject } from "@/lib/funnel-text";
+import { validateAll, validateStep } from "@/lib/funnel-validate";
 import { scrollBehavior } from "@/lib/motion";
-import { outcomeOf, type OutcomeTexts } from "@/lib/submit-outcome";
+import {
+  useLeadSubmit,
+  type OutcomeTexts,
+  type Submit,
+} from "@/lib/submit-outcome";
+import { withoutError } from "@/lib/validation";
 
 // State of the host funnel (port of the state machine of the former `assets/js/funnel.js` (`git show 1353207:assets/js/funnel.js`)):
 // the answers, the step, the saved draft, the validation and the submit. The
 // first render is step 1 with empty answers, the same on the server and in the
-// browser, so the static HTML shows the offers. A mount effect then reads the
-// browser state (saved draft, `?formule=`, today's date). The docs of
-// `useSearchParams` ask for a Suspense boundary, which would leave only a
-// fallback in the static HTML; the effect needs no boundary and has to read the
-// draft anyway, so `location.search` is read in the same place.
+// browser, so the static HTML shows the offers. `useSyncExternalStore` makes
+// that possible with no effect: while React hydrates it reads the server
+// snapshot (not in the browser yet), then it renders again with the browser
+// snapshot, and only then are the saved draft, `?formule=` and today's date
+// read. The docs of `useSearchParams` ask for a Suspense boundary, which would
+// leave only a fallback in the static HTML; `location.search` is read in the
+// same place as the draft instead.
 
-/** The fields bound to a plain text value. */
-export type TextField = Exclude<keyof FunnelValues, "equipements" | "consent">;
+const subscribeNever = () => () => {};
+const inBrowser = () => true;
+const onServer = () => false;
+
+const SERVER_STATE = { values: EMPTY_VALUES, step: 1, minDate: "" };
+
+/** The saved draft, the URL and the date of today. Browser only. */
+function readBrowserState(offerIds: readonly string[]) {
+  const minDate = tomorrowIso(new Date());
+  const restored = restoreDraft({
+    draft: readDraft(),
+    search: window.location.search,
+    offerIds,
+    min: minDate,
+  });
+  return { ...restored, minDate };
+}
 
 export type Update = <K extends keyof FunnelValues>(
   name: K,
   value: FunnelValues[K],
 ) => void;
 
-/** `name`, `value` and `onChange` of a text control. */
+/** `name`, `value` and `onChange` of a free text control. Choices go through `update`. */
 export type BindText = (name: TextField) => {
   name: TextField;
   value: string;
@@ -101,37 +124,33 @@ export type HostFunnelState = {
 export function useHostFunnel(
   offers: readonly FunnelOffer[],
   site: FormSite,
+  submit: Submit = submitFormInBrowser,
 ): HostFunnelState {
   const formRef = useRef<HTMLFormElement>(null);
   /** Set when the person moved: the effect then focuses and scrolls. */
   const moved = useRef(false);
   /** A field to focus once its step is shown (the final check jumps back). */
   const fieldAfterMove = useRef<ErrorField | null>(null);
-  /** Synchronous guard: `busy` state is one render late for a double click. */
-  const sending = useRef(false);
-  const [values, setValues] = useState<FunnelValues>(EMPTY_VALUES);
-  const [step, setStep] = useState(1);
-  const [minDate, setMinDate] = useState("");
+  // The state of the browser at load, then what the person changed on top of it.
+  const hydrated = useSyncExternalStore(subscribeNever, inBrowser, onServer);
+  const offerKey = offers.map((offer) => offer.id).join("\n");
+  const initial = useMemo(
+    () => (hydrated ? readBrowserState(offerKey.split("\n")) : SERVER_STATE),
+    [hydrated, offerKey],
+  );
+  const [editedValues, setValues] = useState<FunnelValues | null>(null);
+  const [editedStep, setStep] = useState<number | null>(null);
+  const values = editedValues ?? initial.values;
+  const step = editedStep ?? initial.step;
+  const minDate = initial.minDate;
   const [errors, setErrors] = useState<FieldErrors>({});
   const [alert, setAlert] = useState<ReactNode>(null);
-  const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-
-  // Browser-only state: the date of today, the saved draft and the URL.
-  useEffect(() => {
-    const min = tomorrowIso(new Date());
-    const restored = restoreDraft({
-      draft: readDraft(),
-      search: window.location.search,
-      offerIds: offers.map((offer) => offer.id),
-      min,
-    });
-    /* eslint-disable react-hooks/set-state-in-effect -- reads the browser once on mount; the first render must match the server */
-    setMinDate(min);
-    setValues(restored.values);
-    setStep(restored.step);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [offers]);
+  const {
+    busy,
+    isSending,
+    send: sendLead,
+  } = useLeadSubmit(submit, OUTCOME_TEXTS);
 
   // After a step change made by the person: focus the legend (or the field in
   // error), scroll to the form.
@@ -152,12 +171,7 @@ export function useHostFunnel(
   const update: Update = (name, value) => {
     const nextValues = { ...values, [name]: value };
     setValues(nextValues);
-    setErrors((current) => {
-      if (!(name in current)) return current;
-      const rest = { ...current };
-      delete rest[name as ErrorField];
-      return rest;
-    });
+    setErrors((current) => withoutError(current, name));
     writeDraft(toDraft(nextValues, step));
   };
 
@@ -183,35 +197,16 @@ export function useHostFunnel(
     const trap = formRef.current?.elements.namedItem(HONEYPOT_FIELD);
     const honeypot = trap instanceof HTMLInputElement ? trap.value : "";
     const lead = collect(values, offers);
-    sending.current = true;
-    setBusy(true);
-    try {
-      const result = await submitFormInBrowser({
-        site,
-        data: lead,
-        type: LEAD_TYPE,
-        subject: leadSubject(lead),
-        body: emailBody(lead),
-        honeypot,
-      });
-      const outcome = outcomeOf(result, OUTCOME_TEXTS);
-      if (outcome.kind === "success") finish(outcome.text);
-      else setAlert(outcome.content);
-    } catch (cause) {
-      // The submit code reports failures as a result; this is a safety net.
-      const outcome = outcomeOf(
-        {
-          mode: "error",
-          error: cause instanceof Error ? cause : new Error(String(cause)),
-          fallback: null,
-        },
-        OUTCOME_TEXTS,
-      );
-      if (outcome.kind === "alert") setAlert(outcome.content);
-    } finally {
-      sending.current = false;
-      setBusy(false);
-    }
+    const outcome = await sendLead({
+      site,
+      data: lead,
+      type: LEAD_TYPE,
+      subject: leadSubject(lead),
+      body: emailBody(lead),
+      honeypot,
+    });
+    if (outcome.kind === "success") finish(outcome.text);
+    else setAlert(outcome.content);
   }
 
   function focusField(name: ErrorField) {
@@ -221,7 +216,7 @@ export function useHostFunnel(
   // Continuer, and Enter in a field, both submit the form.
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (sending.current) return;
+    if (isSending()) return;
     if (step < TOTAL_STEPS) {
       const { errors: found, first } = validateStep(step, values, minDate);
       setErrors(found);

@@ -7,6 +7,20 @@ import { TextArea } from "./TextArea";
 import { TextInput } from "./TextInput";
 
 describe("Field", () => {
+  it("shows the error as plain text that the control reads, not as a live region", () => {
+    render(
+      <Field id="nom" label="Nom" error="Indiquez votre nom.">
+        <TextInput name="nom" />
+      </Field>,
+    );
+    const message = screen.getByText("Indiquez votre nom.");
+    expect(message).not.toHaveAttribute("role");
+    expect(message).not.toHaveAttribute("aria-live");
+    expect(screen.getByLabelText("Nom")).toHaveAccessibleDescription(
+      "Indiquez votre nom.",
+    );
+  });
+
   it("labels the control: the label text names the input", () => {
     render(
       <Field id="s-entreprise" label="Entreprise">

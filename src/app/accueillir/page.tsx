@@ -10,6 +10,7 @@ import {
 } from "@/components/accueillir/HostLayout";
 import { loadEvents, loadOffers, loadSite } from "@/content/load";
 import { meetupPhotoUrl } from "@/lib/derive";
+import { formSite } from "@/lib/forms";
 import { frenchSpacing } from "@/lib/french";
 import { toRoute } from "@/lib/routes";
 
@@ -99,14 +100,7 @@ export default function AccueillirPage() {
           </>
         }
       >
-        <HostFunnel
-          offers={offers}
-          site={{
-            links: { linkedin: site.links.linkedin },
-            contact: site.contact,
-            form: site.form,
-          }}
-        />
+        <HostFunnel offers={offers} site={formSite(site)} />
       </HostLayout>
     </>
   );

@@ -8,7 +8,8 @@ type HoneypotProps = Omit<ComponentProps<"input">, "type"> & {
 /**
  * The spam trap. A person never sees it or tabs into it; a bot fills it. The
  * form treats a filled value as a silent success. Named `website_hp` by
- * default, like the old forms.
+ * default, like the old forms. The fixed attributes come after the props, so a
+ * caller cannot override them by accident.
  */
 export function Honeypot({
   id = "website_hp",
@@ -23,12 +24,12 @@ export function Honeypot({
     >
       <label htmlFor={id}>{label}</label>
       <input
+        {...props}
         type="text"
         id={id}
         name={name}
         tabIndex={-1}
         autoComplete="off"
-        {...props}
       />
     </div>
   );

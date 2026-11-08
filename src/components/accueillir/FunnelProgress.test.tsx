@@ -10,15 +10,16 @@ describe("FunnelProgress", () => {
     expect(label).toHaveAttribute("aria-live", "polite");
   });
 
-  it("fills one bar per step reached and hides the bars from assistive technology", () => {
+  it("draws one bar per step, hides the bars from assistive technology and marks the current one", () => {
     const { container } = render(<FunnelProgress step={3} />);
     const bars = container.querySelectorAll("[aria-hidden='true'] > span");
     expect(bars).toHaveLength(4);
-    expect([...bars].map((b) => b.hasAttribute("data-done"))).toEqual([
-      true,
-      true,
-      true,
-      false,
+    expect([...bars].map((b) => b.getAttribute("aria-current"))).toEqual([
+      null,
+      null,
+      "step",
+      null,
     ]);
+    expect(container.querySelector("[data-done]")).toBeNull();
   });
 });

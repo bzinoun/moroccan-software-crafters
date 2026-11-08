@@ -1,7 +1,8 @@
-import { fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { DRAFT_KEY } from "@/lib/funnel";
+import { DRAFT_KEY } from "@/lib/funnel-draft";
 import { HostFunnel } from "./HostFunnel";
 import {
   LINKEDIN,
@@ -24,10 +25,10 @@ import {
   setUpFunnelEnvironment,
 } from "./test-utils";
 
-// Nothing here posts anywhere: the submit module is replaced by a mock.
-// The offers are a fixture: a content edit must not break this file. The rules
-// of the fields are tested in `funnel.test.ts`; here each behavior is tested once.
-vi.mock("@/lib/forms-browser", () => ({ submitFormInBrowser: vi.fn() }));
+// Nothing here posts anywhere: the funnel gets the `submit` double of the test
+// utils. The offers are a fixture: a content edit must not break this file. The
+// rules of the fields are tested in `funnel-validate.test.ts` and
+// `funnel-draft.test.ts`; here each behavior is tested once.
 
 const env = setUpFunnelEnvironment();
 const setup = renderFunnel;
@@ -71,6 +72,26 @@ describe("HostFunnel first render", () => {
     expect(html).toContain("Étape 1 sur 4");
     expect(html).toContain('id="funnel"');
     expect(html).toContain('id="host-form"');
+  });
+
+  it("hydrates the static HTML without a mismatch, then shows the saved draft", async () => {
+    storeDraft({ formule: "prive", entreprise: "Acme", _step: 3 });
+    const html = renderToString(
+      <HostFunnel offers={OFFERS} site={SITE} submit={submit} />,
+    );
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    await act(async () => {
+      hydrateRoot(
+        host,
+        <HostFunnel offers={OFFERS} site={SITE} submit={submit} />,
+      );
+    });
+    expect(env.errorSpy).not.toHaveBeenCalled();
+    expect(screen.getByText("Étape 3 sur 4 · Votre entreprise")).toBeVisible();
+    expect(screen.getByLabelText("Nom de l'entreprise")).toHaveValue("Acme");
+    host.remove();
   });
 
   it("can take the focus from the skip link: the funnel has tabindex -1", () => {

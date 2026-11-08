@@ -4,6 +4,7 @@ import {
   buildMailtoUrl,
   buildPayload,
   defaultMailBody,
+  formSite,
   HONEYPOT_FIELD,
   readTracking,
   submitForm,
@@ -362,5 +363,21 @@ describe("submitForm", () => {
     const { deps } = makeDeps();
     const result = await submitForm(input(real), deps);
     expect(["endpoint", "mailto", "linkedin", "none"]).toContain(result.mode);
+  });
+});
+
+describe("formSite", () => {
+  it("keeps the LinkedIn page, the contact and the form, and nothing else of the site", () => {
+    const full = {
+      name: "Moroccan Software Crafters",
+      links: { linkedin: LINKEDIN, other: "https://example.org/" },
+      contact: { email: EMAIL },
+      form: { endpoint: ENDPOINT, extraFields: { _captcha: "false" } },
+    };
+    expect(formSite(full)).toEqual({
+      links: { linkedin: LINKEDIN },
+      contact: { email: EMAIL },
+      form: { endpoint: ENDPOINT, extraFields: { _captcha: "false" } },
+    });
   });
 });

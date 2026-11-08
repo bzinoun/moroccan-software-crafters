@@ -1,6 +1,6 @@
 import { ChoiceCard, ChoiceGroup } from "@/components/ChoiceCard";
 import { Field } from "@/components/Field";
-import type { FunnelOffer } from "@/lib/funnel";
+import type { FunnelOffer } from "@/lib/funnel-fields";
 import { offerPrice } from "@/lib/home-data";
 import { FunnelStep } from "./FunnelStep";
 import type { StepProps } from "./useHostFunnel";

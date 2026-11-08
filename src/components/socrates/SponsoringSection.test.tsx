@@ -8,15 +8,6 @@ import { SponsoringSection } from "./SponsoringSection";
 
 // A section written by hand: a content edit must not break this file.
 const SPONSORING: Sponsoring = {
-  nextEdition: {
-    label: "Prochaine édition",
-    year: "2027",
-    dates: "3 → 6 septembre",
-    venue: "Lieu test",
-    city: "Bouznika",
-    capacity: 60,
-    status: "ouvert",
-  },
   eyebrow: "Devenir partenaire",
   title: "Financez quatre jours qui font avancer le craft.",
   lead: "Ce sont les partenaires qui rendent l'édition possible.",

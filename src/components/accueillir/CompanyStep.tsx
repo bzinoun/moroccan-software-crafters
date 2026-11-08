@@ -2,7 +2,7 @@ import { Field } from "@/components/Field";
 import { FieldRow } from "@/components/FieldRow";
 import { Select } from "@/components/Select";
 import { TextInput } from "@/components/TextInput";
-import { SECTEURS, TAILLES } from "@/lib/funnel";
+import { SECTEURS, TAILLES, pick } from "@/lib/funnel-fields";
 import { FunnelStep } from "./FunnelStep";
 import type { StepProps } from "./useHostFunnel";
 
@@ -10,9 +10,11 @@ import type { StepProps } from "./useHostFunnel";
 
 export function CompanyStep({
   active,
+  values,
   errors,
+  update,
   bind,
-}: Pick<StepProps, "active" | "errors" | "bind">) {
+}: StepProps) {
   return (
     <FunnelStep
       step={3}
@@ -33,7 +35,13 @@ export function CompanyStep({
       </Field>
       <FieldRow>
         <Field id="secteur" label="Secteur">
-          <Select {...bind("secteur")}>
+          <Select
+            name="secteur"
+            value={values.secteur}
+            onChange={(event) =>
+              update("secteur", pick(SECTEURS, event.target.value) ?? "")
+            }
+          >
             <option value="">Choisir…</option>
             {SECTEURS.map((sector) => (
               <option key={sector} value={sector}>
@@ -43,7 +51,13 @@ export function CompanyStep({
           </Select>
         </Field>
         <Field id="taille" label="Taille de l'équipe tech">
-          <Select {...bind("taille")}>
+          <Select
+            name="taille"
+            value={values.taille}
+            onChange={(event) =>
+              update("taille", pick(TAILLES, event.target.value) ?? "")
+            }
+          >
             <option value="">Choisir…</option>
             {TAILLES.map((size) => (
               <option key={size} value={size}>

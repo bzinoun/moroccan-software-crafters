@@ -16,6 +16,23 @@ export type FormSite = {
   form?: { endpoint?: string; extraFields?: Record<string, string> };
 };
 
+/**
+ * The parts of the site that a client form needs, from the whole `site.json`
+ * object. A server page builds it once and passes it as a prop, so the other
+ * fields of the site do not reach the browser.
+ */
+export function formSite(site: {
+  links: { linkedin: string };
+  contact: NonNullable<FormSite["contact"]>;
+  form: NonNullable<FormSite["form"]>;
+}): FormSite {
+  return {
+    links: { linkedin: site.links.linkedin },
+    contact: site.contact,
+    form: site.form,
+  };
+}
+
 export type FormValue = string | number | boolean | string[] | null | undefined;
 export type FormValues = Record<string, FormValue>;
 

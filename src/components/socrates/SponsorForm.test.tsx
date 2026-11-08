@@ -2,8 +2,10 @@ import { act, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SubmitResult } from "@/lib/forms";
 import { pendingResult } from "../accueillir/test-utils";
+import { PackageGrid } from "./PackageGrid";
 import {
   LINKEDIN,
+  PACKAGES,
   SITE,
   SUCCESS,
   fillValid,
@@ -21,6 +23,11 @@ afterEach(() => {
 });
 
 const setup = (result?: SubmitResult) => renderSponsorForm({ result });
+
+// The glow utilities of an element (the base transition lists the property
+// name box-shadow, which is not a glow utility).
+const shadowClasses = (el: HTMLElement) =>
+  el.className.split(" ").filter((name) => name.startsWith("shadow"));
 
 describe("SponsorForm fields", () => {
   it("has the labelled fields of the old form", () => {
@@ -144,7 +151,11 @@ describe("SponsorForm validation", () => {
     await user.clear(tel);
     await user.type(tel, "12345");
     await user.click(submitButton());
-    expect(screen.getByText("Numéro invalide.")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78).",
+      ),
+    ).toBeInTheDocument();
     expect(tel).toHaveFocus();
     expect(submit).not.toHaveBeenCalled();
   });
@@ -179,7 +190,7 @@ describe("SponsorForm validation", () => {
     await user.click(submitButton());
     await fillValid(user);
     await user.click(submitButton());
-    expect(screen.queryByText("Numéro invalide.")).toBeNull();
+    expect(screen.queryByText(/Numéro invalide/)).toBeNull();
     expect(screen.queryByText("Indiquez votre numéro.")).toBeNull();
   });
 });
@@ -440,29 +451,30 @@ describe("SponsorForm results", () => {
   });
 });
 
+describe("SponsorForm submit button", () => {
+  it("is the flat red pill, with no glow, on the dark section", () => {
+    setup();
+    expect(shadowClasses(submitButton())).toEqual([]);
+  });
+});
+
 describe("SponsorForm level preselection", () => {
-  const packageLinks = (
-    <>
-      <a href="#sponsor-form" data-level="supporter">
-        Supporter
-      </a>
-      <a href="#sponsor-form" data-level="principal">
-        Principal
-      </a>
-      <a href="#sponsor-form" data-level="inconnu">
-        Inconnu
-      </a>
-      <a href="#sponsor-form">Sans niveau</a>
-    </>
-  );
+  // The real package buttons of the page, beside the form.
+  const grid = <PackageGrid packages={PACKAGES} />;
+  const chooseLevel = (name: string) =>
+    within(
+      screen
+        .getByRole("heading", { level: 3, name })
+        .closest("article") as HTMLElement,
+    ).getByRole("link", { name: "Choisir ce niveau" });
 
   it("checks the level of the package whose button the visitor clicks", async () => {
-    const { user } = renderSponsorForm({ before: packageLinks });
-    await user.click(screen.getByRole("link", { name: "Principal" }));
+    const { user } = renderSponsorForm({ before: grid });
+    await user.click(chooseLevel("Partenaire principal"));
     expect(
       screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
     ).toBeChecked();
-    await user.click(screen.getByRole("link", { name: "Supporter" }));
+    await user.click(chooseLevel("Supporter"));
     expect(
       screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
     ).toBeChecked();
@@ -471,25 +483,41 @@ describe("SponsorForm level preselection", () => {
     ).not.toBeChecked();
   });
 
-  it("ignores a button with an unknown or missing level", async () => {
-    const { user } = renderSponsorForm({ before: packageLinks });
-    await user.click(screen.getByRole("link", { name: "Inconnu" }));
-    await user.click(screen.getByRole("link", { name: "Sans niveau" }));
+  it("checks the level again when the visitor changed it by hand in between", async () => {
+    const { user } = renderSponsorForm({ before: grid });
+    await user.click(chooseLevel("Supporter"));
+    await user.click(screen.getByRole("radio", { name: "En nature" }));
+    await user.click(chooseLevel("Supporter"));
+    expect(
+      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
+    ).toBeChecked();
+  });
+
+  it("ignores a package that has no level", async () => {
+    const unknown = [{ ...PACKAGES[0]!, id: "inconnu", name: "Inconnu" }];
+    const { user } = renderSponsorForm({
+      before: <PackageGrid packages={unknown} />,
+    });
+    await user.click(screen.getByRole("link", { name: "Choisir ce niveau" }));
     expect(screen.getByRole("radio", { name: "À discuter" })).toBeChecked();
   });
 
   it("sends the preselected level", async () => {
-    const { submit, user } = renderSponsorForm({ before: packageLinks });
-    await user.click(screen.getByRole("link", { name: "Supporter" }));
+    const { submit, user } = renderSponsorForm({ before: grid });
+    await user.click(chooseLevel("Supporter"));
     await fillValid(user);
     await user.click(submitButton());
     expect(submit.mock.calls[0]![0].data.niveau).toBe("Supporter");
   });
 
-  it("stops listening when the form unmounts", () => {
-    const { unmount } = renderSponsorForm({ before: packageLinks });
-    const spy = vi.spyOn(document, "removeEventListener");
-    unmount();
-    expect(spy).toHaveBeenCalledWith("click", expect.any(Function));
+  it("keeps the jump to the form: the button is still a link to the form", () => {
+    renderSponsorForm({ before: grid });
+    expect(chooseLevel("Supporter")).toHaveAttribute("href", "#sponsor-form");
+  });
+
+  it("listens to no click on the document", () => {
+    const spy = vi.spyOn(document, "addEventListener");
+    renderSponsorForm({ before: grid });
+    expect(spy).not.toHaveBeenCalledWith("click", expect.anything());
   });
 });

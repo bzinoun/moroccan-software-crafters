@@ -17,7 +17,12 @@ type FieldErrorProps = {
   children: string;
 };
 
-/** The red message under a control. Shown only when the field is invalid. */
+/**
+ * The red message under a control. Shown only when the field is invalid.
+ * It is not a live region on purpose: a form moves the focus to the first
+ * invalid field on submit, and the control reads this message through its
+ * `aria-describedby`. A live region would read each message twice.
+ */
 export function FieldError({ id, children }: FieldErrorProps) {
   return (
     <p id={id} className="mt-[5px] mb-[1em] text-[0.84rem] text-red">

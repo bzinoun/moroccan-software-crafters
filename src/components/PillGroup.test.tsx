@@ -26,6 +26,37 @@ describe("PillGroup and Pill", () => {
     expect(screen.getByRole("radio", { name: "20 à 40" })).toBeRequired();
   });
 
+  it("does not put aria-invalid on a plain group, which does not support it", () => {
+    render(
+      <PillGroup aria-label="Sur place" aria-invalid>
+        <Pill type="checkbox" name="equipements" value="Parking" aria-invalid>
+          Parking
+        </Pill>
+      </PillGroup>,
+    );
+    expect(
+      screen.getByRole("group", { name: "Sur place" }),
+    ).not.toHaveAttribute("aria-invalid");
+    expect(screen.getByRole("checkbox", { name: "Parking" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  it("keeps aria-invalid on a radio group, where it is allowed", () => {
+    render(
+      <PillGroup role="radiogroup" aria-label="Taille" aria-invalid>
+        <Pill type="radio" name="taille" value="a">
+          A
+        </Pill>
+      </PillGroup>,
+    );
+    expect(screen.getByRole("radiogroup", { name: "Taille" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
   it("defaults to a plain group", () => {
     render(
       <PillGroup aria-label="Sur place">

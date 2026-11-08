@@ -54,7 +54,7 @@ describe("PackageGrid", () => {
     expect(offer("Partenaire principal")).not.toHaveClass("border-sage");
   });
 
-  it("links every 'Choisir ce niveau' to the form and names the package in data-level", () => {
+  it("links every 'Choisir ce niveau' to the form", () => {
     render(<PackageGrid packages={PACKAGES} />);
     const links = screen.getAllByRole("link", { name: "Choisir ce niveau" });
     expect(links).toHaveLength(PACKAGES.length);
@@ -62,11 +62,6 @@ describe("PackageGrid", () => {
       "#sponsor-form",
       "#sponsor-form",
       "#sponsor-form",
-    ]);
-    expect(links.map((a) => a.getAttribute("data-level"))).toEqual([
-      "supporter",
-      "partenaire",
-      "principal",
     ]);
   });
 });

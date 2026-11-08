@@ -56,4 +56,22 @@ describe("ConsentCheckbox", () => {
     expect(box).not.toHaveAttribute("aria-invalid");
     expect(box).not.toHaveAttribute("aria-describedby");
   });
+
+  it("keeps its fixed attributes when a caller passes the same ones", () => {
+    render(
+      <ConsentCheckbox
+        id="c"
+        name="consent"
+        error="Erreur."
+        aria-invalid={false}
+        aria-describedby="autre"
+        {...{ type: "radio" }}
+      >
+        {TEXT}
+      </ConsentCheckbox>,
+    );
+    const box = screen.getByRole("checkbox");
+    expect(box).toHaveAttribute("aria-invalid", "true");
+    expect(box).toHaveAttribute("aria-describedby", "c-error");
+  });
 });

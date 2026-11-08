@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { PostIt } from "@/components/PostIt";
-import { cn } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 
 // Port of `.success`: shown in place of a lead form once the request is sent.
@@ -20,7 +19,12 @@ type SuccessPanelProps = {
   text: string;
   /** Level of the title, 2 by default. */
   headingLevel?: 2 | 3;
-  headingClassName?: string;
+  /**
+   * `ink` keeps the title in the color of the panel when the panel sits in a
+   * dark section, whose rule would turn every heading white. The doubled
+   * selector beats that rule without the important modifier.
+   */
+  tone?: "default" | "ink";
   /** After the text: for example a link. */
   children?: ReactNode;
 };
@@ -31,7 +35,7 @@ export function SuccessPanel({
   stamp,
   text,
   headingLevel = 2,
-  headingClassName,
+  tone = "default",
   children,
 }: SuccessPanelProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +61,10 @@ export function SuccessPanel({
       >
         {stamp}
       </PostIt>
-      <Heading id={`${id}-title`} className={cn(headingClassName)}>
+      <Heading
+        id={`${id}-title`}
+        className={tone === "ink" ? "[&&]:text-ink" : undefined}
+      >
         {TITLE}
       </Heading>
       <p id={`${id}-text`} className="mx-auto max-w-[46ch] text-ink-soft">

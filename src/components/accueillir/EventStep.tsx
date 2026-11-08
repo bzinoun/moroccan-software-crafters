@@ -4,7 +4,8 @@ import { Pill, PillGroup } from "@/components/PillGroup";
 import { Select } from "@/components/Select";
 import { TextArea } from "@/components/TextArea";
 import { TextInput } from "@/components/TextInput";
-import { EQUIPEMENTS, PARTICIPANTS, VILLES, dateHelp } from "@/lib/funnel";
+import { EQUIPEMENTS, PARTICIPANTS, VILLES, pick } from "@/lib/funnel-fields";
+import { dateHelp } from "@/lib/funnel-text";
 import { FunnelStep } from "./FunnelStep";
 import type { StepProps } from "./useHostFunnel";
 
@@ -51,13 +52,13 @@ export function EventStep({
         error={errors.participants}
       >
         <PillGroup role="radiogroup">
-          {PARTICIPANTS.map((range, index) => (
+          {PARTICIPANTS.map((range) => (
             <Pill
               key={range.value}
               type="radio"
               name="participants"
               value={range.value}
-              required={index === 0}
+              required
               aria-invalid={errors.participants ? true : undefined}
               checked={values.participants === range.value}
               onChange={() => update("participants", range.value)}
@@ -69,7 +70,15 @@ export function EventStep({
       </Field>
       <FieldRow>
         <Field id="ville" label="Ville">
-          <Select required {...bind("ville")}>
+          <Select
+            name="ville"
+            required
+            value={values.ville}
+            onChange={(event) => {
+              const city = pick(VILLES, event.target.value);
+              if (city) update("ville", city);
+            }}
+          >
             {VILLES.map((city) => (
               <option key={city} value={city}>
                 {city}

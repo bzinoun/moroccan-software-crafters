@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { frenchSpacing } from "@/lib/french";
+import { FormPanel } from "../FormPanel";
 import { Lead } from "../Lead";
 import { FaqList } from "../home/Faq";
 
@@ -34,12 +35,9 @@ export function SponsorLayout({
         </Lead>
         <FaqList id="sponsor-faq" tone="dark" items={faq} className="mt-7" />
       </div>
-      <div
-        id="sponsor-funnel"
-        className="rounded-[20px] bg-card p-7 text-ink shadow-lift"
-      >
+      <FormPanel id="sponsor-funnel" spacing="snug">
         {children}
-      </div>
+      </FormPanel>
     </div>
   );
 }
