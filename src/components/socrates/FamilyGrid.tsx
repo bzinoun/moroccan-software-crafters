@@ -2,7 +2,7 @@ import { frenchSpacing } from "@/lib/french";
 import type { FamilyItem } from "@/lib/pages-data";
 import { Photo } from "../Photo";
 
-// Spec: the "FamilyGrid" entry in msca-design/COMPONENTS.md.
+// Spec: the "OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid" entry in msca-design/COMPONENTS.md.
 // The list keeps the browser defaults for a list (a 40px start padding and a
 // 17px bottom margin) so the cards sit where they always did.
 

@@ -188,7 +188,7 @@ describe("SocratesPage", () => {
     const { container } = renderPage();
     const section = container.querySelector("#sponsoring") as HTMLElement;
     const buttons = within(section).getAllByRole("link", {
-      name: "Choisir ce niveau",
+      name: /^Choisir ce niveau, /,
     });
     expect(buttons).toHaveLength(sp.packages.length);
     for (const button of buttons) {

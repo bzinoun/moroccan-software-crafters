@@ -41,7 +41,12 @@ export function EventStep({
         >
           <TextInput type="date" min={dateMin} required {...bind("date")} />
         </Field>
-        <Field id="date_alt" label="Date alternative" optional>
+        <Field
+          id="date_alt"
+          label="Date alternative"
+          optional
+          error={errors.date_alt}
+        >
           <TextInput type="date" min={dateMin} {...bind("date_alt")} />
         </Field>
       </FieldRow>

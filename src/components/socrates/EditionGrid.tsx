@@ -3,7 +3,7 @@ import type { EditionCard as EditionCardData } from "@/lib/pages-data";
 import { Reveal } from "../Reveal";
 import { Photo } from "../Photo";
 
-// Spec: the "EditionGrid, EditionCard" entry in msca-design/COMPONENTS.md.
+// Spec: the "OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid" entry in msca-design/COMPONENTS.md.
 // One column, two from `sm`, four from `lg`.
 
 // The cover without a photo: the sage zellige tile (`--zellige-sage` in

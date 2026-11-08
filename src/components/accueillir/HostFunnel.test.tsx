@@ -15,6 +15,7 @@ import {
   next,
   renderFunnel,
   savedDraft,
+  fillStep2,
   sendRequest,
   storeDraft,
   stubReducedMotion,
@@ -149,6 +150,16 @@ describe("HostFunnel first render", () => {
     expect(container.querySelector("#form-alert")).toHaveAttribute(
       "role",
       "alert",
+    );
+  });
+});
+
+describe("HostFunnel without script", () => {
+  it("uses the dialog method, so a native submit neither leaks the answers nor navigates", () => {
+    const { container } = setup();
+    expect(container.querySelector("#host-form")).toHaveAttribute(
+      "method",
+      "dialog",
     );
   });
 });
@@ -297,6 +308,22 @@ describe("step 2, the event", () => {
       target: { value: "2026-11-09" },
     });
     expect(screen.getByText("Lundi, c'est noté.")).toBeInTheDocument();
+  });
+
+  it("shows the error of a past alternative date and blocks the step", async () => {
+    const { user } = setup();
+    await toStep2(user);
+    await fillStep2(user);
+    fireEvent.change(screen.getByLabelText(/Date alternative/), {
+      target: { value: "2020-01-01" },
+    });
+    await user.click(next());
+    expect(screen.getByLabelText(/Date alternative/)).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.getByText("Indiquez une date à venir.")).toBeInTheDocument();
+    expect(screen.getByText("Étape 2 sur 4 · L'événement")).toBeInTheDocument();
   });
 
   it("flags the date and the attendees, focuses the date, and clears each on input", async () => {
@@ -496,6 +523,18 @@ describe("sending", () => {
     await user.click(next());
     expect(submit).toHaveBeenCalledTimes(2);
     expect(await screen.findByText("Demande bien reçue.")).toBeVisible();
+  });
+
+  it("clears the failure alert while the next try runs", async () => {
+    submit.mockRejectedValueOnce(new Error("boom"));
+    const { promise } = pendingResult();
+    submit.mockReturnValueOnce(promise);
+    const { user } = setup();
+    await sendRequest(user);
+    await screen.findByRole("alert");
+    await user.click(next());
+    expect(screen.getByRole("button", { name: "Envoi…" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("replaces the form with the success panel, focuses it and clears the draft", async () => {

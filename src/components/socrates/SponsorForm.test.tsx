@@ -451,6 +451,32 @@ describe("SponsorForm results", () => {
   });
 });
 
+describe("SponsorForm without script", () => {
+  it("uses the dialog method, so a native submit neither leaks the answers nor navigates", () => {
+    const { container } = setup();
+    expect(container.querySelector("#sponsor-form")).toHaveAttribute(
+      "method",
+      "dialog",
+    );
+  });
+
+  it("tells a visitor with no script to activate it, with the LinkedIn page", () => {
+    setup();
+    expect(
+      screen.getByText(/Pour envoyer ce formulaire, activez JavaScript/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+      "href",
+      LINKEDIN,
+    );
+  });
+
+  it("hides the submit button while the script is not running", () => {
+    setup();
+    expect(submitButton()).toHaveClass("not-js:hidden");
+  });
+});
+
 describe("SponsorForm submit button", () => {
   it("is the flat red pill, with no glow, on the dark section", () => {
     setup();
@@ -466,7 +492,7 @@ describe("SponsorForm level preselection", () => {
       screen
         .getByRole("heading", { level: 3, name })
         .closest("article") as HTMLElement,
-    ).getByRole("link", { name: "Choisir ce niveau" });
+    ).getByRole("link", { name: `Choisir ce niveau, ${name}` });
 
   it("checks the level of the package whose button the visitor clicks", async () => {
     const { user } = renderSponsorForm({ before: grid });
@@ -498,7 +524,9 @@ describe("SponsorForm level preselection", () => {
     const { user } = renderSponsorForm({
       before: <PackageGrid packages={unknown} />,
     });
-    await user.click(screen.getByRole("link", { name: "Choisir ce niveau" }));
+    await user.click(
+      screen.getByRole("link", { name: "Choisir ce niveau, Inconnu" }),
+    );
     expect(screen.getByRole("radio", { name: "À discuter" })).toBeChecked();
   });
 

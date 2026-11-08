@@ -99,3 +99,18 @@ describe("HostLayout", () => {
     expect(aside.nextElementSibling).toHaveTextContent("Formulaire");
   });
 });
+
+describe("ProofCard registrations", () => {
+  it("uses the singular for one registration", () => {
+    const { container } = render(
+      <ProofCard
+        src="/a.jpg"
+        alt="Participants"
+        edition={{ host: "Hôte", date: "2026-10-24", registrations: 1 }}
+      />,
+    );
+    expect(container.querySelector("#proof-text")).toHaveTextContent(
+      "Hôte, 24 octobre 2026, 1 inscrit.",
+    );
+  });
+});

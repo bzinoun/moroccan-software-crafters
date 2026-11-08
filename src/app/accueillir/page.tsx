@@ -58,7 +58,11 @@ const STEPS: ProcessStep[] = [
 // comes from the latest meetup.
 export default function AccueillirPage() {
   const { items } = loadOffers();
-  const latest = loadEvents().find((e) => e.type === "meetup");
+  // The same rule as the home note: the latest meetup on or before the build date.
+  const today = new Date().toISOString().slice(0, 10);
+  const latest = loadEvents().find(
+    (e) => e.type === "meetup" && e.date <= today,
+  );
   const offers = items.map(({ id, name, tagline, price }) => ({
     id,
     name,

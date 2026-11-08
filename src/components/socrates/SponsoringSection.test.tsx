@@ -129,7 +129,9 @@ describe("SponsoringSection", () => {
       .getByRole("heading", { level: 3, name: "Partenaire principal" })
       .closest("article") as HTMLElement;
     await user.click(
-      within(offer).getByRole("link", { name: "Choisir ce niveau" }),
+      within(offer).getByRole("link", {
+        name: "Choisir ce niveau, Partenaire principal",
+      }),
     );
     expect(
       screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),

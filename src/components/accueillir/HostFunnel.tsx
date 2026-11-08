@@ -21,7 +21,8 @@ import { useHostFunnel } from "./useHostFunnel";
 // `useHostFunnel`, the four steps in their own files; this component lays them
 // out in the card. The card can take focus (tabIndex -1) so the skip link of
 // the page lands on it. With no script the form shows every step and a note
-// that points to LinkedIn, because it cannot send.
+// that points to LinkedIn, because it cannot send. The form posts, so with no
+// script a native submit goes nowhere and keeps the answers out of the URL.
 
 type HostFunnelProps = {
   /** `offers.json` items. */
@@ -54,6 +55,7 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
       <form
         id="host-form"
         ref={formRef}
+        method="dialog"
         noValidate
         hidden={success !== null}
         onSubmit={onSubmit}

@@ -2,7 +2,7 @@ import { tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
 import type { LawItem } from "@/lib/pages-data";
 
-// Spec: the "OpenSpaceLaws" entry in msca-design/COMPONENTS.md.
+// Spec: the "OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid" entry in msca-design/COMPONENTS.md.
 // The counter is a CSS counter on the list (the number is not in the text), so
 // the ordered list keeps its own numbering for assistive technology. The main law
 // (the last one) takes both columns from `md` on the deep green.

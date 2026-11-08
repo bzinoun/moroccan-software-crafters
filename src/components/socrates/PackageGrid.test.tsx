@@ -56,12 +56,26 @@ describe("PackageGrid", () => {
 
   it("links every 'Choisir ce niveau' to the form", () => {
     render(<PackageGrid packages={PACKAGES} />);
-    const links = screen.getAllByRole("link", { name: "Choisir ce niveau" });
+    const links = screen.getAllByRole("link", { name: /^Choisir ce niveau/ });
     expect(links).toHaveLength(PACKAGES.length);
     expect(links.map((a) => a.getAttribute("href"))).toEqual([
       "#sponsor-form",
       "#sponsor-form",
       "#sponsor-form",
+    ]);
+  });
+});
+
+describe("PackageGrid link names", () => {
+  it("gives each 'Choisir ce niveau' link the name of its level", () => {
+    render(<PackageGrid packages={PACKAGES} />);
+    const names = screen
+      .getAllByRole("link", { name: /^Choisir ce niveau/ })
+      .map((a) => a.textContent);
+    expect(names).toEqual([
+      "Choisir ce niveau, Supporter",
+      "Choisir ce niveau, Partenaire",
+      "Choisir ce niveau, Partenaire principal",
     ]);
   });
 });

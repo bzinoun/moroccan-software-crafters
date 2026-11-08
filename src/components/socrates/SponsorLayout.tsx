@@ -4,7 +4,7 @@ import { FormPanel } from "../FormPanel";
 import { Lead } from "../Lead";
 import { FaqList } from "../home/Faq";
 
-// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md.
+// Spec: the "PackageGrid, ChooseLevelLink, SponsorLayout, SponsorForm, SponsoringSection" entry in msca-design/COMPONENTS.md.
 // Two columns from `lg`: the intro with the FAQ (0.9fr) and the white form
 // panel (1.1fr), 72px under the offers. The panel stays white with ink text
 // inside the dark section.

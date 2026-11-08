@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentProps } from "react";
+import { frenchSpacing } from "@/lib/french";
 import { Button } from "../Button";
 import { choosePackage } from "./package-choice";
 
@@ -14,11 +15,14 @@ type ChooseLevelLinkProps = Pick<
 > & {
   /** Id of the package of the card. */
   packageId: string;
+  /** Name of the package: the label repeats on every card, the name tells them apart. */
+  name: string;
   children: string;
 };
 
 export function ChooseLevelLink({
   packageId,
+  name,
   variant,
   className,
   children,
@@ -31,6 +35,7 @@ export function ChooseLevelLink({
       className={className}
     >
       {children}
+      <span className="sr-only">{frenchSpacing(`, ${name}`)}</span>
     </Button>
   );
 }

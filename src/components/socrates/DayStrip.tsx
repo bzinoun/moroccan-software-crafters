@@ -1,6 +1,6 @@
 import { frenchSpacing } from "@/lib/french";
 
-// Spec: the "DayStrip" entry in msca-design/COMPONENTS.md.
+// Spec: the "OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid" entry in msca-design/COMPONENTS.md.
 // One bordered panel. One column below `sm`, two columns to `lg`, four from
 // `lg`. The divider lines follow the layout: a top line under the first row in
 // the stacked and two-column layouts, a left line between the four columns.

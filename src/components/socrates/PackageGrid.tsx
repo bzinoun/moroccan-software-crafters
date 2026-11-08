@@ -59,6 +59,7 @@ function Offer({ pack }: { pack: PackageCard }) {
       </ul>
       <ChooseLevelLink
         packageId={pack.id}
+        name={pack.name}
         variant={pack.highlight ? "primary-flat" : "ghost-on-dark"}
         className="mt-auto self-start"
       >

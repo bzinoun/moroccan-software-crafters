@@ -3,7 +3,7 @@ import { Container } from "@/components/Container";
 import { Eyebrow } from "@/components/Eyebrow";
 import { Lead } from "@/components/Lead";
 import { fmtDate } from "@/lib/derive";
-import { frenchSpacing } from "@/lib/french";
+import { countLabel, frenchSpacing } from "@/lib/french";
 import { Photo } from "../Photo";
 
 // Spec: the "HostLayout (HostHero, ProcessSteps, ProofCard)" entry in
@@ -77,7 +77,9 @@ export function ProofCard({ src, alt, edition }: ProofCardProps) {
     ? `${[edition.host, fmtDate(edition.date, { long: true })]
         .filter(Boolean)
         .join(", ")}${
-        edition.registrations ? `, ${edition.registrations} inscrits` : ""
+        edition.registrations
+          ? `, ${countLabel(edition.registrations, "inscrit")}`
+          : ""
       }.`
     : FALLBACK_PROOF;
   return (

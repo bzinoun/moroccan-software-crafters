@@ -12,15 +12,18 @@ import { Pill, PillGroup } from "../PillGroup";
 import { SuccessPanel } from "../SuccessPanel";
 import { TextArea } from "../TextArea";
 import { TextInput } from "../TextInput";
+import { NoScriptNote } from "../accueillir/NoScriptNote";
 import {
   useSponsorForm,
   type PackageLevels,
   type SponsorLevels,
 } from "./useSponsorForm";
 
-// Spec: the "SponsorForm, SponsorLayout" entry in msca-design/COMPONENTS.md.
+// Spec: the "PackageGrid, ChooseLevelLink, SponsorLayout, SponsorForm, SponsoringSection" entry in msca-design/COMPONENTS.md.
 // The view of the form; the state, the validation and the send live in
-// `useSponsorForm`.
+// `useSponsorForm`. The form posts, so with no script a native submit goes
+// nowhere and keeps the answers out of the URL; the button hides and a note
+// points to LinkedIn.
 
 const SUBMIT_LABEL = "Recevoir le dossier de partenariat";
 
@@ -55,6 +58,7 @@ export function SponsorForm(props: SponsorFormProps) {
     <>
       <form
         id="sponsor-form"
+        method="dialog"
         noValidate
         hidden={thanks !== null}
         onSubmit={onSubmit}
@@ -129,10 +133,11 @@ export function SponsorForm(props: SponsorFormProps) {
           id="s-submit"
           aria-disabled={busy || undefined}
           variant="primary-flat"
-          className="mt-2 w-full"
+          className="mt-2 w-full not-js:hidden"
         >
           {busy ? "Envoi…" : SUBMIT_LABEL}
         </Button>
+        <NoScriptNote linkedin={props.site.links?.linkedin} />
       </form>
       <SuccessPanel
         id="s-success"

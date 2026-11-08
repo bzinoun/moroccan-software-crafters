@@ -223,6 +223,7 @@ export function useHostFunnel(
     const problem = validateAll(values, minDate);
     if (!problem) {
       setErrors({});
+      setAlert(null);
       void send();
       return;
     }
