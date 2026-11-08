@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ChoiceCard, ChoiceGroup } from "./ChoiceCard";
 
-// content/offers.json, items[0] and [1].
 function offers() {
   return (
     <ChoiceGroup aria-label="Formule">
@@ -19,7 +18,7 @@ function offers() {
         name="formule"
         value="partenaire"
         title="Meetup partenaire"
-        price="À partir de 12 000 MAD"
+        price="À partir de 5 000 MAD"
       />
     </ChoiceGroup>
   );
@@ -39,12 +38,9 @@ describe("ChoiceCard", () => {
     expect(
       screen.getByRole("radio", { name: /Hôte communautaire/ }),
     ).toHaveAccessibleName(/Gratuit/);
-    expect(screen.getByText("Gratuit")).toHaveClass(
-      "text-green",
-      "font-display",
-    );
+    expect(screen.getByText("Gratuit")).toBeVisible();
     expect(screen.getByText(/Le format historique/).textContent).toBe(
-      "Le format historique : vous ouvrez vos portes, on s'occupe du reste.",
+      "Le format historique\u202f: vous ouvrez vos portes, on s'occupe du reste.",
     );
   });
 
@@ -77,16 +73,16 @@ describe("ChoiceCard", () => {
     expect(screen.getByRole("radio", { name: "A" })).toBeChecked();
   });
 
-  it("outlines the card for keyboard focus and tints it when checked", () => {
+  it("reaches the first radio with the keyboard and selects the next with the arrow key", async () => {
     render(offers());
-    const card = screen
-      .getByRole("radio", { name: /Hôte communautaire/ })
-      .closest("label");
-    expect(card).toHaveClass(
-      "has-checked:border-green",
-      "has-focus-visible:outline-green",
-      "rounded-card",
-    );
+    await userEvent.tab();
+    expect(
+      screen.getByRole("radio", { name: /Hôte communautaire/ }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(
+      screen.getByRole("radio", { name: /Meetup partenaire/ }),
+    ).toBeChecked();
   });
 
   it("is a radio group for assistive technology", () => {

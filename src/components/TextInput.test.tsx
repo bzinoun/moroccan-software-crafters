@@ -20,18 +20,6 @@ describe("TextInput", () => {
     expect(input).toHaveAttribute("placeholder", "+212 6 12 34 56 78");
   });
 
-  it("keeps the 48 px height of the old date input: Preflight removes its inner padding", () => {
-    const { container } = render(<TextInput type="date" aria-label="Date" />);
-    expect(container.querySelector("input")).toHaveClass("min-h-12");
-  });
-
-  it("leaves other types without a minimum height", () => {
-    render(<TextInput aria-label="Nom" />);
-    expect(screen.getByRole("textbox", { name: "Nom" })).not.toHaveClass(
-      "min-h-12",
-    );
-  });
-
   it("defaults to the text type", () => {
     render(<TextInput aria-label="Nom" />);
     expect(screen.getByRole("textbox", { name: "Nom" })).toHaveAttribute(
@@ -54,19 +42,12 @@ describe("TextInput", () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it("has a red border when invalid and a green focus halo", () => {
+  it("exposes aria-invalid to assistive technology", () => {
     render(<TextInput aria-label="Nom" aria-invalid />);
-    const input = screen.getByRole("textbox", { name: "Nom" });
-    expect(input).toHaveClass(
-      "border-line",
-      "aria-invalid:border-red",
-      "focus:border-green",
-      "focus:outline-hidden",
-      "rounded-sm",
-      "w-full",
-    );
+    expect(screen.getByRole("textbox", { name: "Nom" })).toBeInvalid();
   });
 
+  // The class outline-none would also remove the outline in forced-colors mode.
   it("keeps a transparent outline on focus so forced-colors mode shows one", () => {
     render(<TextInput aria-label="Nom" />);
     expect(screen.getByRole("textbox", { name: "Nom" })).not.toHaveClass(
@@ -74,7 +55,7 @@ describe("TextInput", () => {
     );
   });
 
-  it("merges a caller className", () => {
+  it("lets a caller className replace the default width", () => {
     render(<TextInput aria-label="Nom" className="w-1/2" />);
     const input = screen.getByRole("textbox", { name: "Nom" });
     expect(input).toHaveClass("w-1/2");

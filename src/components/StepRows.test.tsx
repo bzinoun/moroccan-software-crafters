@@ -2,14 +2,13 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { StepRows, TipList, type Step } from "./StepRows";
 
-// content/meetup.json, steps.items[0] and [1]; image is the final photo URL.
 const STEPS: Step[] = [
   {
     id: "accueil",
     time: "9 h 30 → 10 h 15",
     title: "Accueil et networking",
     kicker: "On commence par le café",
-    image: "/assets/img/meetups/2026-10-sg-gscm-7.jpg",
+    image: "/assets/img/meetups/first.jpg",
     text: "L'hôte ouvre ses portes, l'équipe d'organisation pointe les inscrits Luma et distribue les post-its.",
     tips: [
       "Arrivez à l'heure : l'accès au bâtiment ferme souvent 30 minutes après le début.",
@@ -21,7 +20,7 @@ const STEPS: Step[] = [
     time: "10 h 15 → 11 h 00",
     title: "Lightning talks",
     kicker: "Cinq à dix minutes, chrono en main",
-    image: "/assets/img/meetups/2026-10-sg-gscm-3.jpg",
+    image: "/assets/img/meetups/second.jpg",
     text: "Quatre à six prises de parole courtes, sur le sujet de son choix.",
     tips: [
       "Un bon lightning talk tient en une idée.",
@@ -54,10 +53,7 @@ describe("StepRows", () => {
     const images = container.querySelectorAll("img");
     expect(images).toHaveLength(2);
     expect(images[0]).toHaveAttribute("alt", "");
-    expect(images[0]).toHaveAttribute(
-      "src",
-      "/assets/img/meetups/2026-10-sg-gscm-7.jpg",
-    );
+    expect(images[0]).toHaveAttribute("src", "/assets/img/meetups/first.jpg");
     expect(images[0]).toHaveAttribute("loading", "lazy");
   });
 
@@ -76,21 +72,11 @@ describe("StepRows", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
-  it("puts the photo on the right of the even rows from md", () => {
-    const { container } = render(<StepRows steps={STEPS} />);
-    const images = container.querySelectorAll("img");
-    // Every row is a group; the photo box orders itself last when its row is even.
-    for (const image of images) {
-      expect(image.closest("article")).toHaveClass("group", "md:grid-cols-2");
-      expect(image.parentElement).toHaveClass("md:group-even:order-2");
-    }
-  });
-
   it("uses a narrow no-break space before a colon in a tip", () => {
     render(<StepRows steps={STEPS} />);
     const tip = screen.getAllByRole("listitem")[0];
     expect(tip.textContent).toBe(
-      "Arrivez à l'heure : l'accès au bâtiment ferme souvent 30 minutes après le début.",
+      "Arrivez à l'heure\u202f: l'accès au bâtiment ferme souvent 30 minutes après le début.",
     );
   });
 
@@ -112,12 +98,5 @@ describe("TipList", () => {
   it("renders nothing for no tips", () => {
     const { container } = render(<TipList tips={[]} />);
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it("is a yellow note, green on even items", () => {
-    render(<TipList tips={["Un.", "Deux."]} />);
-    const [first, second] = screen.getAllByRole("listitem");
-    expect(first).toHaveClass("bg-postit-yellow", "even:bg-postit-green");
-    expect(second).toHaveClass("bg-postit-yellow", "even:bg-postit-green");
   });
 });

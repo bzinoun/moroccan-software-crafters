@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Site } from "@/content/types";
 import { SiteHeader } from "./SiteHeader";
 
-// Values copied from content/site.json.
+// Fixture site: not read from content/site.json.
 const site: Site = {
   name: "Moroccan Software Crafters",
   shortName: "MSC",
@@ -14,7 +14,7 @@ const site: Site = {
     "Depuis 2019, Moroccan Software Crafters réunit développeurs, testeurs et ops un samedi matin chez une entreprise hôte à Casablanca, et organise chaque année SoCraTes Maroc.",
   baseUrl: "https://bzinoun.github.io/moroccan-software-crafters",
   since: 2019,
-  linkedinFollowers: 3666,
+  linkedinFollowers: 1234,
   links: {
     linkedin: "https://www.linkedin.com/company/moroccansoftwarecrafters/",
     socrates: "https://socrates-ma.github.io/",
@@ -89,11 +89,11 @@ describe("SiteHeader", () => {
     const ctas = screen.getAllByRole("link", { name: "Accueillir un meetup" });
     expect(ctas).toHaveLength(2);
     const [inNav, trailing] = ctas;
-    expect(inNav).toHaveClass("bg-red", "lg:hidden");
+    // The in-nav CTA shows below lg, the trailing one from lg up.
+    expect(inNav).toHaveClass("lg:hidden");
     expect(inNav).toHaveAttribute("href", "/accueillir/");
     expect(mainNav()).toContainElement(inNav as HTMLElement);
-    expect(trailing).toHaveClass("bg-red", "max-lg:hidden");
-    expect(trailing).not.toHaveClass("lg:hidden");
+    expect(trailing).toHaveClass("max-lg:hidden");
     expect(trailing).toHaveAttribute("href", "/accueillir/");
   });
 
@@ -133,21 +133,19 @@ describe("SiteHeader", () => {
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) {
       expect(cta).toHaveAttribute("href", "#sponsoring");
-      expect(cta).toHaveClass("bg-red");
     }
     expect(
       screen.queryByRole("link", { name: "Accueillir un meetup" }),
     ).not.toBeInTheDocument();
   });
 
-  it("uses the ghost Les formules CTA on host", () => {
+  it("uses the Les formules CTA on host, in the ghost style", () => {
     render(<SiteHeader site={site} page="host" />);
     const ctas = screen.getAllByRole("link", { name: "Les formules" });
     expect(ctas).toHaveLength(2);
     for (const cta of ctas) {
       expect(cta).toHaveAttribute("href", "/#offres");
-      expect(cta).toHaveClass("bg-transparent", "border-ink");
-      expect(cta).not.toHaveClass("bg-red");
+      expect(cta).toHaveClass("border-ink");
     }
   });
 

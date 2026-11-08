@@ -26,36 +26,35 @@ beforeEach(() => {
   document.body.style.overflow = "";
 });
 
-// Real values from content/events.json (photos) and the gallery caption
-// "{title} · {date}" of the former `assets/js/home.js` (`git show 1353207:assets/js/home.js`).
-const AXA = [
+// Fixture photos; a caption has the gallery form "{title} · {date}".
+const FOUR = [
   {
-    src: "/assets/img/meetups/2026-05-axa-1.jpg",
-    caption: "Meetup @ AXA Assurance Maroc · 23 mai 2026",
+    src: "/assets/img/meetups/acme-1.jpg",
+    caption: "Meetup @ Acme · 23 mai 2026",
   },
   {
-    src: "/assets/img/meetups/2026-05-axa-2.jpg",
-    caption: "Meetup @ AXA Assurance Maroc · 23 mai 2026",
+    src: "/assets/img/meetups/acme-2.jpg",
+    caption: "Meetup @ Acme · 23 mai 2026",
   },
   {
-    src: "/assets/img/meetups/2026-05-axa-3.jpg",
-    caption: "Meetup @ AXA Assurance Maroc · 23 mai 2026",
+    src: "/assets/img/meetups/acme-3.jpg",
+    caption: "Meetup @ Acme · 23 mai 2026",
   },
   {
-    src: "/assets/img/meetups/2026-05-axa-4.jpg",
-    caption: "Meetup @ AXA Assurance Maroc · 23 mai 2026",
+    src: "/assets/img/meetups/acme-4.jpg",
+    caption: "Meetup @ Acme · 23 mai 2026",
   },
 ];
 const THREE = [
   {
-    src: "/assets/img/meetups/2026-03-innovx-1.jpg",
-    caption: "Meetup @ InnovX · 28 mars 2026",
+    src: "/assets/img/meetups/beta-1.jpg",
+    caption: "Meetup @ Beta · 28 mars 2026",
   },
   {
-    src: "/assets/img/meetups/2026-03-innovx-2.jpg",
-    caption: "Meetup @ InnovX · 28 mars 2026 (2)",
+    src: "/assets/img/meetups/beta-2.jpg",
+    caption: "Meetup @ Beta · 28 mars 2026 (2)",
   },
-  { src: "/assets/img/meetups/2026-03-innovx-3.jpg" },
+  { src: "/assets/img/meetups/beta-3.jpg" },
 ];
 const SINGLE = [
   {
@@ -81,7 +80,7 @@ function Opener({
   );
 }
 
-function setup(items: LightboxItem[] = AXA, start = 0) {
+function setup(items: LightboxItem[] = FOUR, start = 0) {
   const user = userEvent.setup();
   render(
     <LightboxProvider>
@@ -104,18 +103,15 @@ describe("LightboxProvider", () => {
   });
 
   it("opens as a modal dialog on the item at the start index", async () => {
-    const user = setup(AXA, 2);
+    const user = setup(FOUR, 2);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     expect(dialog()).toHaveAttribute("open");
     expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
     expect(HTMLDialogElement.prototype.show).not.toHaveBeenCalled();
     const photo = screen.getByRole("img", {
-      name: "Meetup @ AXA Assurance Maroc · 23 mai 2026",
+      name: "Meetup @ Acme · 23 mai 2026",
     });
-    expect(photo).toHaveAttribute(
-      "src",
-      "/assets/img/meetups/2026-05-axa-3.jpg",
-    );
+    expect(photo).toHaveAttribute("src", "/assets/img/meetups/acme-3.jpg");
     expect(photo).toHaveAttribute("loading", "lazy");
   });
 
@@ -128,10 +124,10 @@ describe("LightboxProvider", () => {
   });
 
   it("shows the caption and a counter when there are several photos", async () => {
-    const user = setup(AXA, 2);
+    const user = setup(FOUR, 2);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     expect(
-      screen.getByText("Meetup @ AXA Assurance Maroc · 23 mai 2026 · 3 / 4"),
+      screen.getByText("Meetup @ Acme · 23 mai 2026 · 3 / 4"),
     ).toBeInTheDocument();
   });
 
@@ -167,23 +163,23 @@ describe("LightboxProvider", () => {
   });
 
   it("clamps a start index outside the list to the nearest end", async () => {
-    const user = setup(AXA, 99);
+    const user = setup(FOUR, 99);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     expect(screen.getByText(/· 4 \/ 4$/)).toBeInTheDocument();
     expect(dialog().querySelector("img")).toHaveAttribute(
       "src",
-      "/assets/img/meetups/2026-05-axa-4.jpg",
+      "/assets/img/meetups/acme-4.jpg",
     );
     await user.click(screen.getByRole("button", { name: "Fermer" }));
   });
 
   it("clamps a negative start index to the first photo", async () => {
-    const user = setup(AXA, -3);
+    const user = setup(FOUR, -3);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     expect(screen.getByText(/· 1 \/ 4$/)).toBeInTheDocument();
     expect(dialog().querySelector("img")).toHaveAttribute(
       "src",
-      "/assets/img/meetups/2026-05-axa-1.jpg",
+      "/assets/img/meetups/acme-1.jpg",
     );
   });
 
@@ -192,19 +188,19 @@ describe("LightboxProvider", () => {
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     // getByText would collapse U+202F to a plain space, so compare the raw text.
     expect(dialog().querySelector("figcaption")?.textContent).toBe(
-      "Atelier : TDD",
+      "Atelier\u202f: TDD",
     );
   });
 });
 
 describe("stepping", () => {
   it("steps to the next and previous photo with the buttons", async () => {
-    const user = setup(AXA, 0);
+    const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.click(screen.getByRole("button", { name: "Photo suivante" }));
     expect(dialog().querySelector("img")).toHaveAttribute(
       "src",
-      "/assets/img/meetups/2026-05-axa-2.jpg",
+      "/assets/img/meetups/acme-2.jpg",
     );
     expect(screen.getByText(/· 2 \/ 4$/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Photo précédente" }));
@@ -212,7 +208,7 @@ describe("stepping", () => {
   });
 
   it("wraps around at both ends", async () => {
-    const user = setup(AXA, 0);
+    const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.click(screen.getByRole("button", { name: "Photo précédente" }));
     expect(screen.getByText(/· 4 \/ 4$/)).toBeInTheDocument();
@@ -221,7 +217,7 @@ describe("stepping", () => {
   });
 
   it("steps with ArrowRight and ArrowLeft", async () => {
-    const user = setup(AXA, 0);
+    const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.keyboard("{ArrowRight}");
     expect(screen.getByText(/· 2 \/ 4$/)).toBeInTheDocument();
@@ -230,7 +226,7 @@ describe("stepping", () => {
   });
 
   it("keeps stepping with the arrow keys after a click on the photo moved focus to the page", async () => {
-    const user = setup(AXA, 0);
+    const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.click(dialog().querySelector("img") as HTMLElement);
     expect(dialog()).toHaveAttribute("open");
@@ -242,7 +238,7 @@ describe("stepping", () => {
   });
 
   it("ignores the arrow keys once the lightbox is closed", async () => {
-    const user = setup(AXA, 0);
+    const user = setup(FOUR, 0);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.click(screen.getByRole("button", { name: "Fermer" }));
     await user.keyboard("{ArrowRight}");
@@ -251,7 +247,7 @@ describe("stepping", () => {
   });
 
   it("starts again from the new start index when it is reopened", async () => {
-    const user = setup(AXA, 1);
+    const user = setup(FOUR, 1);
     await user.click(screen.getByRole("button", { name: "Ouvrir" }));
     await user.click(screen.getByRole("button", { name: "Photo suivante" }));
     await user.click(screen.getByRole("button", { name: "Fermer" }));
@@ -302,7 +298,7 @@ describe("focus and scroll", () => {
     const user = userEvent.setup();
     render(
       <LightboxProvider>
-        <Opener items={AXA} label="Premier" />
+        <Opener items={FOUR} label="Premier" />
         <Opener items={THREE} label="Second" />
       </LightboxProvider>,
     );
@@ -316,7 +312,7 @@ describe("focus and scroll", () => {
     const user = userEvent.setup();
     render(
       <LightboxProvider>
-        <Opener items={AXA} label="Premier" />
+        <Opener items={FOUR} label="Premier" />
         <Opener items={THREE} label="Second" />
       </LightboxProvider>,
     );
@@ -340,14 +336,16 @@ describe("focus and scroll", () => {
 
 describe("useLightbox", () => {
   it("throws a clear error outside the provider", () => {
-    const quiet = console.error;
-    console.error = () => {};
+    // React logs the thrown error: keep the test output quiet.
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     try {
-      expect(() => render(<Opener items={AXA} />)).toThrow(
+      expect(() => render(<Opener items={FOUR} />)).toThrow(
         "useLightbox must be used inside LightboxProvider",
       );
     } finally {
-      console.error = quiet;
+      consoleError.mockRestore();
     }
   });
 });

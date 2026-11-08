@@ -54,7 +54,7 @@ describe("SuccessPanel", () => {
       />,
     );
     expect(screen.getByText(/c'est fait/).textContent).toBe(
-      "Voilà : c'est fait !",
+      "Voilà\u202f: c'est fait\u202f!",
     );
   });
 

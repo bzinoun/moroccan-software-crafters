@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Pill, PillGroup } from "./PillGroup";
 
-// former `accueillir.html` (`git show 1353207:accueillir.html`), "Nombre de crafters attendus" and "Sur place".
 describe("PillGroup and Pill", () => {
   it("is a radio group named by the label it points to", () => {
     render(
@@ -85,7 +84,7 @@ describe("PillGroup and Pill", () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the input reachable by keyboard and hides only its look", () => {
+  it("keeps the input reachable by keyboard", async () => {
     render(
       <PillGroup aria-label="Sur place">
         <Pill type="checkbox" name="equipements" value="Parking">
@@ -95,13 +94,10 @@ describe("PillGroup and Pill", () => {
     );
     const input = screen.getByRole("checkbox", { name: "Parking" });
     expect(input).not.toHaveAttribute("tabindex");
-    expect(input).toHaveClass("opacity-0", "peer");
-    expect(screen.getByText("Parking")).toHaveClass(
-      "peer-checked:bg-ink",
-      "peer-checked:text-white",
-      "peer-focus-visible:outline-green",
-      "rounded-full",
-    );
+    await userEvent.tab();
+    expect(input).toHaveFocus();
+    await userEvent.keyboard(" ");
+    expect(input).toBeChecked();
   });
 
   it("puts a narrow no-break space before a colon in the label", () => {
@@ -113,6 +109,6 @@ describe("PillGroup and Pill", () => {
       </PillGroup>,
     );
     expect(screen.getByRole("radio", { name: /Réponse/ })).toBeInTheDocument();
-    expect(screen.getByText(/Réponse/).textContent).toBe("Réponse : oui");
+    expect(screen.getByText(/Réponse/).textContent).toBe("Réponse\u202f: oui");
   });
 });

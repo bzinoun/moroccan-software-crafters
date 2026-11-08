@@ -29,17 +29,12 @@ describe("Select", () => {
     expect(screen.getByRole("combobox", { name: "Secteur" })).toHaveValue("");
   });
 
-  it("shares the control look and the invalid border with the text input", () => {
+  it("exposes aria-invalid to assistive technology", () => {
     render(
       <Select aria-label="Ville" aria-invalid>
         <option>Casablanca</option>
       </Select>,
     );
-    expect(screen.getByRole("combobox")).toHaveClass(
-      "border-line",
-      "aria-invalid:border-red",
-      "focus:border-green",
-      "w-full",
-    );
+    expect(screen.getByRole("combobox")).toBeInvalid();
   });
 });

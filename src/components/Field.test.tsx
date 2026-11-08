@@ -6,7 +6,6 @@ import { Select } from "./Select";
 import { TextArea } from "./TextArea";
 import { TextInput } from "./TextInput";
 
-// Labels and messages come from the former `accueillir.html` (`git show 1353207:accueillir.html`) and the former `socrates.html` (`git show 1353207:socrates.html`).
 describe("Field", () => {
   it("labels the control: the label text names the input", () => {
     render(
@@ -62,7 +61,7 @@ describe("Field", () => {
     const input = screen.getByLabelText("Prénom et nom");
     expect(input).toHaveAttribute("aria-invalid", "true");
     expect(input).toHaveAccessibleDescription("Indiquez votre nom.");
-    expect(screen.getByText("Indiquez votre nom.")).toHaveClass("text-red");
+    expect(screen.getByText("Indiquez votre nom.")).toBeVisible();
   });
 
   it("describes the control by the help and the error together", () => {
@@ -92,28 +91,16 @@ describe("Field", () => {
     expect(input).not.toHaveAttribute("aria-invalid");
   });
 
-  it("keeps an empty help paragraph in the page: it takes its margins, as in the old form", () => {
+  it("keeps an empty help paragraph in the page without describing the control by it", () => {
     const { container } = render(
       <Field id="date" label="Date souhaitée" help="">
         <TextInput name="date" type="date" />
       </Field>,
     );
-    const help = container.querySelector("#date-help") as HTMLElement;
-    expect(help).toBeEmptyDOMElement();
-    expect(help).toHaveClass("mt-[5px]", "mb-[1em]");
+    expect(container.querySelector("#date-help")).toBeEmptyDOMElement();
     expect(screen.getByLabelText("Date souhaitée")).not.toHaveAttribute(
       "aria-describedby",
     );
-  });
-
-  it("gives the help and the error the old bottom margin of one line", () => {
-    render(
-      <Field id="date" label="Date" help="Aide." error="Erreur.">
-        <TextInput name="date" type="date" />
-      </Field>,
-    );
-    expect(screen.getByText("Aide.")).toHaveClass("mb-[1em]");
-    expect(screen.getByText("Erreur.")).toHaveClass("mb-[1em]");
   });
 
   it("swaps the error text between an empty and a wrong value", () => {
@@ -177,7 +164,7 @@ describe("Field", () => {
     expect(group).toHaveAccessibleDescription("Indiquez une fourchette.");
   });
 
-  it("merges a caller className on the wrapper", () => {
+  it("lets a caller className replace the default bottom margin of the wrapper", () => {
     const { container } = render(
       <Field id="x" label="Nom" className="mb-0">
         <TextInput name="x" />

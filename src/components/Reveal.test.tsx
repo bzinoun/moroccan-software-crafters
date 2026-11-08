@@ -67,8 +67,8 @@ describe("Reveal", () => {
   });
 
   it("shows its content when the browser has no IntersectionObserver", () => {
-    render(<Reveal>Hôte : SG Global Solution Centre Morocco</Reveal>);
-    const reveal = screen.getByText(/SG Global Solution Centre Morocco/);
+    render(<Reveal>Hôte : une entreprise</Reveal>);
+    const reveal = screen.getByText(/une entreprise/);
     expect(reveal).toBeInTheDocument();
     expect(reveal).not.toHaveAttribute("data-reveal");
   });
@@ -156,14 +156,14 @@ describe("Reveal", () => {
   it("renders the element it is asked to, so a card or list item keeps its own box", () => {
     render(
       <ol>
-        <Reveal as="li" className="rounded-card bg-card">
+        <Reveal as="li" className="custom-box">
           Networking
         </Reveal>
       </ol>,
     );
     const item = screen.getByRole("listitem");
     expect(item).toHaveTextContent("Networking");
-    expect(item).toHaveClass("rounded-card", "bg-card");
+    expect(item).toHaveClass("custom-box");
   });
 
   it("passes native attributes through", () => {

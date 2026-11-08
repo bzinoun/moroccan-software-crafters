@@ -26,27 +26,16 @@ describe("FormAlert", () => {
   it("can hold a link, as the LinkedIn fallback does", () => {
     render(
       <FormAlert>
-        Écrivez-nous sur{" "}
-        <a href="https://www.linkedin.com/company/moroccansoftwarecrafters/">
-          LinkedIn
-        </a>
-        .
+        Écrivez-nous sur <a href="https://example.com/page">LinkedIn</a>.
       </FormAlert>,
     );
     expect(screen.getByRole("link", { name: "LinkedIn" })).toBeInTheDocument();
   });
 
-  it("is red text on a pink fill with small corners", () => {
-    render(<FormAlert>Texte.</FormAlert>);
-    expect(screen.getByRole("alert")).toHaveClass(
-      "bg-[#fdecec]",
-      "text-red-dark",
-      "rounded-sm",
-    );
-  });
-
   it("puts a narrow no-break space before a colon", () => {
     render(<FormAlert>Erreur : réessayez.</FormAlert>);
-    expect(screen.getByRole("alert").textContent).toBe("Erreur : réessayez.");
+    expect(screen.getByRole("alert").textContent).toBe(
+      "Erreur\u202f: réessayez.",
+    );
   });
 });

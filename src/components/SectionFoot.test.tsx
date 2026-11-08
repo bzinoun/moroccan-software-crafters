@@ -4,24 +4,20 @@ import { Button } from "./Button";
 import { SectionFoot } from "./SectionFoot";
 
 describe("SectionFoot", () => {
-  it("centers its button 36px below the content", () => {
-    // content/home.json, format.more.
+  it("renders its button as a link inside one paragraph", () => {
     render(
       <SectionFoot>
         <Button variant="ghost" href="/meetup/">
-          Le déroulé détaillé, étape par étape
+          Le déroulé détaillé
         </Button>
       </SectionFoot>,
     );
-    const link = screen.getByRole("link", {
-      name: "Le déroulé détaillé, étape par étape",
-    });
-    const foot = link.parentElement;
-    expect(foot).toHaveClass("mt-9", "justify-center");
+    const link = screen.getByRole("link", { name: "Le déroulé détaillé" });
+    expect(link).toHaveAttribute("href", "/meetup/");
+    expect(link.parentElement?.tagName).toBe("P");
   });
 
-  it("keeps several buttons on one wrapping row", () => {
-    // former `index.html` (`git show 1353207:index.html`), #partenaires foot.
+  it("keeps several buttons in the same parent", () => {
     render(
       <SectionFoot>
         <Button href="/accueillir/">Rejoindre les hôtes</Button>
@@ -33,21 +29,25 @@ describe("SectionFoot", () => {
     const foot = screen.getByRole("link", {
       name: "Rejoindre les hôtes",
     }).parentElement;
-    expect(foot).toHaveClass("flex", "flex-wrap", "gap-[0.8rem]");
     expect(foot?.children).toHaveLength(2);
+    expect(
+      foot?.contains(
+        screen.getByRole("link", { name: "Soutenir SoCraTes Maroc" }),
+      ),
+    ).toBe(true);
   });
 
   it("can start hidden through the native hidden attribute", () => {
-    // former `index.html`: #timeline-more and #gallery-more start concealed.
     render(
       <SectionFoot hidden data-testid="more">
-        <Button>Voir les 21 événements</Button>
+        <Button>Voir plus</Button>
       </SectionFoot>,
     );
     expect(screen.getByTestId("more")).toHaveAttribute("hidden");
+    expect(screen.getByTestId("more")).not.toBeVisible();
   });
 
-  it("merges a caller className", () => {
+  it("lets a caller className replace the default top margin", () => {
     render(
       <SectionFoot className="mt-0" data-testid="more">
         x

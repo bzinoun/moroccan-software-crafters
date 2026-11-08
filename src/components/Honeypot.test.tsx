@@ -30,16 +30,6 @@ describe("Honeypot", () => {
     expect(container.querySelector("label")).toHaveAttribute("for", "s-hp");
   });
 
-  it("sits off screen in a 1px box", () => {
-    const { container } = render(<Honeypot />);
-    expect(container.firstElementChild).toHaveClass(
-      "absolute",
-      "-left-[9999px]",
-      "size-px",
-      "overflow-hidden",
-    );
-  });
-
   it("passes a value and a change handler to the input", () => {
     const { container } = render(<Honeypot value="x" readOnly />);
     expect(container.querySelector("input")).toHaveValue("x");

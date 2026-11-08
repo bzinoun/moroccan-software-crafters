@@ -32,6 +32,6 @@ describe("HeroEm", () => {
     const { container } = render(
       <HeroEm text="Prochain hôte : <em>vous</em> ?" />,
     );
-    expect(container.textContent).toBe("Prochain hôte : vous ?");
+    expect(container.textContent).toBe("Prochain hôte\u202f: vous\u202f?");
   });
 });

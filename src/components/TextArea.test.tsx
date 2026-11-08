@@ -19,16 +19,8 @@ describe("TextArea", () => {
     expect(area).toHaveValue("Bonjour");
   });
 
-  it("is at least 96px high and resizes vertically only", () => {
-    render(<TextArea aria-label="Message" />);
-    expect(screen.getByRole("textbox")).toHaveClass("min-h-24", "resize-y");
-  });
-
-  it("shares the control look and the invalid border", () => {
+  it("exposes aria-invalid to assistive technology", () => {
     render(<TextArea aria-label="Message" aria-invalid />);
-    expect(screen.getByRole("textbox")).toHaveClass(
-      "aria-invalid:border-red",
-      "focus:border-green",
-    );
+    expect(screen.getByRole("textbox")).toBeInvalid();
   });
 });

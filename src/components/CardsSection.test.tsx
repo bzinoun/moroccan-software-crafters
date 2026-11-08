@@ -1,137 +1,115 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { loadAssociation } from "@/content/load";
+import type { CardItem } from "./CardGrid";
 import { CardsSection } from "./CardsSection";
 
-const a = loadAssociation();
+const CARDS: CardItem[] = [
+  {
+    title: "Premier",
+    text: "Un texte.",
+    href: "meetup.html",
+    label: "Le déroulé",
+  },
+  {
+    title: "Deuxième",
+    text: "Un autre texte.",
+    href: "socrates.html#sponsoring",
+    label: "Voir les formules",
+  },
+  { title: "Troisième", text: "Sans lien." },
+  {
+    title: "Quatrième",
+    text: "Lien externe.",
+    href: "https://example.com/page",
+    label: "Nous écrire",
+  },
+];
 
-describe("CardsSection (mission)", () => {
-  function renderMission() {
-    return render(
-      <CardsSection
-        id="mission"
-        eyebrow={a.mission.eyebrow}
-        title={a.mission.title}
-        items={a.mission.items}
-        columns={3}
-      />,
+function renderSection(
+  props: Partial<React.ComponentProps<typeof CardsSection>> = {},
+) {
+  return render(
+    <CardsSection
+      id="mission"
+      eyebrow="Ce qu'on fait"
+      title="Un titre de section."
+      items={CARDS}
+      columns={4}
+      {...props}
+    />,
+  );
+}
+
+describe("CardsSection", () => {
+  it("renders a section with the given anchor id", () => {
+    const { container } = renderSection({ id: "contribuer" });
+    expect(container.querySelector("section")).toHaveAttribute(
+      "id",
+      "contribuer",
     );
-  }
-
-  it("is the #mission section on the plain background", () => {
-    const { container } = renderMission();
-    const section = container.querySelector("section");
-    expect(section).toHaveAttribute("id", "mission");
-    expect(section).not.toHaveClass("bg-sage-soft");
   });
 
-  it("opens with the eyebrow and the title of the JSON", () => {
-    renderMission();
+  it("opens with the eyebrow and the title as a level 2 heading", () => {
+    renderSection();
     expect(screen.getByText("Ce qu'on fait")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "Deux rendez-vous, un même fil.",
-      }),
+      screen.getByRole("heading", { level: 2, name: "Un titre de section." }),
     ).toBeInTheDocument();
   });
 
-  it("shows the three cards with their links to the root pages", () => {
-    renderMission();
-    expect(screen.getAllByRole("article")).toHaveLength(3);
+  it("renders one card per item", () => {
+    renderSection();
+    expect(screen.getAllByRole("article")).toHaveLength(CARDS.length);
+  });
+
+  it("links internal cards to their routes", () => {
+    renderSection();
     expect(screen.getByRole("link", { name: "Le déroulé →" })).toHaveAttribute(
       "href",
       "/meetup/",
     );
     expect(
-      screen.getByRole("link", { name: "La conférence →" }),
-    ).toHaveAttribute("href", "/socrates/");
-    expect(
-      screen.getByRole("link", { name: "L'historique →" }),
-    ).toHaveAttribute("href", "/#historique");
+      screen.getByRole("link", { name: "Voir les formules →" }),
+    ).toHaveAttribute("href", "/socrates/#sponsoring");
   });
-});
 
-describe("CardsSection (principles)", () => {
-  it("is the #principes section on the alternate background with six cards without link", () => {
-    const { container } = render(
+  it("opens an external card link in a new tab", () => {
+    renderSection();
+    const external = screen.getByRole("link", { name: "Nous écrire →" });
+    expect(external).toHaveAttribute("href", "https://example.com/page");
+    expect(external).toHaveAttribute("target", "_blank");
+    expect(external).toHaveAttribute("rel", "noopener");
+  });
+
+  it("renders no link for a card without href", () => {
+    renderSection({ items: [CARDS[2]] });
+    const card = screen.getByRole("article");
+    expect(within(card).queryByRole("link")).toBeNull();
+  });
+
+  it("uses a background for the alt variant and none for the plain one", () => {
+    const { container, rerender } = renderSection();
+    expect(container.querySelector("section")).not.toHaveClass("bg-sage-soft");
+    rerender(
       <CardsSection
-        id="principes"
+        id="mission"
         variant="alt"
-        eyebrow={a.principles.eyebrow}
-        title={a.principles.title}
-        items={a.principles.items}
-        columns={3}
-      />,
-    );
-    const section = container.querySelector("section");
-    expect(section).toHaveAttribute("id", "principes");
-    expect(section).toHaveClass("bg-sage-soft");
-    const cards = within(section as HTMLElement).getAllByRole("article");
-    expect(cards).toHaveLength(6);
-    expect(within(section as HTMLElement).queryByRole("link")).toBeNull();
-    expect(
-      screen.getByRole("heading", { level: 3, name: "Ouvert à tous" }),
-    ).toBeInTheDocument();
-  });
-});
-
-describe("CardsSection (contribute)", () => {
-  function renderContribute() {
-    return render(
-      <CardsSection
-        id="contribuer"
-        eyebrow={a.contribute.eyebrow}
-        title={a.contribute.title}
-        items={a.contribute.items}
+        eyebrow="Ce qu'on fait"
+        title="Un titre de section."
+        items={CARDS}
         columns={4}
       />,
     );
-  }
-
-  it("is the #contribuer section with four cards", () => {
-    const { container } = renderContribute();
-    expect(container.querySelector("section")).toHaveAttribute(
-      "id",
-      "contribuer",
-    );
-    expect(screen.getAllByRole("article")).toHaveLength(4);
+    expect(container.querySelector("section")).toHaveClass("bg-sage-soft");
   });
 
-  it("links internal cards to routes and the last card to LinkedIn in a new tab", () => {
-    renderContribute();
-    expect(
-      screen.getByRole("link", { name: "Proposer une date →" }),
-    ).toHaveAttribute("href", "/accueillir/");
-    expect(
-      screen.getByRole("link", { name: "Voir les formules →" }),
-    ).toHaveAttribute("href", "/socrates/#sponsoring");
-    expect(
-      screen.getByRole("link", { name: "Comment faire →" }),
-    ).toHaveAttribute("href", "/meetup/#proposer");
-    const linkedin = screen.getByRole("link", { name: "Nous écrire →" });
-    expect(linkedin).toHaveAttribute(
-      "href",
-      "https://www.linkedin.com/company/moroccansoftwarecrafters/",
-    );
-    expect(linkedin).toHaveAttribute("target", "_blank");
-    expect(linkedin).toHaveAttribute("rel", "noopener");
-  });
-});
-
-describe("CardsSection (lead and titleId)", () => {
   it("shows the lead under the title and names the section by its title", () => {
-    render(
-      <CardsSection
-        id="pour-qui"
-        titleId="who-title"
-        eyebrow="Pour qui"
-        title="Un titre."
-        lead="Un chapeau d'une phrase."
-        items={a.mission.items}
-        columns={3}
-      />,
-    );
+    renderSection({
+      id: "pour-qui",
+      titleId: "who-title",
+      title: "Un titre.",
+      lead: "Un chapeau d'une phrase.",
+    });
     expect(screen.getByText("Un chapeau d'une phrase.")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Un titre." })).toHaveAttribute(
       "id",
@@ -144,44 +122,23 @@ describe("CardsSection (lead and titleId)", () => {
   });
 
   it("is no landmark when no titleId is given", () => {
-    render(
-      <CardsSection
-        id="mission"
-        eyebrow={a.mission.eyebrow}
-        title={a.mission.title}
-        items={a.mission.items}
-        columns={3}
-      />,
-    );
+    renderSection();
     expect(screen.queryByRole("region")).toBeNull();
   });
-});
 
-describe("CardsSection (marker)", () => {
-  it("draws the rule marker by default and the khatam when asked", () => {
-    const { rerender } = render(
-      <CardsSection
-        id="mission"
-        eyebrow="Valeurs et code de conduite"
-        title="Un titre."
-        items={a.mission.items}
-        columns={3}
-      />,
-    );
-    const plain = screen.getByText("Valeurs et code de conduite").className;
+  it("passes the marker to the eyebrow", () => {
+    const { rerender } = renderSection({ eyebrow: "Valeurs" });
+    expect(screen.getByText("Valeurs")).toHaveClass("before:w-[22px]");
     rerender(
       <CardsSection
         id="mission"
         marker="khatam"
-        eyebrow="Valeurs et code de conduite"
+        eyebrow="Valeurs"
         title="Un titre."
-        items={a.mission.items}
-        columns={3}
+        items={CARDS}
+        columns={4}
       />,
     );
-    const khatam = screen.getByText("Valeurs et code de conduite");
-    expect(khatam.className).not.toBe(plain);
-    expect(khatam.className).toContain("clip-path");
-    expect(plain).not.toContain("clip-path");
+    expect(screen.getByText("Valeurs")).toHaveClass("before:size-3.5");
   });
 });

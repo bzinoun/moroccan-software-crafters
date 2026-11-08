@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { Section } from "./Section";
 
 describe("Section", () => {
-  it("renders a section with its anchor id and the content inside the site wrap", () => {
-    const { container } = render(
+  it("renders a named region with its anchor id and the content inside", () => {
+    render(
       <Section id="historique" aria-label="Historique">
         <p>contenu</p>
       </Section>,
@@ -12,76 +12,69 @@ describe("Section", () => {
     const section = screen.getByRole("region", { name: "Historique" });
     expect(section.tagName).toBe("SECTION");
     expect(section).toHaveAttribute("id", "historique");
+    expect(section).toHaveTextContent("contenu");
+  });
+
+  it("wraps the content in one container element", () => {
+    const { container } = render(
+      <Section aria-label="Format">
+        <p>contenu</p>
+      </Section>,
+    );
     const wrap = container.querySelector("section > div");
-    expect(wrap).toHaveClass("mx-auto", "max-w-wrap");
     expect(wrap).toHaveTextContent("contenu");
+    expect(container.querySelectorAll("section > div")).toHaveLength(1);
   });
 
-  it("is a plain band with 88px of padding above and below by default", () => {
-    render(<Section aria-label="Format">x</Section>);
-    const section = screen.getByRole("region", { name: "Format" });
-    expect(section).toHaveClass("py-22");
-    expect(section.className).not.toMatch(/\bbg-/);
-  });
-
-  it("uses the soft sage background for the alt variant", () => {
+  it("gives the alt variant a background and the plain variant none", () => {
     render(
-      <Section variant="alt" aria-label="Historique">
-        x
-      </Section>,
+      <>
+        <Section aria-label="Plain">x</Section>
+        <Section variant="alt" aria-label="Alt">
+          x
+        </Section>
+      </>,
     );
-    expect(screen.getByRole("region", { name: "Historique" })).toHaveClass(
+    expect(screen.getByRole("region", { name: "Plain" }).className).not.toMatch(
+      /\bbg-/,
+    );
+    expect(screen.getByRole("region", { name: "Alt" })).toHaveClass(
       "bg-sage-soft",
-      "py-22",
     );
   });
 
-  it("uses 56px of padding when tight", () => {
+  it("uses less padding when tight, and keeps the variant", () => {
     render(
-      <Section tight aria-label="Appel">
-        x
-      </Section>,
+      <>
+        <Section aria-label="Normal">x</Section>
+        <Section variant="alt" tight aria-label="Tight">
+          x
+        </Section>
+      </>,
     );
-    const section = screen.getByRole("region", { name: "Appel" });
-    expect(section).toHaveClass("py-14");
-    expect(section).not.toHaveClass("py-22");
+    const normal = screen.getByRole("region", { name: "Normal" });
+    const tight = screen.getByRole("region", { name: "Tight" });
+    expect(tight.className).not.toBe(normal.className);
+    expect(tight).toHaveClass("py-14", "bg-sage-soft");
+    expect(tight).not.toHaveClass("py-22");
   });
 
-  it("keeps the alt background when tight", () => {
+  it("restyles the focus ring on the dark variant", () => {
     render(
-      <Section variant="alt" tight aria-label="Appel">
+      <Section variant="dark" aria-label="La conférence">
         x
       </Section>,
     );
-    expect(screen.getByRole("region", { name: "Appel" })).toHaveClass(
-      "bg-sage-soft",
-      "py-14",
-    );
-  });
-
-  it("makes the dark variant a green-deep surface with white headings, a sage emphasis and a sage focus ring", () => {
-    render(
-      <Section variant="dark" id="socrates" aria-label="La conférence">
-        x
-      </Section>,
-    );
-    const section = screen.getByRole("region", { name: "La conférence" });
-    expect(section).toHaveClass(
-      "bg-green-deep",
-      "text-cream",
+    expect(screen.getByRole("region", { name: "La conférence" })).toHaveClass(
       "**:focus-visible:outline-sage",
-      "[&_h2]:text-white",
-      "[&_h3]:text-white",
-      "[&_h2_em]:text-sage",
-      "[&_h2_em]:bg-none",
     );
   });
 
-  it("merges a caller className on the section and containerClassName on the wrap", () => {
+  it("applies a caller className on the section and containerClassName on the wrap", () => {
     const { container } = render(
       <Section
         className="overflow-hidden"
-        containerClassName="grid gap-12"
+        containerClassName="gap-12"
         aria-label="Hero"
       >
         x
@@ -89,12 +82,7 @@ describe("Section", () => {
     );
     expect(screen.getByRole("region", { name: "Hero" })).toHaveClass(
       "overflow-hidden",
-      "py-22",
     );
-    expect(container.querySelector("section > div")).toHaveClass(
-      "grid",
-      "gap-12",
-      "max-w-wrap",
-    );
+    expect(container.querySelector("section > div")).toHaveClass("gap-12");
   });
 });

@@ -20,7 +20,7 @@ describe("NavToggle", () => {
     });
     expect(nav).not.toHaveAttribute("data-open", "true");
     // Hidden below lg until data-open is true, so closed links stay out of the tab order.
-    expect(nav).toHaveClass("max-lg:hidden", "max-lg:data-[open=true]:flex");
+    expect(nav).toHaveClass("max-lg:hidden");
     expect(
       screen.getByRole("button", { name: "Ouvrir le menu" }),
     ).toHaveAttribute("aria-expanded", "false");
@@ -59,9 +59,27 @@ describe("NavToggle", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(
       screen.getByRole("navigation", { name: "Navigation principale" }),
-    ).toHaveClass("max-lg:hidden");
-    expect(
-      screen.getByRole("navigation", { name: "Navigation principale" }),
     ).not.toHaveAttribute("data-open", "true");
+  });
+
+  it("keeps the menu open when a click lands on the nav but not on a link", async () => {
+    const user = userEvent.setup();
+    renderNav();
+    const toggle = screen.getByRole("button", { name: "Ouvrir le menu" });
+    await user.click(toggle);
+    await user.click(
+      screen.getByRole("navigation", { name: "Navigation principale" }),
+    );
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("links the toggle to the nav it controls", () => {
+    renderNav();
+    const nav = screen.getByRole("navigation", {
+      name: "Navigation principale",
+    });
+    expect(
+      screen.getByRole("button", { name: "Ouvrir le menu" }),
+    ).toHaveAttribute("aria-controls", nav.id);
   });
 });

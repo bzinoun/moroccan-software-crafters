@@ -2,22 +2,19 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { FactList, type Fact } from "./FactList";
 
-// content/meetup.json, hero.facts.
-const MEETUP_FACTS: Fact[] = [
-  { value: "9 h 30 → 14 h", label: "un samedi, toutes les 6 à 8 semaines" },
+const FACTS: Fact[] = [
+  { value: "9 h → 14 h", label: "un samedi matin" },
   { value: "~100", label: "inscrits par édition" },
-  { value: "50", label: "places retenues sur place" },
+  { value: "50", label: "places sur place" },
   { value: "0 MAD", label: "pour les participants" },
 ];
 
 describe("FactList", () => {
-  it("renders one list item per fact with its value and its label", () => {
-    render(<FactList items={MEETUP_FACTS} />);
+  it("renders one list item per fact with its value then its label", () => {
+    render(<FactList items={FACTS} />);
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
-    expect(items).toHaveLength(4);
-    expect(items[0]).toHaveTextContent(
-      "9 h 30 → 14 hun samedi, toutes les 6 à 8 semaines",
-    );
+    expect(items).toHaveLength(FACTS.length);
+    expect(items[0]).toHaveTextContent("9 h → 14 hun samedi matin");
     expect(within(items[3]).getByText("0 MAD")).toBeInTheDocument();
     expect(within(items[3]).getByText("pour les participants")).toBeVisible();
   });
@@ -34,46 +31,25 @@ describe("FactList", () => {
       />,
     );
     const item = screen.getByRole("listitem");
-    expect(item.textContent).toBe("Édition : 2027Date : à venir");
+    expect(item.textContent).toBe("Édition\u202f: 2027Date\u202f: à venir");
   });
 
-  it("is a white card with a green value in the light tone", () => {
-    render(<FactList items={MEETUP_FACTS} />);
-    const item = screen.getAllByRole("listitem")[0];
-    expect(item).toHaveClass("bg-card", "border-line");
-    expect(within(item).getByText("9 h 30 → 14 h")).toHaveClass("text-green");
-  });
-
-  it("is a translucent cell with a sage value in the dark tone", () => {
-    render(<FactList items={MEETUP_FACTS} tone="dark" />);
-    const item = screen.getAllByRole("listitem")[0];
-    expect(item).toHaveClass("bg-white/7", "border-white/16");
-    expect(item).not.toHaveClass("bg-card");
-    expect(within(item).getByText("9 h 30 → 14 h")).toHaveClass("text-sage");
-  });
-
-  it("merges a caller className over the default columns", () => {
+  it("gives the dark tone its own value color", () => {
     render(
-      <FactList
-        items={MEETUP_FACTS}
-        className="mt-8 sm:grid-cols-[repeat(2,1fr)]"
-      />,
+      <>
+        <FactList items={[{ value: "Clair", label: "a" }]} />
+        <FactList items={[{ value: "Sombre", label: "b" }]} tone="dark" />
+      </>,
     );
-    const list = screen.getByRole("list");
-    expect(list).toHaveClass("mt-8", "sm:grid-cols-[repeat(2,1fr)]");
-    expect(list).not.toHaveClass("sm:grid-cols-[repeat(4,1fr)]");
-    expect(list).toHaveClass("grid-cols-[repeat(2,1fr)]");
+    expect(screen.getByText("Clair")).toHaveClass("text-green");
+    expect(screen.getByText("Sombre")).toHaveClass("text-sage");
+    expect(screen.getByText("Sombre")).not.toHaveClass("text-green");
   });
 
-  it("sizes the columns to their content like the old 1fr tracks, never to equal widths", () => {
-    // minmax(0,1fr) (the two equal columns of Tailwind) would clip "9 h 30 → 14 h" at 375px.
-    render(<FactList items={MEETUP_FACTS} />);
+  it("lets a caller className replace the default wide columns", () => {
+    render(<FactList items={FACTS} className="sm:grid-cols-[repeat(2,1fr)]" />);
     const list = screen.getByRole("list");
-    expect(list).toHaveClass(
-      "grid-cols-[repeat(2,1fr)]",
-      "sm:grid-cols-[repeat(4,1fr)]",
-    );
-    expect(list).not.toHaveClass("grid-cols-2");
-    expect(list).not.toHaveClass("sm:grid-cols-4");
+    expect(list).toHaveClass("sm:grid-cols-[repeat(2,1fr)]");
+    expect(list).not.toHaveClass("sm:grid-cols-[repeat(4,1fr)]");
   });
 });

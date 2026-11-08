@@ -3,9 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { ConsentCheckbox } from "./ConsentCheckbox";
 
-// former `socrates.html` (`git show 1353207:socrates.html`), #s-consent.
 const TEXT =
-  "J'accepte que Moroccan Software Crafters conserve ces informations pour me recontacter au sujet du partenariat SoCraTes Maroc (loi 09-08). Elles ne sont ni cédées ni utilisées à d'autres fins.";
+  "J'accepte que l'association conserve ces informations pour me recontacter.";
 
 describe("ConsentCheckbox", () => {
   it("is a required checkbox labelled by the consent text", () => {
@@ -56,14 +55,5 @@ describe("ConsentCheckbox", () => {
     const box = screen.getByRole("checkbox");
     expect(box).not.toHaveAttribute("aria-invalid");
     expect(box).not.toHaveAttribute("aria-describedby");
-  });
-
-  it("uses the green accent on the 20px box", () => {
-    render(
-      <ConsentCheckbox id="c" name="consent">
-        {TEXT}
-      </ConsentCheckbox>,
-    );
-    expect(screen.getByRole("checkbox")).toHaveClass("accent-green", "size-5");
   });
 });

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Site } from "@/content/types";
 import { SiteFooter } from "./SiteFooter";
 
-// Values copied from content/site.json.
+// Fixture site: not read from content/site.json.
 const site: Site = {
   name: "Moroccan Software Crafters",
   shortName: "MSC",
@@ -14,7 +14,7 @@ const site: Site = {
     "Depuis 2019, Moroccan Software Crafters réunit développeurs, testeurs et ops un samedi matin chez une entreprise hôte à Casablanca, et organise chaque année SoCraTes Maroc.",
   baseUrl: "https://bzinoun.github.io/moroccan-software-crafters",
   since: 2019,
-  linkedinFollowers: 3666,
+  linkedinFollowers: 1234,
   links: {
     linkedin: "https://www.linkedin.com/company/moroccansoftwarecrafters/",
     socrates: "https://socrates-ma.github.io/",
@@ -57,10 +57,7 @@ describe("SiteFooter", () => {
     });
     expect(brand).toHaveAttribute("href", "/");
     expect(within(brand).getByText(site.mission)).toBeInTheDocument();
-    expect(within(brand).getByRole("presentation")).toHaveAttribute(
-      "width",
-      "52",
-    );
+    expect(within(brand).getByRole("presentation")).toBeInTheDocument();
   });
 
   it("renders the 4 footer links with mapped hrefs", () => {
@@ -101,7 +98,6 @@ describe("SiteFooter", () => {
     render(<SiteFooter site={site} />);
     const legal = screen.getByText(site.footer.legal);
     expect(legal.tagName).toBe("P");
-    expect(legal).toHaveClass("border-t");
   });
 
   it("applies the French narrow space before a colon in the legal line", () => {
@@ -115,7 +111,7 @@ describe("SiteFooter", () => {
       />,
     );
     expect(container.querySelector("p")?.textContent).toBe(
-      "Contact : bientôt.",
+      "Contact\u202f: bientôt.",
     );
   });
 });

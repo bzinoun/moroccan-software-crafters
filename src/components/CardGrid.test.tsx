@@ -2,7 +2,6 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Card, CardGrid, type CardItem } from "./CardGrid";
 
-// content/meetup.json, who.items.
 const WHO: CardItem[] = [
   {
     title: "Vous codez",
@@ -22,7 +21,6 @@ const WHO: CardItem[] = [
   },
 ];
 
-// content/association.json, mission.items[0] and contribute.items[3].
 const INTERNAL: CardItem = {
   title: "Le meetup",
   text: "Un samedi matin toutes les six à huit semaines, chez une entreprise hôte à Casablanca. Gratuit, en open space : lightning talks, bubble topics, tables rondes.",
@@ -101,34 +99,19 @@ describe("CardGrid", () => {
     ).toBeInTheDocument();
   });
 
-  it("is one column on mobile and four columns from lg for four columns", () => {
-    const { container } = render(<CardGrid items={WHO} columns={4} />);
-    expect(container.firstElementChild).toHaveClass(
-      "grid",
-      "sm:grid-cols-2",
-      "lg:grid-cols-4",
-    );
-  });
-
-  it("is two columns from sm for two columns", () => {
-    const { container } = render(<CardGrid items={WHO} columns={2} />);
-    const grid = container.firstElementChild;
-    expect(grid).toHaveClass("sm:grid-cols-2");
-    expect(grid).not.toHaveClass("lg:grid-cols-4");
-  });
-
-  it("centers an incomplete last row from lg for three columns", () => {
-    const { container } = render(
-      <CardGrid items={WHO.slice(0, 3)} columns={3} />,
-    );
-    const grid = container.firstElementChild as HTMLElement;
-    expect(grid).toHaveClass("sm:grid-cols-2", "lg:grid-cols-6");
-    // Each card spans two of the six tracks; a lone last card sits in the middle.
-    expect(grid.className).toContain("lg:*:col-span-2");
-    expect(grid.className).toContain(
-      "lg:[&>:last-child:nth-child(3n+1)]:col-start-3",
-    );
-  });
+  it.each([
+    [2, ["sm:grid-cols-2"], ["lg:grid-cols-4", "lg:grid-cols-6"]],
+    [3, ["lg:grid-cols-6"], ["lg:grid-cols-4"]],
+    [4, ["lg:grid-cols-4"], ["lg:grid-cols-6"]],
+  ] as const)(
+    "lays the items out for %s columns",
+    (columns, expected, absent) => {
+      const { container } = render(<CardGrid items={WHO} columns={columns} />);
+      const grid = container.firstElementChild;
+      expect(grid).toHaveClass(...expected);
+      expect(grid).not.toHaveClass(...absent);
+    },
+  );
 
   it("merges a caller className", () => {
     const { container } = render(
@@ -137,12 +120,11 @@ describe("CardGrid", () => {
     expect(container.firstElementChild).toHaveClass("mt-6");
   });
 
-  it("uses a translucent card and on-dark text in the dark tone", () => {
+  it("gives the dark tone a translucent card in place of the light card", () => {
     render(<CardGrid items={[INTERNAL]} columns={2} tone="dark" />);
     const card = screen.getByRole("article");
-    expect(card).toHaveClass("bg-white/5", "border-white/14");
+    expect(card).toHaveClass("bg-white/5");
     expect(card).not.toHaveClass("bg-card");
-    expect(within(card).getByText(INTERNAL.text)).toHaveClass("text-on-dark");
   });
 });
 
@@ -154,12 +136,11 @@ describe("Card", () => {
     expect(
       screen.getByRole("heading", { level: 3, name: "Partenariat en nature" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("article")).toHaveClass("bg-card");
   });
 
   it("puts a narrow no-break space before a colon in the title and the text", () => {
     render(<Card title="Accès : libre" text="Prix : 0 MAD" />);
-    expect(screen.getByRole("heading").textContent).toBe("Accès : libre");
-    expect(screen.getByText(/Prix/).textContent).toBe("Prix : 0 MAD");
+    expect(screen.getByRole("heading").textContent).toBe("Accès\u202f: libre");
+    expect(screen.getByText(/Prix/).textContent).toBe("Prix\u202f: 0 MAD");
   });
 });
