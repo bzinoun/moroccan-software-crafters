@@ -31,8 +31,14 @@
     "links": [
       { "label": "Accueillir un meetup", "href": "accueillir.html" },
       { "label": "Sponsoriser SoCraTes", "href": "socrates.html#sponsoring" },
-      { "label": "LinkedIn", "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/" },
-      { "label": "Site SoCraTes Maroc", "href": "https://socrates-ma.github.io/" }
+      {
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/"
+      },
+      {
+        "label": "Site SoCraTes Maroc",
+        "href": "https://socrates-ma.github.io/"
+      }
     ],
     "legal": "Moroccan Software Crafters, association à but non lucratif. Une communauté ouverte, sans sexisme, sans élitisme et sans contrainte technologique."
   }

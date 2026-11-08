@@ -83,10 +83,22 @@
   },
   "note": "Tarifs indicatifs hors taxes. Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
   "faq": [
-    { "q": "Peut-on envoyer plusieurs collaborateurs ?", "a": "Oui, dans la limite des places incluses dans votre niveau. Au-delà, vos collaborateurs s'inscrivent comme les autres participants, en priorité." },
-    { "q": "Y a-t-il des stands ou des présentations commerciales ?", "a": "Non. SoCraTes est une unconference : il n'y a ni stand ni créneau commercial. Les partenaires sont présents par leurs crafters, leur logo, leur mot d'ouverture et leurs goodies." },
-    { "q": "Quand faut-il s'engager ?", "a": "Idéalement trois mois avant l'édition, pour figurer sur l'annonce, les visuels et les badges. Les partenaires engagés tôt ont la priorité sur le niveau principal." },
-    { "q": "Comment est utilisé le budget ?", "a": "Hébergement et repas des participants, location des salles, matériel d'open space, transport et impression. L'association partage le bilan de l'édition avec ses partenaires." }
+    {
+      "q": "Peut-on envoyer plusieurs collaborateurs ?",
+      "a": "Oui, dans la limite des places incluses dans votre niveau. Au-delà, vos collaborateurs s'inscrivent comme les autres participants, en priorité."
+    },
+    {
+      "q": "Y a-t-il des stands ou des présentations commerciales ?",
+      "a": "Non. SoCraTes est une unconference : il n'y a ni stand ni créneau commercial. Les partenaires sont présents par leurs crafters, leur logo, leur mot d'ouverture et leurs goodies."
+    },
+    {
+      "q": "Quand faut-il s'engager ?",
+      "a": "Idéalement trois mois avant l'édition, pour figurer sur l'annonce, les visuels et les badges. Les partenaires engagés tôt ont la priorité sur le niveau principal."
+    },
+    {
+      "q": "Comment est utilisé le budget ?",
+      "a": "Hébergement et repas des participants, location des salles, matériel d'open space, transport et impression. L'association partage le bilan de l'édition avec ses partenaires."
+    }
   ],
   "form": {
     "title": "Parlons de la prochaine édition",

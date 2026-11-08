@@ -78,11 +78,7 @@
     ],
     "summary": "L'IA et son impact concret sur notre façon de construire du logiciel, et le changement qu'elle demande au management et aux process.",
     "registrations": 119,
-    "photos": [
-      "2026-03-innovx-1",
-      "2026-03-innovx-2",
-      "2026-03-innovx-3"
-    ],
+    "photos": ["2026-03-innovx-1", "2026-03-innovx-2", "2026-03-innovx-3"],
     "poster": "2026-03-innovx-affiche",
     "links": {
       "luma": "https://luma.com/4whe7w5k",
@@ -202,12 +198,7 @@
     "title": "Meetup @ Maltem Africa",
     "host": "Maltem Africa",
     "city": "Casablanca",
-    "topics": [
-      "Freelancing",
-      "Performance",
-      "Monorepo",
-      "DevOps"
-    ]
+    "topics": ["Freelancing", "Performance", "Monorepo", "DevOps"]
   },
   {
     "id": "2023-06-nimbleways",
@@ -271,13 +262,7 @@
     "title": "Meetup @ Maltem Africa",
     "host": "Maltem Africa",
     "city": "Casablanca",
-    "topics": [
-      "TDD",
-      "DDD",
-      "Design patterns",
-      "Microservices",
-      "Agilité"
-    ]
+    "topics": ["TDD", "DDD", "Design patterns", "Microservices", "Agilité"]
   },
   {
     "id": "2022-03-socrates",
@@ -297,10 +282,7 @@
       "McKinsey & Company"
     ],
     "summary": "La première unconference Software Craft & Testing au Maroc.",
-    "photos": [
-      "2022-03-socrates-groupe",
-      "2022-03-socrates-open-space"
-    ],
+    "photos": ["2022-03-socrates-groupe", "2022-03-socrates-open-space"],
     "links": {
       "site": "https://socrates-ma.github.io/"
     }
@@ -311,10 +293,7 @@
     "type": "online",
     "title": "Meet other Crafts From Home",
     "city": "En ligne",
-    "topics": [
-      "Talks",
-      "Challenges"
-    ]
+    "topics": ["Talks", "Challenges"]
   },
   {
     "id": "2019-09-bdsi",
@@ -323,11 +302,7 @@
     "title": "Meetup @ BDSI Maroc",
     "host": "BDSI Maroc",
     "city": "Casablanca",
-    "topics": [
-      "Tech talks",
-      "Legacy code",
-      "Refactoring"
-    ]
+    "topics": ["Tech talks", "Legacy code", "Refactoring"]
   },
   {
     "id": "2019-04-codesnack-2",
@@ -336,10 +311,7 @@
     "title": "Code Snack #2",
     "city": "Casablanca",
     "venue": "Casanearshore",
-    "topics": [
-      "Lightning talks",
-      "Refactoring challenges"
-    ]
+    "topics": ["Lightning talks", "Refactoring challenges"]
   },
   {
     "id": "2019-03-codesnack-1",
