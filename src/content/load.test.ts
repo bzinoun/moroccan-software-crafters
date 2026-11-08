@@ -25,20 +25,28 @@ import {
 
 const imgDir = path.resolve(__dirname, "../../public/assets/img");
 
-/** Every string stored under a `photo`, `cover` or `poster` key, or in a `photos` list. */
+/** Every string stored under a `photo` or `cover` key, or in a `photos` list. */
 function photoIds(node: unknown): string[] {
   if (Array.isArray(node)) return node.flatMap(photoIds);
   if (typeof node !== "object" || node === null) return [];
   return Object.entries(node).flatMap(([key, value]) => {
     if (key === "photos" && Array.isArray(value)) return value as string[];
-    if (
-      (key === "photo" || key === "cover" || key === "poster") &&
-      typeof value === "string"
-    ) {
+    if ((key === "photo" || key === "cover") && typeof value === "string") {
       return value === "" ? [] : [value];
     }
     return photoIds(value);
   });
+}
+
+/** Every `href` value of the content, and the target of every Markdown link in a string. */
+function linkTargets(node: unknown, key = ""): string[] {
+  if (typeof node === "string") {
+    if (key === "href") return [node];
+    return [...node.matchAll(/\]\(([^)\s]*)\)/g)].map((m) => m[1] as string);
+  }
+  if (Array.isArray(node)) return node.flatMap((n) => linkTargets(n));
+  if (typeof node !== "object" || node === null) return [];
+  return Object.entries(node).flatMap(([k, v]) => linkTargets(v, k));
 }
 
 describe("the content files, as the site reads them", () => {
@@ -96,7 +104,32 @@ describe("the content files, as the site reads them", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("has an image file for every photo, cover and poster", () => {
+  it("links to routes and absolute URLs, never to an .html file", () => {
+    const targets = [
+      loadSite(),
+      loadHome(),
+      loadCompanies(),
+      loadMeetup(),
+      loadAssociation(),
+      loadSocrates(),
+      loadSponsoring(),
+      loadArticles(),
+    ].flatMap((content) => linkTargets(content));
+    expect(targets.length).toBeGreaterThan(0);
+    expect(targets.filter((href) => /\.html([#?]|$)/.test(href))).toEqual([]);
+  });
+
+  it("writes every Markdown link of an article as a site route or an https URL", () => {
+    const targets = loadArticles().items.flatMap((a) => linkTargets(a.body));
+    expect(targets.length).toBeGreaterThan(0);
+    expect(
+      targets.filter(
+        (href) => !/^\/(?!\/)/.test(href) && !href.startsWith("https://"),
+      ),
+    ).toEqual([]);
+  });
+
+  it("has an image file for every photo and cover", () => {
     const ids = [
       loadHome(),
       loadEvents(),
@@ -161,6 +194,18 @@ describe("the content files, as the site reads them", () => {
     const years = loadAssociation().timeline.items.map((t) => t.year);
     expect(years.length).toBeGreaterThan(0);
     expect(years).toEqual([...years].sort());
+  });
+
+  it("links every SoCraTes edition card to an event of type socrates", () => {
+    // loadSocrates() throws on a link to an unknown event.
+    const years = new Set(
+      loadEvents()
+        .filter((e) => e.type === "socrates")
+        .map((e) => e.date.slice(0, 4)),
+    );
+    const cards = loadSocrates().editions.items.map((e) => e.year);
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards.filter((year) => !years.has(year))).toEqual([]);
   });
 
   it("has SoCraTes editions in chronological order and a schedule", () => {
@@ -259,16 +304,74 @@ describe("the parsers", () => {
   });
 
   it("names the file and the path of a broken edition", () => {
-    const broken = { editions: { items: [{ participants: "30" }] } };
+    const broken = { editions: { items: [{ text: 1 }] } };
     expect(() => parseSocrates(broken, "content/socrates.json")).toThrow(
-      /content\/socrates\.json.*editions\.items\.0\.participants/,
+      /content\/socrates\.json.*editions\.items\.0\.event/,
     );
+  });
+
+  it("rejects an empty edition photo", () => {
+    const broken = {
+      editions: { items: [{ event: "a", text: "t", photo: "" }] },
+    };
+    expect(() => parseSocrates(broken, "content/socrates.json")).toThrow(
+      /editions\.items\.0\.photo/,
+    );
+  });
+
+  it("accepts an end date and rejects one before the start date", () => {
+    const [ok] = parseEvents(
+      [{ ...minimalEvent, endDate: "2026-10-26" }],
+      "events.json",
+    );
+    expect(ok?.endDate).toBe("2026-10-26");
+    expect(() =>
+      parseEvents([{ ...minimalEvent, endDate: "2026-10-01" }], "events.json"),
+    ).toThrow(/0\.endDate/);
+    expect(() =>
+      parseEvents([{ ...minimalEvent, endDate: "2026-10" }], "events.json"),
+    ).toThrow(/0\.endDate/);
   });
 
   it("names the file and the path of a broken article date", () => {
     const broken = { items: [{ ...minimalArticle, date: "27/10/2026" }] };
     expect(() => parseArticles(broken, "content/articles.json")).toThrow(
       /content\/articles\.json.*items\.0\.date/,
+    );
+  });
+
+  it("rejects an article kind outside Annonce and Récap", () => {
+    const broken = { items: [{ ...minimalArticle, kind: "Billet" }] };
+    expect(() => parseArticles(broken, "content/articles.json")).toThrow(
+      /content\/articles\.json.*items\.0\.kind/,
+    );
+  });
+
+  it.each([
+    ["Accentué"],
+    ["Majuscule"],
+    ["deux--tirets"],
+    ["-debut"],
+    ["fin-"],
+    ["a b"],
+    [""],
+  ])("rejects the article slug %j", (slug) => {
+    const broken = { items: [{ ...minimalArticle, slug }] };
+    expect(() => parseArticles(broken, "content/articles.json")).toThrow(
+      /items\.0\.slug/,
+    );
+  });
+
+  it("rejects a news page without any article", () => {
+    expect(() => parseArticles({ items: [] }, "content/articles.json")).toThrow(
+      /content\/articles\.json.*items/,
+    );
+  });
+
+  it("rejects an empty photo of the SoCraTes teaser on the home page", () => {
+    const broken = { socrates: { photo: "" } };
+    expect(() => parseHome(broken, "content/home.json")).toThrow(
+      /content\/home\.json.*socrates\.photo/,
     );
   });
 

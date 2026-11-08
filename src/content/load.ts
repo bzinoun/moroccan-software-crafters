@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { z } from "zod";
+import { resolveSocrates } from "@/lib/socrates";
 import {
   articlesSchema,
   associationSchema,
@@ -28,10 +29,9 @@ import type {
   Offers,
   Site,
   Socrates,
+  SocratesFile,
   Sponsoring,
 } from "./types";
-
-export { homeSchema, siteSchema } from "./schemas";
 
 // Resolved from this module, so the same path works in Vitest and in `next build`.
 const contentDir = path.resolve(
@@ -73,7 +73,7 @@ export function parseCompanies(json: unknown, file: string): Companies {
 }
 
 /** Exposed for tests. Prefer `loadOffers()`. */
-export function parseOffers(json: unknown, file: string): Offers {
+function parseOffers(json: unknown, file: string): Offers {
   return parseWith(offersSchema, json, file);
 }
 
@@ -92,8 +92,8 @@ export function parseAssociation(json: unknown, file: string): Association {
   return parseWith(associationSchema, json, file);
 }
 
-/** Exposed for tests. Prefer `loadSocrates()`. */
-export function parseSocrates(json: unknown, file: string): Socrates {
+/** Exposed for tests. Prefer `loadSocrates()`, which joins the events. */
+export function parseSocrates(json: unknown, file: string): SocratesFile {
   return parseWith(socratesSchema, json, file);
 }
 
@@ -141,8 +141,12 @@ export function loadAssociation(): Association {
   );
 }
 
+/** The SoCraTes page content, with the editions and hero counters taken from the events. */
 export function loadSocrates(): Socrates {
-  return parseSocrates(readJson("socrates.json"), "content/socrates.json");
+  return resolveSocrates(
+    parseSocrates(readJson("socrates.json"), "content/socrates.json"),
+    loadEvents(),
+  );
 }
 
 /** All articles of content/articles.json, in file order. Slugs are unique. */

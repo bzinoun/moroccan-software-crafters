@@ -18,23 +18,45 @@ import {
   photoItems,
   place,
   stats,
+  topicKey,
   type PhotoItem,
 } from "./derive";
+import { countLabel } from "./french";
 import { pageRoute } from "./routes";
+import { editionLabel, socratesEvents } from "./socrates";
 
-/** Sentence under the hero buttons: the home note, or the latest meetup. */
-export function heroNote(home: Home, events: Event[]): string {
+/** Used when a content limit is missing or 0: topics on the home wall. */
+export const DEFAULT_TOPICS_LIMIT = 10;
+/** Used when a content limit is missing or 0: events of the home timeline. */
+export const DEFAULT_HISTORY_LIMIT = 6;
+/** Used when a content limit is missing or 0: photos of the home gallery. */
+export const DEFAULT_GALLERY_LIMIT = 8;
+
+/** Today as "YYYY-MM-DD", the build date of a static export. */
+function isoToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * Sentence under the hero buttons: the home note, or the latest meetup that
+ * took place on or before `today` (the build date, "YYYY-MM-DD").
+ */
+export function heroNote(
+  home: Home,
+  events: Event[],
+  today: string = isoToday(),
+): string {
   if (home.hero.note) return home.hero.note;
-  const latest = events.find((e) => e.type === "meetup");
+  const latest = events.find((e) => e.type === "meetup" && e.date <= today);
   if (!latest) return "";
   const registrations = latest.registrations
-    ? `, ${latest.registrations} inscrits`
+    ? `, ${countLabel(latest.registrations, "inscrit")}`
     : "";
   const at = latest.host ? ` chez ${latest.host}` : "";
   return `Dernière édition : ${fmtDate(latest.date, { long: true })}${at}${registrations}.`;
 }
 
-export type CollageItem = { src: string; caption: string };
+type CollageItem = { src: string; caption: string };
 
 /** Hero polaroids, in order: the first is `p1`, the second `p2`. */
 export function heroCollage(home: Home): CollageItem[] {
@@ -46,13 +68,17 @@ export function heroCollage(home: Home): CollageItem[] {
 
 export type StatItem = { value: string; label: string };
 
-/** Stats band: a fixed `value` wins, else the figure computed from `key`. */
+/**
+ * Stats band: a fixed `value` wins, else the figure computed from `key`. A stat
+ * with no value (an empty figure too) is left out.
+ */
 export function statItems(home: Home, site: Site, events: Event[]): StatItem[] {
   const computed = stats(site, events);
-  return home.stats.map((s) => {
+  return home.stats.flatMap((s) => {
     const value =
       s.value !== undefined ? s.value : s.key ? computed[s.key] : undefined;
-    return { value: value === undefined ? "" : String(value), label: s.label };
+    const text = value === undefined ? "" : String(value);
+    return text === "" ? [] : [{ value: text, label: s.label }];
   });
 }
 
@@ -81,21 +107,21 @@ export type TopicNote = { topic: string; year: string; tone: TopicTone };
 
 /**
  * Unique topics, newest event first. Two topics are the same when they match
- * in lower case; the first spelling and its year win. A limit of 0 or none
- * gives 10.
+ * without case, accents and outer spaces; the first spelling and its year win.
+ * A blank topic is dropped. A limit of 0 or none gives the default limit.
  */
 export function topicsFromEvents(events: Event[], limit?: number): TopicNote[] {
   const seen = new Set<string>();
   const found: { topic: string; year: string }[] = [];
   for (const e of events) {
     for (const topic of e.topics ?? []) {
-      const key = topic.toLowerCase();
-      if (seen.has(key)) continue;
+      const key = topicKey(topic);
+      if (key === "" || seen.has(key)) continue;
       seen.add(key);
-      found.push({ topic, year: e.date.slice(0, 4) });
+      found.push({ topic: topic.trim(), year: e.date.slice(0, 4) });
     }
   }
-  return found.slice(0, limit || 10).map((t, i) => ({
+  return found.slice(0, limit || DEFAULT_TOPICS_LIMIT).map((t, i) => ({
     ...t,
     tone: TOPIC_TONES[i % TOPIC_TONES.length] ?? "default",
   }));
@@ -110,11 +136,13 @@ export function featuredEvents(events: Event[]): Event[] {
 
 /** "24 oct. 2026 · Casablanca · 110 inscrits" (registrations only when known). */
 export function featuredMeta(e: Event): string {
-  const registrations = e.registrations ? ` · ${e.registrations} inscrits` : "";
+  const registrations = e.registrations
+    ? ` · ${countLabel(e.registrations, "inscrit")}`
+    : "";
   return `${fmtDate(e.date)} · ${e.city}${registrations}`;
 }
 
-export type EventLink = { label: string; href: string };
+type EventLink = { label: string; href: string };
 
 /** External links of an event: LinkedIn recap, Luma page, SoCraTes site. */
 export function eventLinks(e: Event): EventLink[] {
@@ -128,11 +156,13 @@ export function eventLinks(e: Event): EventLink[] {
 
 /** Second line of a timeline item: place, then registrations, participants, partners. */
 export function timelineWhere(e: Event): string {
-  const extra: string[] = [];
-  if (e.registrations) extra.push(`${e.registrations} inscrits`);
-  if (e.participants) extra.push(`${e.participants} participants`);
-  if (e.sponsors?.length) extra.push(`${e.sponsors.length} partenaires`);
-  return `${place(e)}${extra.length ? ` · ${extra.join(" · ")}` : ""}`;
+  const parts = [place(e)];
+  if (e.registrations) parts.push(countLabel(e.registrations, "inscrit"));
+  if (e.participants) parts.push(countLabel(e.participants, "participant"));
+  if (e.sponsors?.length) {
+    parts.push(countLabel(e.sponsors.length, "partenaire"));
+  }
+  return parts.filter(Boolean).join(" · ");
 }
 
 /** Filter chips: "all" keeps every event, any other value is an event type. */
@@ -181,18 +211,13 @@ export type SocratesEdition = {
   detail: string;
 };
 
-const ORDINALS = ["1re", "2e", "3e", "4e", "5e", "6e"];
-
-/** SoCraTes editions, oldest first, numbered from the first. */
+/** SoCraTes editions, oldest first by date, numbered from the first. */
 export function socratesEditions(events: Event[]): SocratesEdition[] {
-  return events
-    .filter((e) => e.type === "socrates")
-    .reverse()
-    .map((e, i) => ({
-      id: e.id,
-      title: `${e.date.slice(0, 4)} · ${e.city}`,
-      detail: `${ORDINALS[i] ?? `${i + 1}e`} édition${e.participants ? ` · ${e.participants} crafters` : ""}`,
-    }));
+  return socratesEvents(events).map((e, i) => ({
+    id: e.id,
+    title: `${e.date.slice(0, 4)} · ${e.city}`,
+    detail: `${editionLabel(i + 1)}${e.participants ? ` · ${countLabel(e.participants, "crafter")}` : ""}`,
+  }));
 }
 
 export function socratesPhoto(home: Home): string {

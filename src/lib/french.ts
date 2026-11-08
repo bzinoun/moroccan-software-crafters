@@ -8,3 +8,12 @@ const BEFORE_PUNCTUATION = /[  ]([?!:;])/g;
 export function frenchSpacing(text: string): string {
   return text.replace(BEFORE_PUNCTUATION, " $1");
 }
+
+/** "1 inscrit", "2 inscrits": French uses the singular for 0 and 1. */
+export function countLabel(
+  count: number,
+  singular: string,
+  plural = `${singular}s`,
+): string {
+  return `${count} ${count < 2 ? singular : plural}`;
+}

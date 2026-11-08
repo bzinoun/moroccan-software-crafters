@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { frenchSpacing } from "./french";
+import { countLabel, frenchSpacing } from "./french";
 
 const NNBSP = "\u202f";
 const NBSP = "\u00a0";
@@ -27,5 +27,21 @@ describe("frenchSpacing", () => {
         "Moroccan Software Crafters, association à but non lucratif.",
       ),
     ).toBe("Moroccan Software Crafters, association à but non lucratif.");
+  });
+});
+
+describe("countLabel", () => {
+  it.each([
+    [0, "0 inscrit"],
+    [1, "1 inscrit"],
+    [2, "2 inscrits"],
+    [110, "110 inscrits"],
+  ])("writes %i registrations as %s", (count, label) => {
+    expect(countLabel(count, "inscrit")).toBe(label);
+  });
+
+  it("takes an explicit plural for a word that does not add an s", () => {
+    expect(countLabel(1, "festival", "festivals")).toBe("1 festival");
+    expect(countLabel(3, "journal", "journaux")).toBe("3 journaux");
   });
 });

@@ -6,19 +6,14 @@ import { SiteFooter } from "./SiteFooter";
 // Fixture site: not read from content/site.json.
 const site: Site = {
   name: "Moroccan Software Crafters",
-  shortName: "MSC",
   tagline: "Association à but non lucratif",
   mission:
     "Stimuler et promouvoir les valeurs du Software Craftsmanship au Maroc",
-  description:
-    "Depuis 2019, Moroccan Software Crafters réunit développeurs, testeurs et ops un samedi matin chez une entreprise hôte à Casablanca, et organise chaque année SoCraTes Maroc.",
   baseUrl: "https://bzinoun.github.io/moroccan-software-crafters",
   since: 2019,
   linkedinFollowers: 1234,
   links: {
     linkedin: "https://www.linkedin.com/company/moroccansoftwarecrafters/",
-    socrates: "https://socrates-ma.github.io/",
-    github: "https://github.com/bzinoun/moroccan-software-crafters",
   },
   contact: { email: "" },
   form: { endpoint: "", extraFields: {} },

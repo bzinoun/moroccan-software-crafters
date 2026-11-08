@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { loadArticles } from "@/content/load";
 import type {
   Article,
   Articles,
@@ -12,10 +11,10 @@ import type {
   Sponsoring,
 } from "@/content/types";
 import {
-  articleBySlug,
   articleCards,
+  articleMeta,
+  DEFAULT_SOCIAL_PHOTO,
   articleHref,
-  articleSlugs,
   articleView,
   associationFacts,
   hostsWall,
@@ -210,6 +209,14 @@ describe("meetupTopicBoard", () => {
       "orange",
       "default",
     ]);
+  });
+
+  it("ignores accents and outer spaces, and drops a blank topic", () => {
+    const list = [
+      ev({ id: "a", topics: [" Éthique ", " "] }),
+      ev({ id: "b", topics: ["ethique", ""] }),
+    ];
+    expect(meetupTopicBoard(list).map((n) => n.topic)).toEqual(["Éthique"]);
   });
 
   it("falls back to the city when the event has no host", () => {
@@ -557,14 +564,23 @@ describe("articles", () => {
     });
   });
 
-  describe("articleSlugs and articleBySlug", () => {
-    it("lists the slugs in file order", () => {
-      expect(articleSlugs(articles)).toEqual(["old", "recap", "news"]);
+  describe("articleMeta", () => {
+    const siteMeta = { name: "Le site", baseUrl: "https://example.org/base" };
+
+    it("gives the page title, description, URL and cover image", () => {
+      expect(articleMeta(articles.items[1]!, siteMeta)).toEqual({
+        documentTitle: "Title of recap · Le site",
+        description: "Excerpt",
+        url: "https://example.org/base/actualites/recap/",
+        image: "https://example.org/base/assets/img/meetups/m2-1.jpg",
+      });
     });
 
-    it("finds an article by slug, or returns undefined", () => {
-      expect(articleBySlug("recap", articles)?.date).toBe("2026-10-24");
-      expect(articleBySlug("nope", articles)).toBeUndefined();
+    it("shares the default image when the article has no cover", () => {
+      const { image } = articleMeta(articles.items[2]!, siteMeta);
+      expect(image).toBe(
+        `https://example.org/base/assets/img/meetups/${DEFAULT_SOCIAL_PHOTO}.jpg`,
+      );
     });
   });
 
@@ -603,6 +619,13 @@ describe("articles", () => {
       });
     });
 
+    it("writes one photo without the plural article", () => {
+      const one = [ev({ id: "m2", photos: ["only"] })];
+      expect(articleView(articles.items[1]!, one, site).photosLabel).toBe(
+        "1 photo",
+      );
+    });
+
     it("has no links, no photos and no label without a related event", () => {
       const view = articleView(articles.items[2]!, events, site);
       expect(view.eventLinks).toEqual([]);
@@ -626,15 +649,5 @@ describe("articles", () => {
         { label: "Le post LinkedIn", href: "https://example.org/li" },
       ]);
     });
-  });
-});
-
-describe("articleSlugs and articleBySlug on the real articles", () => {
-  it("lists the slug of every article of the content, and finds each by slug", () => {
-    const { items } = loadArticles();
-    expect(articleSlugs()).toEqual(items.map((a) => a.slug));
-    for (const item of items) {
-      expect(articleBySlug(item.slug)).toEqual(item);
-    }
   });
 });

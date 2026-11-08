@@ -9,7 +9,7 @@
     "lead": "Moroccan Software Crafters réunit développeurs, testeurs et ops autour du travail bien fait. Chaque édition se tient chez une entreprise hôte, et c'est la communauté qui fixe l'agenda.",
     "primary": {
       "label": "Accueillir le prochain meetup",
-      "href": "accueillir.html"
+      "href": "/accueillir/"
     },
     "secondary": {
       "label": "Voir les éditions passées",
@@ -62,7 +62,7 @@
     ],
     "more": {
       "label": "Le déroulé détaillé, étape par étape",
-      "href": "meetup.html"
+      "href": "/meetup/"
     }
   },
   "topics": {
@@ -94,14 +94,14 @@
     "title": "SoCraTes Maroc, l'unconference annuelle.",
     "lead": "L'édition marocaine de SoCraTes (Software Craft and Testing) : quatre jours d'open space entre crafters, sans programme imposé, dans un lieu en retrait de la ville.",
     "photo": "2022-03-socrates-groupe",
-    "cta": { "label": "Découvrir SoCraTes Maroc", "href": "socrates.html" },
+    "cta": { "label": "Découvrir SoCraTes Maroc", "href": "/socrates/" },
     "sponsor": {
       "eyebrow": "Appel à partenaires",
       "title": "La 5e édition se prépare.",
       "text": "Chaque édition est financée par cinq à dix entreprises partenaires. Cinq d'entre elles ont soutenu les quatre éditions depuis 2022.",
       "cta": {
         "label": "Devenir partenaire",
-        "href": "socrates.html#sponsoring"
+        "href": "/socrates/#sponsoring"
       }
     }
   },
@@ -134,7 +134,7 @@
   "cta": {
     "title": "Le prochain meetup peut se tenir chez vous.",
     "text": "Quatre étapes, deux minutes. Nous revenons vers vous sous 48 heures.",
-    "primary": { "label": "Proposer une date", "href": "accueillir.html" },
+    "primary": { "label": "Proposer une date", "href": "/accueillir/" },
     "secondary": {
       "label": "Suivre sur LinkedIn",
       "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/"

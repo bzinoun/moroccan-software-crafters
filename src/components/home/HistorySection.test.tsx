@@ -64,7 +64,6 @@ const EVENTS: Event[] = [
       "2026-10-sg-gscm-6",
       "2026-10-sg-gscm-1",
     ],
-    poster: "2026-10-sg-gscm-affiche",
     links: {
       luma: "https://luma.com/6eiyisjw",
       linkedin:
@@ -96,7 +95,6 @@ const EVENTS: Event[] = [
       "2026-05-axa-3",
       "2026-05-axa-4",
     ],
-    poster: "2026-05-axa-affiche",
     links: {
       luma: "https://luma.com/jjn7tuih",
       linkedin:
@@ -122,7 +120,6 @@ const EVENTS: Event[] = [
       "L'IA et son impact concret sur notre façon de construire du logiciel, et le changement qu'elle demande au management et aux process.",
     registrations: 119,
     photos: ["2026-03-innovx-1", "2026-03-innovx-2", "2026-03-innovx-3"],
-    poster: "2026-03-innovx-affiche",
     links: {
       luma: "https://luma.com/4whe7w5k",
       linkedin:

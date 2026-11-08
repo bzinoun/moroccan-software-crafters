@@ -102,7 +102,7 @@ describe("ArticleView", () => {
   it("renders the body through the Markdown subset", () => {
     renderView(RECAP);
     expect(
-      screen.getByRole("heading", { level: 3, name: "Speed is a multiplier" }),
+      screen.getByRole("heading", { level: 2, name: "Speed is a multiplier" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("First paragraph of the recap."),

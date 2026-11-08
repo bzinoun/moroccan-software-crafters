@@ -211,6 +211,6 @@
       "label": "Suivre l'association",
       "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/"
     },
-    "secondary": { "label": "Accueillir un meetup", "href": "accueillir.html" }
+    "secondary": { "label": "Accueillir un meetup", "href": "/accueillir/" }
   }
 }

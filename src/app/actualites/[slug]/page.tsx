@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { ArticleView } from "@/components/actualites/ArticleView";
 import { LightboxProvider } from "@/components/Lightbox";
 import { loadEvents, loadSite } from "@/content/load";
-import { articleBySlug, articleSlugs, articleView } from "@/lib/pages-data";
+import { articleBySlug, articleSlugs } from "@/lib/articles-server";
+import { articleMeta, articleView } from "@/lib/pages-data";
 
 // One static page per article. `output: "export"` refuses a slug that
 // `generateStaticParams` did not return, and `dynamicParams = false` says so.
@@ -16,39 +17,38 @@ export function generateStaticParams(): Params[] {
   return articleSlugs().map((slug) => ({ slug }));
 }
 
-function viewOf(slug: string) {
+function articleOf(slug: string) {
   const article = articleBySlug(slug);
   // Unreachable with dynamicParams = false; it narrows the type.
   if (!article) notFound();
-  const site = loadSite();
-  return { article, view: articleView(article, loadEvents(), site), site };
+  return article;
 }
 
+// Light lookup: the metadata needs the article and the site, not the events.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const { article, view, site } = viewOf(slug);
-  const cover = article.cover
-    ? `${site.baseUrl}/assets/img/meetups/${article.cover}.jpg`
-    : undefined;
+  const meta = articleMeta(articleOf(slug), loadSite());
   return {
-    title: view.documentTitle,
-    description: view.excerpt,
+    title: meta.documentTitle,
+    description: meta.description,
     openGraph: {
       type: "article",
-      title: view.documentTitle,
-      description: view.excerpt,
-      url: `${site.baseUrl}/actualites/${slug}/`,
-      images: cover ? [cover] : [],
+      title: meta.documentTitle,
+      description: meta.description,
+      url: meta.url,
+      images: [meta.image],
     },
   };
 }
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const { view } = viewOf(slug);
-  return (
-    <LightboxProvider>
-      <ArticleView view={view} />
-    </LightboxProvider>
+  const view = articleView(articleOf(slug), loadEvents(), loadSite());
+  const page = <ArticleView view={view} />;
+  // The lightbox only serves the photos link, which needs photos.
+  return view.photos.length > 0 ? (
+    <LightboxProvider>{page}</LightboxProvider>
+  ) : (
+    page
   );
 }

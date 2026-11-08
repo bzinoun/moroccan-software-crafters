@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { loadSite } from "@/content/load";
 import type { PageId } from "@/content/types";
+import { pageRoute } from "@/lib/routes";
 import AccueillirLayout from "./accueillir/layout";
 import AssociationLayout from "./association/layout";
 import HomeLayout from "./(home)/layout";
@@ -11,7 +12,7 @@ import SocratesLayout from "./socrates/layout";
 import { PageFrame } from "./PageFrame";
 
 // Nav labels come from content/site.json, found by the page they link to.
-// A link to an anchor such as index.html#historique is never the current page.
+// A link to an anchor such as /#historique is never the current page.
 const navLabel = (href: string): string => {
   const link = loadSite().nav.find((l) => l.href === href);
   if (!link) throw new Error(`no nav link to ${href}`);
@@ -27,10 +28,10 @@ function currentLinks() {
 describe("PageFrame", () => {
   it.each<[PageId, string[]]>([
     ["home", []],
-    ["meetup", [navLabel("meetup.html")]],
-    ["socrates", [navLabel("socrates.html")]],
-    ["news", [navLabel("actualites.html")]],
-    ["association", [navLabel("association.html")]],
+    ["meetup", [navLabel(pageRoute("meetup"))]],
+    ["socrates", [navLabel(pageRoute("socrates"))]],
+    ["news", [navLabel(pageRoute("news"))]],
+    ["association", [navLabel(pageRoute("association"))]],
     ["host", []],
   ])("page %s marks %j as the current page", (page, expected) => {
     render(<PageFrame page={page}>contenu</PageFrame>);
@@ -93,15 +94,15 @@ describe("PageFrame", () => {
 describe("route layouts", () => {
   it.each([
     ["home", HomeLayout, "home", []],
-    ["meetup", MeetupLayout, "meetup", [navLabel("meetup.html")]],
-    ["actualites", NewsLayout, "news", [navLabel("actualites.html")]],
+    ["meetup", MeetupLayout, "meetup", [navLabel(pageRoute("meetup"))]],
+    ["actualites", NewsLayout, "news", [navLabel(pageRoute("news"))]],
     [
       "association",
       AssociationLayout,
       "association",
-      [navLabel("association.html")],
+      [navLabel(pageRoute("association"))],
     ],
-    ["socrates", SocratesLayout, "socrates", [navLabel("socrates.html")]],
+    ["socrates", SocratesLayout, "socrates", [navLabel(pageRoute("socrates"))]],
     ["accueillir", AccueillirLayout, "host", []],
   ])("the %s layout uses its page id", (_name, Layout, id, expected) => {
     const { container } = render(<Layout>contenu</Layout>);

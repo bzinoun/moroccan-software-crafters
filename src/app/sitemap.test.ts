@@ -42,6 +42,20 @@ describe("sitemap", () => {
     expect(urls()).toHaveLength(PAGE_IDS.length + loadArticles().items.length);
   });
 
+  it("dates the page of an article by the date of the article", () => {
+    const dated = Object.fromEntries(
+      sitemap().map((entry) => [entry.url, entry.lastModified]),
+    );
+    for (const a of loadArticles().items) {
+      expect(dated[`${baseUrl}/actualites/${a.slug}/`]).toBe(a.date);
+    }
+  });
+
+  it("gives no date to a page that has none", () => {
+    const entry = sitemap().find((e) => e.url === `${baseUrl}/meetup/`);
+    expect(entry?.lastModified).toBeUndefined();
+  });
+
   it("has no duplicate URL and every URL ends with a slash", () => {
     const list = urls();
     expect(new Set(list).size).toBe(list.length);

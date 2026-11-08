@@ -4,12 +4,12 @@
 // plain props to the components. Text is returned as the old site built it:
 // apply `frenchSpacing()` at render.
 //
-// Only `articleSlugs` and `articleBySlug` read the content, through
-// `loadArticles()` (node:fs): call them from server code only.
+// Nothing here reads files, so a client file may import from this module. The
+// functions that load the articles by default are in `articles-server.ts`.
 
-import { loadArticles } from "@/content/load";
 import type {
   Article,
+  ArticleKind,
   Articles,
   Companies,
   Event,
@@ -21,14 +21,17 @@ import type {
   Sticker,
 } from "@/content/types";
 import {
+  absoluteMeetupPhoto,
   fmtDate,
   logoWallTiles,
   meetupPhotoUrl,
   photoItems,
   stats,
+  topicKey,
   type LogoTile,
   type PhotoItem,
 } from "./derive";
+import { countLabel } from "./french";
 import { assetUrl, pageRoute } from "./routes";
 import type { TopicTone } from "./home-data";
 
@@ -39,7 +42,7 @@ export function meetupPhoto(name: string | undefined): string | null {
 
 // ---------- Meetup ----------
 
-export type MeetupStepItem = {
+type MeetupStepItem = {
   id: string;
   time: string;
   kicker: string;
@@ -61,7 +64,7 @@ export function meetupSteps(m: Meetup): MeetupStepItem[] {
   }));
 }
 
-export type TopicBoardNote = {
+type TopicBoardNote = {
   topic: string;
   year: string;
   /** The host of the event, or its city. */
@@ -72,19 +75,20 @@ export type TopicBoardNote = {
 const BOARD_TONES: TopicTone[] = ["default", "pink", "green", "blue", "orange"];
 
 /**
- * The topic wall of the meetup page: every topic of every event once (equal in
- * lower case), newest event first; the first spelling and its event win. No limit.
+ * The topic wall of the meetup page: every topic of every event once (equal
+ * without case, accents and outer spaces; a blank topic is dropped), newest
+ * event first; the first spelling and its event win. No limit.
  */
 export function meetupTopicBoard(events: Event[]): TopicBoardNote[] {
   const seen = new Set<string>();
   const notes: Omit<TopicBoardNote, "tone">[] = [];
   for (const e of events) {
     for (const topic of e.topics ?? []) {
-      const key = topic.toLowerCase();
-      if (seen.has(key)) continue;
+      const key = topicKey(topic);
+      if (key === "" || seen.has(key)) continue;
       seen.add(key);
       notes.push({
-        topic,
+        topic: topic.trim(),
         year: e.date.slice(0, 4),
         from: e.host || e.city,
       });
@@ -248,16 +252,20 @@ export function articleHref(slug: string): string {
   return `${pageRoute("news")}${encodeURIComponent(slug)}/`;
 }
 
-export type ArticleCard = {
+/** The fields that the list card and the detail page of an article share. */
+type ArticleSummary = {
   slug: string;
-  href: string;
-  kind: string;
+  kind: ArticleKind;
   title: string;
   excerpt: string;
   /** "27 octobre 2026". */
   dateLabel: string;
   coverSrc: string | null;
   tags: string[];
+};
+
+export type ArticleCard = ArticleSummary & {
+  href: string;
   /** The newest article is shown larger. */
   lead: boolean;
 };
@@ -276,27 +284,7 @@ export function articleCards(articles: Articles): ArticleCard[] {
   }));
 }
 
-/** Every article slug, for `generateStaticParams`. Server only. */
-export function articleSlugs(articles: Articles = loadArticles()): string[] {
-  return articles.items.map((a) => a.slug);
-}
-
-/** The article of a slug, or undefined. Server only. */
-export function articleBySlug(
-  slug: string,
-  articles: Articles = loadArticles(),
-): Article | undefined {
-  return articles.items.find((a) => a.slug === slug);
-}
-
-export type ArticleView = {
-  slug: string;
-  kind: string;
-  title: string;
-  excerpt: string;
-  dateLabel: string;
-  coverSrc: string | null;
-  tags: string[];
+export type ArticleView = ArticleSummary & {
   /** Mini Markdown: render it with `md()`. */
   body: string;
   /** "Title · Site name", for the page title. */
@@ -305,7 +293,7 @@ export type ArticleView = {
   eventLinks: { label: string; href: string }[];
   /** Photos of the related event, ready for the lightbox. */
   photos: PhotoItem[];
-  /** "Les 4 photos", or null without photos. */
+  /** "Les 4 photos" or "1 photo", or null without photos. */
   photosLabel: string | null;
 };
 
@@ -318,6 +306,43 @@ function articleEventLinks(event: Event): { label: string; href: string }[] {
     links.push({ label: "La page Luma", href: event.links.luma });
   }
   return links;
+}
+
+function photosLabel(count: number): string {
+  return count === 1 ? countLabel(count, "photo") : `Les ${count} photos`;
+}
+
+/** Share image of a page or an article that has no cover of its own. */
+export const DEFAULT_SOCIAL_PHOTO = "2026-10-sg-gscm-5";
+
+type ArticleMeta = {
+  /** "Title · Site name". */
+  documentTitle: string;
+  description: string;
+  /** Absolute URL of the article page. */
+  url: string;
+  /** Absolute URL of the share image: the cover, or the default photo. */
+  image: string;
+};
+
+function documentTitle(article: Article, site: Pick<Site, "name">): string {
+  return `${article.title} · ${site.name}`;
+}
+
+/** What `generateMetadata` needs of an article: no event, no photos, no body. */
+export function articleMeta(
+  article: Article,
+  site: Pick<Site, "name" | "baseUrl">,
+): ArticleMeta {
+  return {
+    documentTitle: documentTitle(article, site),
+    description: article.excerpt,
+    url: `${site.baseUrl}${articleHref(article.slug)}`,
+    image: absoluteMeetupPhoto(
+      site.baseUrl,
+      article.cover ?? DEFAULT_SOCIAL_PHOTO,
+    ),
+  };
 }
 
 /** The detail page of an article, with the links and photos of its event. */
@@ -339,9 +364,9 @@ export function articleView(
     coverSrc: meetupPhoto(article.cover),
     tags: article.tags ?? [],
     body: article.body,
-    documentTitle: `${article.title} · ${site.name}`,
+    documentTitle: documentTitle(article, site),
     eventLinks: event ? articleEventLinks(event) : [],
     photos,
-    photosLabel: photos.length ? `Les ${photos.length} photos` : null,
+    photosLabel: photos.length ? photosLabel(photos.length) : null,
   };
 }

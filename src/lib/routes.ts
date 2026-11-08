@@ -1,6 +1,7 @@
-// Maps the legacy `.html` hrefs stored in content/*.json to App Router routes.
-// `next/link` adds the basePath on its own; plain `<img src>` does not, so
-// static assets go through `assetUrl`.
+// Hrefs of content/*.json are routes ("/meetup/#proposer") or absolute URLs.
+// `toRoute` still maps the legacy `.html` names that some TypeScript call sites
+// use until they move to routes. `next/link` adds the basePath on its own;
+// plain `<img src>` does not, so static assets go through `assetUrl`.
 
 import type { PageId } from "@/content/types";
 
@@ -27,7 +28,9 @@ export function isExternal(href: string): boolean {
 }
 
 export function toRoute(href: string): string {
-  if (isExternal(href) || href.startsWith("#")) return href;
+  if (isExternal(href) || href.startsWith("#") || href.startsWith("/")) {
+    return href;
+  }
   const [file = "", hash] = href.split("#");
   const route =
     file === "" || file === "./" ? "/" : (PAGE_FILES[file] ?? `/${file}`);

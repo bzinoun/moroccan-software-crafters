@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadArticles, loadSite } from "@/content/load";
+import { loadArticles, loadEvents, loadSite } from "@/content/load";
 import { frenchSpacing } from "@/lib/french";
 import ArticlePage, {
   dynamicParams,
@@ -45,6 +45,24 @@ describe("/actualites/[slug]/ page", () => {
     expect(metadata.openGraph?.url).toBe(
       `${site.baseUrl}/actualites/${article.slug}/`,
     );
+  });
+
+  it("renders the lightbox only for an article that has photos", async () => {
+    const events = loadEvents();
+    const hasPhotos = (a: (typeof items)[number]) =>
+      Boolean(events.find((e) => e.id === a.event)?.photos?.length);
+    const withPhotos = items.find(hasPhotos);
+    const without = items.find((a) => !hasPhotos(a));
+    expect(withPhotos).toBeDefined();
+    expect(without).toBeDefined();
+    const dialogs = async (slug: string) => {
+      const { container } = render(
+        await ArticlePage({ params: Promise.resolve({ slug }) }),
+      );
+      return container.querySelectorAll("dialog").length;
+    };
+    expect(await dialogs(without!.slug)).toBe(0);
+    expect(await dialogs(withPhotos!.slug)).toBe(1);
   });
 
   it("renders the article of the slug", async () => {

@@ -42,7 +42,7 @@ export const TYPE_LABEL: Record<EventType, string> = {
   online: "En ligne",
 };
 
-export type FmtDateOptions = {
+type FmtDateOptions = {
   /** Full month name ("octobre") instead of the abbreviation ("oct."). */
   long?: boolean;
   /** Set to false to leave out the day. A date without a day never shows one. */
@@ -59,14 +59,57 @@ export function fmtDate(iso: string, opts: FmtDateOptions = {}): string {
   return `${day}${month} ${y}`;
 }
 
+/**
+ * Days of an event without the year: "25 → 27 mars", "30 mars → 2 avril", "25 mars".
+ * A date without a day gives the month alone.
+ */
+export function fmtDayRange(start: string, end?: string): string {
+  const parse = (iso: string) => {
+    const [, m, d] = iso.split("-").map(Number);
+    const month = MONTHS_LONG[(m ?? 0) - 1];
+    if (month === undefined)
+      throw new Error(`fmtDayRange: no month in "${iso}"`);
+    return { day: d, month };
+  };
+  const from = parse(start);
+  const first = from.day ? `${from.day} ${from.month}` : from.month;
+  if (end === undefined || end === start) return first;
+  const to = parse(end);
+  const last = `${to.day} ${to.month}`;
+  return to.month === from.month
+    ? `${from.day} → ${last}`
+    : `${first} → ${last}`;
+}
+
 /** URL of an event photo from its name, base path included. */
 export function meetupPhotoUrl(name: string): string {
   return assetUrl(`/assets/img/meetups/${name}.jpg`);
 }
 
+/**
+ * Absolute URL of a public image, for the share metadata. `baseUrl` is
+ * `site.baseUrl`, which already carries the base path: do not use `assetUrl`.
+ */
+export function absoluteImageUrl(baseUrl: string, path: string): string {
+  return `${baseUrl.replace(/\/$/, "")}${path}`;
+}
+
+/** Absolute URL of an event photo from its name. */
+export function absoluteMeetupPhoto(baseUrl: string, name: string): string {
+  return absoluteImageUrl(baseUrl, `/assets/img/meetups/${name}.jpg`);
+}
+
 /** URL of a company logo from its file name, base path included. */
 export function logoUrl(file: string): string {
   return assetUrl(`/assets/img/logos/${file}`);
+}
+
+/**
+ * Key that two spellings of one topic share: no accents, lower case, no outer
+ * spaces. A blank topic gives "".
+ */
+export function topicKey(topic: string): string {
+  return topic.normalize("NFD").replace(/\p{M}/gu, "").trim().toLowerCase();
 }
 
 /** "Venue, City", or the city alone. */
@@ -131,7 +174,7 @@ export function stats(
   };
 }
 
-export type CompanyStats = {
+type CompanyStats = {
   /** Events whose `host` is the company name, any type. */
   hosted: number;
   /** Events whose `sponsors` include the company name. */
@@ -215,7 +258,7 @@ export type LogoTile = {
   sponsored: number;
 };
 
-export type LogoWallOptions = {
+type LogoWallOptions = {
   filter?: (company: Company, stats: CompanyStats) => boolean;
   /** Default true: most hosted plus sponsored first, file order on a tie. */
   sort?: boolean;

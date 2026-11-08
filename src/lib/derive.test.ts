@@ -1,8 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Company, Event } from "@/content/types";
 import {
+  absoluteImageUrl,
+  absoluteMeetupPhoto,
   companyStats,
   fmtDate,
+  fmtDayRange,
   logoUrl,
   logoWallTiles,
   meetupPhotoUrl,
@@ -11,6 +14,7 @@ import {
   place,
   roleLabel,
   stats,
+  topicKey,
   TYPE_LABEL,
 } from "./derive";
 
@@ -131,6 +135,38 @@ describe("fmtDate", () => {
   });
 });
 
+describe("fmtDayRange", () => {
+  it.each([
+    ["2022-03-25", "2022-03-27", "25 → 27 mars"],
+    ["2023-03-30", "2023-04-02", "30 mars → 2 avril"],
+    ["2022-03-25", undefined, "25 mars"],
+    ["2022-03-25", "2022-03-25", "25 mars"],
+    ["2021-04", undefined, "avril"],
+  ])("writes %s to %s as %s", (start, end, label) => {
+    expect(fmtDayRange(start, end)).toBe(label);
+  });
+
+  it("fails on a month outside 1 to 12", () => {
+    expect(() => fmtDayRange("2022-13-01")).toThrow(/2022-13-01/);
+  });
+});
+
+describe("topicKey", () => {
+  it("gives one key to spellings that differ by case, accents and outer spaces", () => {
+    expect(topicKey("  Éthique ")).toBe(topicKey("ethique"));
+    expect(topicKey("TDD")).toBe(topicKey("tdd"));
+  });
+
+  it("keeps different topics apart and inner spaces", () => {
+    expect(topicKey("clean code")).not.toBe(topicKey("cleancode"));
+  });
+
+  it("gives an empty key to a blank topic", () => {
+    expect(topicKey("   ")).toBe("");
+    expect(topicKey("")).toBe("");
+  });
+});
+
 describe("place", () => {
   it("joins the venue and the city", () => {
     expect(place(byId("s2"))).toBe("Hotel Mer, Bouznika");
@@ -164,6 +200,38 @@ describe("meetupPhotoUrl and logoUrl", () => {
     );
     expect(logoUrl("bdsi.svg")).toBe(
       "/moroccan-software-crafters/assets/img/logos/bdsi.svg",
+    );
+  });
+});
+
+describe("absoluteImageUrl and absoluteMeetupPhoto", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  // `baseUrl` of the site already carries the GitHub Pages base path.
+  const baseUrl = "https://example.org/base";
+
+  it("joins the base URL and the path of a public image", () => {
+    expect(absoluteImageUrl(baseUrl, "/assets/img/a.jpg")).toBe(
+      "https://example.org/base/assets/img/a.jpg",
+    );
+  });
+
+  it("does not double the slash when the base URL ends with one", () => {
+    expect(absoluteImageUrl(`${baseUrl}/`, "/assets/img/a.jpg")).toBe(
+      "https://example.org/base/assets/img/a.jpg",
+    );
+  });
+
+  it("builds the absolute URL of a meetup photo from its name", () => {
+    expect(absoluteMeetupPhoto(baseUrl, "2026-05-axa-1")).toBe(
+      "https://example.org/base/assets/img/meetups/2026-05-axa-1.jpg",
+    );
+  });
+
+  it("does not add the base path of the build a second time", () => {
+    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/other");
+    expect(absoluteMeetupPhoto(baseUrl, "x")).toBe(
+      "https://example.org/base/assets/img/meetups/x.jpg",
     );
   });
 });

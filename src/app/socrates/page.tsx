@@ -18,7 +18,9 @@ import {
   loadSocrates,
   loadSponsoring,
 } from "@/content/load";
+import type { Sponsoring } from "@/content/types";
 import { meetupPhotoUrl } from "@/lib/derive";
+import { formSite } from "@/lib/forms";
 import { frenchSpacing } from "@/lib/french";
 import { trustLogos } from "@/lib/home-data";
 import {
@@ -54,6 +56,16 @@ export const metadata: Metadata = {
     images: [`${site.baseUrl}/assets/img/meetups/${SHARE_PHOTO}.jpg`],
   },
 };
+
+/** Package id to the level of the sponsor form that "Choisir ce niveau" checks. */
+function packageLevels(sp: Sponsoring): Record<string, string> {
+  return Object.fromEntries(
+    sp.packages.flatMap((p) => {
+      const level = levelForPackage(sp, p.id);
+      return level ? [[p.id, level]] : [];
+    }),
+  );
+}
 
 // Server component: the sections follow the order and the ids of the root
 // former `socrates.html` (other pages link to `#sponsoring`; the sponsor sticker links to
@@ -167,17 +179,8 @@ export default function SocratesPage() {
         trust={trustLogos(sp, companies.items)}
         packages={sponsorPackages(sp)}
         levels={sponsorLevels(sp)}
-        packageLevels={Object.fromEntries(
-          sp.packages.flatMap((p) => {
-            const level = levelForPackage(sp, p.id);
-            return level ? [[p.id, level]] : [];
-          }),
-        )}
-        site={{
-          links: { linkedin: site.links.linkedin },
-          contact: site.contact,
-          form: site.form,
-        }}
+        packageLevels={packageLevels(sp)}
+        site={formSite(site)}
       />
 
       <Section id="partenaires" aria-labelledby="sponsors-title">

@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { ArticleListSection } from "@/components/actualites/ArticleListSection";
 import { loadArticles, loadSite } from "@/content/load";
-import { articleCards } from "@/lib/pages-data";
+import { absoluteMeetupPhoto } from "@/lib/derive";
+import { articleCards, DEFAULT_SOCIAL_PHOTO } from "@/lib/pages-data";
 
 // Server component: the loaders read content/*.json at build time. Port of
 // the list branch of `news()` in the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`) and of the former `actualites.html` (`git show 1353207:actualites.html`).
 const articles = loadArticles();
 const site = loadSite();
-
-// Static in the former `actualites.html` (og:image): the cover of the Société Générale recap.
-const SHARE_PHOTO = "2026-10-sg-gscm-5";
 
 // A page-level openGraph replaces the layout one, so it repeats type and url.
 // Share URLs are absolute and `site.baseUrl` already carries the base path.
@@ -21,7 +19,8 @@ export const metadata: Metadata = {
     title: articles.meta.title,
     description: articles.lead,
     url: `${site.baseUrl}/actualites/`,
-    images: [`${site.baseUrl}/assets/img/meetups/${SHARE_PHOTO}.jpg`],
+    // The former `actualites.html` shared the cover of the Société Générale recap.
+    images: [absoluteMeetupPhoto(site.baseUrl, DEFAULT_SOCIAL_PHOTO)],
   },
 };
 

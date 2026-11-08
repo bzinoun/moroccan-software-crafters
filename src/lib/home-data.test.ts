@@ -8,6 +8,7 @@ import type {
   Sponsoring,
 } from "@/content/types";
 import {
+  DEFAULT_TOPICS_LIMIT,
   eventLinks,
   eventsByYear,
   featuredEvents,
@@ -117,9 +118,10 @@ const homeWith = (part: {
 
 describe("heroNote", () => {
   const home = homeWith({ hero: { note: "" } });
+  const today = "2026-11-08";
 
   it("describes the latest meetup when the home note is empty", () => {
-    expect(heroNote(home, events)).toBe(
+    expect(heroNote(home, events, today)).toBe(
       "Dernière édition : 24 octobre 2026 chez Host One, 110 inscrits.",
     );
   });
@@ -128,14 +130,16 @@ describe("heroNote", () => {
     const list = [
       ev({ id: "a", type: "meetup", date: "2024-06-29", host: "Host Two" }),
     ];
-    expect(heroNote(home, list)).toBe(
+    expect(heroNote(home, list, today)).toBe(
       "Dernière édition : 29 juin 2024 chez Host Two.",
     );
   });
 
   it("leaves out the host when the latest meetup has none", () => {
     const list = [ev({ id: "a", type: "meetup", date: "2024-06-29" })];
-    expect(heroNote(home, list)).toBe("Dernière édition : 29 juin 2024.");
+    expect(heroNote(home, list, today)).toBe(
+      "Dernière édition : 29 juin 2024.",
+    );
   });
 
   it("skips events that are not meetups to find the latest one", () => {
@@ -149,18 +153,43 @@ describe("heroNote", () => {
         registrations: 89,
       }),
     ];
-    expect(heroNote(home, list)).toBe(
+    expect(heroNote(home, list, today)).toBe(
       "Dernière édition : 19 juillet 2025 chez Host Three, 89 inscrits.",
     );
   });
 
+  it("writes one registration without a plural", () => {
+    const list = [
+      ev({ id: "a", type: "meetup", date: "2024-06-29", registrations: 1 }),
+    ];
+    expect(heroNote(home, list, today)).toBe(
+      "Dernière édition : 29 juin 2024, 1 inscrit.",
+    );
+  });
+
+  it("skips a meetup that is after the build date", () => {
+    const list = [
+      ev({ id: "next", type: "meetup", date: "2026-12-12", host: "Futur" }),
+      ev({ id: "last", type: "meetup", date: "2026-11-08", host: "Dernier" }),
+      ev({ id: "old", type: "meetup", date: "2026-05-09", host: "Ancien" }),
+    ];
+    expect(heroNote(home, list, today)).toBe(
+      "Dernière édition : 8 novembre 2026 chez Dernier.",
+    );
+  });
+
+  it("returns an empty text when every meetup is after the build date", () => {
+    const list = [ev({ id: "next", type: "meetup", date: "2026-12-12" })];
+    expect(heroNote(home, list, today)).toBe("");
+  });
+
   it("uses the note of the home content when it is set", () => {
     const custom = homeWith({ hero: { note: "Rendez-vous en 2027." } });
-    expect(heroNote(custom, events)).toBe("Rendez-vous en 2027.");
+    expect(heroNote(custom, events, today)).toBe("Rendez-vous en 2027.");
   });
 
   it("returns an empty text when there is no meetup and no note", () => {
-    expect(heroNote(home, [])).toBe("");
+    expect(heroNote(home, [], today)).toBe("");
   });
 });
 
@@ -213,9 +242,19 @@ describe("statItems", () => {
     ]);
   });
 
-  it("gives an empty value to a stat without key and value", () => {
-    const home = homeWith({ stats: [{ label: "x" }] });
-    expect(statItems(home, site, events)).toEqual([{ value: "", label: "x" }]);
+  it("leaves out a stat that has no value", () => {
+    const home = homeWith({
+      stats: [{ label: "x" }, { key: "events", label: "A" }],
+    });
+    expect(statItems(home, site, events)).toEqual([{ value: "9", label: "A" }]);
+  });
+
+  it("leaves out a computed figure that is empty", () => {
+    // No meetup has registrations, so the average is empty.
+    const home = homeWith({ stats: [{ key: "avgRegistrations", label: "C" }] });
+    expect(statItems(home, site, [ev({ id: "a", type: "meetup" })])).toEqual(
+      [],
+    );
   });
 });
 
@@ -310,12 +349,33 @@ describe("topicsFromEvents", () => {
     ]);
   });
 
-  it("falls back to 10 topics when the limit is 0", () => {
-    expect(topicsFromEvents(manyTopics, 0)).toHaveLength(10);
+  it("treats topics that differ only by accents or outer spaces as one", () => {
+    const list = [
+      ev({ id: "a", type: "meetup", topics: ["Éthique", "Tests"] }),
+      ev({ id: "b", type: "meetup", topics: ["ethique", " Tests  "] }),
+    ];
+    expect(topicsFromEvents(list, 10).map((t) => t.topic)).toEqual([
+      "Éthique",
+      "Tests",
+    ]);
   });
 
-  it("uses 10 topics when the limit is not given", () => {
-    expect(topicsFromEvents(manyTopics)).toHaveLength(10);
+  it("shows the first spelling without its outer spaces", () => {
+    const list = [ev({ id: "a", type: "meetup", topics: ["  Cloud "] })];
+    expect(topicsFromEvents(list, 10)[0]?.topic).toBe("Cloud");
+  });
+
+  it("drops a blank topic", () => {
+    const list = [ev({ id: "a", type: "meetup", topics: ["", "  ", "Data"] })];
+    expect(topicsFromEvents(list, 10).map((t) => t.topic)).toEqual(["Data"]);
+  });
+
+  it("falls back to the default limit when the limit is 0", () => {
+    expect(topicsFromEvents(manyTopics, 0)).toHaveLength(DEFAULT_TOPICS_LIMIT);
+  });
+
+  it("uses the default limit when the limit is not given", () => {
+    expect(topicsFromEvents(manyTopics)).toHaveLength(DEFAULT_TOPICS_LIMIT);
   });
 
   it("returns no topic for events without topics", () => {
@@ -353,6 +413,16 @@ describe("featuredMeta", () => {
     expect(featuredMeta(byId("meetup-2026-10"))).toBe(
       "24 oct. 2026 · Casablanca · 110 inscrits",
     );
+  });
+
+  it("writes one registration without a plural", () => {
+    const one = ev({
+      id: "one",
+      type: "meetup",
+      date: "2026-10-24",
+      registrations: 1,
+    });
+    expect(featuredMeta(one)).toBe("24 oct. 2026 · Casablanca · 1 inscrit");
   });
 
   it("leaves out the registrations when there are none", () => {
@@ -408,6 +478,23 @@ describe("timelineWhere", () => {
     expect(timelineWhere(byId("socrates-2025"))).toBe(
       "Hotel Mer, Bouznika · 50 participants · 3 partenaires",
     );
+  });
+
+  it("writes one participant and one partner without a plural", () => {
+    const one = ev({
+      id: "s",
+      type: "socrates",
+      participants: 1,
+      sponsors: ["Host One"],
+    });
+    expect(timelineWhere(one)).toBe(
+      "Casablanca · 1 participant · 1 partenaire",
+    );
+  });
+
+  it("never starts with a separator when the place is empty", () => {
+    const noPlace = ev({ id: "m", type: "meetup", city: "", registrations: 5 });
+    expect(timelineWhere(noPlace)).toBe("5 inscrits");
   });
 
   it("shows the place alone when there is nothing more", () => {
@@ -552,6 +639,26 @@ describe("socratesEditions", () => {
         detail: "3e édition · 50 crafters",
       },
     ]);
+  });
+
+  it("orders the editions by date, whatever the order of the list", () => {
+    const list = [
+      ev({ id: "b", type: "socrates", date: "2024-03-09", city: "B" }),
+      ev({ id: "c", type: "socrates", date: "2025-09-04", city: "C" }),
+      ev({ id: "a", type: "socrates", date: "2022-03-11", city: "A" }),
+    ];
+    expect(socratesEditions(list).map((e) => [e.id, e.detail])).toEqual([
+      ["a", "1re édition"],
+      ["b", "2e édition"],
+      ["c", "3e édition"],
+    ]);
+  });
+
+  it("writes one crafter without a plural", () => {
+    const list = [
+      ev({ id: "s", type: "socrates", date: "2026-03-01", participants: 1 }),
+    ];
+    expect(socratesEditions(list)[0]?.detail).toBe("1re édition · 1 crafter");
   });
 
   it("does not reorder the list it receives", () => {

@@ -12,7 +12,7 @@ describe("Prose", () => {
     render(<Prose>{md(BODY)}</Prose>);
     expect(
       screen.getByRole("heading", {
-        level: 3,
+        level: 2,
         name: "A section title",
       }),
     ).toBeInTheDocument();

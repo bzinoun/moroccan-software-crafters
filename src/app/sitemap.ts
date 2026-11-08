@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-import { loadSite } from "@/content/load";
-import { articleSlugs } from "@/lib/pages-data";
+import { loadArticles, loadSite } from "@/content/load";
 
 // A static export needs the metadata route prerendered at build time.
 export const dynamic = "force-static";
@@ -18,9 +17,12 @@ const PAGE_PATHS = [
 // built from it. Every path ends with a slash (`trailingSlash: true`).
 export default function sitemap(): MetadataRoute.Sitemap {
   const { baseUrl } = loadSite();
-  const paths = [
-    ...PAGE_PATHS,
-    ...articleSlugs().map((slug) => `/actualites/${slug}/`),
-  ];
-  return paths.map((path) => ({ url: `${baseUrl}${path}` }));
+  const articles = loadArticles();
+  const pages = PAGE_PATHS.map((path) => ({ url: `${baseUrl}${path}` }));
+  // An article has a date, so it gets a `lastModified`; the other pages have none.
+  const posts = articles.items.map((a) => ({
+    url: `${baseUrl}/actualites/${a.slug}/`,
+    lastModified: a.date,
+  }));
+  return [...pages, ...posts];
 }

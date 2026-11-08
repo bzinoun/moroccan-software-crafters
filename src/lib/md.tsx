@@ -2,17 +2,18 @@
 // It returns React nodes, never an HTML string, so React escapes all text and
 // no input can add an element that this module does not create.
 //
-// Blocks (separated by a blank line): `#`, `##`, `###` headings (rendered as
-// h2, h3, h4), `-` or `*` lists, `1.` or `1)` lists, `>` quotes, paragraphs
-// (single line breaks become <br>). Inline: `code`, **bold**, *italic* and
-// [text](url). A URL is absolute (http or https) or relative (letters, digits,
-// `_ . / # ? = -`); anything else, `javascript:` for example, stays text.
+// Blocks (separated by a blank line): `#`, `##`, `###` headings (`#` and `##`
+// render h2, `###` renders h3: the page h1 is the article title), `-` or `*`
+// lists, `1.` or `1)` lists, `>` quotes, paragraphs (single line breaks become
+// <br>). Inline: `code`, **bold**, *italic* and [text](url). A URL is an https
+// URL or a site route that starts with one `/` (letters, digits, `_ . / # ? = -`);
+// anything else, `javascript:` or a relative path for example, stays text.
 //
 // Differences from the old renderer, on purpose:
 // - the content of a code span stays literal (the old one still read stars in it);
 // - links are read before bold and italic, so stars in a URL or bold around a link work;
-// - a relative link goes through `toRoute()` and opens in the same tab, an
-//   absolute one opens in a new tab with rel="noopener";
+// - a site route opens in the same tab, an https URL opens in a new tab with
+//   rel="noopener";
 // - a URL that starts with `//` is not a link;
 // - plain text goes through frenchSpacing() (a narrow no-break space before
 //   ? ! : ;), as the old one did on every text node; code spans and hrefs do not;
@@ -21,7 +22,7 @@
 import Link from "next/link";
 import { createElement, type ReactElement, type ReactNode } from "react";
 import { frenchSpacing } from "./french";
-import { isExternal, toRoute } from "./routes";
+import { isExternal } from "./routes";
 
 // Private-use characters mark the inline structure while the regexes run.
 // They are stripped from the input first, so the input cannot forge a marker.
@@ -31,17 +32,10 @@ const END = "";
 const FORGED = /[-]/g;
 const TOKEN = /([seac])(\d*)|([sea])/g;
 
-const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+|[\w./#?=-]+)\)/g;
-const ARTICLE_LINK = /^actualites\.html\?a=([\w-]+)$/;
+const LINK = /\[([^\]]+)\]\((https:\/\/[^)\s]+|\/[\w./#?=-]*)\)/g;
 
 type Kind = "s" | "e" | "a";
 type Frame = { kind: Kind | "root"; href?: string; children: ReactNode[] };
-
-/** Route of a relative link of the former site, "actualites.html?a=slug" included. */
-function internalRoute(href: string): string {
-  const article = ARTICLE_LINK.exec(href);
-  return article ? `/actualites/${article[1]}/` : toRoute(href);
-}
 
 function closeFrame(frame: Frame, key: number): ReactElement {
   const { kind, href, children } = frame;
@@ -54,11 +48,7 @@ function closeFrame(frame: Frame, key: number): ReactElement {
       ...children,
     );
   }
-  return createElement(
-    Link,
-    { key, href: internalRoute(href ?? "") },
-    ...children,
-  );
+  return createElement(Link, { key, href: href ?? "" }, ...children);
 }
 
 function inline(source: string): ReactNode[] {
@@ -123,7 +113,7 @@ function block(lines: string[], key: number): ReactElement {
   const heading = /^(#{1,3})\s+(.*)$/.exec(first);
   if (heading && lines.length === 1) {
     return createElement(
-      `h${(heading[1] as string).length + 1}`,
+      `h${Math.max(2, (heading[1] as string).length)}`,
       { key },
       ...inline(heading[2] as string),
     );

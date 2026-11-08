@@ -15,9 +15,9 @@
       "href": "https://socrates-ma.github.io/"
     },
     "facts": [
-      { "value": "4", "label": "éditions depuis 2022" },
+      { "key": "editions", "label": "éditions depuis 2022" },
       { "value": "30 → 50", "label": "participants par édition" },
-      { "value": "11", "label": "entreprises partenaires" },
+      { "key": "partners", "label": "entreprises partenaires" },
       { "value": "3 pays", "label": "Maroc, France, Allemagne" }
     ]
   },
@@ -116,47 +116,21 @@
     "title": "De trente à cinquante crafters.",
     "items": [
       {
-        "year": "2022",
-        "edition": "1re édition",
-        "city": "Marrakech",
-        "venue": "Palais Ronsard",
-        "dates": "25 → 27 mars",
-        "participants": 30,
-        "partners": 8,
+        "event": "2022-03-socrates",
         "photo": "2022-03-socrates-groupe",
-        "text": "La première unconference Software Craft & Testing au Maroc. Trente crafters, huit partenaires, et la preuve que le format tient aussi ici."
+        "text": "La première unconference Software Craft & Testing au Maroc. Trente crafters, et la preuve que le format tient aussi ici."
       },
       {
-        "year": "2023",
-        "edition": "2e édition",
-        "city": "Bouznika",
-        "venue": "",
-        "dates": "10 → 12 mars",
-        "participants": 45,
-        "partners": 10,
+        "event": "2023-03-socrates",
         "photo": "2022-03-socrates-open-space",
-        "text": "Dix partenaires, McKinsey en knowledge partner, et un coding kata pour clore l'édition."
+        "text": "McKinsey en knowledge partner, et un coding kata pour clore l'édition."
       },
       {
-        "year": "2024",
-        "edition": "3e édition",
-        "city": "Bouznika",
-        "venue": "The View Bouznika",
-        "dates": "12 → 15 septembre",
-        "participants": 50,
-        "partners": 6,
-        "photo": "",
+        "event": "2024-09-socrates",
         "text": "Passage à quatre jours et à la rentrée de septembre. Des participants venus du Maroc, de France et d'Allemagne."
       },
       {
-        "year": "2025",
-        "edition": "4e édition",
-        "city": "Bouznika",
-        "venue": "The View Bouznika",
-        "dates": "4 → 7 septembre",
-        "participants": 50,
-        "partners": 6,
-        "photo": "",
+        "event": "2025-09-socrates",
         "text": "Une quatrième édition complète, avec six partenaires, dont cinq présents depuis la première."
       }
     ]

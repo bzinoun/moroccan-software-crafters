@@ -18,12 +18,12 @@ describe("md blocks", () => {
     ["CRLF line endings", "a\r\n\r\nb", "<p>a</p><p>b</p>"],
     ["outer blank lines trimmed", "\n\n  a  \n\n", "<p>a</p>"],
     ["heading 1 becomes h2", "# Titre", "<h2>Titre</h2>"],
-    ["heading 2 becomes h3", "## Titre", "<h3>Titre</h3>"],
-    ["heading 3 becomes h4", "### Titre", "<h4>Titre</h4>"],
+    ["heading 2 becomes h2, below the page h1", "## Titre", "<h2>Titre</h2>"],
+    ["heading 3 becomes h3", "### Titre", "<h3>Titre</h3>"],
     [
       "heading with inline markup",
       "## Un **gras**",
-      "<h3>Un <strong>gras</strong></h3>",
+      "<h2>Un <strong>gras</strong></h2>",
     ],
     ["four hashes stay a paragraph", "#### Titre", "<p>#### Titre</p>"],
     ["no space after the hash stays a paragraph", "#Titre", "<p>#Titre</p>"],
@@ -122,9 +122,9 @@ describe("md links", () => {
     );
   });
 
-  it("accepts an http link", () => {
-    expect(html("[a](http://exemple.ma/p?x=1#y)")).toBe(
-      '<p><a href="http://exemple.ma/p?x=1#y" target="_blank" rel="noopener">a</a></p>',
+  it("does not link an http URL, only https", () => {
+    expect(html("[a](http://exemple.ma/p)")).toBe(
+      "<p>[a](http://exemple.ma/p)</p>",
     );
   });
 
@@ -135,9 +135,9 @@ describe("md links", () => {
     );
   });
 
-  it("turns a root-site page link into its route, without a new tab", () => {
+  it("links a site route in the same tab", () => {
     const { container } = render(
-      <div>{md("[Les formules](socrates.html#sponsoring)")}</div>,
+      <div>{md("[Les formules](/socrates/#sponsoring)")}</div>,
     );
     const a = container.querySelector("a");
     expect(a?.getAttribute("href")).toBe("/socrates/#sponsoring");
@@ -145,16 +145,23 @@ describe("md links", () => {
     expect(a?.textContent).toBe("Les formules");
   });
 
-  it("turns a root-site article link into the article route", () => {
+  it("links an article route", () => {
     const { container } = render(
-      <div>
-        {md("[a](actualites.html?a=axa-craftsmanship-a-l-ere-de-l-ia)")}
-      </div>,
+      <div>{md("[a](/actualites/axa-craftsmanship-a-l-ere-de-l-ia/)")}</div>,
     );
     expect(container.querySelector("a")?.getAttribute("href")).toBe(
       "/actualites/axa-craftsmanship-a-l-ere-de-l-ia/",
     );
   });
+
+  it.each([["./a"], ["../a"], ["socrates.html#sponsoring"], ["a/b"]])(
+    "does not link the relative URL %s",
+    (url) => {
+      const { container } = render(<div>{md(`[a](${url})`)}</div>);
+      expect(container.querySelector("a")).toBeNull();
+      expect(container.textContent).toBe(`[a](${url})`);
+    },
+  );
 
   it("renders markup inside the link text", () => {
     expect(html("[**gras**](https://x.fr)")).toBe(
@@ -208,7 +215,7 @@ describe("md unsafe input", () => {
     );
     expect(container.querySelector("b")).toBeNull();
     expect(container.querySelector("i")).toBeNull();
-    expect(container.querySelector("h3")?.textContent).toBe("<b>x</b>");
+    expect(container.querySelector("h2")?.textContent).toBe("<b>x</b>");
     expect(container.querySelector("strong")?.textContent).toBe("<i>y</i>");
   });
 
@@ -235,7 +242,7 @@ describe("md unsafe input", () => {
 
 describe("md on an article body", () => {
   const body = [
-    "Introduction avec un [lien](socrates.html#sponsoring).",
+    "Introduction avec un [lien](/socrates/#sponsoring).",
     "",
     "## Premier titre",
     "",
@@ -252,8 +259,8 @@ describe("md on an article body", () => {
       [...(container.firstElementChild?.children ?? [])].map(
         (el) => el.tagName,
       ),
-    ).toEqual(["P", "H3", "UL", "P"]);
-    expect(container.querySelector("h3")?.textContent).toBe("Premier titre");
+    ).toEqual(["P", "H2", "UL", "P"]);
+    expect(container.querySelector("h2")?.textContent).toBe("Premier titre");
     expect(container.querySelectorAll("li")).toHaveLength(3);
     expect(container.querySelector("a")?.getAttribute("href")).toBe(
       "/socrates/#sponsoring",
@@ -286,7 +293,7 @@ describe("md french spacing", () => {
   });
 
   it("applies to headings, list items and link text", () => {
-    expect(html("## Pourquoi : ici")).toBe("<h3>Pourquoi\u202f: ici</h3>");
+    expect(html("## Pourquoi : ici")).toBe("<h2>Pourquoi\u202f: ici</h2>");
     expect(html("- tests : oui")).toBe("<ul><li>tests\u202f: oui</li></ul>");
     expect(html("[voir : ici](https://x.fr)")).toBe(
       '<p><a href="https://x.fr" target="_blank" rel="noopener">voir\u202f: ici</a></p>',

@@ -25,7 +25,6 @@
       "2026-10-sg-gscm-6",
       "2026-10-sg-gscm-1"
     ],
-    "poster": "2026-10-sg-gscm-affiche",
     "links": {
       "luma": "https://luma.com/6eiyisjw",
       "linkedin": "https://www.linkedin.com/feed/update/urn:li:activity:7517872453725888512/"
@@ -55,7 +54,6 @@
       "2026-05-axa-3",
       "2026-05-axa-4"
     ],
-    "poster": "2026-05-axa-affiche",
     "links": {
       "luma": "https://luma.com/jjn7tuih",
       "linkedin": "https://www.linkedin.com/feed/update/urn:li:activity:7464586067107528704/"
@@ -79,7 +77,6 @@
     "summary": "L'IA et son impact concret sur notre façon de construire du logiciel, et le changement qu'elle demande au management et aux process.",
     "registrations": 119,
     "photos": ["2026-03-innovx-1", "2026-03-innovx-2", "2026-03-innovx-3"],
-    "poster": "2026-03-innovx-affiche",
     "links": {
       "luma": "https://luma.com/4whe7w5k",
       "linkedin": "https://www.linkedin.com/feed/update/urn:li:activity:7444654887302418432/"
@@ -88,6 +85,7 @@
   {
     "id": "2025-09-socrates",
     "date": "2025-09-04",
+    "endDate": "2025-09-07",
     "type": "socrates",
     "title": "SoCraTes Maroc 2025 · 4e édition",
     "city": "Bouznika",
@@ -140,6 +138,7 @@
   {
     "id": "2024-09-socrates",
     "date": "2024-09-12",
+    "endDate": "2024-09-15",
     "type": "socrates",
     "title": "SoCraTes Maroc 2024 · 3e édition",
     "city": "Bouznika",
@@ -212,6 +211,7 @@
   {
     "id": "2023-03-socrates",
     "date": "2023-03-10",
+    "endDate": "2023-03-12",
     "type": "socrates",
     "title": "SoCraTes Maroc 2023 · 2e édition",
     "city": "Bouznika",
@@ -267,6 +267,7 @@
   {
     "id": "2022-03-socrates",
     "date": "2022-03-25",
+    "endDate": "2022-03-27",
     "type": "socrates",
     "title": "SoCraTes Maroc 2022 · 1re édition",
     "city": "Marrakech",
