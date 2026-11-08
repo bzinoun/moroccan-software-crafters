@@ -9,7 +9,6 @@ import { FaqList } from "@/components/home/Faq";
 import { TopicWall } from "@/components/home/TopicWall";
 import { ZoomSplit } from "@/components/meetup/ZoomSplit";
 import { loadEvents, loadMeetup } from "@/content/load";
-import { frenchSpacing } from "@/lib/french";
 import { meetupPhotoUrl } from "@/lib/derive";
 import { pageMetadata } from "@/lib/page-metadata";
 import { meetupSteps, meetupTopicBoard } from "@/lib/pages-data";
@@ -30,21 +29,21 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Server component: other pages link to the section ids (`#proposer`). The alt
-// texts of the two photos are not in meetup.json.
+// texts of the two photos are not in meetup.json. Every section is named by its
+// title through `aria-labelledby`.
 export default function MeetupPage() {
-  const m = meetup;
   const events = loadEvents();
 
   return (
     <>
       <PageHero
         titleId="meetup-title"
-        eyebrow={m.hero.eyebrow}
-        title={m.hero.title}
-        lead={m.hero.lead}
-        facts={m.hero.facts}
+        eyebrow={meetup.hero.eyebrow}
+        title={meetup.hero.title}
+        lead={meetup.hero.lead}
+        facts={meetup.hero.facts}
         image={{
-          src: meetupPhotoUrl(m.hero.photo),
+          src: meetupPhotoUrl(meetup.hero.photo),
           alt: "Participants en cercle pendant un meetup",
         }}
         postit={{ color: "yellow", text: "Vous fixez l'agenda." }}
@@ -53,34 +52,29 @@ export default function MeetupPage() {
       <CardsSection
         id="pour-qui"
         titleId="who-title"
-        eyebrow={m.who.eyebrow}
-        title={m.who.title}
-        lead={m.who.text}
-        items={m.who.items}
+        eyebrow={meetup.who.eyebrow}
+        title={meetup.who.title}
+        lead={meetup.who.text}
+        items={meetup.who.items}
         columns={4}
       />
 
       <Section variant="alt" id="deroule" aria-labelledby="steps-title">
         <SectionHead
-          eyebrow={m.steps.eyebrow}
-          title={frenchSpacing(m.steps.title)}
+          eyebrow={meetup.steps.eyebrow}
+          title={meetup.steps.title}
           titleId="steps-title"
         />
-        <StepRows
-          steps={meetupSteps(m).map(({ photoSrc, ...step }) => ({
-            ...step,
-            image: photoSrc,
-          }))}
-        />
+        <StepRows steps={meetupSteps(meetup)} />
       </Section>
 
       <ZoomSplit
         id="marketplace"
-        eyebrow={m.marketplace.eyebrow}
-        title={m.marketplace.title}
-        steps={m.marketplace.steps}
+        eyebrow={meetup.marketplace.eyebrow}
+        title={meetup.marketplace.title}
+        steps={meetup.marketplace.steps}
         image={{
-          src: meetupPhotoUrl(m.marketplace.photo),
+          src: meetupPhotoUrl(meetup.marketplace.photo),
           alt: "Un participant devant le mur de post-its",
         }}
       />
@@ -89,30 +83,30 @@ export default function MeetupPage() {
         id="proposer"
         variant="alt"
         titleId="propose-title"
-        eyebrow={m.propose.eyebrow}
-        title={m.propose.title}
-        items={m.propose.items}
+        eyebrow={meetup.propose.eyebrow}
+        title={meetup.propose.title}
+        items={meetup.propose.items}
         columns={4}
       />
 
       <CardsSection
         id="regles"
         titleId="rules-title"
-        eyebrow={m.rules.eyebrow}
-        title={m.rules.title}
-        items={m.rules.items}
+        eyebrow={meetup.rules.eyebrow}
+        title={meetup.rules.title}
+        items={meetup.rules.items}
         columns={3}
       />
 
       <Section variant="alt" id="sujets" aria-labelledby="topics-title">
         <SectionHead
-          eyebrow={m.topicsWall.eyebrow}
-          title={frenchSpacing(m.topicsWall.title)}
+          eyebrow={meetup.topicsWall.eyebrow}
+          title={meetup.topicsWall.title}
           titleId="topics-title"
         />
         <TopicWall
           variant="board"
-          label={m.topicsWall.title}
+          label={meetup.topicsWall.title}
           topics={meetupTopicBoard(events)}
         />
       </Section>
@@ -120,20 +114,20 @@ export default function MeetupPage() {
       <Section id="faq" aria-labelledby="faq-title">
         <SectionHead
           align="center"
-          eyebrow={m.faq.eyebrow}
-          title={frenchSpacing(m.faq.title)}
+          eyebrow={meetup.faq.eyebrow}
+          title={meetup.faq.title}
           titleId="faq-title"
         />
-        <FaqList items={m.faq.items} />
+        <FaqList items={meetup.faq.items} />
       </Section>
 
       <CtaBand
         tight
         variant="green"
-        title={m.cta.title}
-        text={m.cta.text}
-        primary={m.cta.primary}
-        secondary={m.cta.secondary}
+        title={meetup.cta.title}
+        text={meetup.cta.text}
+        primary={meetup.cta.primary}
+        secondary={meetup.cta.secondary}
       />
     </>
   );

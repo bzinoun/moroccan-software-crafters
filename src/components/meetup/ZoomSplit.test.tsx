@@ -12,16 +12,14 @@ const image = {
   alt: "A participant in front of the post-it wall",
 };
 
-function renderZoom(
-  overrides: Partial<{ width: number; height: number }> = {},
-) {
+function renderZoom() {
   const { container } = render(
     <ZoomSplit
       id="marketplace"
       eyebrow="Zoom"
       title="How the round tables start"
       steps={steps}
-      image={{ ...image, ...overrides }}
+      image={image}
     />,
   );
   return container.querySelector("section") as HTMLElement;
@@ -47,20 +45,13 @@ describe("ZoomSplit", () => {
     expect(screen.getByText("Zoom")).toBeInTheDocument();
   });
 
-  it("shows the photo with its alt text, lazy, at the default 800 by 771", () => {
+  it("shows the photo with its alt text, lazy, with the 4 by 3 size of its frame", () => {
     renderZoom();
     const img = screen.getByRole("img", { name: image.alt });
     expect(img).toHaveAttribute("src", image.src);
     expect(img).toHaveAttribute("loading", "lazy");
     expect(img).toHaveAttribute("width", "800");
-    expect(img).toHaveAttribute("height", "771");
-  });
-
-  it("uses the size given for the photo", () => {
-    renderZoom({ width: 400, height: 300 });
-    const img = screen.getByRole("img", { name: image.alt });
-    expect(img).toHaveAttribute("width", "400");
-    expect(img).toHaveAttribute("height", "300");
+    expect(img).toHaveAttribute("height", "600");
   });
 
   it("lists one numbered item per step beside the photo", () => {

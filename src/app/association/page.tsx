@@ -11,7 +11,6 @@ import {
   loadSite,
 } from "@/content/load";
 import { meetupPhotoUrl } from "@/lib/derive";
-import { frenchSpacing } from "@/lib/french";
 import { pageMetadata } from "@/lib/page-metadata";
 import { associationFacts, hostsWall } from "@/lib/pages-data";
 
@@ -33,7 +32,8 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Server component: every loader reads content/*.json at build time. Other
-// pages link to the section ids.
+// pages link to the section ids. Every section is named by its title through
+// `aria-labelledby`.
 export default function AssociationPage() {
   const events = loadEvents();
   const companies = loadCompanies();
@@ -43,9 +43,10 @@ export default function AssociationPage() {
   return (
     <>
       <PageHero
-        eyebrow={frenchSpacing(hero.eyebrow)}
-        title={frenchSpacing(hero.title)}
-        lead={frenchSpacing(hero.lead)}
+        titleId="association-title"
+        eyebrow={hero.eyebrow}
+        title={hero.title}
+        lead={hero.lead}
         facts={associationFacts(site, events)}
         image={{
           src: meetupPhotoUrl(hero.photo),
@@ -57,6 +58,7 @@ export default function AssociationPage() {
       />
       <CardsSection
         id="mission"
+        titleId="mission-title"
         eyebrow={association.mission.eyebrow}
         title={association.mission.title}
         items={association.mission.items}
@@ -64,6 +66,7 @@ export default function AssociationPage() {
       />
       <CardsSection
         id="principes"
+        titleId="principles-title"
         variant="alt"
         eyebrow={association.principles.eyebrow}
         title={association.principles.title}
@@ -79,6 +82,7 @@ export default function AssociationPage() {
       />
       <CardsSection
         id="contribuer"
+        titleId="contribute-title"
         eyebrow={association.contribute.eyebrow}
         title={association.contribute.title}
         items={association.contribute.items}

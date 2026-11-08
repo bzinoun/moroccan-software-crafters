@@ -1,11 +1,12 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import type { PhotoItem } from "@/lib/derive";
 import { useLightbox } from "../Lightbox";
 
-// The "Les N photos" entry of the links row of an article. The old site used
-// an anchor with `href="#"`; a button is the honest element for an action, and
-// it looks like the other links of the row. Needs a `LightboxProvider` above it.
+// The "Les N photos" entry of the links row of an article. It is a link to the
+// first photo file, so it works without JavaScript; with JavaScript a plain
+// click opens the lightbox instead. Needs a `LightboxProvider` above it.
 export function ArticlePhotosLink({
   label,
   photos,
@@ -16,13 +17,28 @@ export function ArticlePhotosLink({
   photos: PhotoItem[];
 }) {
   const lightbox = useLightbox();
+  const first = photos[0];
+  if (!first) return null;
+
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    // A click with a modifier key or another button keeps the browser default
+    // (new tab, new window, download).
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    lightbox.open(photos, 0);
+  }
+
   return (
-    <button
-      type="button"
-      className="cursor-pointer font-semibold text-green underline hover:text-green-dark"
-      onClick={() => lightbox.open(photos, 0)}
-    >
+    <a href={first.src} onClick={handleClick}>
       {label}
-    </button>
+    </a>
   );
 }

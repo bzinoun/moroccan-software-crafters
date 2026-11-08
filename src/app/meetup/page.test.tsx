@@ -65,6 +65,16 @@ describe("MeetupPage", () => {
     expect(screen.getByText("Vous fixez l'agenda.")).toBeInTheDocument();
   });
 
+  it("names every section by its heading", () => {
+    const { container } = renderPage();
+    const sections = container.querySelectorAll("section");
+    expect(screen.getAllByRole("region")).toHaveLength(sections.length);
+    for (const section of sections) {
+      const heading = section.querySelector("h1, h2") as HTMLElement;
+      expect(section).toHaveAccessibleName(heading.textContent as string);
+    }
+  });
+
   it("#pour-qui: head with lead and one card per audience", () => {
     renderPage();
     const section = screen.getByRole("region", {

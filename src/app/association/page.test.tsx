@@ -20,7 +20,7 @@ describe("association page metadata", () => {
     expect(metadata.description).toBe(association.meta.description);
   });
 
-  it("sets the Open Graph tags of association.html on the route", () => {
+  it("sets the Open Graph tags on the route", () => {
     expect(metadata.openGraph).toMatchObject({
       type: "website",
       title: association.meta.title,
@@ -60,7 +60,7 @@ describe("AssociationPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the sections in the order and with the ids of association.html", () => {
+  it("renders the sections in this order, with these ids", () => {
     const { container } = render(<AssociationPage />);
     const ids = Array.from(container.querySelectorAll("section[id]")).map(
       (s) => s.id,
@@ -72,6 +72,16 @@ describe("AssociationPage", () => {
       "entreprises",
       "contribuer",
     ]);
+  });
+
+  it("names every section by its heading", () => {
+    const { container } = render(<AssociationPage />);
+    const sections = container.querySelectorAll("section");
+    expect(screen.getAllByRole("region")).toHaveLength(sections.length);
+    for (const section of sections) {
+      const heading = section.querySelector("h1, h2") as HTMLElement;
+      expect(section).toHaveAccessibleName(heading.textContent as string);
+    }
   });
 
   it("ends with the contact band that opens the LinkedIn page", () => {
@@ -94,12 +104,16 @@ describe("AssociationPage", () => {
   it("shows the logo of every company that has one, and one milestone per history item", () => {
     const { container } = render(<AssociationPage />);
     const withLogo = loadCompanies().items.filter((c) => c.logo !== "");
-    expect(
-      within(container.querySelector("#logo-wall") as HTMLElement).getAllByRole(
-        "img",
-      ),
-    ).toHaveLength(withLogo.length);
-    expect(container.querySelectorAll("#history > li")).toHaveLength(
+    const hosts = container.querySelector("#entreprises") as HTMLElement;
+    // Logos have alt "": count the files, then check that each name is printed.
+    expect(hosts.querySelectorAll("img")).toHaveLength(withLogo.length);
+    for (const company of withLogo) {
+      expect(
+        within(hosts).getByText(frenchSpacing(company.display || company.name)),
+      ).toBeInTheDocument();
+    }
+    const history = container.querySelector("#histoire") as HTMLElement;
+    expect(within(history).getAllByRole("listitem")).toHaveLength(
       association.timeline.items.length,
     );
   });

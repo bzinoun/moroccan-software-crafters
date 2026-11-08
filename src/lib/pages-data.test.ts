@@ -152,7 +152,7 @@ describe("meetupSteps", () => {
         title: "Welcome",
         text: "Meet the team",
         tips: ["Come early", "Bring a question"],
-        photoSrc: "/assets/img/meetups/welcome-photo.jpg",
+        image: "/assets/img/meetups/welcome-photo.jpg",
       },
       {
         id: "talks",
@@ -161,7 +161,7 @@ describe("meetupSteps", () => {
         title: "Talks",
         text: "Meet the team",
         tips: ["One"],
-        photoSrc: "/assets/img/meetups/talks-photo.jpg",
+        image: "/assets/img/meetups/talks-photo.jpg",
       },
     ]);
   });

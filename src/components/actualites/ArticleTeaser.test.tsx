@@ -1,9 +1,9 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { ArticleCard as ArticleCardData } from "@/lib/pages-data";
-import { ArticleCard } from "./ArticleCard";
+import type { ArticleCard } from "@/lib/pages-data";
+import { ArticleTeaser } from "./ArticleTeaser";
 
-const recap: ArticleCardData = {
+const recap: ArticleCard = {
   slug: "recap-one",
   href: "/actualites/recap-one/",
   kind: "Récap",
@@ -14,19 +14,27 @@ const recap: ArticleCardData = {
   tags: ["AI", "Responsibility", "Security"],
   lead: false,
 };
-const announce: ArticleCardData = { ...recap, slug: "call", lead: true };
+const announce: ArticleCard = { ...recap, slug: "call", lead: true };
 
-describe("ArticleCard", () => {
+describe("ArticleTeaser", () => {
   it("is one link to the article route with the title as its name", () => {
-    render(<ArticleCard article={recap} />);
+    render(<ArticleTeaser article={recap} />);
     expect(screen.getByRole("link", { name: recap.title })).toHaveAttribute(
       "href",
       recap.href,
     );
   });
 
+  it("names the card with a level 2 heading, under the page title", () => {
+    render(<ArticleTeaser article={recap} />);
+    expect(
+      screen.getByRole("heading", { level: 2, name: recap.title }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+  });
+
   it("shows the kind, the date label, the excerpt and the tags", () => {
-    render(<ArticleCard article={recap} />);
+    render(<ArticleTeaser article={recap} />);
     const card = screen.getByRole("article");
     expect(within(card).getByText("Récap")).toBeInTheDocument();
     expect(within(card).getByText(/24 octobre 2026/)).toBeInTheDocument();
@@ -39,7 +47,7 @@ describe("ArticleCard", () => {
   });
 
   it("shows the cover as a decorative lazy image", () => {
-    const { container } = render(<ArticleCard article={recap} />);
+    const { container } = render(<ArticleTeaser article={recap} />);
     const img = container.querySelector("img");
     expect(img).toHaveAttribute("src", recap.coverSrc);
     expect(img).toHaveAttribute("alt", "");
@@ -48,19 +56,19 @@ describe("ArticleCard", () => {
 
   it("renders a card without cover and tags as text only", () => {
     const bare = { ...recap, coverSrc: null, tags: [] };
-    const { container } = render(<ArticleCard article={bare} />);
+    const { container } = render(<ArticleTeaser article={bare} />);
     expect(container.querySelector("img")).toBeNull();
     expect(screen.queryByRole("list")).toBeNull();
   });
 
   // The class is the only trace of the lead layout: it spans the full row.
   it("makes the lead card span the full row of the grid", () => {
-    render(<ArticleCard article={announce} />);
+    render(<ArticleTeaser article={announce} />);
     expect(screen.getByRole("article")).toHaveClass("col-span-full");
   });
 
   it("does not span the row for a regular card", () => {
-    render(<ArticleCard article={recap} />);
+    render(<ArticleTeaser article={recap} />);
     expect(screen.getByRole("article")).not.toHaveClass("col-span-full");
   });
 });

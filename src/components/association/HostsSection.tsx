@@ -1,14 +1,13 @@
 import type { Sticker } from "@/content/types";
 import type { LogoTile } from "@/lib/derive";
-import { frenchSpacing } from "@/lib/french";
 import { LogoWall } from "../home/LogoWall";
 import { Section } from "../Section";
 import { SectionHead } from "../SectionHead";
 
 // Spec: the "LogoWall, LogoTile, LogoSticker, Monogram" entry in
-// msca-design/COMPONENTS.md (compact wall). The #entreprises section of
-// former `association.html` (`git show 1353207:association.html`): a centered head without lead, then the compact wall of
-// every company and the host sticker. The tiles come from `hostsWall()`.
+// msca-design/COMPONENTS.md (compact wall). The #entreprises section: a
+// centered head without lead, then the compact wall of every company and the
+// host sticker. The tiles come from `hostsWall()`.
 
 type HostsSectionProps = {
   /** `loadCompanies().eyebrow`. */
@@ -21,6 +20,8 @@ type HostsSectionProps = {
   sticker: Sticker;
 };
 
+const TITLE_ID = "hosts-title";
+
 export function HostsSection({
   eyebrow,
   title,
@@ -28,13 +29,14 @@ export function HostsSection({
   sticker,
 }: HostsSectionProps) {
   return (
-    <Section id="entreprises" variant="alt">
+    <Section id="entreprises" variant="alt" aria-labelledby={TITLE_ID}>
       <SectionHead
         align="center"
-        eyebrow={frenchSpacing(eyebrow)}
-        title={frenchSpacing(title)}
+        eyebrow={eyebrow}
+        title={title}
+        titleId={TITLE_ID}
       />
-      <LogoWall id="logo-wall" compact tiles={tiles} sticker={sticker} />
+      <LogoWall compact tiles={tiles} sticker={sticker} />
     </Section>
   );
 }

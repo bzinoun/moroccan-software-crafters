@@ -43,6 +43,23 @@ describe("ArticleListSection", () => {
     ).toBeInTheDocument();
   });
 
+  it("is a section named by the page title", () => {
+    const { container } = renderList();
+    expect(screen.getByRole("region", { name: "Recaps, news, calls." })).toBe(
+      container.querySelector("section"),
+    );
+  });
+
+  it("names each card with a level 2 heading, with no level skipped", () => {
+    renderList();
+    expect(
+      screen
+        .getAllByRole("heading", { level: 2 })
+        .map((heading) => heading.textContent),
+    ).toEqual(articles.map((a) => a.title));
+    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+  });
+
   it("lists one article per card", () => {
     renderList();
     expect(screen.getAllByRole("article")).toHaveLength(articles.length);

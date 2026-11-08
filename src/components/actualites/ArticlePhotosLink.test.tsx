@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PhotoItem } from "@/lib/derive";
@@ -42,11 +42,13 @@ function renderLink() {
 }
 
 describe("ArticlePhotosLink", () => {
-  it("is a button, not a link, named by its label", () => {
+  it("is a link to the first photo file, so it works without JavaScript", () => {
     renderLink();
-    const button = screen.getByRole("button", { name: "Les 2 photos" });
-    expect(button).toHaveAttribute("type", "button");
-    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.getByRole("link", { name: "Les 2 photos" })).toHaveAttribute(
+      "href",
+      photos[0]!.src,
+    );
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
   it("does not open the lightbox before the click", () => {
@@ -58,12 +60,27 @@ describe("ArticlePhotosLink", () => {
 
   it("opens the lightbox on the first photo of the event", async () => {
     renderLink();
-    await userEvent.click(screen.getByRole("button", { name: "Les 2 photos" }));
+    await userEvent.click(screen.getByRole("link", { name: "Les 2 photos" }));
     const dialog = screen.getByRole("dialog", { name: "Photo agrandie" });
     expect(dialog).toHaveAttribute("open");
     expect(
       within(dialog).getByRole("img", { name: /First photo/ }),
     ).toHaveAttribute("src", photos[0]!.src);
+  });
+
+  it("does not follow the link when it opens the lightbox", () => {
+    renderLink();
+    const link = screen.getByRole("link", { name: "Les 2 photos" });
+    expect(fireEvent.click(link)).toBe(false);
+  });
+
+  it("leaves a click with a modifier key to the browser", () => {
+    renderLink();
+    const link = screen.getByRole("link", { name: "Les 2 photos" });
+    expect(fireEvent.click(link, { ctrlKey: true })).toBe(true);
+    expect(screen.getByRole("dialog", { hidden: true })).not.toHaveAttribute(
+      "open",
+    );
   });
 
   it("throws when no LightboxProvider is above it", () => {

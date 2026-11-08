@@ -1,40 +1,55 @@
 import Link from "next/link";
 import { useId } from "react";
-import { cn } from "@/lib/cn";
+import { tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
-import type { ArticleCard as ArticleCardData } from "@/lib/pages-data";
+import type { ArticleCard } from "@/lib/pages-data";
 import { Reveal } from "../Reveal";
 import { TagList } from "../TagList";
 import { Photo } from "../Photo";
 
-// Spec: the "ArticleGrid, ArticleCard" entry in msca-design/COMPONENTS.md; port
-// of `.article-card` and `.lead-card` in the former `assets/css/style.css` (`git show 1353207:assets/css/style.css`). The whole card
-// is one link, named by its title. The newest article (`lead`) spans the full
-// row of the list; it is horizontal from `lg` (old query 960px) and stacked below, with a
-// 16/9 cover. The article wrapper carries the reveal and the link carries the
-// hover, as the old anchor did both.
+// Spec: the "ArticleGrid, ArticleCard" entry in msca-design/COMPONENTS.md
+// (the component is `ArticleTeaser` so that it does not share the name of its
+// data type `ArticleCard`). The whole card is one link, named by its title.
+// The newest article (`lead`) spans the full row of the list; it is horizontal
+// from `lg` and stacked below, with a 16/9 cover. The article wrapper carries
+// the reveal and the link carries the hover.
+const teaserStyles = tv({
+  slots: {
+    wrapper: "flex min-w-0",
+    link: "flex flex-1 flex-col overflow-hidden rounded-card bg-white text-ink no-underline shadow-card hover:text-ink hover:shadow-lift motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75",
+    cover: "aspect-16/10 overflow-hidden bg-paper-2",
+    body: "flex flex-1 flex-col px-5 pt-4.5 pb-5.5",
+    // A long unbroken word wraps instead of widening the card.
+    title: "text-s120 break-words",
+    tags: "mt-auto mb-0",
+  },
+  variants: {
+    lead: {
+      true: {
+        wrapper: "col-span-full",
+        link: "lg:flex-row",
+        cover: "aspect-video lg:aspect-auto lg:w-[55%] lg:shrink-0",
+        body: "justify-center px-8.5 py-8",
+        title: "text-s190",
+        tags: "mt-0",
+      },
+      false: {},
+    },
+  },
+  defaultVariants: { lead: false },
+});
 
-const WRAPPER = "flex min-w-0";
-
-const CARD =
-  "flex flex-1 flex-col overflow-hidden rounded-card bg-white text-ink no-underline shadow-card hover:text-ink hover:shadow-lift motion-safe:transition-[translate,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75";
-
-export function ArticleCard({ article }: { article: ArticleCardData }) {
+export function ArticleTeaser({ article }: { article: ArticleCard }) {
   const titleId = useId();
-  const { lead } = article;
+  const styles = teaserStyles({ lead: article.lead });
   return (
-    <Reveal as="article" className={cn(WRAPPER, lead && "col-span-full")}>
+    <Reveal as="article" className={styles.wrapper()}>
       <Link
         href={article.href}
         aria-labelledby={titleId}
-        className={cn(CARD, lead && "lg:flex-row")}
+        className={styles.link()}
       >
-        <div
-          className={cn(
-            "aspect-16/10 overflow-hidden bg-paper-2",
-            lead && "aspect-video lg:aspect-auto lg:w-[55%] lg:shrink-0",
-          )}
-        >
+        <div className={styles.cover()}>
           {article.coverSrc ? (
             <Photo
               src={article.coverSrc}
@@ -43,31 +58,20 @@ export function ArticleCard({ article }: { article: ArticleCardData }) {
             />
           ) : null}
         </div>
-        <div
-          className={cn(
-            "flex flex-1 flex-col px-5 pt-4.5 pb-5.5",
-            lead && "justify-center px-8.5 py-8",
-          )}
-        >
-          <p className="mb-[0.4rem] text-[0.8rem] text-muted">
-            <span className="mr-2 text-[0.72rem] font-bold tracking-[0.05em] text-green uppercase">
+        <div className={styles.body()}>
+          <p className="mb-[0.4rem] text-s80 text-muted">
+            <span className="mr-2 text-s72 font-bold tracking-[0.05em] text-green uppercase">
               {frenchSpacing(article.kind)}
             </span>
             {frenchSpacing(article.dateLabel)}
           </p>
-          <h3
-            id={titleId}
-            className={cn("text-[1.2rem]", lead && "text-[1.9rem]")}
-          >
+          <h2 id={titleId} className={styles.title()}>
             {frenchSpacing(article.title)}
-          </h3>
-          <p className="mb-[0.8rem] text-[0.93rem] text-ink-soft">
+          </h2>
+          <p className="mb-[0.8rem] text-s93 text-ink-soft">
             {frenchSpacing(article.excerpt)}
           </p>
-          <TagList
-            tags={article.tags}
-            className={cn("mt-auto mb-0", lead && "mt-0")}
-          />
+          <TagList tags={article.tags} className={styles.tags()} />
         </div>
       </Link>
     </Reveal>

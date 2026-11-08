@@ -87,6 +87,13 @@ describe("ArticleView", () => {
     expect(within(article).getByText(RECAP.excerpt)).toBeInTheDocument();
   });
 
+  it("is a section named by the article title", () => {
+    const { container } = renderView(RECAP);
+    expect(screen.getByRole("region", { name: RECAP.title })).toBe(
+      container.querySelector("section"),
+    );
+  });
+
   it("shows the cover as a decorative image", () => {
     const { container } = renderView(RECAP);
     const cover = container.querySelector("article img");
@@ -128,7 +135,7 @@ describe("ArticleView", () => {
 
   it("opens the photos of the event in the lightbox", async () => {
     renderView(RECAP);
-    await userEvent.click(screen.getByRole("button", { name: "Les 2 photos" }));
+    await userEvent.click(screen.getByRole("link", { name: "Les 2 photos" }));
     const dialog = screen.getByRole("dialog", { name: "Photo agrandie" });
     expect(dialog).toHaveAttribute("open");
     expect(
@@ -142,6 +149,6 @@ describe("ArticleView", () => {
       screen.getByRole("heading", { level: 1, name: ANNOUNCE.title }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Le post LinkedIn" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /photos/ })).toBeNull();
+    expect(screen.queryByRole("link", { name: /photos/ })).toBeNull();
   });
 });

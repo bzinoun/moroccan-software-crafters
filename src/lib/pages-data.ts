@@ -48,7 +48,7 @@ type MeetupStepItem = {
   title: string;
   text: string;
   tips: string[];
-  photoSrc: string;
+  image: string;
 };
 
 export function meetupSteps(m: Meetup): MeetupStepItem[] {
@@ -59,7 +59,7 @@ export function meetupSteps(m: Meetup): MeetupStepItem[] {
     title: s.title,
     text: s.text,
     tips: s.tips ?? [],
-    photoSrc: meetupPhotoUrl(s.photo),
+    image: meetupPhotoUrl(s.photo),
   }));
 }
 

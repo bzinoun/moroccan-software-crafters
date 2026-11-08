@@ -49,6 +49,15 @@ describe("HostsSection", () => {
     );
   });
 
+  it("is a section named by its title", () => {
+    const { container } = renderHosts();
+    expect(
+      screen.getByRole("region", {
+        name: "Companies that opened their doors.",
+      }),
+    ).toBe(container.querySelector("section"));
+  });
+
   it("opens with the eyebrow and the level 2 title", () => {
     renderHosts();
     expect(screen.getByText("They trust us")).toBeInTheDocument();
@@ -62,26 +71,32 @@ describe("HostsSection", () => {
 
   it("shows one logo per company in the wall, then the host sticker", () => {
     const { container } = renderHosts();
-    const wall = container.querySelector("#logo-wall") as HTMLElement;
-    const logos = within(wall).getAllByRole("img");
+    const wall = container.querySelector(
+      "section > div > div:last-child",
+    ) as HTMLElement;
+    // The logo is a decoration (alt ""): each company name is read once, from the text.
+    const logos = wall.querySelectorAll("img");
     expect(logos).toHaveLength(tiles.length);
-    expect(logos.map((img) => img.getAttribute("alt"))).toEqual(
-      tiles.map((t) => t.name),
-    );
+    for (const img of logos) expect(img).toHaveAttribute("alt", "");
+    for (const t of tiles) {
+      expect(within(wall).getAllByText(t.name)).toHaveLength(1);
+    }
     const link = within(wall).getByRole("link", { name: /Votre logo ici/ });
     expect(link).toHaveAttribute("href", "/accueillir/");
     expect(wall.lastElementChild).toBe(link);
   });
 
-  it("prints no role line under the tiles", () => {
+  it("keeps the role line out of sight, for screen readers only", () => {
     renderHosts();
-    expect(screen.queryByText(/Hôte de 2 meetups/)).toBeNull();
+    const roles = screen.getAllByText("Hôte de 2 meetups");
+    expect(roles).toHaveLength(tiles.length);
+    for (const role of roles) expect(role).toHaveClass("sr-only");
     expect(screen.getByText("Alpha Corp")).toBeInTheDocument();
   });
 
   it("shows the monogram of a company without logo", () => {
     renderHosts(tiles.map((t) => ({ ...t, logoSrc: null })));
-    expect(screen.queryByRole("img")).toBeNull();
+    expect(document.querySelector("img")).toBeNull();
     expect(screen.getByText("AL")).toBeInTheDocument();
   });
 });

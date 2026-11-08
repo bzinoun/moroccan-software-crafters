@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { AssociationHistory, HistoryTimeline } from "./HistoryTimeline";
 
 const items = [
@@ -59,9 +59,19 @@ describe("HistoryTimeline", () => {
     expect(screen.getByText(/Voici/).textContent).toBe("Voici : la suite");
   });
 
-  it("carries the id it is given", () => {
-    render(<HistoryTimeline id="history" items={items} />);
-    expect(screen.getByRole("list")).toHaveAttribute("id", "history");
+  it("keeps two milestones of the same year without a duplicate key", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <HistoryTimeline
+        items={[
+          { year: "2022", title: "Spring", text: "First text." },
+          { year: "2022", title: "Autumn", text: "Second text." },
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 
   it("renders nothing for an empty list", () => {
@@ -81,7 +91,20 @@ describe("AssociationHistory", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "From 2019 to today." }),
     ).toBeInTheDocument();
-    expect(container.querySelector("ol#history")).not.toBeNull();
     expect(screen.getAllByRole("listitem")).toHaveLength(items.length);
+  });
+
+  it("is a section named by its title", () => {
+    const { container } = render(<AssociationHistory history={timeline} />);
+    expect(screen.getByRole("region", { name: "From 2019 to today." })).toBe(
+      container.querySelector("section"),
+    );
+  });
+
+  it("renders nothing without milestones, no orphan heading", () => {
+    const { container } = render(
+      <AssociationHistory history={{ ...timeline, items: [] }} />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

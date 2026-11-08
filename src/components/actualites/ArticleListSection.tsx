@@ -2,12 +2,13 @@ import { Eyebrow } from "../Eyebrow";
 import { HeroEm } from "../HeroEm";
 import { Lead } from "../Lead";
 import { Section } from "../Section";
-import type { ArticleCard as ArticleCardData } from "@/lib/pages-data";
+import type { ArticleCard } from "@/lib/pages-data";
 import { ArticleGrid } from "./ArticleGrid";
 
-// Port of the list branch of `news()` in the former `assets/js/pages.js` (`git show 1353207:assets/js/pages.js`) and of the section
-// of the former `actualites.html` (`git show 1353207:actualites.html`): a section with 56px of top padding, a head whose title
-// is the page `h1` (SectionHead renders an `h2`), then the grid.
+// The news list: a section with 56px of top padding, a head whose title is the
+// page `h1` (SectionHead renders an `h2`), then the cards. The cards use `h2`.
+const TITLE_ID = "news-title";
+
 type ArticleListSectionProps = {
   /** `articles.eyebrow`. */
   eyebrow: string;
@@ -16,7 +17,7 @@ type ArticleListSectionProps = {
   /** `articles.lead`. */
   lead: string;
   /** `articleCards(articles)`. */
-  articles: ArticleCardData[];
+  articles: ArticleCard[];
 };
 
 export function ArticleListSection({
@@ -26,10 +27,10 @@ export function ArticleListSection({
   articles,
 }: ArticleListSectionProps) {
   return (
-    <Section className="zellige-corner pt-14">
+    <Section className="zellige-corner pt-14" aria-labelledby={TITLE_ID}>
       <div className="mb-11 max-w-[760px]">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h1>
+        <h1 id={TITLE_ID}>
           <HeroEm text={title} />
         </h1>
         <Lead>{lead}</Lead>
