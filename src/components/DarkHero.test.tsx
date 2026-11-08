@@ -70,7 +70,7 @@ describe("DarkHero", () => {
     render(<DarkHero {...SOCRATES} />);
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(SOCRATES.facts.length);
-    expect(within(items[1]).getByText("30 → 50")).toBeVisible();
+    expect(within(items[1]!).getByText("30 → 50")).toBeVisible();
   });
 
   it("renders neither chip nor facts nor actions when they are not given", () => {

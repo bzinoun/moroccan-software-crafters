@@ -125,7 +125,7 @@ describe("SponsoringSection", () => {
     ].map((id) => container.querySelector(`#${id}`) as Element);
     for (const block of blocks) expect(block).not.toBeNull();
     for (let i = 1; i < blocks.length; i += 1) {
-      expect(blocks[i - 1].compareDocumentPosition(blocks[i])).toBe(
+      expect(blocks[i - 1]!.compareDocumentPosition(blocks[i]!)).toBe(
         Node.DOCUMENT_POSITION_FOLLOWING,
       );
     }

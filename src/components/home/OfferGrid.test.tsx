@@ -72,7 +72,7 @@ describe("OfferGrid cards", () => {
   });
 
   it("shows Sur devis when the offer has no price or an empty one", () => {
-    const [first] = items;
+    const first = items[0]!;
     render(
       <OfferGrid
         items={[
@@ -102,7 +102,10 @@ describe("OfferGrid lists", () => {
       alpha.getAllByRole("heading", { level: 4 }).map((h) => h.textContent),
     ).toEqual(["Vous apportez", "Nous apportons"]);
 
-    const [give, get] = alpha.getAllByRole("list");
+    const [give, get] = alpha.getAllByRole("list") as [
+      HTMLElement,
+      HTMLElement,
+    ];
     expect(
       within(give)
         .getAllByRole("listitem")
@@ -128,7 +131,10 @@ describe("OfferGrid lists", () => {
 
   it("gives the give list a yellow bullet and the other list a green one", () => {
     render(<OfferGrid items={items} />);
-    const [give, get] = within(card("Offre Alpha")).getAllByRole("list");
+    const [give, get] = within(card("Offre Alpha")).getAllByRole("list") as [
+      HTMLElement,
+      HTMLElement,
+    ];
     expect(within(give).getAllByRole("listitem")[0]).toHaveClass(
       "before:bg-postit-yellow",
     );

@@ -52,9 +52,11 @@ export type FmtDateOptions = {
 /** "2026-10-24" gives "24 oct. 2026"; "2021-04" gives "avr. 2021". */
 export function fmtDate(iso: string, opts: FmtDateOptions = {}): string {
   const [y, m, d] = iso.split("-").map(Number);
-  const months = opts.long ? MONTHS_LONG : MONTHS;
+  const month = (opts.long ? MONTHS_LONG : MONTHS)[(m ?? 0) - 1];
+  // Content is validated, so a bad month is a data bug: fail instead of printing "undefined".
+  if (month === undefined) throw new Error(`fmtDate: no month in "${iso}"`);
   const day = opts.day !== false && d ? `${d} ` : "";
-  return `${day}${months[(m ?? 1) - 1]} ${y}`;
+  return `${day}${month} ${y}`;
 }
 
 /** URL of an event photo from its name, base path included. */

@@ -52,7 +52,7 @@ describe("Faq", () => {
 
   it("keeps each answer in its own details, after the summary, as plain text", () => {
     const { container } = render(<Faq {...PROPS} />);
-    const details = container.querySelectorAll("details")[2];
+    const details = container.querySelectorAll("details")[2]!;
     expect(details.firstElementChild?.tagName).toBe("SUMMARY");
     expect(details.querySelector("p")?.textContent).toBe("Nous.");
   });
@@ -68,7 +68,7 @@ describe("Faq", () => {
     const user = userEvent.setup();
     const { container } = render(<Faq {...PROPS} />);
     const details = container.querySelectorAll("details");
-    await user.click(details[1].querySelector("summary")!);
+    await user.click(details[1]!.querySelector("summary")!);
     expect(details[1]).toHaveAttribute("open");
     expect(details[0]).not.toHaveAttribute("open");
     expect(details[2]).not.toHaveAttribute("open");

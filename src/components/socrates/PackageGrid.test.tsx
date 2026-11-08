@@ -31,9 +31,9 @@ describe("PackageGrid", () => {
       }),
     ).toBeInTheDocument();
     const items = within(supporter).getAllByRole("listitem");
-    expect(items.map((li) => li.textContent)).toEqual(PACKAGES[0].includes);
+    expect(items.map((li) => li.textContent)).toEqual(PACKAGES[0]!.includes);
     expect(within(offer("Partenaire")).getAllByRole("listitem")).toHaveLength(
-      PACKAGES[1].includes.length,
+      PACKAGES[1]!.includes.length,
     );
   });
 

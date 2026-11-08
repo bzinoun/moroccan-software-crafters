@@ -142,9 +142,9 @@ describe("EditionChips", () => {
     render(<EditionChips editions={EDITIONS.slice(0, 2)} />);
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
-    expect(within(items[1]).getByText("2023 · Beta")).toBeInTheDocument();
+    expect(within(items[1]!).getByText("2023 · Beta")).toBeInTheDocument();
     expect(
-      within(items[1]).getByText("2e édition · 45 crafters"),
+      within(items[1]!).getByText("2e édition · 45 crafters"),
     ).toBeInTheDocument();
   });
 });

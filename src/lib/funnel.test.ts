@@ -85,6 +85,10 @@ describe("dateHelp", () => {
     expect(dateHelp("", "communautaire")).toBe("");
   });
 
+  it("is empty for a value that is not a real day", () => {
+    expect(dateHelp("2026-13-45", "communautaire")).toBe("");
+  });
+
   it("confirms a Saturday", () => {
     expect(dateHelp("2026-11-07", "communautaire")).toBe("Samedi, c'est noté.");
   });

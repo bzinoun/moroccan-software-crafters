@@ -82,7 +82,7 @@ describe("CardsSection", () => {
   });
 
   it("renders no link for a card without href", () => {
-    renderSection({ items: [CARDS[2]] });
+    renderSection({ items: [CARDS[2]!] });
     const card = screen.getByRole("article");
     expect(within(card).queryByRole("link")).toBeNull();
   });

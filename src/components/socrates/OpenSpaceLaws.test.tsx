@@ -22,7 +22,7 @@ describe("OpenSpaceLaws", () => {
     const items = within(list).getAllByRole("listitem");
     expect(items).toHaveLength(LAWS.length);
     expect(
-      within(items[0]).getByRole("heading", {
+      within(items[0]!).getByRole("heading", {
         level: 3,
         name: "Première loi.",
       }),

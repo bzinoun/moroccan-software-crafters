@@ -212,7 +212,8 @@ export function formatDay(iso: string): string {
 export function dateHelp(date: string, formule: string): string {
   if (!date) return "";
   const day = new Date(`${date}T12:00:00`).getDay();
-  const name = DAYS[day]!;
+  const name = DAYS[day];
+  if (name === undefined) return "";
   if (day !== 6 && formule !== "prive") {
     return `C'est un ${name}. Les meetups ouverts ont lieu le samedi matin ; on en discutera ensemble.`;
   }

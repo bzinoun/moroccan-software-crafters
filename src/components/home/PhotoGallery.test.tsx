@@ -81,7 +81,7 @@ describe("PhotoGallery", () => {
     const buttons = openers();
     expect(buttons).toHaveLength(LIMIT);
     expect(buttons[0]).toHaveAccessibleName(`Agrandir : ${ACME}`);
-    const img = within(buttons[0]).getByRole("img", { name: ACME });
+    const img = within(buttons[0]!).getByRole("img", { name: ACME });
     expect(img).toHaveAttribute(
       "src",
       "/assets/img/meetups/2026-10-acme-5.jpg",
@@ -107,7 +107,7 @@ describe("PhotoGallery", () => {
     const grid = document.getElementById(
       more?.getAttribute("aria-controls") ?? "missing",
     );
-    expect(grid).toContainElement(openers()[0]);
+    expect(grid).toContainElement(openers()[0]!);
   });
 
   it("has no more button when every photo already shows", () => {
@@ -130,7 +130,7 @@ describe("PhotoGallery", () => {
   it("opens the lightbox on the clicked photo, among all the photos", async () => {
     const user = userEvent.setup();
     setup();
-    await user.click(openers()[2]);
+    await user.click(openers()[2]!);
     const dialog = document.querySelector("dialog") as HTMLDialogElement;
     expect(dialog).toHaveAttribute("open");
     expect(within(dialog).getByRole("img")).toHaveAttribute(
@@ -144,7 +144,7 @@ describe("PhotoGallery", () => {
     const user = userEvent.setup();
     setup();
     await user.click(moreButton()!);
-    await user.click(openers()[TOTAL - 1]);
+    await user.click(openers()[TOTAL - 1]!);
     const dialog = document.querySelector("dialog") as HTMLDialogElement;
     expect(dialog).toHaveTextContent(`${OLD} · ${TOTAL} / ${TOTAL}`);
   });
@@ -152,7 +152,7 @@ describe("PhotoGallery", () => {
   it("walks the hidden photos from the lightbox before the more button", async () => {
     const user = userEvent.setup();
     setup();
-    await user.click(openers()[LIMIT - 1]);
+    await user.click(openers()[LIMIT - 1]!);
     const dialog = document.querySelector("dialog") as HTMLDialogElement;
     await user.click(within(dialog).getByRole("button", { name: /suiv/i }));
     expect(within(dialog).getByRole("img")).toHaveAttribute(
@@ -164,7 +164,7 @@ describe("PhotoGallery", () => {
   describe("layout guards", () => {
     it("zooms the photo on hover only behind motion-safe", () => {
       setup();
-      const img = within(openers()[0]).getByRole("img");
+      const img = within(openers()[0]!).getByRole("img");
       const classes = img.className.split(" ");
       expect(classes.filter((c) => /(^|:)scale-/.test(c))).toEqual([
         "motion-safe:group-hover:scale-103",

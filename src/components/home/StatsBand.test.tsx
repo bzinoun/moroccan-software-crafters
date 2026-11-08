@@ -34,7 +34,7 @@ describe("StatsBand", () => {
 
   it("sets each figure apart from its label so the number can be styled alone", () => {
     renderBand();
-    const first = screen.getAllByRole("listitem")[0];
+    const first = screen.getAllByRole("listitem")[0]!;
     const figure = within(first).getByText("7");
     const label = within(first).getByText("événements depuis 2020");
     expect(label).not.toBe(figure);

@@ -40,9 +40,9 @@ describe("CardGrid", () => {
     const cards = screen.getAllByRole("article");
     expect(cards).toHaveLength(4);
     expect(
-      within(cards[0]).getByRole("heading", { level: 3, name: "Vous codez" }),
+      within(cards[0]!).getByRole("heading", { level: 3, name: "Vous codez" }),
     ).toBeInTheDocument();
-    expect(within(cards[3]).getByText(WHO[3].text)).toBeInTheDocument();
+    expect(within(cards[3]!).getByText(WHO[3]!.text)).toBeInTheDocument();
   });
 
   it("renders no link for an item without href", () => {

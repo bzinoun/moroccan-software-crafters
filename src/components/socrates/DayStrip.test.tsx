@@ -16,7 +16,7 @@ describe("DayStrip", () => {
     expect(items).toHaveLength(DAYS.length);
     expect(items[0]).toHaveTextContent("Jeudi");
     expect(
-      within(items[0]).getByRole("heading", {
+      within(items[0]!).getByRole("heading", {
         level: 3,
         name: "Arrivée et café",
       }),

@@ -35,17 +35,17 @@ describe("StepRows", () => {
     const rows = screen.getAllByRole("article");
     expect(rows).toHaveLength(2);
     expect(rows[0]).toHaveAttribute("id", "accueil");
-    expect(within(rows[0]).getByText("9 h 30 → 10 h 15")).toBeInTheDocument();
+    expect(within(rows[0]!).getByText("9 h 30 → 10 h 15")).toBeInTheDocument();
     expect(
-      within(rows[0]).getByText("On commence par le café"),
+      within(rows[0]!).getByText("On commence par le café"),
     ).toBeInTheDocument();
     expect(
-      within(rows[0]).getByRole("heading", {
+      within(rows[0]!).getByRole("heading", {
         level: 3,
         name: "Accueil et networking",
       }),
     ).toBeInTheDocument();
-    expect(within(rows[1]).getByText(STEPS[1].text)).toBeInTheDocument();
+    expect(within(rows[1]!).getByText(STEPS[1]!.text)).toBeInTheDocument();
   });
 
   it("shows a decorative lazy photo for each step", () => {
@@ -60,7 +60,7 @@ describe("StepRows", () => {
   it("lists the tips of each step as list items", () => {
     render(<StepRows steps={STEPS} />);
     const rows = screen.getAllByRole("article");
-    const tips = within(rows[1]).getAllByRole("listitem");
+    const tips = within(rows[1]!).getAllByRole("listitem");
     expect(tips).toHaveLength(2);
     expect(tips[0]).toHaveTextContent(
       "Un bon lightning talk tient en une idée.",
@@ -68,13 +68,13 @@ describe("StepRows", () => {
   });
 
   it("renders no list for a step without tips", () => {
-    render(<StepRows steps={[{ ...STEPS[0], tips: undefined }]} />);
+    render(<StepRows steps={[{ ...STEPS[0]!, tips: undefined }]} />);
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
   it("uses a narrow no-break space before a colon in a tip", () => {
     render(<StepRows steps={STEPS} />);
-    const tip = screen.getAllByRole("listitem")[0];
+    const tip = screen.getAllByRole("listitem")[0]!;
     expect(tip.textContent).toBe(
       "Arrivez à l'heure\u202f: l'accès au bâtiment ferme souvent 30 minutes après le début.",
     );

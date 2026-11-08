@@ -219,8 +219,8 @@ describe("SponsorForm submit", () => {
     const { submit, user } = setup();
     await fillValid(user);
     await user.click(submitButton());
-    expect(submit.mock.calls[0][0].data.niveau).toBe("À discuter");
-    expect(submit.mock.calls[0][0].subject).toBe(
+    expect(submit.mock.calls[0]![0].data.niveau).toBe("À discuter");
+    expect(submit.mock.calls[0]![0].subject).toBe(
       "Partenariat SoCraTes · Acme · À discuter",
     );
   });
@@ -233,7 +233,7 @@ describe("SponsorForm submit", () => {
       " http://spam ",
     );
     await user.click(submitButton());
-    expect(submit.mock.calls[0][0].honeypot).toBe(" http://spam ");
+    expect(submit.mock.calls[0]![0].honeypot).toBe(" http://spam ");
     expect(document.getElementById("s-success")).not.toHaveAttribute("hidden");
   });
 
@@ -483,7 +483,7 @@ describe("SponsorForm level preselection", () => {
     await user.click(screen.getByRole("link", { name: "Supporter" }));
     await fillValid(user);
     await user.click(submitButton());
-    expect(submit.mock.calls[0][0].data.niveau).toBe("Supporter");
+    expect(submit.mock.calls[0]![0].data.niveau).toBe("Supporter");
   });
 
   it("stops listening when the form unmounts", () => {

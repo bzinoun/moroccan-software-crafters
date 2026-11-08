@@ -120,6 +120,15 @@ describe("fmtDate", () => {
     expect(fmtDate("2021-04")).toBe("avr. 2021");
     expect(fmtDate("2021-04", { day: false })).toBe("avr. 2021");
   });
+
+  it("fails loudly on a month outside 1 to 12 instead of printing undefined", () => {
+    expect(() => fmtDate("2026-13-01")).toThrow(/2026-13-01/);
+    expect(() => fmtDate("2026-00-01")).toThrow(/2026-00-01/);
+  });
+
+  it("fails loudly on a date without a month", () => {
+    expect(() => fmtDate("2026")).toThrow(/2026/);
+  });
 });
 
 describe("place", () => {
