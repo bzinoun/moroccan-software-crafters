@@ -7,6 +7,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // `next/font/google` only works inside a Next build: the tests get a real
+      // module that returns fonts with the CSS variable name and nothing else.
+      "next/font/google": fileURLToPath(
+        new URL("./src/test/next-font-google.ts", import.meta.url),
+      ),
       // Next resolves `server-only` itself in a build; the tests run outside
       // Next, so they get the empty module, as in the Next jest guide.
       "server-only": fileURLToPath(
@@ -25,7 +30,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}", "src/**/*test-utils.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*test-utils.{ts,tsx}",
+        "src/test/**",
+      ],
     },
   },
 });
