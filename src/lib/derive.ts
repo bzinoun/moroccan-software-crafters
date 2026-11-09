@@ -214,21 +214,21 @@ export function companyStats(
   return out;
 }
 
-/** "Hôte de 2 meetups · Partenaire de 4 éditions SoCraTes". */
+/** "Partenaire de 4 éditions SoCraTes · Hôte de 2 meetups": SoCraTes first. */
 export function roleLabel(
   s: Pick<CompanyStats, "hosted" | "sponsored">,
 ): string {
   const parts: string[] = [];
-  if (s.hosted) {
-    parts.push(
-      s.hosted > 1 ? `Hôte de ${s.hosted} meetups` : "Hôte d'un meetup",
-    );
-  }
   if (s.sponsored) {
     parts.push(
       s.sponsored > 1
         ? `Partenaire de ${s.sponsored} éditions SoCraTes`
         : "Partenaire SoCraTes",
+    );
+  }
+  if (s.hosted) {
+    parts.push(
+      s.hosted > 1 ? `Hôte de ${s.hosted} meetups` : "Hôte d'un meetup",
     );
   }
   return parts.join(" · ");
@@ -262,7 +262,7 @@ export type LogoTile = {
 
 type LogoWallOptions = {
   filter?: (company: Company, stats: CompanyStats) => boolean;
-  /** Default true: most hosted plus sponsored first, file order on a tie. */
+  /** Default true: most SoCraTes editions first, then most meetups hosted, file order on a tie. */
   sort?: boolean;
   label?: (company: Company, stats: CompanyStats) => string;
 };
@@ -290,9 +290,8 @@ export function logoWallTiles(
       .slice()
       .sort(
         (a, b) =>
-          statsOf(b).hosted +
-          statsOf(b).sponsored -
-          (statsOf(a).hosted + statsOf(a).sponsored),
+          statsOf(b).sponsored - statsOf(a).sponsored ||
+          statsOf(b).hosted - statsOf(a).hosted,
       );
   }
   return list.map((c) => {

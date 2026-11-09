@@ -260,7 +260,7 @@ describe("hostsWall", () => {
       id: "beta",
       hosted: 1,
       sponsored: 2,
-      label: "Hôte d'un meetup · Partenaire de 2 éditions SoCraTes",
+      label: "Partenaire de 2 éditions SoCraTes · Hôte d'un meetup",
     });
   });
 

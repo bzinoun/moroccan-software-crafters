@@ -8,7 +8,7 @@ import { LogoSticker, LogoTile, LogoWall } from "./LogoWall";
 const ACME: LogoTileData = {
   id: "acme",
   name: "Acme Corp",
-  label: "Hôte d'un meetup · Partenaire SoCraTes",
+  label: "Partenaire SoCraTes · Hôte d'un meetup",
   href: "https://www.linkedin.com/company/acme/",
   logoSrc: "/assets/img/logos/acme.png",
   monogram: "AC",
@@ -65,7 +65,7 @@ describe("LogoTile", () => {
   it("names the link once, with the name and then the role label", () => {
     render(<LogoTile tile={ACME} />);
     const link = screen.getByRole("link");
-    expect(link).toHaveAccessibleName(/^Acme Corp\s*Hôte d'un meetup/);
+    expect(link).toHaveAccessibleName(/^Acme Corp\s*Partenaire SoCraTes/);
     expect(link).not.toHaveAccessibleName(/Acme Corp.*Acme Corp/);
     expect(link).not.toHaveAttribute("title");
     expect(screen.getAllByText("Acme Corp")).toHaveLength(1);
@@ -233,7 +233,7 @@ describe("LogoWall compact", () => {
     render(<LogoTile compact tile={ACME} />);
     const link = screen.getByRole("link");
     expect(link).toHaveAccessibleName(
-      /^Acme Corp\s*Hôte d'un meetup · Partenaire SoCraTes$/,
+      /^Acme Corp\s*Partenaire SoCraTes · Hôte d'un meetup$/,
     );
     expect(link).not.toHaveAttribute("title");
   });

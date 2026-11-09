@@ -355,9 +355,9 @@ describe("roleLabel", () => {
     expect(roleLabel({ hosted: 0, sponsored: 1 })).toBe("Partenaire SoCraTes");
   });
 
-  it("labels several of each and joins them", () => {
+  it("labels several of each and puts the SoCraTes part first", () => {
     expect(roleLabel({ hosted: 2, sponsored: 4 })).toBe(
-      "Hôte de 2 meetups · Partenaire de 4 éditions SoCraTes",
+      "Partenaire de 4 éditions SoCraTes · Hôte de 2 meetups",
     );
   });
 
@@ -391,24 +391,26 @@ describe("TYPE_LABEL", () => {
 });
 
 describe("logoWallTiles", () => {
-  it("sorts the companies by hosted plus sponsored, keeping file order on a tie", () => {
-    // alpha 3, gamma 2, delta 2, beta 1, epsilon 0.
+  it("sorts the companies by SoCraTes editions, then meetups hosted, keeping file order on a tie", () => {
+    // Sponsored, hosted: delta 2, 0; alpha 1, 2; gamma 0, 2; beta 0, 1; epsilon 0, 0.
     const tiles = logoWallTiles(companies, events);
     expect(tiles.map((t) => t.id)).toEqual([
+      "delta",
       "alpha",
       "gamma",
-      "delta",
       "beta",
       "epsilon",
     ]);
   });
 
   it("builds a tile with the display name, the role label, the logo and the link", () => {
-    const [first] = logoWallTiles(companies, events);
-    expect(first).toEqual({
+    const alpha = logoWallTiles(companies, events).find(
+      (t) => t.id === "alpha",
+    );
+    expect(alpha).toEqual({
       id: "alpha",
       name: "Alpha Systems Morocco",
-      label: "Hôte de 2 meetups · Partenaire SoCraTes",
+      label: "Partenaire SoCraTes · Hôte de 2 meetups",
       href: "https://www.linkedin.com/company/alpha/",
       logoSrc: "/assets/img/logos/alpha.png",
       monogram: "AS",
@@ -439,6 +441,6 @@ describe("logoWallTiles", () => {
     const tiles = logoWallTiles(companies, events, {
       label: (c) => `Label ${c.id}`,
     });
-    expect(tiles[0]?.label).toBe("Label alpha");
+    expect(tiles[0]?.label).toBe("Label delta");
   });
 });
