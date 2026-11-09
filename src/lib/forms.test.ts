@@ -358,3 +358,57 @@ describe("formSite", () => {
     });
   });
 });
+
+describe("submitForm with a send port (the saveLead Server Action)", () => {
+  const input = (s: FormSite) => ({
+    site: s,
+    data,
+    type: "Sponsoring SoCraTes",
+    subject,
+  });
+
+  it("sends the payload through the port, not to the endpoint, and returns endpoint", async () => {
+    const payloads: unknown[] = [];
+    const { deps, requests, navigations } = makeDeps();
+    const result = await submitForm(
+      input(site({ form: { endpoint: ENDPOINT, extraFields: {} } })),
+      { ...deps, send: async (payload) => void payloads.push(payload) },
+    );
+    expect(result).toEqual({ mode: "endpoint" });
+    expect(requests).toEqual([]);
+    expect(navigations).toEqual([]);
+    expect(payloads).toHaveLength(1);
+    expect(payloads[0]).toMatchObject({
+      entreprise: "Acme",
+      type: "Sponsoring SoCraTes",
+      source: "https://bzinoun.github.io/moroccan-software-crafters/socrates/",
+      utm_source: "linkedin",
+    });
+  });
+
+  it("sends through the port even when no endpoint is configured", async () => {
+    const payloads: unknown[] = [];
+    const { deps } = makeDeps();
+    const result = await submitForm(input(site()), {
+      ...deps,
+      send: async (payload) => void payloads.push(payload),
+    });
+    expect(result).toEqual({ mode: "endpoint" });
+    expect(payloads).toHaveLength(1);
+  });
+
+  it("returns the error with the LinkedIn fallback when the port fails", async () => {
+    const { deps, navigations } = makeDeps();
+    const result = await submitForm(input(site()), {
+      ...deps,
+      send: async () => {
+        throw new Error("Lead storage is not configured");
+      },
+    });
+    expect(result.mode).toBe("error");
+    if (result.mode !== "error") return;
+    expect(result.error.message).toBe("Lead storage is not configured");
+    expect(result.fallback).toEqual({ kind: "linkedin", href: LINKEDIN });
+    expect(navigations).toEqual([]);
+  });
+});

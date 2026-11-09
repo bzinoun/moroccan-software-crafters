@@ -1,6 +1,7 @@
 // Browser wiring for `submitForm`: reads the real globals at call time.
 // Call it from event handlers and effects only, never during render or build.
 
+import { saveLead } from "@/app/actions/save-lead";
 import {
   submitForm,
   type SubmitDeps,
@@ -8,12 +9,17 @@ import {
   type SubmitResult,
 } from "./forms";
 
-/** `fetchFn` is for a test; the default reads `window.fetch` when it is called. */
+/**
+ * `fetchFn` and `send` are for a test; by default fetch reads `window.fetch`
+ * when it is called and `send` is the saveLead Server Action.
+ */
 export function browserDeps(
   fetchFn: typeof fetch = (...args) => window.fetch(...args),
+  send: SubmitDeps["send"] = saveLead,
 ): SubmitDeps {
   return {
     fetch: fetchFn,
+    send,
     assignLocation: (url) => {
       window.location.href = url;
     },

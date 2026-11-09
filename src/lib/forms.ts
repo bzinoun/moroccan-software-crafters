@@ -155,6 +155,11 @@ export type SubmitDeps = {
   /** Current query string, for the utm capture. */
   search: string;
   referrer: string;
+  /**
+   * Stores the payload on the server (the saveLead Server Action). When set,
+   * it replaces the endpoint POST; a rejection gives the error result.
+   */
+  send?: (payload: Record<string, unknown>) => Promise<void>;
 };
 
 export type SubmitResult =
@@ -188,7 +193,7 @@ export async function submitForm(
   const body = input.body || defaultMailBody(data);
   const endpoint = site.form?.endpoint ?? "";
 
-  if (endpoint) {
+  if (deps.send || endpoint) {
     try {
       const payload = buildPayload({
         site,
@@ -199,6 +204,10 @@ export async function submitForm(
         now: deps.now(),
         tracking: readTracking(deps.search, deps.referrer),
       });
+      if (deps.send) {
+        await deps.send(payload);
+        return { mode: "endpoint" };
+      }
       const response = await deps.fetch(endpoint, {
         method: "POST",
         headers: {
