@@ -116,7 +116,7 @@ Remaining owner decisions:
 
 - The form endpoint (`form.endpoint`) and the contact e-mail (`contact.email`) in `content/site.json`, empty on purpose until the owner gives the values: the forms fall back to LinkedIn until they are filled.
 - Logo and photo consent: the consent fields live in Notion (values), the repo has none.
-- The three price sets: `offers.json`, `sponsoring.json` `packages` and the organizers' partner offer paper differ, and none is declared the source.
+- Prices: the site prints none, by the owner's decision (offers, sponsor packages, funnel and mail text). `src/content/copy-agreement.test.ts` fails if an amount or a price note comes back. Attendance stays free for crafters and the copy says so.
 - The SoCraTes partner counts after the move to `events.json`: 2022 went from 8 to 7 and 2023 from 10 to 8. If the real counts are 8 and 10, add the missing names to `sponsors[]` of those two events (each name must exist in `companies.json`).
 - Settings > Pages > Source = "GitHub Actions", set once by the owner. Until then the deploy job cannot publish.
 

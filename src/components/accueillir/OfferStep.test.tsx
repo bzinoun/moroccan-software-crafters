@@ -23,6 +23,21 @@ describe("OfferStep", () => {
     ).toBeChecked();
   });
 
+  it("names each choice by its title and tagline, with no price", () => {
+    render(
+      <OfferStep
+        active
+        offers={OFFERS}
+        values={EMPTY_VALUES}
+        errors={{}}
+        update={() => {}}
+      />,
+    );
+    for (const radio of screen.getAllByRole("radio")) {
+      expect(radio).not.toHaveAccessibleName(/MAD|Gratuit|Sur devis/);
+    }
+  });
+
   it("reports the choice", async () => {
     const update = recorder<[string, unknown]>();
     render(

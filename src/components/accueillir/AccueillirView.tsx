@@ -43,11 +43,10 @@ type Props = {
 // today, the same rule as the home note.
 export function AccueillirView({ offers, events, site, today }: Props) {
   const latest = events.find((e) => e.type === "meetup" && e.date <= today);
-  const funnelOffers = offers.items.map(({ id, name, tagline, price }) => ({
+  const funnelOffers = offers.items.map(({ id, name, tagline }) => ({
     id,
     name,
     tagline,
-    price,
   }));
 
   return (

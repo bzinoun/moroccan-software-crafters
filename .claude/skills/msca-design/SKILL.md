@@ -16,7 +16,7 @@ The design system of the Next.js app at the repo root: Tailwind v4 tokens in `sr
 ## Design principles
 
 - **Warm paper, real ink.** Page `paper`, white cards with a 1px `line` border, text `ink`. Light theme only; add no `dark:` variant.
-- **Red leads, green carries data.** `red` is the main accent: primary buttons, eyebrows, the emphasized word in headings, active nav, errors. `green` is for links, numbers, prices, focus rings and the CTA band. `green-deep` is for dark sections, the SoCraTes hero and the footer.
+- **Red leads, green carries data.** `red` is the main accent: primary buttons, eyebrows, the emphasized word in headings, active nav, errors. `green` is for links, numbers, focus rings and the CTA band. `green-deep` is for dark sections, the SoCraTes hero and the footer.
 - **A hand-made session board.** Post-its in five colors, polaroids, a cork board, Caveat handwriting, small rotations (`-8deg` to `5deg`), a hand-drawn sage underline under `<em>` in titles.
 - **Moroccan signature, used sparingly.** One zellige corner per hero (`zellige-corner`, top right). The khatam star marks SoCraTes content only.
 - **Editorial type.** Fraunces (`font-display`) for headings and numbers, Inter (`font-body`) for text and UI, Caveat (`font-hand`) for handwritten notes.

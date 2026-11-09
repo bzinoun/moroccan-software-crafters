@@ -19,7 +19,7 @@ const SPONSORING: Sponsoring = {
   trust: { title: "Ils soutiennent chaque édition.", ids: ["a", "b"] },
   packages: [],
   inKind: { title: "Partenariat en nature", text: "Transport et repas." },
-  note: "Tarifs indicatifs hors taxes.",
+  note: "Les contreparties s'ajustent avec vous.",
   faq: [
     { q: "Première question ?", a: "Première réponse." },
     { q: "Deuxième question ?", a: "Deuxième réponse." },
@@ -134,7 +134,7 @@ describe("SponsoringSection", () => {
       }),
     );
     expect(
-      screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire principal" }),
     ).toBeChecked();
   });
 });

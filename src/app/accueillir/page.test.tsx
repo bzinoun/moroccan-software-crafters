@@ -22,7 +22,7 @@ describe("accueillir page metadata", () => {
       type: "website",
       title: "Accueillir un meetup Moroccan Software Crafters",
       description:
-        "Gratuit ou en formule partenaire : recevez la communauté Software Craftsmanship dans vos locaux.",
+        "Recevez la communauté Software Craftsmanship dans vos locaux, en format communautaire ou partenaire.",
       url: `${site.baseUrl}/accueillir/`,
       images: [`${site.baseUrl}/assets/img/meetups/2026-05-axa-1.jpg`],
     });

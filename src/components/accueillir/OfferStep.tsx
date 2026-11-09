@@ -1,7 +1,6 @@
 import { ChoiceCard, ChoiceGroup } from "@/components/ChoiceCard";
 import { Field } from "@/components/Field";
 import type { FunnelOffer } from "@/lib/funnel-fields";
-import { offerPrice } from "@/lib/home-data";
 import { FunnelStep } from "./FunnelStep";
 import type { StepProps } from "./useHostFunnel";
 
@@ -37,7 +36,6 @@ export function OfferStep({
               value={offer.id}
               title={offer.name}
               description={offer.tagline}
-              price={offerPrice(offer)}
               required
               aria-invalid={errors.formule ? true : undefined}
               checked={values.formule === offer.id}

@@ -19,7 +19,6 @@ import {
   heroCollage,
   heroNote,
   offerHref,
-  offerPrice,
   socratesEditions,
   socratesPhoto,
   statItems,
@@ -720,19 +719,7 @@ describe("trustLogos", () => {
   });
 });
 
-describe("offerPrice and offerHref", () => {
-  it("returns the price of an offer", () => {
-    expect(offerPrice({ price: "Gratuit" })).toBe("Gratuit");
-    expect(offerPrice({ price: "À partir de 5 000 MAD" })).toBe(
-      "À partir de 5 000 MAD",
-    );
-  });
-
-  it("returns Sur devis when the offer has no price", () => {
-    expect(offerPrice({ price: undefined })).toBe("Sur devis");
-    expect(offerPrice({ price: "" })).toBe("Sur devis");
-  });
-
+describe("offerHref", () => {
   it("links to the host funnel with the offer id", () => {
     expect(offerHref({ id: "partner" })).toBe("/accueillir/?formule=partner");
   });

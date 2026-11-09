@@ -33,9 +33,6 @@ function Offer({ pack }: { pack: PackageCard }) {
         </span>
       ) : null}
       <h3 className="mb-[0.2rem]">{frenchSpacing(pack.name)}</h3>
-      <div className="mb-[0.6rem] font-display text-s150 font-semibold text-sage">
-        {frenchSpacing(pack.price)}
-      </div>
       {pack.limit ? (
         <p className="-mt-[0.4rem] mb-[0.6rem] text-s80 text-on-dark-muted">
           {frenchSpacing(pack.limit)}

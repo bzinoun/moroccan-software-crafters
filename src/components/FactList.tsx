@@ -36,7 +36,7 @@ const factListStyles = tv({
 });
 
 export type Fact = {
-  /** The figure, as printed: "50", "0 MAD", "9 h 30 → 14 h". */
+  /** The figure, as printed: "50", "Gratuit", "9 h 30 → 14 h". */
   value: string;
   /** What the figure counts. */
   label: string;

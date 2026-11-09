@@ -1,7 +1,7 @@
 import type { Offer } from "@/content/types";
 import { tv } from "@/lib/cn";
 import { frenchSpacing } from "@/lib/french";
-import { offerHref, offerPrice } from "@/lib/home-data";
+import { offerHref } from "@/lib/home-data";
 import { Button } from "../Button";
 import { Reveal } from "../Reveal";
 
@@ -26,7 +26,6 @@ const textStyles = tv({
   slots: {
     title: "mb-[0.2rem]",
     flag: "absolute -top-3.25 left-6.5 rounded-full px-2.75 py-1.25 text-s74 font-bold tracking-[0.06em] uppercase",
-    price: "mb-[0.6rem] font-display text-s150 font-semibold",
     // Below lg the cards are one column, so the tagline needs no reserved height.
     tagline: "text-s95 lg:min-h-[3em]",
     subhead: "mt-[1.1rem] mb-2 font-body text-s78 tracking-[0.08em] uppercase",
@@ -35,14 +34,12 @@ const textStyles = tv({
     tone: {
       light: {
         flag: "bg-green text-white",
-        price: "text-green",
         tagline: "text-ink-soft",
         subhead: "text-muted",
       },
       dark: {
         title: "text-white",
         flag: "bg-sage text-green-deep",
-        price: "text-sage",
         tagline: "text-on-dark-muted",
         subhead: "text-on-dark-muted",
       },
@@ -107,7 +104,6 @@ function OfferCard({ offer, tone }: { offer: Offer; tone: Tone }) {
         <span className={text.flag()}>{frenchSpacing(offer.badge)}</span>
       ) : null}
       <h3 className={text.title()}>{frenchSpacing(offer.name)}</h3>
-      <div className={text.price()}>{frenchSpacing(offerPrice(offer))}</div>
       <p className={text.tagline()}>{frenchSpacing(offer.tagline)}</p>
       <h4 className={text.subhead()}>Vous apportez</h4>
       <BulletList texts={offer.youProvide} kind="give" />

@@ -27,7 +27,6 @@ export const PACKAGES: PackageCard[] = [
   {
     id: "supporter",
     name: "Supporter",
-    price: "10000 MAD",
     highlight: false,
     badge: null,
     limit: null,
@@ -37,7 +36,6 @@ export const PACKAGES: PackageCard[] = [
   {
     id: "partenaire",
     name: "Partenaire",
-    price: "20000 MAD",
     highlight: true,
     badge: "Le niveau historique",
     limit: null,
@@ -47,7 +45,6 @@ export const PACKAGES: PackageCard[] = [
   {
     id: "principal",
     name: "Partenaire principal",
-    price: "40000 MAD",
     highlight: false,
     badge: null,
     limit: "Un seul par édition",
@@ -58,12 +55,9 @@ export const PACKAGES: PackageCard[] = [
 
 export const LEVELS = {
   options: [
-    { value: "Supporter", label: "Supporter · 10000 MAD" },
-    { value: "Partenaire", label: "Partenaire · 20000 MAD" },
-    {
-      value: "Partenaire principal",
-      label: "Partenaire principal · 40000 MAD",
-    },
+    { value: "Supporter", label: "Supporter" },
+    { value: "Partenaire", label: "Partenaire" },
+    { value: "Partenaire principal", label: "Partenaire principal" },
     { value: "En nature", label: "En nature" },
     { value: "À discuter", label: "À discuter" },
   ],

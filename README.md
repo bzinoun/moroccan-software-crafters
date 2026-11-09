@@ -48,7 +48,7 @@ All editable text lives in `content/*.json`. The pages only hold structure, and 
 | -------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `site.json`                                        | name, links, contact, form endpoint, navigation, footer, LinkedIn follower count   |
 | `home.json`                                        | home page texts (hero, format, FAQ, closing band)                                  |
-| `offers.json`                                      | the "host a meetup" offers (name, price, what is included)                         |
+| `offers.json`                                      | the "host a meetup" offers (name, what is included)                                |
 | `sponsoring.json`                                  | the SoCraTes partner call: arguments, trust logos, packages, in-kind, FAQ, form    |
 | `events.json`                                      | all events (meetups, SoCraTes, Code Snacks) with photos, topics, links             |
 | `companies.json`                                   | companies (name, logo, LinkedIn link); their roles are computed from `events.json` |

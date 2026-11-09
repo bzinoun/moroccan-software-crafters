@@ -11,12 +11,12 @@ Single source: `src/app/globals.css`. When this file and the CSS differ, the CSS
 | `--color-white` | `#fff` | Text on red, green and ink fills, polaroid frame, input background, headings on dark surfaces, card surfaces |
 | `--color-red` | `#c1272d` | Main accent: primary button fill, eyebrow text and rule, heading emphasis, active nav, step numbers, timeline dots, errors, invalid borders |
 | `--color-red-dark` | `#9b1c22` | Primary button hover, SoCraTes badge text, form alert text |
-| `--color-green` | `#1b6b3a` | Links, focus ring, data numbers, prices, years, CTA band fill, highlighted offer border, checked inputs, progress, numbered circles |
+| `--color-green` | `#1b6b3a` | Links, focus ring, data numbers, years, CTA band fill, highlighted offer border, checked inputs, progress, numbered circles |
 | `--color-green-dark` | `#14532e` | Link hover, monogram text, meetup badge text, sticker CTA |
 | `--color-green-deep` | `#0f3f23` | Dark surfaces: SoCraTes hero, dark sections, footer, law-main card, edition cover |
 | `--color-green-soft` | `#e6f2ea` | Monogram tile, meetup badge background |
 | `--color-cream` | `#f3eedf` | Text on dark surfaces (footer links, edition year) |
-| `--color-sage` | `#a9bba3` | Accent on dark (emphasis, eyebrows, prices, flags, focus ring), hand-drawn underline stroke, blockquote rule, khatam glyph |
+| `--color-sage` | `#a9bba3` | Accent on dark (emphasis, eyebrows, flags, focus ring), hand-drawn underline stroke, blockquote rule, khatam glyph |
 | `--color-sage-soft` | `#e1e8df` | Alternate section background |
 | `--color-on-dark` | `#d3dccf` | Body text on dark |
 | `--color-on-dark-muted` | `#b9c6b4` | Secondary text on dark (footer legal, offer tagline) |
@@ -106,7 +106,7 @@ Declared with `@theme inline` so each utility keeps the `var(--font-...)` refere
 
 | Token | Stack | Utility | Use |
 |---|---|---|---|
-| `--font-display` | `var(--font-fraunces), Georgia, serif` | `font-display` | h1 to h4, big numbers, prices, legends, blockquote, brand name |
+| `--font-display` | `var(--font-fraunces), Georgia, serif` | `font-display` | h1 to h4, big numbers, legends, blockquote, brand name |
 | `--font-body` | `var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif` | `font-body` | Body, UI, buttons, inputs, small card titles |
 | `--font-hand` | `var(--font-caveat), "Comic Sans MS", cursive` | `font-hand` | Post-its, polaroid captions, kickers, day names, sticker text, tips, edition badge |
 

@@ -187,8 +187,6 @@ export function socratesFamily(s: Socrates): FamilyItem[] {
 export type PackageCard = {
   id: string;
   name: string;
-  /** "Sur devis" when the price is empty. */
-  price: string;
   highlight: boolean;
   badge: string | null;
   limit: string | null;
@@ -200,7 +198,6 @@ export function sponsorPackages(sp: Sponsoring): PackageCard[] {
   return sp.packages.map((p) => ({
     id: p.id,
     name: p.name,
-    price: p.price || "Sur devis",
     highlight: Boolean(p.highlight),
     badge: p.badge || null,
     limit: p.limit || null,
@@ -213,7 +210,7 @@ export type SponsorLevel = { value: string; label: string };
 
 /**
  * Options of the "niveau" radios of the sponsor form: one per package
- * ("Pack · price"), then "En nature" and "À discuter". "À discuter" is checked
+ * (the package name), then "En nature" and "À discuter". "À discuter" is checked
  * at first.
  */
 export function sponsorLevels(sp: Sponsoring): {
@@ -223,7 +220,7 @@ export function sponsorLevels(sp: Sponsoring): {
   const options: SponsorLevel[] = [
     ...sp.packages.map((p) => ({
       value: p.name,
-      label: `${p.name} · ${p.price}`,
+      label: p.name,
     })),
     { value: "En nature", label: "En nature" },
     { value: "À discuter", label: "À discuter" },

@@ -110,7 +110,7 @@ export type TextField = Exclude<
 >;
 
 /** The fields of an offer that the funnel reads. */
-export type FunnelOffer = Pick<Offer, "id" | "name" | "tagline" | "price">;
+export type FunnelOffer = Pick<Offer, "id" | "name" | "tagline">;
 
 /** The cleaned answers that are sent: trimmed text, equipment as one string. */
 export type Lead = {

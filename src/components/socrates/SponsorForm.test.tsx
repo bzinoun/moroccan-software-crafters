@@ -63,13 +63,13 @@ describe("SponsorForm fields", () => {
       "À discuter",
     ]);
     expect(
-      within(group).getByRole("radio", { name: "Supporter · 10000 MAD" }),
+      within(group).getByRole("radio", { name: "Supporter" }),
     ).toBeInTheDocument();
     expect(
       within(group).getByRole("radio", { name: "À discuter" }),
     ).toBeChecked();
     expect(
-      within(group).getByRole("radio", { name: "Supporter · 10000 MAD" }),
+      within(group).getByRole("radio", { name: "Supporter" }),
     ).not.toBeChecked();
   });
 
@@ -95,12 +95,8 @@ describe("SponsorForm fields", () => {
 
   it("changes the level when the visitor clicks a pill", async () => {
     const { user } = setup();
-    await user.click(
-      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
-    );
-    expect(
-      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
-    ).toBeChecked();
+    await user.click(screen.getByRole("radio", { name: "Partenaire" }));
+    expect(screen.getByRole("radio", { name: "Partenaire" })).toBeChecked();
     expect(screen.getByRole("radio", { name: "À discuter" })).not.toBeChecked();
   });
 });
@@ -198,9 +194,7 @@ describe("SponsorForm submit", () => {
       screen.getByLabelText("Votre message (facultatif)"),
       " Bonjour ",
     );
-    await user.click(
-      screen.getByRole("radio", { name: "Partenaire · 20000 MAD" }),
-    );
+    await user.click(screen.getByRole("radio", { name: "Partenaire" }));
     await user.click(submitButton());
     expect(lead.calls).toHaveLength(1);
     expect(lead.calls[0]).toEqual({
@@ -487,14 +481,12 @@ describe("SponsorForm level preselection", () => {
     const { user } = renderSponsorForm({ before: grid });
     await user.click(chooseLevel("Partenaire principal"));
     expect(
-      screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire principal" }),
     ).toBeChecked();
     await user.click(chooseLevel("Supporter"));
+    expect(screen.getByRole("radio", { name: "Supporter" })).toBeChecked();
     expect(
-      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
-    ).toBeChecked();
-    expect(
-      screen.getByRole("radio", { name: "Partenaire principal · 40000 MAD" }),
+      screen.getByRole("radio", { name: "Partenaire principal" }),
     ).not.toBeChecked();
   });
 
@@ -503,9 +495,7 @@ describe("SponsorForm level preselection", () => {
     await user.click(chooseLevel("Supporter"));
     await user.click(screen.getByRole("radio", { name: "En nature" }));
     await user.click(chooseLevel("Supporter"));
-    expect(
-      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
-    ).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Supporter" })).toBeChecked();
   });
 
   it("ignores a package that has no level", async () => {
@@ -538,8 +528,6 @@ describe("SponsorForm level preselection", () => {
     await user.click(document.body);
     expect(screen.getByRole("radio", { name: "À discuter" })).toBeChecked();
     await user.click(chooseLevel("Supporter"));
-    expect(
-      screen.getByRole("radio", { name: "Supporter · 10000 MAD" }),
-    ).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Supporter" })).toBeChecked();
   });
 });

@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  loadArticles,
   loadAssociation,
   loadCompanies,
   loadEvents,
+  loadHome,
   loadMeetup,
+  loadOffers,
   loadSite,
+  loadSocrates,
   loadSponsoring,
 } from "./load";
 import socratesFile from "../../content/socrates.json";
@@ -67,6 +71,27 @@ describe("hand-written copy agrees with the data", () => {
     for (const text of [meetup.meta.description, meetup.hero.title]) {
       expect(text).not.toMatch(/quatre heures(?! et demie)/);
     }
+  });
+
+  it("prints no price and no price note anywhere in the content", () => {
+    const trees = [
+      loadOffers(),
+      loadSponsoring(),
+      loadMeetup(),
+      loadAssociation(),
+      loadArticles(),
+      loadHome(),
+      loadSocrates(),
+      loadCompanies(),
+    ];
+    const priced = trees
+      .flatMap(strings)
+      .filter((s) =>
+        /\b(MAD|DH|dirhams?|euros?)\b|€|\btarifs?\b|\bhors taxes\b|formules? payantes?/i.test(
+          s,
+        ),
+      );
+    expect(priced).toEqual([]);
   });
 
   it("writes the sponsor form success message without an exclamation mark", () => {

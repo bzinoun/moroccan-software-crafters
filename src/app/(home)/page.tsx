@@ -87,7 +87,6 @@ export default function Home() {
         eyebrow={offers.eyebrow}
         title={offers.title}
         lead={offers.lead}
-        note={offers.note}
         items={offers.items}
       />
       <Faq

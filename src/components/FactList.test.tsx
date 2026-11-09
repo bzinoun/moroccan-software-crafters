@@ -6,7 +6,7 @@ const FACTS: Fact[] = [
   { value: "9 h → 14 h", label: "un samedi matin" },
   { value: "~100", label: "inscrits par édition" },
   { value: "50", label: "places sur place" },
-  { value: "0 MAD", label: "pour les participants" },
+  { value: "Gratuit", label: "pour les participants" },
 ];
 
 describe("FactList", () => {
@@ -15,7 +15,7 @@ describe("FactList", () => {
     const items = within(screen.getByRole("list")).getAllByRole("listitem");
     expect(items).toHaveLength(FACTS.length);
     expect(items[0]).toHaveTextContent("9 h → 14 hun samedi matin");
-    expect(within(items[3]!).getByText("0 MAD")).toBeInTheDocument();
+    expect(within(items[3]!).getByText("Gratuit")).toBeInTheDocument();
     expect(within(items[3]!).getByText("pour les participants")).toBeVisible();
   });
 

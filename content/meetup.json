@@ -15,7 +15,7 @@
       },
       { "value": "~100", "label": "inscrits par édition" },
       { "value": "50", "label": "places retenues sur place" },
-      { "value": "0 MAD", "label": "pour les participants" }
+      { "value": "Gratuit", "label": "pour les participants" }
     ]
   },
   "who": {

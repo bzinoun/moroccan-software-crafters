@@ -252,10 +252,6 @@ export function trustLogos(
   });
 }
 
-export function offerPrice(o: Pick<Offer, "price">): string {
-  return o.price || "Sur devis";
-}
-
 /** Route of the host funnel with the chosen offer, trailing slash included. */
 export function offerHref(o: Pick<Offer, "id">): string {
   return `${pageRoute("host")}?formule=${encodeURIComponent(o.id)}`;

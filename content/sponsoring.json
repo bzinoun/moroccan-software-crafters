@@ -28,7 +28,6 @@
     {
       "id": "supporter",
       "name": "Supporter",
-      "price": "15 000 MAD",
       "tagline": "Pour marquer votre soutien à la communauté.",
       "includes": [
         "Logo sur le site et les visuels de l'édition",
@@ -39,7 +38,6 @@
     {
       "id": "partenaire",
       "name": "Partenaire",
-      "price": "35 000 MAD",
       "highlight": true,
       "badge": "Le niveau historique",
       "tagline": "Le format choisi par la plupart des partenaires depuis 2022.",
@@ -55,7 +53,6 @@
     {
       "id": "principal",
       "name": "Partenaire principal",
-      "price": "70 000 MAD",
       "limit": "Un seul par édition",
       "tagline": "Votre nom associé à l'édition entière.",
       "includes": [
@@ -72,7 +69,7 @@
     "title": "Partenariat en nature",
     "text": "Transport des participants, captation photo ou vidéo, goodies, impression des supports : tout ce qui améliore l'expérience des participants compte, et donne droit aux mêmes contreparties qu'un niveau équivalent."
   },
-  "note": "Tarifs indicatifs hors taxes. Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
+  "note": "Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
   "faq": [
     {
       "q": "Peut-on envoyer plusieurs collaborateurs ?",

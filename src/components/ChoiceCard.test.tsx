@@ -11,14 +11,13 @@ function offers() {
         value="communautaire"
         title="Hôte communautaire"
         description="Le format historique : vous ouvrez vos portes, on s'occupe du reste."
-        price="Gratuit"
         required
       />
       <ChoiceCard
         name="formule"
         value="partenaire"
         title="Meetup partenaire"
-        price="À partir de 5 000 MAD"
+        description="Un meetup porté par votre marque."
       />
     </ChoiceGroup>
   );
@@ -33,18 +32,17 @@ describe("ChoiceCard", () => {
     expect(radio).toBeRequired();
   });
 
-  it("shows the description and the price, and links them to the radio", () => {
+  it("shows the description, and links it to the radio", () => {
     render(offers());
     expect(
       screen.getByRole("radio", { name: /Hôte communautaire/ }),
-    ).toHaveAccessibleName(/Gratuit/);
-    expect(screen.getByText("Gratuit")).toBeVisible();
+    ).toHaveAccessibleName(/Le format historique/);
     expect(screen.getByText(/Le format historique/).textContent).toBe(
       "Le format historique\u202f: vous ouvrez vos portes, on s'occupe du reste.",
     );
   });
 
-  it("renders no description or price when they are missing", () => {
+  it("renders no description when it is missing", () => {
     render(
       <ChoiceGroup aria-label="Formule">
         <ChoiceCard name="formule" value="x" title="Seul" />

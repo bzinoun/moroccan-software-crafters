@@ -10,15 +10,15 @@ function offer(name: string) {
 }
 
 describe("PackageGrid", () => {
-  it("shows the levels in order with their prices", () => {
+  it("shows the levels in order, with no price", () => {
     render(<PackageGrid packages={PACKAGES} />);
     const names = screen
       .getAllByRole("heading", { level: 3 })
       .map((h) => h.textContent);
     expect(names).toEqual(["Supporter", "Partenaire", "Partenaire principal"]);
-    expect(offer("Supporter")).toHaveTextContent("10000 MAD");
-    expect(offer("Partenaire")).toHaveTextContent("20000 MAD");
-    expect(offer("Partenaire principal")).toHaveTextContent("40000 MAD");
+    for (const name of names) {
+      expect(offer(name!)).not.toHaveTextContent(/MAD|Sur devis/);
+    }
   });
 
   it("lists what each level includes", () => {

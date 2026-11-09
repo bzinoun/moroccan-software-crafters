@@ -206,7 +206,6 @@ export const companiesSchema = z.object({
 export const offerSchema = z.object({
   id: z.string(),
   name: z.string(),
-  price: z.string().optional(),
   highlight: z.boolean().optional(),
   badge: z.string().optional(),
   tagline: z.string(),
@@ -218,7 +217,6 @@ export const offersSchema = z.object({
   eyebrow: z.string(),
   title: z.string(),
   lead: z.string(),
-  note: z.string(),
   items: z.array(offerSchema),
 });
 
@@ -232,7 +230,6 @@ export const sponsoringSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string(),
-      price: z.string(),
       highlight: z.boolean().optional(),
       badge: z.string().optional(),
       limit: z.string().optional(),

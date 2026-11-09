@@ -17,7 +17,7 @@ export const metadata: Metadata = pageMetadata({
   share: {
     title: "Accueillir un meetup Moroccan Software Crafters",
     description:
-      "Gratuit ou en formule partenaire : recevez la communauté Software Craftsmanship dans vos locaux.",
+      "Recevez la communauté Software Craftsmanship dans vos locaux, en format communautaire ou partenaire.",
   },
   photo: SHARE_PHOTO,
 });

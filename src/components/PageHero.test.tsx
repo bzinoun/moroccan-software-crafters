@@ -10,7 +10,7 @@ const MEETUP = {
     { value: "9 h → 14 h", label: "un samedi matin" },
     { value: "~100", label: "inscrits" },
     { value: "50", label: "places sur place" },
-    { value: "0 MAD", label: "pour les participants" },
+    { value: "Gratuit", label: "pour les participants" },
   ],
   image: {
     src: "/assets/img/meetups/hero.jpg",
@@ -35,7 +35,7 @@ describe("PageHero", () => {
     expect(within(list).getAllByRole("listitem")).toHaveLength(
       MEETUP.facts.length,
     );
-    expect(within(list).getByText("0 MAD")).toBeInTheDocument();
+    expect(within(list).getByText("Gratuit")).toBeInTheDocument();
   });
 
   it("shows the photo with its alt text, loaded at once", () => {

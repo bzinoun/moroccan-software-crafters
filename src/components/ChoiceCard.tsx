@@ -14,26 +14,22 @@ export function ChoiceGroup({ className, ...props }: ComponentProps<"div">) {
 type ChoiceCardProps = Omit<ComponentProps<"input">, "type" | "title"> & {
   title: string;
   description?: string;
-  /** Printed on the right from `sm`, under the text below. */
-  price?: string;
 };
 
 /**
- * A radio drawn as a card: a circle, a title, an optional description and
- * price. The native radio stays in the page (focusable, transparent). A checked
+ * A radio drawn as a card: a circle, a title, an optional description. The native radio stays in the page (focusable, transparent). A checked
  * card gets a green edge and tint; keyboard focus marks the whole card.
  */
 export function ChoiceCard({
   title,
   description,
-  price,
   className,
   ...props
 }: ChoiceCardProps) {
   return (
     <label
       className={cn(
-        "relative grid cursor-pointer grid-cols-[24px_1fr] items-start gap-3.5 rounded-card border-[1.5px] border-line px-4.5 py-4 hover:border-[#cbbfa9] has-checked:border-green has-checked:bg-[#f3faf5] has-checked:hover:border-green has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-green motion-safe:transition-[border-color,background-color] motion-safe:duration-150 sm:grid-cols-[24px_1fr_auto]",
+        "relative grid cursor-pointer grid-cols-[24px_1fr] items-start gap-3.5 rounded-card border-[1.5px] border-line px-4.5 py-4 hover:border-[#cbbfa9] has-checked:border-green has-checked:bg-[#f3faf5] has-checked:hover:border-green has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-green motion-safe:transition-[border-color,background-color] motion-safe:duration-150",
         className,
       )}
     >
@@ -54,11 +50,6 @@ export function ChoiceCard({
           </small>
         ) : null}
       </span>
-      {price ? (
-        <span className="col-start-2 font-display text-s98 font-semibold whitespace-nowrap text-green sm:col-auto">
-          {frenchSpacing(price)}
-        </span>
-      ) : null}
     </label>
   );
 }

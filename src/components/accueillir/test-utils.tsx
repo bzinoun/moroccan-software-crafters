@@ -27,19 +27,16 @@ export const OFFERS: readonly FunnelOffer[] = [
     id: "communautaire",
     name: "Hôte communautaire",
     tagline: "Vous ouvrez vos portes.",
-    price: "Gratuit",
   },
   {
     id: "partenaire",
     name: "Meetup partenaire",
     tagline: "Un meetup ouvert, porté par votre marque.",
-    price: "À partir de 9000 MAD",
   },
   {
     id: "prive",
     name: "Craft session privée",
     tagline: "Le format meetup pour vos équipes.",
-    price: "À partir de 20000 MAD",
   },
 ];
 

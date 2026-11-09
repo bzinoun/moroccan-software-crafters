@@ -8,7 +8,6 @@ const items: Offer[] = [
   {
     id: "alpha",
     name: "Offre Alpha",
-    price: "Gratuit",
     tagline: "Le format simple : vous ouvrez, nous faisons le reste.",
     youProvide: ["Une salle", "Un écran", "Du café"],
     weProvide: [
@@ -20,7 +19,6 @@ const items: Offer[] = [
   {
     id: "beta",
     name: "Offre Beta",
-    price: "À partir de 1 000 MAD",
     highlight: true,
     badge: "Nouveau",
     tagline: "Un format porté par votre marque.",
@@ -30,7 +28,6 @@ const items: Offer[] = [
   {
     id: "gamma",
     name: "Offre Gamma",
-    price: "À partir de 2 500 MAD",
     tagline: "Le format, animé pour vos équipes.",
     youProvide: ["Vos équipes", "Une demi-journée"],
     weProvide: ["Préparation", "Animation", "Synthèse écrite"],
@@ -60,30 +57,23 @@ describe("OfferGrid cards", () => {
     expect(screen.getAllByRole("article")).toHaveLength(items.length);
   });
 
-  it("shows the price exactly as given and the tagline", () => {
+  it("shows the tagline of each offer", () => {
     render(<OfferGrid items={items} />);
-    const beta = within(card("Offre Beta"));
-    expect(beta.getByText("À partir de 1 000 MAD")).toBeInTheDocument();
     expect(
-      beta.getByText("Un format porté par votre marque."),
-    ).toBeInTheDocument();
-    expect(
-      within(card("Offre Alpha")).getByText("Gratuit"),
+      within(card("Offre Beta")).getByText("Un format porté par votre marque."),
     ).toBeInTheDocument();
   });
 
-  it("shows Sur devis when the offer has no price or an empty one", () => {
-    const first = items[0]!;
-    render(
-      <OfferGrid
-        items={[
-          { ...first, id: "a", name: "Sans prix", price: undefined },
-          { ...first, id: "b", name: "Prix vide", price: "" },
-        ]}
-      />,
-    );
-    expect(within(card("Sans prix")).getByText("Sur devis")).toBeVisible();
-    expect(within(card("Prix vide")).getByText("Sur devis")).toBeVisible();
+  it("shows no price on a card, and the tagline follows the name with no gap", () => {
+    render(<OfferGrid items={items} />);
+    for (const offer of items) {
+      const article = card(offer.name);
+      expect(article).not.toHaveTextContent(/MAD|Gratuit|Sur devis/);
+      const heading = within(article).getByRole("heading", { level: 3 });
+      expect(heading.nextElementSibling).toHaveTextContent(
+        offer.tagline.slice(0, 12),
+      );
+    }
   });
 
   it("puts a narrow no-break space before the colon of the tagline", () => {
@@ -195,7 +185,7 @@ describe("OfferGrid dark tone", () => {
     expect(card("Offre Beta")).toHaveAttribute("data-highlighted");
   });
 
-  it("keeps every card, price and action in the dark tone", () => {
+  it("keeps every card and action in the dark tone", () => {
     render(<OfferGrid items={items} tone="dark" />);
     expect(screen.getAllByRole("article")).toHaveLength(items.length);
     for (const offer of items) {

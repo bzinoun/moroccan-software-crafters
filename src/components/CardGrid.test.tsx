@@ -187,8 +187,8 @@ describe("Card", () => {
   });
 
   it("puts a narrow no-break space before a colon in the title and the text", () => {
-    render(<Card title="Accès : libre" text="Prix : 0 MAD" />);
+    render(<Card title="Accès : libre" text="Lieu : Casablanca" />);
     expect(screen.getByRole("heading").textContent).toBe("Accès\u202f: libre");
-    expect(screen.getByText(/Prix/).textContent).toBe("Prix\u202f: 0 MAD");
+    expect(screen.getByText(/Lieu/).textContent).toBe("Lieu\u202f: Casablanca");
   });
 });

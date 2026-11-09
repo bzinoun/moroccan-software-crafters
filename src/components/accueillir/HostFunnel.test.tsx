@@ -50,13 +50,11 @@ describe("HostFunnel first render", () => {
       screen.getByRole("radiogroup", { name: "Formule" }),
     );
     expect(
-      screen.getByRole("radio", { name: /Hôte communautaire.*Gratuit/ }),
+      screen.getByRole("radio", { name: /Hôte communautaire/ }),
     ).not.toBeChecked();
-    expect(
-      screen.getByRole("radio", {
-        name: /Meetup partenaire.*À partir de 9000 MAD/,
-      }),
-    ).toBeInTheDocument();
+    for (const radio of choices) {
+      expect(radio).not.toHaveAccessibleName(/MAD|Gratuit|Sur devis/);
+    }
     expect(screen.queryByRole("button", { name: "Retour" })).toBeNull();
     expect(
       screen.queryByRole("group", { name: "L'événement" }),
@@ -405,6 +403,7 @@ describe("step 4, the contact", () => {
       dt.textContent,
       dt.nextElementSibling?.textContent,
     ]);
+    expect(recap).not.toHaveTextContent(/MAD|Gratuit|Sur devis/);
     expect(rows).toEqual([
       ["Formule", "Meetup partenaire"],
       ["Date souhaitée", "samedi 14 novembre 2026"],

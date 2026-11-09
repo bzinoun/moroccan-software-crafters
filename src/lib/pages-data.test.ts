@@ -391,14 +391,12 @@ const sponsoring = {
     {
       id: "small",
       name: "Small",
-      price: "1 000 MAD",
       tagline: "For a start",
       includes: ["Logo"],
     },
     {
       id: "big",
       name: "Big",
-      price: "5 000 MAD",
       highlight: true,
       badge: "Popular",
       limit: "Only one",
@@ -413,7 +411,6 @@ describe("sponsorPackages", () => {
     expect(sponsorPackages(sponsoring)[0]).toEqual({
       id: "small",
       name: "Small",
-      price: "1 000 MAD",
       highlight: false,
       badge: null,
       limit: null,
@@ -429,21 +426,14 @@ describe("sponsorPackages", () => {
       limit: "Only one",
     });
   });
-
-  it("shows 'Sur devis' for an empty price", () => {
-    const sp = {
-      packages: [{ ...sponsoring.packages[0]!, price: "" }],
-    } as Sponsoring;
-    expect(sponsorPackages(sp)[0]?.price).toBe("Sur devis");
-  });
 });
 
 describe("sponsorLevels", () => {
   it("lists the packages, then 'En nature' and 'À discuter' (the default)", () => {
     expect(sponsorLevels(sponsoring)).toEqual({
       options: [
-        { value: "Small", label: "Small · 1 000 MAD" },
-        { value: "Big", label: "Big · 5 000 MAD" },
+        { value: "Small", label: "Small" },
+        { value: "Big", label: "Big" },
         { value: "En nature", label: "En nature" },
         { value: "À discuter", label: "À discuter" },
       ],
