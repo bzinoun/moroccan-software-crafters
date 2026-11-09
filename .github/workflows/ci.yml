@@ -1,18 +1,15 @@
-# Quality gates. Deploy calls this workflow first (workflow_call).
+# Quality gates. Vercel deploys main and builds previews of pull requests.
 name: CI
 
 on:
   pull_request:
   merge_group:
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
 
-# In a called workflow, github.workflow and github.event_name belong to the caller.
-# Only pull requests share a group, so a deploy run is never cancelled and never
-# collides with the "pages" group of deploy.yml (equal groups cancel the caller).
+# Only pull requests share a group, so a newer push cancels the older PR run.
 concurrency:
   group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -32,8 +29,6 @@ jobs:
       - run: pnpm test
       - run: pnpm audit --prod --audit-level=high
       - run: pnpm build
-        env:
-          NEXT_PUBLIC_BASE_PATH: /moroccan-software-crafters
 
   workflows:
     runs-on: ubuntu-latest

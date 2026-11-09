@@ -2,7 +2,7 @@
   "name": "Moroccan Software Crafters",
   "tagline": "Association à but non lucratif",
   "mission": "Stimuler et promouvoir les valeurs du Software Craftsmanship au Maroc",
-  "baseUrl": "https://bzinoun.github.io/moroccan-software-crafters",
+  "baseUrl": "https://moroccan-software-crafters.vercel.app",
   "since": 2019,
   "linkedinFollowers": 3666,
   "links": {

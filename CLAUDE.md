@@ -2,7 +2,7 @@
 
 # MSCA site: the Next.js app
 
-The community site of Moroccan Software Crafters (meetups, SoCraTes Maroc, partner offers). Next.js (App Router, static export to GitHub Pages), styled with Tailwind v4. The app lives at the repo root. The former static HTML site is in git history at commit 1353207: read a file with `git show 1353207:<path>`.
+The community site of Moroccan Software Crafters (meetups, SoCraTes Maroc, partner offers). Next.js (App Router, prerendered pages on Vercel, one Server Action for the lead forms), styled with Tailwind v4. The app lives at the repo root. The former static HTML site is in git history at commit 1353207: read a file with `git show 1353207:<path>`.
 
 Before UI work, load the `msca-design` skill (principles, `TOKENS.md`, `TAILWIND.md`, `COMPONENTS.md`). For component API design load `vercel-composition-patterns` (skip rules that need a server runtime). Read `node_modules/next/dist/docs/` before you use a Next.js API: this version (16.4) differs from training data. This file holds rules, commands, structure, decisions and gotchas. Component facts are in `COMPONENTS.md`, Tailwind facts in `TAILWIND.md`, tokens in `TOKENS.md`.
 
@@ -28,9 +28,8 @@ Run every command from the repo root.
 | Task | Command |
 |---|---|
 | Dev server | `pnpm dev` (http://localhost:3000) |
-| Static export | `pnpm build` (writes `out/`) |
-| Serve the export | `pnpm preview` (`python3 -m http.server -d out 8000`). It serves `out/` at the root, so it only fits a build made without `NEXT_PUBLIC_BASE_PATH` |
-| Serve a base-path export | After a build with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters`: `d=$(mktemp -d) && ln -s "$PWD/out" "$d/moroccan-software-crafters" && python3 -m http.server -d "$d" 8000`, then open `http://localhost:8000/moroccan-software-crafters/`. `pnpm preview` returns 404 for the CSS and scripts of such a build |
+| Production build | `pnpm build` |
+| Serve the build | `pnpm start` (http://localhost:3000) |
 | Remove build output | `pnpm clean` (`.next` and `out`) |
 | Tests | `pnpm vitest run <file>`: one or a few files, only the tests the change touches. CI runs the full suite |
 | Coverage | `pnpm test:coverage` (v8, `src/`) |
@@ -44,7 +43,7 @@ Run `pnpm format` before each commit.
 ## Shape
 
 - Next.js App Router, TypeScript `strict` (plus `noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitOverride`), React Server Components by default. Add `"use client"` only for interaction: mobile nav, lightbox, filters, the 4-step funnel, forms.
-- Static export: `output: "export"`, `images: { unoptimized: true }`, `trailingSlash: true`, `basePath` from `NEXT_PUBLIC_BASE_PATH` (`/moroccan-software-crafters` on GitHub Pages, empty locally; `parseBasePath` in `src/lib/base-path.ts` rejects a value without a leading slash). Every feature must work as plain files: no route handlers, server actions, middleware, ISR, `cookies()` or `headers()`.
+- Hosting: Vercel, at the domain root. `images: { unoptimized: true }`, `trailingSlash: true`, `basePath` from `NEXT_PUBLIC_BASE_PATH` (empty on Vercel; `parseBasePath` in `src/lib/base-path.ts` rejects a value without a leading slash). Every page is prerendered. The only server code is the `saveLead` Server Action (`src/app/actions/save-lead.ts`): it validates a lead (`src/lib/leads/lead.ts`) and stores it through the `LeadRepository` port (Notion adapter in production, in-memory adapter in tests). Its server variables are `NOTION_TOKEN` (secret) and `NOTION_LEADS_DATA_SOURCE_ID`, set in the Vercel project for production and preview, never in the repo; without them the forms show their fallback. Add no other server feature (route handlers, middleware, `cookies()`) without a decision.
 - Every page works without JavaScript: all content is in the HTML, and the `js` variant hides what needs script (`TOKENS.md`, "Progressive enhancement").
 - Copy stays French.
 
@@ -74,7 +73,7 @@ The root layout owns `<html>` and `<body>` only. Each route segment has a `layou
 
 To add a page: pick a `PageId` (a new one goes in `PageId` of `content/types.ts` and in `PAGE_ROUTES` of `routes.ts`), create `src/app/<segment>/layout.tsx` with the same four lines as `meetup/layout.tsx`, change the page id, add the id to the table in `PageFrame.test.tsx`. `pnpm typecheck` already runs `next typegen`, and `tsc` skips the dev validator (see Gotchas). Two root layouts would force a full page load between pages, so the shell stays in the segment layouts. A layout that needs the italic font imports `fonts-italic` and passes its `.variable` as `className` (`TOKENS.md`, "Fonts").
 
-The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id and exports its own `metadata` (own title, no canonical, no indexing). The static export writes it to `out/404.html`. Old `.html` links from outside (for example `meetup.html`) give the 404 page (decided, no redirect stubs).
+The 404 page (`src/app/not-found.tsx`) renders `<PageFrame>` without a page id and exports its own `metadata` (own title, no canonical, no indexing). Next serves it for every unknown URL. Old `.html` links from outside (for example `meetup.html`) give the 404 page (decided, no redirect stubs).
 
 `src/app/sitemap.ts` and `src/app/robots.ts` generate `sitemap.xml` and `robots.txt`; both export `dynamic = "force-static"` (a static export refuses them otherwise) and build absolute URLs from `baseUrl`, which already carries the base path. A dynamic route (`/actualites/[slug]/`) keeps `dynamicParams = false` and a sync `generateStaticParams()`; the params and the metadata use `articleSlugs()`. `sitemap.ts` reads `loadArticles().items` itself, so a filter added to `articleSlugs()` goes into the sitemap too.
 
@@ -118,12 +117,11 @@ Remaining owner decisions:
 - Logo and photo consent: the consent fields live in Notion (values), the repo has none.
 - Prices: the site prints none, by the owner's decision (offers, sponsor packages, funnel and mail text). `src/content/copy-agreement.test.ts` fails if an amount or a price note comes back. Attendance stays free for crafters and the copy says so.
 - The SoCraTes partner counts after the move to `events.json`: 2022 went from 8 to 7 and 2023 from 10 to 8. If the real counts are 8 and 10, add the missing names to `sponsors[]` of those two events (each name must exist in `companies.json`).
-- Settings > Pages > Source = "GitHub Actions", set once by the owner. Until then the deploy job cannot publish.
 
 ## CI and deploy
 
-- `.github/workflows/ci.yml` (pull requests, merge queue, by hand, and called by the deploy workflow): job `check` runs format check, typecheck, lint, the test suite, `pnpm audit --prod --audit-level=high` and the build with the base path; job `workflows` runs `actionlint` and `yamllint` (config in `.yamllint.yml`). A new advisory can fail the audit step with no code change.
-- `.github/workflows/deploy.yml` (push to `main`, by hand): job `gates` calls `ci.yml`, then `build` runs `pnpm build` with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters` and uploads `out/`, then `deploy` publishes it to GitHub Pages. Pull request runs cancel older ones; a deploy run is never cancelled.
+- `.github/workflows/ci.yml` (pull requests, merge queue, by hand): job `check` runs format check, typecheck, lint, the test suite, `pnpm audit --prod --audit-level=high` and the build; job `workflows` runs `actionlint` and `yamllint` (config in `.yamllint.yml`). A new advisory can fail the audit step with no code change.
+- Deploy: Vercel (project `moroccan-software-crafters`, Git-connected). Each push to `main` deploys production at https://moroccan-software-crafters.vercel.app; other branches get preview URLs.
 - `.github/actions/setup` is the shared setup: pnpm from `packageManager`, Node from `.nvmrc`, the Next.js build cache, `pnpm install --frozen-lockfile`.
 - `.github/dependabot.yml`: weekly updates for npm (minor and patch in one group) and for the GitHub Actions. Actions are pinned by commit SHA.
 - `pnpm-workspace.yaml` holds the pnpm build settings and an override that lifts `minimatch` (a dev dependency advisory).
@@ -146,6 +144,6 @@ A change is done when it keeps the site working, not when it matches an older ve
 
 - `pnpm format:check`, `pnpm typecheck` and `pnpm lint`.
 - The tests the change touches (`pnpm vitest run <files>`), and a new test first for a changed behavior.
-- `pnpm build` and `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`, both with no warning. Serve the first with `pnpm preview` and the second with the base-path command of the Commands table.
-- A crawl of the exported pages for broken links.
+- `pnpm build` with no warning, served with `pnpm start`.
+- A crawl of the served pages for broken links.
 - A browser check of each changed page at 375, 768 and 1280 px (use the `run` skill and the browser tools): keyboard order and focus rings, hover and open states with real mouse and keyboard events, the console for errors, and the page with JavaScript off. If the window cannot be resized, use same-origin iframes at each width.

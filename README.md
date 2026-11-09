@@ -1,6 +1,6 @@
 # Moroccan Software Crafters site
 
-The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc, in French, built with Next.js and exported as static files to GitHub Pages.
+The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc, in French, built with Next.js and hosted on Vercel (prerendered pages, plus one Server Action for the lead forms).
 
 ## Stack
 
@@ -14,18 +14,10 @@ The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc,
 ```bash
 pnpm install
 pnpm dev      # http://localhost:3000
-pnpm build    # static export in out/
-pnpm preview  # serve out/ at http://localhost:8000 (build without a base path)
+pnpm build    # production build
+pnpm start    # serve the production build at http://localhost:3000
 pnpm clean    # remove .next and out
 ```
-
-`pnpm preview` serves `out/` at the root, so it only fits a build made without a base path. To test the GitHub Pages base path, build with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters pnpm build`, then serve it under that path:
-
-```bash
-d=$(mktemp -d) && ln -s "$PWD/out" "$d/moroccan-software-crafters" && python3 -m http.server -d "$d" 8000
-```
-
-Open `http://localhost:8000/moroccan-software-crafters/`. `pnpm preview` returns 404 for the CSS and scripts of such a build.
 
 ## Checks
 
@@ -74,13 +66,13 @@ To add a meetup:
 
 ## Forms
 
-GitHub Pages serves static files only, so the host and sponsoring forms post to a third-party service. Set `form.endpoint` in `content/site.json`. Without an endpoint, the forms open a prefilled e-mail to the contact address in `content/site.json`; without that too, they link to the LinkedIn page. Both values are empty until the owner gives them. The forms need JavaScript to send: a visitor without it reads the form and a note that points to LinkedIn.
+Both forms (host funnel and SoCraTes sponsor form) call the `saveLead` Server Action (`src/app/actions/save-lead.ts`), which validates the lead on the server and creates a page in the Notion "Leads" database. It needs two server variables in the Vercel project: `NOTION_TOKEN` (secret) and `NOTION_LEADS_DATA_SOURCE_ID`. Without them, or when Notion fails, the form shows its fallback: a prefilled e-mail to `contact.email` in `content/site.json`, else the LinkedIn page. The forms need JavaScript to send: a visitor without it reads the form and a note that points to LinkedIn.
 
 ## Deploy
 
-Every push to `main` runs `.github/workflows/deploy.yml`: it calls the CI workflow first, then builds with `NEXT_PUBLIC_BASE_PATH=/moroccan-software-crafters` and publishes `out/` to GitHub Pages at https://bzinoun.github.io/moroccan-software-crafters/. Pull requests run `.github/workflows/ci.yml`: the `check` job (format, types, lint, tests, `pnpm audit`, build) and the `workflows` job (`actionlint`, `yamllint`), with no deploy. Dependabot opens weekly update pull requests.
+Vercel builds every push: `main` goes to production at https://moroccan-software-crafters.vercel.app, other branches and pull requests get a preview URL. Pull requests also run `.github/workflows/ci.yml`: the `check` job (format, types, lint, tests, `pnpm audit`, build) and the `workflows` job (`actionlint`, `yamllint`). Dependabot opens weekly update pull requests.
 
-Owner action, once: Settings > Pages > Source = "GitHub Actions". If the domain changes, update `baseUrl` in `content/site.json`.
+If the domain changes, update `baseUrl` in `content/site.json`.
 
 ## Contribute
 
