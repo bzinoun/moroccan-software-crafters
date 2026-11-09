@@ -1,13 +1,4 @@
 {
-  "nextEdition": {
-    "label": "5e édition",
-    "year": "",
-    "dates": "",
-    "venue": "",
-    "city": "",
-    "capacity": 60,
-    "status": "En préparation"
-  },
   "eyebrow": "Devenir partenaire",
   "title": "Financez quatre jours qui font avancer le craft au Maroc.",
   "lead": "SoCraTes Maroc est un événement à but non lucratif : le prix payé par les participants couvre à peine l'hébergement. Ce sont les partenaires qui rendent l'édition possible, et qui la vivent de l'intérieur.",
@@ -37,7 +28,6 @@
     {
       "id": "supporter",
       "name": "Supporter",
-      "price": "15 000 MAD",
       "tagline": "Pour marquer votre soutien à la communauté.",
       "includes": [
         "Logo sur le site et les visuels de l'édition",
@@ -48,7 +38,6 @@
     {
       "id": "partenaire",
       "name": "Partenaire",
-      "price": "35 000 MAD",
       "highlight": true,
       "badge": "Le niveau historique",
       "tagline": "Le format choisi par la plupart des partenaires depuis 2022.",
@@ -64,7 +53,6 @@
     {
       "id": "principal",
       "name": "Partenaire principal",
-      "price": "70 000 MAD",
       "limit": "Un seul par édition",
       "tagline": "Votre nom associé à l'édition entière.",
       "includes": [
@@ -81,16 +69,28 @@
     "title": "Partenariat en nature",
     "text": "Transport des participants, captation photo ou vidéo, goodies, impression des supports : tout ce qui améliore l'expérience des participants compte, et donne droit aux mêmes contreparties qu'un niveau équivalent."
   },
-  "note": "Tarifs indicatifs hors taxes. Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
+  "note": "Les contreparties s'ajustent avec vous ; les places partenaires sont nominatives et participent pleinement à l'open space.",
   "faq": [
-    { "q": "Peut-on envoyer plusieurs collaborateurs ?", "a": "Oui, dans la limite des places incluses dans votre niveau. Au-delà, vos collaborateurs s'inscrivent comme les autres participants, en priorité." },
-    { "q": "Y a-t-il des stands ou des présentations commerciales ?", "a": "Non. SoCraTes est une unconference : il n'y a ni stand ni créneau commercial. Les partenaires sont présents par leurs crafters, leur logo, leur mot d'ouverture et leurs goodies." },
-    { "q": "Quand faut-il s'engager ?", "a": "Idéalement trois mois avant l'édition, pour figurer sur l'annonce, les visuels et les badges. Les partenaires engagés tôt ont la priorité sur le niveau principal." },
-    { "q": "Comment est utilisé le budget ?", "a": "Hébergement et repas des participants, location des salles, matériel d'open space, transport et impression. L'association partage le bilan de l'édition avec ses partenaires." }
+    {
+      "q": "Peut-on envoyer plusieurs collaborateurs ?",
+      "a": "Oui, dans la limite des places incluses dans votre niveau. Au-delà, vos collaborateurs s'inscrivent comme les autres participants, en priorité."
+    },
+    {
+      "q": "Y a-t-il des stands ou des présentations commerciales ?",
+      "a": "Non. SoCraTes est une unconference : il n'y a ni stand ni créneau commercial. Les partenaires sont présents par leurs crafters, leur logo, leur mot d'ouverture et leurs goodies."
+    },
+    {
+      "q": "Quand faut-il s'engager ?",
+      "a": "Idéalement trois mois avant l'édition, pour figurer sur l'annonce, les visuels et les badges. Les partenaires engagés tôt ont la priorité sur le niveau principal."
+    },
+    {
+      "q": "Comment est utilisé le budget ?",
+      "a": "Hébergement et repas des participants, location des salles, matériel d'open space, transport et impression. L'association partage le bilan de l'édition avec ses partenaires."
+    }
   ],
   "form": {
     "title": "Parlons de la prochaine édition",
     "lead": "Laissez-nous vos coordonnées et le niveau qui vous intéresse. Nous revenons vers vous sous 48 heures avec le dossier de partenariat.",
-    "success": "Merci ! Nous vous envoyons le dossier de partenariat sous 48 heures."
+    "success": "Merci. Nous vous envoyons le dossier de partenariat sous 48 heures."
   }
 }

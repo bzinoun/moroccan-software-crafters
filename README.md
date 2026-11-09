@@ -1,71 +1,133 @@
-# Moroccan Software Crafters · site des meetups
+# Moroccan Software Crafters site
 
-Site statique (HTML, CSS, JavaScript, sans build) hébergé sur GitHub Pages. Tout le contenu éditable vit dans des fichiers JSON sous `content/` : les pages HTML ne contiennent que la structure.
+The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc, in French, built with Next.js and hosted on Vercel (prerendered pages, plus one route handler for the lead forms).
 
-- `index.html` : accueil (format, historique, galerie, entreprises, SoCraTes, formules, FAQ)
-- `meetup.html` : le déroulé d'un meetup (accueil, lightning talks, bubble topics, tables rondes, rétro)
-- `socrates.html` : la conférence SoCraTes Maroc, les règles de l'open space, les éditions, l'appel au sponsoring et son formulaire
-- `association.html` : mission, principes, histoire, façons de contribuer
-- `actualites.html` : articles (récaps, annonces) ; `actualites.html?a=<slug>` affiche un article
-- `accueillir.html` : formulaire en 4 étapes pour les entreprises hôtes
+## Stack
 
-## Le CMS : `content/*.json`
+- Next.js 16 (App Router, `output: "export"`), React 19, TypeScript `strict`
+- Tailwind CSS v4 with tokens in `src/app/globals.css`
+- zod for the content schemas, Vitest and Testing Library for the tests
+- Node 24 (`.nvmrc`) and pnpm (the version is pinned in `package.json`)
 
-| Fichier | Contenu |
-|---|---|
-| `site.json` | nom, liens, e-mail de contact, **endpoint du formulaire**, navigation, pied de page, nombre d'abonnés LinkedIn |
-| `home.json` | textes de la page d'accueil (hero, format, FAQ, bandeau final…) |
-| `offers.json` | les formules « Accueillir un meetup » (nom, prix, contreparties) |
-| `sponsoring.json` | l'appel à partenaires SoCraTes : arguments, niveaux de partenariat, FAQ, formulaire |
-| `events.json` | tous les événements (meetups, SoCraTes, Code Snacks) avec photos, sujets, liens |
-| `companies.json` | les entreprises (nom, logo, lien LinkedIn) ; leurs rôles sont calculés depuis `events.json` |
-| `meetup.json`, `socrates.json`, `association.json` | textes des pages correspondantes |
-| `articles.json` | les actualités : titre, date, extrait, image, corps en Markdown simple |
-
-Règles :
-
-- Les textes sont injectés dans les éléments portant `data-cms="fichier.chemin.clé"`. Les listes (événements, cartes, FAQ…) sont rendues par `assets/js/home.js`, `pages.js` et `funnel.js`.
-- Le champ `name` d'une entreprise doit être identique à la valeur `host` ou `sponsors[]` des événements : c'est ce qui relie les deux.
-- Les corps d'articles acceptent : `## Titre`, paragraphes, `- listes`, `1. listes`, `> citation`, `**gras**`, `*italique*`, `[lien](url)`.
-- Les photos sont dans `assets/img/meetups/` et référencées par leur nom sans extension (`"photo": "2026-10-sg-gscm-5"`). Les logos sont dans `assets/img/logos/` (`"logo": "axa.png"`, vide = monogramme).
-
-### Ajouter un meetup
-
-1. Déposer les photos dans `assets/img/meetups/` au format `AAAA-MM-hote-N.jpg`, redimensionnées (1600 px de large au plus) et sans métadonnées :
-   ```bash
-   python3 -c "from PIL import Image, ImageOps; im = ImageOps.exif_transpose(Image.open('in.jpg')).convert('RGB'); im.thumbnail((1600, 1600)); im.save('out.jpg', quality=80, optimize=True, progressive=True)"
-   ```
-2. Ajouter l'événement en tête de `content/events.json` (le plus récent d'abord).
-3. Si l'hôte est nouveau : l'ajouter dans `content/companies.json` avec son logo (240 × 240 px, PNG) dans `assets/img/logos/`.
-4. Facultatif : un récap dans `content/articles.json`.
-
-## Brancher les formulaires
-
-GitHub Pages ne sert que des fichiers statiques : les demandes (hébergement et sponsoring) partent vers un service tiers. Renseigner `form.endpoint` dans `content/site.json`.
-
-| Service | Endpoint | Réglage |
-|---|---|---|
-| Formspree (gratuit jusqu'à 50 envois/mois) | `https://formspree.io/f/<id>` | rien de plus |
-| Web3Forms (gratuit, 250 envois/mois) | `https://api.web3forms.com/submit` | `"extraFields": { "access_key": "<clé>" }` |
-| Google Apps Script vers Google Sheets | URL de l'application web publiée | le script lit `e.postData.contents` (JSON) |
-
-Sans endpoint, les formulaires ouvrent un e-mail pré-rempli vers `contact.email`. Sans aucun des deux, ils renvoient vers la page LinkedIn.
-
-Chaque envoi contient un champ `type` (« Hébergement meetup » ou « Sponsoring SoCraTes »), les réponses, et les paramètres `utm_*` et le référent s'ils existent. Un champ caché bloque les robots simples.
-
-## Tester en local
+## Run it
 
 ```bash
-python3 -m http.server 8000
-# puis http://localhost:8000
+pnpm install
+pnpm dev      # http://localhost:3000
+pnpm build    # production build
+pnpm start    # serve the production build at http://localhost:3000
+pnpm clean    # remove .next and out
 ```
 
-Le contenu étant chargé par `fetch()`, le site doit être servi par HTTP (pas ouvert en `file://`).
+## Checks
 
-## Publier
+```bash
+pnpm format:check
+pnpm typecheck      # runs next typegen and tsc --noEmit
+pnpm lint
+pnpm vitest run <file>   # a few test files while you work
+pnpm test:coverage       # the whole suite with v8 coverage
+pnpm check               # all of the above plus the whole suite and the build
+```
 
-Dépôt : `bzinoun/moroccan-software-crafters`, branche `main`, dossier racine (Settings → Pages). Chaque push publie sur `https://bzinoun.github.io/moroccan-software-crafters/`. En cas de changement de domaine, mettre à jour `baseUrl` dans `content/site.json`, les balises `og:` des pages HTML, `sitemap.xml` et `robots.txt`.
+`pnpm check` runs the whole test suite: CI runs it, so on a laptop run only the tests your change touches. `pnpm format` writes the formatting (Prettier sorts the Tailwind classes). Workflow files are checked with `actionlint` and `yamllint --strict -c .yamllint.yml .github .yamllint.yml`.
 
-## Sources des données
+## Edit the content
 
-Base Notion « Events » de l'association et posts de la page LinkedIn, au 27 octobre 2026. Les inscriptions Luma ne sont connues que depuis 2025. Les logos viennent des pages LinkedIn des entreprises.
+All editable text lives in `content/*.json`. The pages only hold structure, and a broken edit fails the build.
+
+| File                                               | Content                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `site.json`                                        | name, links, contact, form endpoint, navigation, footer, LinkedIn follower count   |
+| `home.json`                                        | home page texts (hero, format, FAQ, closing band)                                  |
+| `offers.json`                                      | the "host a meetup" offers (name, what is included)                                |
+| `sponsoring.json`                                  | the SoCraTes partner call: arguments, trust logos, packages, in-kind, FAQ, form    |
+| `events.json`                                      | all events (meetups, SoCraTes, Code Snacks) with photos, topics, links             |
+| `companies.json`                                   | companies (name, logo, LinkedIn link); their roles are computed from `events.json` |
+| `meetup.json`, `socrates.json`, `association.json` | texts of the matching pages                                                        |
+| `articles.json`                                    | news: title, date, excerpt, image, body in simple Markdown                         |
+
+Rules:
+
+- A company `name` must match the `host` or `sponsors[]` value of the events exactly: this links the two.
+- Every link is a route (`/meetup/#proposer`), a hash on the same page (`#sponsor-form`) or an `https` URL. Never write a `.html` link.
+- The SoCraTes page takes its editions (dates, participants, partners) from the events of type `socrates` in `events.json`; an item of `socrates.json` only names its event by `id`.
+- Article bodies accept `## Title`, paragraphs, `- lists`, `1. lists`, `> quote`, `**bold**`, `*italic*` and `[link](url)`.
+- Photos live in `public/assets/img/meetups/` and are referenced by file name without extension (`"photo": "2026-10-sg-gscm-5"`). Logos live in `public/assets/img/logos/` (`"logo": "axa.png"`, empty means the monogram).
+- Copy is French, sentence case, with no exclamation marks in body text and no em dashes.
+- Show a partner logo or a photo only with the partner's consent. The repo is public: no personal data, no secrets.
+
+To add a meetup:
+
+1. Put the photos in `public/assets/img/meetups/` as `YYYY-MM-host-N.jpg`, at most 1600 px wide and without metadata.
+2. Add the event at the top of `content/events.json` (newest first).
+3. If the host is new, add it to `content/companies.json` with `id`, `name`, `display`, `logo` and `linkedin`. All five are required (`logo` and `linkedin` may be an empty string). Put the 240 by 240 px PNG logo in `public/assets/img/logos/`.
+4. Optional: add a recap to `content/articles.json`.
+
+## Forms
+
+Both forms (host funnel and SoCraTes sponsor form) post to `POST /api/leads` (`src/app/api/leads/route.ts`, logic in `src/lib/leads/leads-handler.ts`), which validates the lead on the server and creates a page in the Notion "Leads" database. A fixed URL, not a Server Action: a page opened before a deploy still sends (Server Action ids change with every build, and Vercel Skew Protection needs a paid plan). It needs two server variables in the Vercel project: `NOTION_TOKEN` (secret) and `NOTION_LEADS_DATA_SOURCE_ID`.
+
+- With JavaScript, the form posts JSON (`form.endpoint` in `content/site.json`) and shows its own success panel, or its fallback on failure: a prefilled e-mail to `contact.email`, else the LinkedIn page.
+- Without JavaScript, every step shows and the form posts once as a plain form (`_type` and `_source` hidden fields). The handler rebuilds the same payload (`lead-from-form.ts`), requires the consent box, then redirects (303) to `/merci/` or to `/envoi-impossible/`.
+
+### The Notion Leads database
+
+It sits under the "Moroccan Software Crafters" page in Notion. One row per lead, with the status `Nouveau` on arrival:
+
+| Property                                             | Type                       | From the form                                                          |
+| ---------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------- |
+| Entreprise                                           | title                      | company                                                                |
+| Contact                                              | text                       | name, with the job title in brackets                                   |
+| E-mail, Téléphone                                    | e-mail, phone              | contact                                                                |
+| Source                                               | select                     | `Accueillir un meetup` (host form) or `Sponsor SoCraTes`               |
+| Formule, Niveau                                      | select                     | the chosen offer (host form) or level (sponsor form)                   |
+| Ville, Secteur, Taille                               | text                       | company details (host form)                                            |
+| Date souhaitée, Date alternative                     | date                       | preferred dates (host form)                                            |
+| Crafters attendus, Capacité salle, Équipement        | text, number, multi-select | event details (host form)                                              |
+| Message                                              | text                       | the free message, plus topics, website, address and contact preference |
+| Consentement                                         | checkbox                   | always checked: the forms refuse to send without consent               |
+| UTM source, UTM medium, UTM campaign, Référent, Page | text                       | where the visitor came from                                            |
+| Statut                                               | select                     | `Nouveau`, `Contacté`, `Gagné`, `Perdu`                                |
+| Créé le                                              | created time               | set by Notion                                                          |
+
+The code that writes it: `src/lib/leads/lead.ts` (validation and property mapping), `notion-lead-repository.ts` (the API call, Notion-Version `2025-09-03`, parent `data_source_id`, one retry on HTTP 429) `save-lead.ts` (the use case and the env wiring) and `leads-handler.ts` (JSON and form bodies, status codes and redirects). Tests use the in-memory repository, never the real database. If you rename a property in Notion, rename it in `toNotionProperties` too.
+
+### Set or rotate the Notion token
+
+1. Create the token in Notion: an internal integration with only "Insert content" (Settings > Connections > Develop integrations), then share the Leads database with it (Leads page > ••• > Connections). A personal access token also works, but it can do everything you can do in Notion.
+2. Check it in a terminal before you store it (prints only a status code; 200 means valid):
+
+   ```bash
+   read -s T; curl -s -o /dev/null -w "%{http_code}\n" https://api.notion.com/v1/users/me -H "Authorization: Bearer $T" -H "Notion-Version: 2025-09-03"; unset T
+   ```
+
+3. Store it in Vercel from a real terminal and paste the value at the prompt (`vercel env rm NOTION_TOKEN --yes` first when you rotate it):
+
+   ```bash
+   vercel env add NOTION_TOKEN production,preview --sensitive
+   ```
+
+   Do not pipe the clipboard (`pbpaste | vercel env add ...`) after you copied the command itself: the clipboard then holds the command, Vercel stores it, and Notion answers 401.
+
+4. `NOTION_LEADS_DATA_SOURCE_ID` is the data source (collection) id of the Leads database, not a secret: `41336166-e45a-8037-9dae-000bc3f411e7`.
+5. Redeploy (a new env value applies to new deployments only): `vercel redeploy <latest production URL> --target production`.
+
+### When a lead does not arrive
+
+Read the production logs: `vercel logs --environment production --since 1h --level error --expand`.
+
+- `Notion answered 401`: the token is wrong. Check it with step 2 and store it again.
+- `Notion answered 404`: the integration cannot see the Leads database. Share it (step 1).
+- `Lead storage is not configured`: one of the two variables is missing in that environment.
+- A 400 answer: the lead failed validation (a missing company, name or e-mail, or an unknown form type).
+
+## Deploy
+
+Vercel builds every push: `main` goes to production at https://moroccan-software-crafters.vercel.app, other branches and pull requests get a preview URL. Pull requests also run `.github/workflows/ci.yml`: the `check` job (format, types, lint, tests, `pnpm audit`, build) and the `workflows` job (`actionlint`, `yamllint`). Dependabot opens weekly update pull requests.
+
+If the domain changes, update `baseUrl` in `content/site.json`.
+
+## Contribute
+
+Work in a fork and open a pull request to `bzinoun/moroccan-software-crafters`. See `CLAUDE.md` for the structure, the rules and the gotchas.
