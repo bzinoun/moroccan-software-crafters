@@ -34,7 +34,7 @@ function Offer({ pack }: { pack: PackageCard }) {
       ) : null}
       <h3 className="mb-[0.2rem]">{frenchSpacing(pack.name)}</h3>
       {pack.limit ? (
-        <p className="-mt-[0.4rem] mb-[0.6rem] text-s80 text-on-dark-muted">
+        <p className="mb-[0.6rem] text-s80 text-on-dark-muted">
           {frenchSpacing(pack.limit)}
         </p>
       ) : null}
