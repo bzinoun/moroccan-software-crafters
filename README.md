@@ -1,6 +1,6 @@
 # Moroccan Software Crafters site
 
-The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc, in French, built with Next.js and hosted on Vercel (prerendered pages, plus one Server Action for the lead forms).
+The community site of the Moroccan Software Crafters meetups and SoCraTes Maroc, in French, built with Next.js and hosted on Vercel (prerendered pages, plus one route handler for the lead forms).
 
 ## Stack
 
@@ -66,7 +66,10 @@ To add a meetup:
 
 ## Forms
 
-Both forms (host funnel and SoCraTes sponsor form) call the `saveLead` Server Action (`src/app/actions/save-lead.ts`), which validates the lead on the server and creates a page in the Notion "Leads" database. It needs two server variables in the Vercel project: `NOTION_TOKEN` (secret) and `NOTION_LEADS_DATA_SOURCE_ID`. Without them, or when Notion fails, the form shows its fallback: a prefilled e-mail to `contact.email` in `content/site.json`, else the LinkedIn page. The forms need JavaScript to send: a visitor without it reads the form and a note that points to LinkedIn.
+Both forms (host funnel and SoCraTes sponsor form) post to `POST /api/leads` (`src/app/api/leads/route.ts`, logic in `src/lib/leads/leads-handler.ts`), which validates the lead on the server and creates a page in the Notion "Leads" database. A fixed URL, not a Server Action: a page opened before a deploy still sends (Server Action ids change with every build, and Vercel Skew Protection needs a paid plan). It needs two server variables in the Vercel project: `NOTION_TOKEN` (secret) and `NOTION_LEADS_DATA_SOURCE_ID`.
+
+- With JavaScript, the form posts JSON (`form.endpoint` in `content/site.json`) and shows its own success panel, or its fallback on failure: a prefilled e-mail to `contact.email`, else the LinkedIn page.
+- Without JavaScript, every step shows and the form posts once as a plain form (`_type` and `_source` hidden fields). The handler rebuilds the same payload (`lead-from-form.ts`), requires the consent box, then redirects (303) to `/merci/` or to `/envoi-impossible/`.
 
 ### The Notion Leads database
 
@@ -88,7 +91,7 @@ It sits under the "Moroccan Software Crafters" page in Notion. One row per lead,
 | Statut                                               | select                     | `Nouveau`, `Contacté`, `Gagné`, `Perdu`                                |
 | Créé le                                              | created time               | set by Notion                                                          |
 
-The code that writes it: `src/lib/leads/lead.ts` (validation and property mapping), `notion-lead-repository.ts` (the API call, Notion-Version `2025-09-03`, parent `data_source_id`, one retry on HTTP 429) and `save-lead.ts` (the use case and the env wiring). Tests use the in-memory repository, never the real database. If you rename a property in Notion, rename it in `toNotionProperties` too.
+The code that writes it: `src/lib/leads/lead.ts` (validation and property mapping), `notion-lead-repository.ts` (the API call, Notion-Version `2025-09-03`, parent `data_source_id`, one retry on HTTP 429) `save-lead.ts` (the use case and the env wiring) and `leads-handler.ts` (JSON and form bodies, status codes and redirects). Tests use the in-memory repository, never the real database. If you rename a property in Notion, rename it in `toNotionProperties` too.
 
 ### Set or rotate the Notion token
 
@@ -117,7 +120,7 @@ Read the production logs: `vercel logs --environment production --since 1h --lev
 - `Notion answered 401`: the token is wrong. Check it with step 2 and store it again.
 - `Notion answered 404`: the integration cannot see the Leads database. Share it (step 1).
 - `Lead storage is not configured`: one of the two variables is missing in that environment.
-- `Failed to find Server Action` (a warning, HTTP 409): the page was opened before a deploy; reload it. Vercel Skew Protection prevents this for open pages.
+- A 400 answer: the lead failed validation (a missing company, name or e-mail, or an unknown form type).
 
 ## Deploy
 
