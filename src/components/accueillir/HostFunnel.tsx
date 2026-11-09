@@ -5,8 +5,8 @@ import { FormAlert } from "@/components/FormAlert";
 import { FormPanel } from "@/components/FormPanel";
 import { SuccessPanel } from "@/components/SuccessPanel";
 import type { FormSite } from "@/lib/forms";
-import { type FunnelOffer } from "@/lib/funnel-fields";
-import { MESSAGES } from "@/lib/funnel-text";
+import { TOTAL_STEPS, type FunnelOffer } from "@/lib/funnel-fields";
+import { MESSAGES, nextLabel } from "@/lib/funnel-text";
 import type { Submit } from "@/lib/submit-outcome";
 import { CompanyStep } from "./CompanyStep";
 import { ContactStep } from "./ContactStep";
@@ -16,6 +16,7 @@ import { FunnelProgress } from "./FunnelProgress";
 import { NoScriptNote } from "./NoScriptNote";
 import { OfferStep } from "./OfferStep";
 import { useHostFunnel } from "./useHostFunnel";
+import { useHydrated } from "./useHydrated";
 
 // Spec: the "HostFunnel" entry in msca-design/COMPONENTS.md. The state lives in
 // `useHostFunnel`, the four steps in their own files; this component lays them
@@ -48,6 +49,7 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
     onPrev,
     onSubmit,
   } = useHostFunnel(offers, site, submit);
+  const hydrated = useHydrated();
   const stepProps = { values, errors, update, bind };
 
   return (
@@ -55,11 +57,15 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
       <form
         id="host-form"
         ref={formRef}
-        method="dialog"
+        action="/api/leads"
+        method="post"
         noValidate
         hidden={success !== null}
         onSubmit={onSubmit}
       >
+        {/* Read by /api/leads when the form posts without script. */}
+        <input type="hidden" name="_type" value="host" />
+        <input type="hidden" name="_source" value="/accueillir/" />
         <FunnelProgress step={step} />
         <OfferStep {...stepProps} active={step === 1} offers={offers} />
         <EventStep {...stepProps} active={step === 2} minDate={minDate} />
@@ -68,6 +74,13 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
         <FormAlert id="form-alert">{alert}</FormAlert>
         <FunnelNav step={step} busy={busy} onPrev={onPrev} />
         <NoScriptNote linkedin={site.links?.linkedin} />
+        {/* Without script every step shows: one button sends them all. It is
+            in the server HTML only; once hydrated, the step buttons take over. */}
+        {hydrated ? null : (
+          <Button type="submit" id="send-all" className="mt-4">
+            {nextLabel(TOTAL_STEPS, false)}
+          </Button>
+        )}
       </form>
 
       <SuccessPanel

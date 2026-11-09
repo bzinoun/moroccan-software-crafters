@@ -1,17 +1,29 @@
-// Use case behind the saveLead Server Action: validate the payload, then store
-// it through the lead port. The repository comes from a factory so tests pass
-// the in-memory adapter and production reads the server environment.
+// Use case behind POST /api/leads: validate the payload, then store it through
+// the lead port. The repository comes from a factory so tests pass the
+// in-memory adapter and production reads the server environment.
 import { toLead } from "./lead";
 import type { LeadRepository } from "./lead-repository";
 import { notionLeadRepository } from "./notion-lead-repository";
 
+// No personal data in these errors: their messages reach the logs.
+export class InvalidLeadError extends Error {
+  constructor() {
+    super("Invalid lead");
+  }
+}
+
+export class StorageNotConfiguredError extends Error {
+  constructor() {
+    super("Lead storage is not configured");
+  }
+}
+
 export function createSaveLead(repository: () => LeadRepository | null) {
   return async function saveLead(payload: unknown): Promise<void> {
     const result = toLead(payload);
-    // No personal data in the error: the message reaches the logs.
-    if (!result.ok) throw new Error("Invalid lead");
+    if (!result.ok) throw new InvalidLeadError();
     const target = repository();
-    if (!target) throw new Error("Lead storage is not configured");
+    if (!target) throw new StorageNotConfiguredError();
     await target.save(result.lead);
   };
 }

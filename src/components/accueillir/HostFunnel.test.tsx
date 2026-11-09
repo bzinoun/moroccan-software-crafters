@@ -159,12 +159,28 @@ describe("HostFunnel first render", () => {
 });
 
 describe("HostFunnel without script", () => {
-  it("uses the dialog method, so a native submit neither leaks the answers nor navigates", () => {
+  it("posts to the leads endpoint, so it sends without script too", () => {
     const { container } = setup();
-    expect(container.querySelector("#host-form")).toHaveAttribute(
-      "method",
-      "dialog",
+    const form = container.querySelector("#host-form");
+    expect(form).toHaveAttribute("action", "/api/leads");
+    expect(form).toHaveAttribute("method", "post");
+    expect(
+      form?.querySelector('input[type="hidden"][name="_type"]'),
+    ).toHaveValue("host");
+    expect(
+      form?.querySelector('input[type="hidden"][name="_source"]'),
+    ).toHaveValue("/accueillir/");
+  });
+
+  it("has a send button in the server HTML, gone once the script runs", () => {
+    const host = document.createElement("div");
+    host.innerHTML = renderToString(<HostFunnel offers={OFFERS} site={SITE} />);
+    expect(host.querySelector("#host-form #send-all")).toHaveAttribute(
+      "type",
+      "submit",
     );
+    const { container } = setup();
+    expect(container.querySelector("#send-all")).toBeNull();
   });
 });
 

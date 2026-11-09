@@ -58,12 +58,16 @@ export function SponsorForm(props: SponsorFormProps) {
     <>
       <form
         id="sponsor-form"
-        method="dialog"
+        action="/api/leads"
+        method="post"
         noValidate
         hidden={thanks !== null}
         onSubmit={onSubmit}
         onChange={onChange}
       >
+        {/* Read by /api/leads when the form posts without script. */}
+        <input type="hidden" name="_type" value="sponsor" />
+        <input type="hidden" name="_source" value="/socrates/" />
         <Field id="s-entreprise" label="Entreprise" error={errors.entreprise}>
           <TextInput name="entreprise" autoComplete="organization" required />
         </Field>
@@ -133,7 +137,7 @@ export function SponsorForm(props: SponsorFormProps) {
           id="s-submit"
           aria-disabled={busy || undefined}
           variant="primary-flat"
-          className="mt-2 w-full not-js:hidden"
+          className="mt-2 w-full"
         >
           {busy ? "Envoi…" : SUBMIT_LABEL}
         </Button>

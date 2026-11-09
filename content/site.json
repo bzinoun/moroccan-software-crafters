@@ -12,7 +12,7 @@
     "email": ""
   },
   "form": {
-    "endpoint": "",
+    "endpoint": "/api/leads",
     "extraFields": {}
   },
   "nav": [

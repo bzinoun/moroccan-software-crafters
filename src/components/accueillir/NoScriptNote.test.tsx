@@ -5,10 +5,12 @@ import { NoScriptNote } from "./NoScriptNote";
 const LINKEDIN = "https://www.linkedin.com/company/test-page/";
 
 describe("NoScriptNote", () => {
-  it("says the form needs script and points to the LinkedIn page", () => {
+  it("says the whole form shows and sends at once, and points to the LinkedIn page", () => {
     render(<NoScriptNote linkedin={LINKEDIN} />);
     expect(
-      screen.getByText(/Pour envoyer ce formulaire, activez JavaScript/),
+      screen.getByText(
+        /Sans JavaScript, tout le formulaire s'affiche et part en une fois/,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
       "href",

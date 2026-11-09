@@ -435,18 +435,30 @@ describe("SponsorForm results", () => {
 });
 
 describe("SponsorForm without script", () => {
-  it("uses the dialog method, so a native submit neither leaks the answers nor navigates", () => {
+  it("posts to the leads endpoint, so it sends without script too", () => {
     const { container } = setup();
-    expect(container.querySelector("#sponsor-form")).toHaveAttribute(
-      "method",
-      "dialog",
-    );
+    const form = container.querySelector("#sponsor-form");
+    expect(form).toHaveAttribute("action", "/api/leads");
+    expect(form).toHaveAttribute("method", "post");
   });
 
-  it("tells a visitor with no script to activate it, with the LinkedIn page", () => {
+  it("names its form type and its page for the server", () => {
+    const { container } = setup();
+    const form = container.querySelector("#sponsor-form");
+    expect(
+      form?.querySelector('input[type="hidden"][name="_type"]'),
+    ).toHaveValue("sponsor");
+    expect(
+      form?.querySelector('input[type="hidden"][name="_source"]'),
+    ).toHaveValue("/socrates/");
+  });
+
+  it("tells a visitor with no script that it sends at once, with the LinkedIn page", () => {
     setup();
     expect(
-      screen.getByText(/Pour envoyer ce formulaire, activez JavaScript/),
+      screen.getByText(
+        /Sans JavaScript, tout le formulaire s'affiche et part en une fois/,
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
       "href",
@@ -454,9 +466,9 @@ describe("SponsorForm without script", () => {
     );
   });
 
-  it("hides the submit button while the script is not running", () => {
+  it("keeps the submit button for a visitor with no script", () => {
     setup();
-    expect(submitButton()).toHaveClass("not-js:hidden");
+    expect(submitButton()).not.toHaveClass("not-js:hidden");
   });
 });
 

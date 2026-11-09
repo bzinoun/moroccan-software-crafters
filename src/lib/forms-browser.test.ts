@@ -34,16 +34,6 @@ describe("browserDeps", () => {
   });
 });
 
-describe("browserDeps send port", () => {
-  it("carries the send port it is given (the saveLead Server Action by default)", async () => {
-    const payloads: unknown[] = [];
-    const send = async (payload: Record<string, unknown>) =>
-      void payloads.push(payload);
-    await browserDeps(undefined, send).send?.({ entreprise: "Acme" });
-    expect(payloads).toEqual([{ entreprise: "Acme" }]);
-  });
-});
-
 describe("submitFormInBrowser", () => {
   it("posts through the given fetch with the utm of the current URL", async () => {
     window.history.replaceState(null, "", "/socrates/?utm_source=linkedin");
@@ -55,8 +45,7 @@ describe("submitFormInBrowser", () => {
         type: "Sponsoring SoCraTes",
         subject: "Sujet",
       },
-      // The endpoint path: no Server Action port.
-      { ...browserDeps(), fetch: memory.fetch, send: undefined },
+      { ...browserDeps(), fetch: memory.fetch },
     );
     expect(result).toEqual({ mode: "endpoint" });
     expect(requests).toHaveLength(1);
