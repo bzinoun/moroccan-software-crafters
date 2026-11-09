@@ -162,7 +162,7 @@ describe("HostFunnel without script", () => {
   it("posts to the leads endpoint, so it sends without script too", () => {
     const { container } = setup();
     const form = container.querySelector("#host-form");
-    expect(form).toHaveAttribute("action", "/api/leads");
+    expect(form).toHaveAttribute("action", "/api/leads/");
     expect(form).toHaveAttribute("method", "post");
     expect(
       form?.querySelector('input[type="hidden"][name="_type"]'),

@@ -58,7 +58,7 @@ export function SponsorForm(props: SponsorFormProps) {
     <>
       <form
         id="sponsor-form"
-        action="/api/leads"
+        action="/api/leads/"
         method="post"
         noValidate
         hidden={thanks !== null}

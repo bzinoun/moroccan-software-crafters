@@ -57,7 +57,7 @@ export function HostFunnel({ offers, site, submit }: HostFunnelProps) {
       <form
         id="host-form"
         ref={formRef}
-        action="/api/leads"
+        action="/api/leads/"
         method="post"
         noValidate
         hidden={success !== null}

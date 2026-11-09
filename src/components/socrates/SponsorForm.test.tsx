@@ -438,7 +438,7 @@ describe("SponsorForm without script", () => {
   it("posts to the leads endpoint, so it sends without script too", () => {
     const { container } = setup();
     const form = container.querySelector("#sponsor-form");
-    expect(form).toHaveAttribute("action", "/api/leads");
+    expect(form).toHaveAttribute("action", "/api/leads/");
     expect(form).toHaveAttribute("method", "post");
   });
 
