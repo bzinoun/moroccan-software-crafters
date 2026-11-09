@@ -241,7 +241,7 @@ Routes: `src/app/socrates/layout.tsx` (`PageFrame page="socrates"`) and `page.ts
 - `OpenSpaceLaws({ laws })`: `<ol role="list">`, one column, two from `md`; a CSS counter badge (rotated `-8deg`); the last law is the `bg-green-deep` band (`md:col-span-full`); its title uses `font-display-italic`. Data from `socratesLaws(s)`.
 - `DayStrip({ days, note? })`: bordered white panel, 1 column, 2 from `sm`, 4 from `lg`; the divider lines switch with the layout. `font-hand` day name.
 - `EditionGrid({ editions })` and `EditionCard({ edition })`: the photo, or the year in a khatam star over a green-deep cover (`var(--zellige-sage)` for the tile); yellow badge. The participants and partners numbers (`b`) are `font-bold`. Data from `socratesEditionCards(s)`.
-- `FamilyGrid({ items })`: `<ul role="list">` of auto-fill 120px tiles with a 72px logo. It keeps the browser list defaults (`pl-10 mb-[17px]`) for its geometry.
+- `FamilyGrid({ items })`: `<ul role="list">` of cards with a 72px logo, in centered rows that wrap (`flex flex-wrap justify-center`, `max-w-[956px]`): two cards per row on a phone (`w-[calc(50%-7px)]`), `w-45` cards from `sm`, so nine cards give 5 + 4 on a wide screen and a short last row sits in the middle.
 - The khatam bands (`#unconference`, `#valeurs`) are `CardsSection marker="khatam"`.
 All four render nothing for an empty list.
 
