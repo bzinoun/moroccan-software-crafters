@@ -3,8 +3,8 @@ import type { FamilyItem } from "@/lib/pages-data";
 import { Photo } from "../Photo";
 
 // Spec: the "OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid" entry in msca-design/COMPONENTS.md.
-// The list keeps the browser defaults for a list (a 40px start padding and a
-// 17px bottom margin) so the cards sit where they always did.
+// Cards wrap in centered rows: two per row on a phone, five on a wide screen
+// (nine cards give 5 + 4), and a short last row sits in the middle.
 
 type FamilyGridProps = {
   /** `socratesFamily(loadSocrates())`: the logo url is final, base path included. */
@@ -16,12 +16,12 @@ export function FamilyGrid({ items }: FamilyGridProps) {
   return (
     <ul
       role="list"
-      className="mt-0 mb-[17px] grid list-none grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3.5 pl-10"
+      className="mx-auto mt-0 mb-[17px] flex max-w-[956px] list-none flex-wrap justify-center gap-3.5 pl-0"
     >
       {items.map((item) => (
         <li
           key={item.id}
-          className="rounded-card border border-line bg-white px-2.5 pt-4 pb-3 text-center"
+          className="w-[calc(50%-7px)] rounded-card border border-line bg-white px-2.5 pt-4 pb-3 text-center sm:w-45"
         >
           <Photo
             src={item.logoSrc}

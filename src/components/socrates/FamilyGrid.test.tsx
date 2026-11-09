@@ -57,3 +57,14 @@ describe("FamilyGrid with no item", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+describe("FamilyGrid layout", () => {
+  // jsdom has no layout: the wrapping, centered rows are the only contract,
+  // so the test checks the two classes that make them (no start indent either).
+  it("wraps the cards in centered rows, so a short last row sits in the middle", () => {
+    render(<FamilyGrid items={ITEMS} />);
+    const list = screen.getByRole("list");
+    expect(list).toHaveClass("flex-wrap", "justify-center");
+    expect(list).not.toHaveClass("pl-10");
+  });
+});
