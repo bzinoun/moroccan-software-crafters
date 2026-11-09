@@ -1,0 +1,7 @@
+# pnpm 11 build settings. sharp: false holds only while images stay unoptimized.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+# Dev only: lifts minimatch (GHSA-g3hv-75wg-m249) pulled by typescript-eslint.
+overrides:
+  minimatch@10: ^11.0.1

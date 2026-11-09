@@ -1,0 +1,123 @@
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
+import type { SubmitInput, SubmitResult } from "@/lib/forms";
+import type { PackageCard } from "@/lib/pages-data";
+import { inMemoryErrorReporter } from "@/test/in-memory-error-reporter";
+import { inMemoryLeadSubmit } from "@/test/in-memory-lead-submit";
+import { renderWithPorts } from "@/test/ports";
+import {
+  LINKEDIN,
+  SITE,
+  fillContact,
+  type User,
+} from "../accueillir/test-utils";
+import { SponsorForm } from "./SponsorForm";
+
+// Shared set-up of the sponsoring tests. Everything is a fixture written here,
+// so a content edit in `sponsoring.json` cannot break a test. The send
+// function and the error reporter are in-memory adapters: nothing posts to a
+// real endpoint and nothing reaches the console.
+
+export { LINKEDIN, SITE };
+
+export type Submit = (input: SubmitInput) => Promise<SubmitResult>;
+
+export const PACKAGES: PackageCard[] = [
+  {
+    id: "supporter",
+    name: "Supporter",
+    price: "10000 MAD",
+    highlight: false,
+    badge: null,
+    limit: null,
+    tagline: "Soutenir l'édition.",
+    includes: ["Logo sur le site", "Remerciement dans le récap"],
+  },
+  {
+    id: "partenaire",
+    name: "Partenaire",
+    price: "20000 MAD",
+    highlight: true,
+    badge: "Le niveau historique",
+    limit: null,
+    tagline: "Être présent pendant les quatre jours.",
+    includes: ["Tout le niveau Supporter", "Une place participant", "Un talk"],
+  },
+  {
+    id: "principal",
+    name: "Partenaire principal",
+    price: "40000 MAD",
+    highlight: false,
+    badge: null,
+    limit: "Un seul par édition",
+    tagline: "Porter l'édition.",
+    includes: ["Tout le niveau Partenaire", "Le nom dans le titre"],
+  },
+];
+
+export const LEVELS = {
+  options: [
+    { value: "Supporter", label: "Supporter · 10000 MAD" },
+    { value: "Partenaire", label: "Partenaire · 20000 MAD" },
+    {
+      value: "Partenaire principal",
+      label: "Partenaire principal · 40000 MAD",
+    },
+    { value: "En nature", label: "En nature" },
+    { value: "À discuter", label: "À discuter" },
+  ],
+  defaultValue: "À discuter",
+};
+
+/** Package id to level value, as the page passes it. */
+export const PACKAGE_LEVELS = {
+  supporter: "Supporter",
+  partenaire: "Partenaire",
+  principal: "Partenaire principal",
+};
+
+export const SUCCESS = "Le dossier de partenariat part sous 48 heures.";
+
+type SetupOptions = {
+  result?: SubmitResult;
+  /** Rendered before the form, for the package buttons of the page. */
+  before?: ReactNode;
+};
+
+/**
+ * Renders the form with an in-memory send function. `lead` records the inputs
+ * and queues replies (`hold`, `failOnce`); `reporter` records what the form
+ * reports.
+ */
+export function renderSponsorForm({
+  result = { mode: "endpoint" },
+  before,
+}: SetupOptions = {}) {
+  const lead = inMemoryLeadSubmit(result);
+  const reporter = inMemoryErrorReporter();
+  const view = renderWithPorts(
+    <>
+      {before}
+      <SponsorForm
+        site={SITE}
+        levels={LEVELS}
+        packageLevels={PACKAGE_LEVELS}
+        successText={SUCCESS}
+        submit={lead.submit}
+      />
+    </>,
+    { errorReporter: reporter },
+  );
+  return { lead, reporter, user: userEvent.setup(), ...view };
+}
+
+export async function fillValid(user: User) {
+  await user.type(screen.getByLabelText("Entreprise"), "  Acme  ");
+  await fillContact(user, { name: "Sara Alami", phone: "+212 6 12 34 56 78" });
+}
+
+export const submitButton = () =>
+  screen.getByRole("button", {
+    name: /Recevoir le dossier de partenariat|Envoi/,
+  });

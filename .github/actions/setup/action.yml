@@ -1,0 +1,23 @@
+name: Setup
+description: Install pnpm, Node and the dependencies, and restore the Next.js build cache.
+
+runs:
+  using: composite
+  steps:
+    # No version input: pnpm/action-setup reads "packageManager" in package.json.
+    - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+    # Next.js build cache, keyed on the lockfile and the sources
+    # (see node_modules/next/dist/docs/01-app/02-guides/ci-build-caching.md).
+    # The key changes with each source edit: a prefix hit on restore-keys is expected.
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ github.workspace }}/.next/cache
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**', 'content/**', 'public/**', '*.ts', '*.mjs', '*.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+    - run: pnpm install --frozen-lockfile
+      shell: bash

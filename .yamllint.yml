@@ -1,0 +1,7 @@
+extends: relaxed
+
+rules:
+  # Long SHA-pinned "uses:" lines and the Next.js cache key cannot be wrapped.
+  line-length:
+    max: 200
+    level: error

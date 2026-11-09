@@ -7,8 +7,14 @@
     "eyebrow": "Software Craftsmanship · Casablanca · depuis 2019",
     "title": "Des samedis matin où l'on parle <em>vraiment</em> de code.",
     "lead": "Moroccan Software Crafters réunit développeurs, testeurs et ops autour du travail bien fait. Chaque édition se tient chez une entreprise hôte, et c'est la communauté qui fixe l'agenda.",
-    "primary": { "label": "Accueillir le prochain meetup", "href": "accueillir.html" },
-    "secondary": { "label": "Voir les éditions passées", "href": "#historique" },
+    "primary": {
+      "label": "Accueillir le prochain meetup",
+      "href": "/accueillir/"
+    },
+    "secondary": {
+      "label": "Voir les éditions passées",
+      "href": "#historique"
+    },
     "note": "",
     "collage": [
       { "photo": "2026-10-sg-gscm-5", "caption": "SG GSCM · oct. 2026" },
@@ -29,12 +35,35 @@
     "title": "Pas de conférenciers vedettes, des conversations.",
     "lead": "Un samedi, de 9 h 30 à 14 h, en open space. Chacun peut proposer un sujet, et les sujets les plus demandés deviennent des tables rondes.",
     "steps": [
-      { "time": "9 h 30", "title": "Networking", "text": "Café, présentations, et on fait connaissance avec l'équipe qui nous accueille.", "photo": "2026-10-sg-gscm-7" },
-      { "time": "10 h 15", "title": "Lightning talks", "text": "5 à 10 minutes chacun, sur le sujet de son choix : une techno, un retour d'expérience, un projet.", "photo": "2026-10-sg-gscm-3" },
-      { "time": "11 h 00", "title": "Bubble topics", "text": "Chacun pitche un sujet en quelques secondes sur un post-it. On vote, les trois sujets les plus demandés ouvrent trois tables rondes.", "photo": "2026-03-innovx-3" },
-      { "time": "13 h 15", "title": "Rétrospective", "text": "Ce qu'on retient, ce qu'on change pour la prochaine fois, et à qui le tour d'accueillir.", "photo": "2026-05-axa-4" }
+      {
+        "time": "9 h 30",
+        "title": "Networking",
+        "text": "Café, présentations, et on fait connaissance avec l'équipe qui nous accueille.",
+        "photo": "2026-10-sg-gscm-7"
+      },
+      {
+        "time": "10 h 15",
+        "title": "Lightning talks",
+        "text": "5 à 10 minutes chacun, sur le sujet de son choix : une techno, un retour d'expérience, un projet.",
+        "photo": "2026-10-sg-gscm-3"
+      },
+      {
+        "time": "11 h 00",
+        "title": "Bubble topics",
+        "text": "Chacun pitche un sujet en quelques secondes sur un post-it. On vote, les trois sujets les plus demandés ouvrent trois tables rondes.",
+        "photo": "2026-03-innovx-3"
+      },
+      {
+        "time": "13 h 15",
+        "title": "Rétrospective",
+        "text": "Ce qu'on retient, ce qu'on change pour la prochaine fois, et à qui le tour d'accueillir.",
+        "photo": "2026-05-axa-4"
+      }
     ],
-    "more": { "label": "Le déroulé détaillé, étape par étape", "href": "meetup.html" }
+    "more": {
+      "label": "Le déroulé détaillé, étape par étape",
+      "href": "/meetup/"
+    }
   },
   "topics": {
     "title": "Sujets discutés lors des dernières éditions",
@@ -54,35 +83,61 @@
     "limit": 6,
     "more": "Voir les {n} événements"
   },
-  "gallery": { "eyebrow": "Galerie", "title": "Dans la salle.", "limit": 8, "more": "Voir toutes les photos" },
+  "gallery": {
+    "eyebrow": "Galerie",
+    "title": "Dans la salle.",
+    "limit": 8,
+    "more": "Voir toutes les photos"
+  },
   "socrates": {
     "eyebrow": "La conférence",
     "title": "SoCraTes Maroc, l'unconference annuelle.",
     "lead": "L'édition marocaine de SoCraTes (Software Craft and Testing) : quatre jours d'open space entre crafters, sans programme imposé, dans un lieu en retrait de la ville.",
     "photo": "2022-03-socrates-groupe",
-    "cta": { "label": "Découvrir SoCraTes Maroc", "href": "socrates.html" },
+    "cta": { "label": "Découvrir SoCraTes Maroc", "href": "/socrates/" },
     "sponsor": {
       "eyebrow": "Appel à partenaires",
       "title": "La 5e édition se prépare.",
       "text": "Chaque édition est financée par cinq à dix entreprises partenaires. Cinq d'entre elles ont soutenu les quatre éditions depuis 2022.",
-      "cta": { "label": "Devenir partenaire", "href": "socrates.html#sponsoring" }
+      "cta": {
+        "label": "Devenir partenaire",
+        "href": "/socrates/#sponsoring"
+      }
     }
   },
   "faq": {
     "eyebrow": "Questions fréquentes",
     "title": "Avant de vous lancer",
     "items": [
-      { "q": "Combien de personnes faut-il prévoir ?", "a": "Les derniers meetups ont reçu environ 100 inscriptions chacun, pour 50 participants retenus sur place. Une salle de 40 à 80 places convient, idéalement avec un ou deux espaces annexes pour les tables rondes." },
-      { "q": "Pourquoi le samedi matin ?", "a": "C'est le créneau historique de la communauté : les participants viennent de toutes les entreprises de Casablanca, et le samedi matin évite les conflits avec les agendas de la semaine. Les craft sessions privées peuvent se tenir en semaine." },
-      { "q": "Est-ce qu'on peut présenter notre entreprise ?", "a": "Oui. L'hôte dispose d'un mot d'accueil de 10 minutes. La formule partenaire ajoute un talk de 20 minutes et un espace recrutement. Le reste de la matinée appartient à la communauté : pas de pitch commercial dans les tables rondes." },
-      { "q": "Qui gère les inscriptions ?", "a": "Nous publions l'événement sur Luma, validons les inscriptions selon la capacité de votre salle et vous transmettons la liste des participants pour l'accès au bâtiment." },
-      { "q": "Combien de temps à l'avance faut-il s'y prendre ?", "a": "Comptez 4 à 6 semaines entre le premier échange et le jour J pour laisser le temps à l'annonce de circuler." }
+      {
+        "q": "Combien de personnes faut-il prévoir ?",
+        "a": "Les derniers meetups ont reçu environ 100 inscriptions chacun, pour 50 participants retenus sur place. Une salle de 40 à 80 places convient, idéalement avec un ou deux espaces annexes pour les tables rondes."
+      },
+      {
+        "q": "Pourquoi le samedi matin ?",
+        "a": "C'est le créneau historique de la communauté : les participants viennent de toutes les entreprises de Casablanca, et le samedi matin évite les conflits avec les agendas de la semaine. Les craft sessions privées peuvent se tenir en semaine."
+      },
+      {
+        "q": "Est-ce qu'on peut présenter notre entreprise ?",
+        "a": "Oui. L'hôte dispose d'un mot d'accueil de 10 minutes. La formule partenaire ajoute un talk de 20 minutes et un espace recrutement. Le reste de la matinée appartient à la communauté : pas de pitch commercial dans les tables rondes."
+      },
+      {
+        "q": "Qui gère les inscriptions ?",
+        "a": "Nous publions l'événement sur Luma, validons les inscriptions selon la capacité de votre salle et vous transmettons la liste des participants pour l'accès au bâtiment."
+      },
+      {
+        "q": "Combien de temps à l'avance faut-il s'y prendre ?",
+        "a": "Comptez 4 à 6 semaines entre le premier échange et le jour J pour laisser le temps à l'annonce de circuler."
+      }
     ]
   },
   "cta": {
     "title": "Le prochain meetup peut se tenir chez vous.",
     "text": "Quatre étapes, deux minutes. Nous revenons vers vous sous 48 heures.",
-    "primary": { "label": "Proposer une date", "href": "accueillir.html" },
-    "secondary": { "label": "Suivre sur LinkedIn", "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/" }
+    "primary": { "label": "Proposer une date", "href": "/accueillir/" },
+    "secondary": {
+      "label": "Suivre sur LinkedIn",
+      "href": "https://www.linkedin.com/company/moroccansoftwarecrafters/"
+    }
   }
 }

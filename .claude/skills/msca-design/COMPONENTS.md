@@ -1,445 +1,293 @@
 # MSCA component inventory
 
-One heading per component. Each entry gives the suggested React name, the classes, a markup skeleton, states, responsive behavior, pages, JS behavior and accessibility. Values are in `assets/css/style.css`; exact numbers are in `TOKENS.md`. Pages: `home` (index.html), `meetup`, `socrates`, `association`, `news` (actualites.html), `host` (accueillir.html). Each page sets `<body data-page="...">`; two selectors depend on it (khatam eyebrows on `socrates`, zellige corner on the first `news` section), so keep `data-page` on `<body>` or on an ancestor of `<main>`.
-
-Most lists are rendered by `assets/js/home.js`, `pages.js` and `funnel.js` from `content/*.json`. Shared helpers live in `assets/js/cms.js` (`window.MSC`). In React, render the same markup from the same JSON at build time.
-
-## Page shell and global behaviors
-
-- **React:** `RootLayout`, `SkipLink`, `FrenchText` (or a content preprocessor).
-- Order: `a.skip-link` then `header.site-header` then `main#main` then `footer.site-footer`. On `host` the skip link reads "Aller au formulaire" and targets `#funnel`; `<main>` has no id there.
-- `.skip-link`: off-screen at `left: -999px`; `:focus` moves it to `left: 8px`. Ink background, white text, radius 6px.
-- `<html lang="fr">`. All UI copy is French.
-- French typography (`cms.js frenchSpacing`): in every text node outside `script, style, code, pre, textarea`, a space (normal or no-break) before `? ! : ;` becomes U+202F (narrow no-break space). A MutationObserver applies it to text rendered later. Reproduce it on all rendered strings (attributes and URLs stay unchanged). Static copy also uses `&#8239;` directly.
-- `data-cms` / `data-cms-html` bind JSON strings to elements. `data-cms-html` marks headings whose JSON value contains `<em>` (the red emphasized word). Render those as trusted HTML or parse `<em>` into React elements.
-- Images: `assets/img/meetups/<name>.jpg`, `assets/img/logos/<file>`, `assets/img/socrates/<id>.png`, `assets/img/logo.png`. Global `img { max-width: 100%; height: auto; display: block; }`.
-
-## Site header and navigation
-
-- **React:** `SiteHeader`, `Brand`, `MainNav`, `NavToggle`.
-- **Classes:** `.site-header`, `.wrap`, `.brand`, `.nav-toggle`, `.nav`, `.nav.open`, `.nav-cta`, `.btn`.
-- **Skeleton:**
-  ```html
-  <header class="site-header"><div class="wrap">
-    <a class="brand" href="./"><img src="assets/img/logo.png" alt="" width="44" height="44">
-      <span><strong>Moroccan Software Crafters</strong><small>Association à but non lucratif</small></span></a>
-    <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
-    <nav class="nav" id="nav" aria-label="Navigation principale">
-      <a href="meetup.html">Le meetup</a><a href="index.html#historique">Éditions</a><a href="socrates.html">SoCraTes</a>
-      <a href="actualites.html">Actualités</a><a href="association.html">L'association</a>
-      <a class="btn btn-primary nav-cta" href="accueillir.html">Accueillir un meetup</a>
-    </nav>
-    <a class="btn btn-primary" href="accueillir.html">Accueillir un meetup</a>
-  </div></header>
-  ```
-- **Per-page CTA** (same in `.nav-cta` and the trailing button): `home`, `meetup`, `association`, `news`: primary "Accueillir un meetup" to `accueillir.html`. `socrates`: primary "Devenir partenaire" to `#sponsoring`. `host`: ghost "Les formules" to `index.html#offres`. On `home` the "Éditions" link is `#historique`.
-- **Look:** sticky, `z-index: 50`, translucent paper with blur, 1px bottom line, 72px high. Brand logo 44px, name in Fraunces 1.05rem, tagline `.72rem` muted. Nav links `--ink-soft`, 500, 2px transparent bottom border. Header button smaller (`.6rem 1.05rem`, `.92rem`).
-- **States:** link hover `--red`. Active link `aria-current="page"`: ink text, red bottom border. Burger `aria-expanded="true"`: spans morph to a cross (`translateY(±7px) rotate(±45deg)`, middle `opacity: 0`).
-- **Active link rule (`initNav`):** `aria-current="page"` goes on a `.nav a` whose href file equals the current file and whose href has no `#`. Home has no matching link, so nothing is active there.
-- **Mobile `(max-width: 1024px)`:** `.nav` hidden; `.nav-toggle` shown (44x44). Toggle click toggles `.nav.open` and `aria-expanded`. Open panel: absolute at `top: 72px`, full width, paper background, `--shadow-lift`, column links with 1px line separators, active link red text. Header button hidden; `.nav-cta` shown full width at the bottom of the panel (ghost variant keeps ink border). Click on any nav link closes the panel. `(max-width: 640px)`: `.brand small` hidden.
-- **Pages:** all.
-
-## Buttons
-
-- **React:** `Button` with `variant: "primary" | "ghost"`, rendered as `<a>` or `<button>`; `ButtonRow`.
-- **Classes:** `.btn`, `.btn-primary`, `.btn-green` (alias of primary, kept for highlighted home offer cards), `.btn-ghost`, `.btn-row`.
-- **Look:** pill (`999px`), `padding: .85rem 1.35rem`, 2px transparent border, `600 1rem/1` Inter, inline-flex with `.5rem` gap.
-- **Primary:** red fill, white text, red-tinted shadow. Hover `--red-dark`. No shadow inside `.section.dark` and `.hero-dark`.
-- **Ghost:** transparent, ink text, ink 2px border. Hover ink fill, white text. On dark surfaces (`.hero-dark`, `.section.dark`, `.cta-band`): white text and border, hover white fill with ink text (`.cta-band`: green text).
-- **States:** all buttons hover `translateY(-1px)`. `[disabled]`: `opacity: .55`, `cursor: not-allowed`, no transform. Focus: global green ring.
-- **Row:** `.btn-row` flex wrap, gap `.8rem`. Centered rows use inline `style="justify-content:center"` (home partners section).
-- **Pages:** all.
-
-## Eyebrow, lead and section head
-
-- **React:** `Eyebrow`, `Lead`, `SectionHead` (prop `center`), `SectionFoot`.
-- **Skeleton:** `<div class="section-head [center]"><p class="eyebrow">…</p><h2>… <em>…</em></h2><p class="lead">…</p></div>`.
-- **Eyebrow:** uppercase red label with a 22x2px red rule before it. In `.section-head.center` the rule is hidden. On `socrates` pages and in home `#socrates`, the rule becomes a 14px khatam star. On dark surfaces the eyebrow is sage (cream in `.hero-dark`) and the marker uses `currentColor`.
-- **Heading emphasis:** `<em>` in `h1`/`h2` is italic red with the sage hand-drawn underline. In `.hero-dark` the em is sage with no underline; in `.section.dark h2` it is sage.
-- **Section foot:** `p.section-foot` centered, `margin-top: 36px`, holds a ghost button or a `.btn-row`.
-- **Pages:** all.
-
-## Section wrapper
-
-- **React:** `Section` with `variant: "default" | "alt" | "dark"` and `tight` flag; `Container` for `.wrap`.
-- **Classes:** `.section` (88px vertical), `.section.tight` (56px), `.section.alt` (sage-soft background), `.section.dark` (green-deep background, cream text, white h2/h3, sage eyebrow and em, `--on-dark` lead, sage focus ring).
-- Pages alternate default and `alt` sections; each page has at most one or two `dark` sections.
-- **Pages:** all.
-
-## Home hero with polaroid collage
-
-- **React:** `HomeHero`, `PolaroidCollage`, `Polaroid`, `PostIt`.
-- **Classes:** `.hero`, `.collage`, `.polaroid.p1|p2|p3`, `.postit`, `.hero-note`.
-- **Skeleton:**
-  ```html
-  <section class="hero"><div class="wrap">
-    <div><p class="eyebrow">…</p><h1>… <em>vraiment</em> …</h1><p class="lead">…</p>
-      <div class="btn-row"><a class="btn btn-primary">…</a><a class="btn btn-ghost">…</a></div>
-      <p class="hero-note" id="hero-note"></p></div>
-    <div class="collage" aria-hidden="true">
-      <figure class="polaroid p1"><img src="…" alt=""><figcaption>…</figcaption></figure> (p2, p3)
-      <div class="postit">…</div></div>
-  </div></section>
-  ```
-- **Look:** grid `1.05fr 1fr`, gap 48px. Collage 480px high; three absolutely positioned white-framed photos (`padding: 10px 10px 34px`, radius 3px, `--shadow-lift`) at `-3deg`, `4deg`, `-1.5deg`, captions in Caveat; yellow post-it top right at `5deg`. Zellige corner top right.
-- **JS:** collage photos, captions and post-it text from `home.hero.collage` / `home.hero.postit`. Hero note: `home.hero.note`, else "Dernière édition : {date longue} chez {host}, {n} inscrits." from the latest meetup.
-- **Responsive `(max-width: 900px)`:** one column; collage 380px; smaller polaroids; post-it 140px wide, 1.15rem.
-- **A11y:** collage is decorative (`aria-hidden="true"`, `alt=""`).
-- **Pages:** home.
-
-## Post-it
-
-- **React:** `PostIt` with `color: "yellow" | "pink" | "green" | "blue" | "orange"`.
-- **Classes:** `.postit` plus optional `.pink`, `.green`, `.blue`, `.orange`.
-- **Look:** Caveat 1.35rem, line-height 1.15, ink text, square corners, `padding: 16px 18px 20px`, width 170px, shadow `0 10px 18px rgba(0,0,0,.12)`. The parent context sets the rotation.
-- **Used in:** home collage, page-hero figure, topic walls, success panels (green, 200px, 1.5rem, `-3deg`).
-
-## Inner page hero
-
-- **React:** `PageHero`.
-- **Classes:** `.page-hero`, `.facts`, `figure .postit`.
-- **Skeleton:** `<section class="page-hero"><div class="wrap"><div>eyebrow, h1 (with em), .lead, ul.facts</div><figure><img …><div class="postit [green]">…</div></figure></div></section>`.
-- **Look:** grid `1.1fr .9fr`, gap 48px. Image 4/3, radius 14px, `--shadow-lift`, rotated `1.5deg`. Post-it overlaps bottom left (`left: -14px; bottom: -16px`, `-4deg`). Facts in 2 columns, `margin-top: 32px`. Zellige corner.
-- **Responsive `(max-width: 900px)`:** one column.
-- **Pages:** meetup (yellow post-it), association (green post-it).
-
-## Dark hero (SoCraTes)
-
-- **React:** `DarkHero`, `StatusChip`.
-- **Classes:** `.hero-dark`, `.bg`, `.hero-text`, `.status-chip`, `.facts`.
-- **Skeleton:** `<section class="hero-dark"><div class="bg" style="background-image:url(…)"></div><div class="wrap"><div class="hero-text">eyebrow, h1, .lead, .btn-row, p.status-chip</div><ul class="facts"></ul></div></section>`.
-- **Look:** green-deep base; photo layer at `opacity: .45`, `saturate(.85)`, `background-position: center 35%`; `::after` vertical gradient to green-deep; sage zellige corner. Padding `120px 0 72px`. Text max 820px. h1 white, larger clamp. Facts glassy (`rgba(255,255,255,.07)` fill), sage numbers.
-- **Status chip:** inline-flex pill-ish (radius 18px), translucent green fill, sage border, cream `.92rem` text, `text-wrap: balance`, 14px sage khatam before the text.
-- **JS:** `#hero-bg` background from `socrates.hero.photo`; facts from `socrates.hero.facts`.
-- **Pages:** socrates.
-
-## Facts
-
-- **React:** `FactList`.
-- **Skeleton:** `<ul class="facts"><li><b>21</b><span>événements depuis 2019</span></li>…</ul>`.
-- **Look:** 4-column grid, gap 14px; white cards with 1px line, radius 8px; number Fraunces 1.6rem green, `nowrap`; label `.84rem` ink-soft.
-- **Responsive:** `(max-width: 700px)` 2 columns. Always 2 columns inside `.page-hero`.
-- **JS:** association facts are computed by `MSC.stats` (events count, distinct hosts, SoCraTes editions, LinkedIn followers formatted `fr-FR`).
-- **Pages:** meetup, association, socrates (dark variant).
-
-## Stats band
-
-- **React:** `StatsBand`.
-- **Skeleton:** `<section class="stats" aria-label="Chiffres clés"><div class="wrap"><ul id="stats"><li><b>…</b><span>…</span></li></ul></div></section>`.
-- **Look:** paper-2 band with 1px line top and bottom, 5 centered columns, numbers Fraunces green `clamp(1.8rem, 3vw, 2.4rem)`.
-- **Responsive `(max-width: 760px)`:** 2 columns, last item spans the full row.
-- **JS:** values from `home.stats`; a `key` reads `MSC.stats` (events, meetups, hosts, `~avg` registrations of the last 5 meetups, followers, socrates, since).
-- **Pages:** home.
-
-## Format agenda (numbered photo cards)
-
-- **React:** `FormatAgenda`.
-- **Skeleton:** `<ol class="agenda"><li><div class="shot"><img alt="" loading="lazy"></div><div class="body"><span class="time">…</span><h3>…</h3><p>…</p></div></li></ol>`.
-- **Look:** 4 columns, gap 20px, white cards radius 14px. Photo 16/10. CSS counter prints `01`, `02`… in Fraunces 1.9rem red above the time. Time label `.78rem` uppercase green.
-- **States:** `li:hover` zooms the photo to `scale(1.04)` over .5s.
-- **Responsive:** 2 columns at 900px, 1 at 560px.
-- **Pages:** home (`#format`).
-
-## Topic wall and cork board
-
-- **React:** `TopicWall` with `board` flag.
-- **Skeleton:** `<div class="topic-wall [board]"><div class="postit [pink|green|blue|orange]">Topic<small>2026</small></div>…</div>`.
-- **Look:** centered flex wrap, gap 14px, post-its auto width (max 240px, 1.25rem, `padding: 12px 16px 14px`), rotations odd `-2deg`, even `1.5deg`, every 3rd `-.5deg`. `<small>` in Inter `.7rem`. `.board`: cork texture `#e9dcc3` with dot SVG, 10px `#b58a55` frame, radius 14px, inset shadow, left-aligned, `padding: 36px 28px`.
-- **JS:** topics deduplicated case-insensitively across events, newest first, colors cycle `["", "pink", "green", "blue", "orange"]`. Home: first `home.topics.limit` (10), small = year, `aria-label` on the wall. Meetup board: all topics, small = "year · host" (host or city).
-- **Pages:** home (`#topics`), meetup (`#topic-board`).
-
-## Filter chips
-
-- **React:** `FilterChips`, `Chip`.
-- **Skeleton:** `<div class="filters" role="group" aria-label="Filtrer les événements"><button class="chip" data-filter="all" aria-pressed="true">…</button>…</div>`.
-- **Look:** pill, 1.5px line border, white, `500 .9rem`. `aria-pressed="true"`: ink fill, white text.
-- **JS:** one chip pressed at a time; click sets `aria-pressed` and re-renders the timeline with the default limit.
-- **Pages:** home (`#historique`).
-
-## Featured event card
-
-- **React:** `FeaturedEvents`, `FeatureCard`.
-- **Skeleton:**
-  ```html
-  <article class="feature-card reveal">
-    <button class="thumb" type="button" data-event="id" aria-label="Voir les 6 photos de …"><img alt="" loading="lazy"><span class="count">6 photos</span></button>
-    <div class="body"><p class="meta">24 oct. 2026 · Casablanca · 110 inscrits</p><h3>…</h3><p>…</p><ul class="tags">…</ul>
-      <div class="links"><a target="_blank" rel="noopener">Récap LinkedIn</a><a>Page Luma</a></div></div>
-  </article>
-  ```
-- **Look:** 3-column grid (gap 24px, `margin-bottom: 56px`), white cards, `--shadow`, radius 14px. Thumb 16/10, `cursor: zoom-in`, dark count pill bottom right. Links bold `.9rem`, each min 44px high.
-- **States:** thumb hover `scale(1.04)`.
-- **JS:** first 3 meetups with photos; thumb click opens the lightbox on that event's photos.
-- **Responsive:** `(max-width: 960px)` 1 column, card becomes a row (thumb 40% wide); `(max-width: 600px)` card stacks again, thumb 16/10.
-- **Pages:** home.
-
-## Tags
-
-- **React:** `TagList`.
-- **Skeleton:** `<ul class="tags"><li>TDD</li>…</ul>`.
-- **Look:** flex wrap, gap 6px, pills `.76rem` on paper-2, ink-soft text.
-- **Pages:** home (feature cards max 4, timeline max 6), news (cards and article).
-
-## Event timeline
-
-- **React:** `EventTimeline`, `YearGroup`, `TimelineItem`, `EventBadge`.
-- **Skeleton:**
-  ```html
-  <div class="timeline" id="timeline">
-    <section class="year-group"><h3>2026</h3><ol>
-      <li class="tl-item"><time datetime="2026-10-24">oct. 2026</time>
-        <div><h4>…</h4><div class="where">Venue, City · 110 inscrits</div><ul class="tags">…</ul></div>
-        <span class="badge badge--meetup">Meetup</span></li>
-    </ol></section></div>
-  <p class="section-foot" id="timeline-more" hidden><button class="btn btn-ghost" type="button" aria-controls="timeline" aria-expanded="false">Voir les {n} événements</button></p>
-  ```
-- **Look:** year groups `120px 1fr`, 1px top line; year Fraunces 2rem green, sticky at `top: 90px`. Items: grid `92px 1fr auto`, white, 1px line, radius 8px. Title in Inter 1.02rem 600.
-- **Badge variants:** `.badge--meetup` (green on `#e6f2ea`), `--socrates` (red-dark on `#fbe4e5`), `--codesnack` (`#7a5b00` on `#fff4cc`), `--online` (`#1f5f80` on `#e3f1fa`). Labels: Meetup, SoCraTes, Code Snack, En ligne. `.72rem` 700 uppercase pill.
-- **JS:** shows the first `home.history.limit` (6) events of the active filter, grouped by year. The "more" button shows all and moves focus to the first newly shown item (`tabIndex = -1`). The button stays visible only while items are hidden.
-- **Responsive `(max-width: 700px)`:** groups and items stack; year not sticky; badge left-aligned.
-- **Pages:** home.
-
-## Photo gallery
-
-- **React:** `PhotoGallery`, `GalleryItem`.
-- **Skeleton:** `<div class="gallery"><button type="button" data-i="0" aria-label="Agrandir : {caption}"><img alt="{caption}" loading="lazy"><span class="cap">{caption}</span></button>…</div>` plus a `#gallery-more` section-foot ghost button "Voir toutes les photos".
-- **Look:** masonry via CSS columns `columns: 4 240px; column-gap: 14px`; items reset with `all: unset`, radius 8px, `cursor: zoom-in`. Caption overlay with dark bottom gradient, hidden until hover or focus.
-- **States:** hover `scale(1.03)`; hover and `:focus-visible` show `.cap`; explicit green focus ring.
-- **JS:** all event photos flattened; caption "{title} · {date}". First `home.gallery.limit` (8) shown; "more" appends the rest and focuses the first appended item. Click opens the lightbox on the full list at that index.
-- **Responsive `(max-width: 600px)`:** 2 columns, gap 10px.
-- **Pages:** home.
-
-## Lightbox
-
-- **React:** `Lightbox` (portal, shared context with `open(items, index)`).
-- **Skeleton (created by JS on first open):**
-  ```html
-  <div id="lightbox" class="lightbox open" role="dialog" aria-modal="true" aria-label="Photo agrandie">
-    <button class="lb-close" aria-label="Fermer">×</button><button class="lb-prev" aria-label="Photo précédente">‹</button>
-    <figure><img alt="{caption}"><figcaption>{caption}  ·  3 / 12</figcaption></figure>
-    <button class="lb-next" aria-label="Photo suivante">›</button></div>
-  ```
-- **Look:** fixed full screen, `rgba(15,13,12,.94)`, `z-index: 200`. Image max height `calc(100vh - 140px)`, radius 6px. Round 48px translucent buttons (hover brighter); close top right, prev/next vertically centered at the edges.
-- **JS:** opens with `.open`, locks `body` scroll, focuses close, restores focus on close. Escape closes, ArrowLeft/ArrowRight step with wraparound, backdrop click closes. Prev/next hidden for a single photo.
-- **Pages:** home (featured, gallery), news (article "Les N photos" link).
-
-## Logo wall with post-it sticker
-
-- **React:** `LogoWall` (prop `compact`), `LogoTile`, `LogoSticker`, `Monogram`.
-- **Skeleton:**
-  ```html
-  <div class="logo-wall [compact]">
-    <a class="logo-tile" href="{linkedin}" target="_blank" rel="noopener" title="{name} · {role}">  <!-- div when no link -->
-      <span class="logo-box [missing]"><img src="assets/img/logos/x.png" alt="{name}" width="120" height="120" loading="lazy"><span class="monogram" aria-hidden="true">AB</span></span>
-      <span class="logo-name">{name}</span><span class="logo-role">Hôte de 2 meetups · Partenaire SoCraTes</span></a>
-    <a class="logo-tile sticker" href="accueillir.html" aria-labelledby="{id}-t {id}-l" aria-describedby="{id}-d">
-      <span class="sticker-title" id="{id}-t">Votre logo ici ?</span><span class="sticker-text" id="{id}-d">…</span>
-      <span class="sticker-cta"><span id="{id}-l">Accueillir un meetup</span>&nbsp;<span aria-hidden="true">→</span></span></a>
-  </div>
-  ```
-- **Look:** centered flex wrap, gap 14px, fixed-width tiles (168px) so the last row stays centered. Tile: white, 1px line, radius 14px. Logo 84px in a 92px box, white pad, 1px line, radius 14px, opacity `.92`. Monogram fallback: Fraunces green-dark on `#e6f2ea`. Name `.88rem` 600, role `.74rem` muted.
-- **Sticker:** same footprint as a tile, yellow post-it, radius 2px, no border, post-it shadow, `-2deg`. Title Caveat 1.7rem, text `.8rem`, CTA Caveat 1.3rem green-dark underlined.
-- **Compact:** 112px tiles, 64px box, 60px logo, no role line, smaller sticker type.
-- **On dark:** translucent tile, `#f3eee6` text.
-- **States:** linked tile hover/focus `translateY(-3px)`, `--shadow-lift`, border `#d9cfbd`, logo opacity 1. Sticker hover/focus `rotate(-.5deg) translateY(-3px)`. Reduced motion: no tile transition.
-- **JS (`renderLogoWall`):** tiles sorted by hosted + sponsored count, descending. Role label from counts. Image `error` (or zero natural width) adds `.missing` to show the monogram (initials of first two words). Sticker data from `companies.sticker.host` or `.sponsor`. SoCraTes wall: sponsors only, role line = years joined with " · ".
-- **Pages:** home (`#partenaires`), association (compact), socrates (`#sponsors-wall`).
-
-## Logo row
-
-- **React:** `LogoRow`.
-- **Skeleton:** `<div class="logo-row"><img alt="{name}" title="{name}" loading="lazy">… or <span class="monogram" title="{name}">AB</span></div>`.
-- **Look:** centered wrap, gap 12px, 56px squares, radius 12px, white pad, 1px line.
-- **JS:** company ids from `sponsoring.trust.ids`.
-- **Pages:** home (`.sponsor-call` in `#socrates`), socrates (`#sponsoring`).
-
-## SoCraTes teaser and sponsor call
-
-- **React:** `SocratesTeaser`, `EditionChips`, `SponsorCall`.
-- **Classes:** `.wrap.socrates`, `.editions`, `.sponsor-call`.
-- **Skeleton:** `<section class="section dark" id="socrates"><div class="wrap socrates"><div>eyebrow, h2, .lead, ul.editions, .btn-primary, div.sponsor-call (eyebrow, h3, p, .logo-row, .btn-ghost)</div><img …></div></section>`.
-- **Look:** grid `1.05fr .95fr`, gap 56px. Photo 4/3, `object-position: center 75%`, heavy shadow. Edition chips in 2 columns, translucent border, year Fraunces white. Sponsor call: radius 14px, sage-tinted fill and border, `padding: 24px 26px`.
-- **JS:** editions = SoCraTes events oldest first, "{year} · {city}" and "1re édition · {n} crafters".
-- **Responsive `(max-width: 860px)`:** one column.
-- **Pages:** home; `.sponsor-call` also on socrates (inline `margin: 40px 0 56px`).
-
-## Offer cards (meetup formulas and SoCraTes packages)
-
-- **React:** `OfferGrid`, `OfferCard`.
-- **Skeleton:**
-  ```html
-  <div class="offers">
-    <article class="offer [highlight] reveal"><span class="flag">Nouveau</span><h3>…</h3><div class="price">… / Sur devis</div>
-      <p class="limit">…</p><p class="tagline">…</p>
-      <h4>Vous apportez</h4><ul class="give"><li>…</li></ul><h4>Nous apportons</h4><ul><li>…</li></ul>
-      <a class="btn btn-green|btn-ghost" href="accueillir.html?formule={id}">Choisir cette formule</a></article>
-  </div>
-  <p class="offers-note">…</p>
-  ```
-- **Look:** 3 columns, gap 22px, stretch. Card white, 1.5px line, radius 14px, `padding: 28px 26px`, column flex. Highlight: green border + `--shadow-lift`, `.flag` green pill on the top edge (`top: -13px; left: 26px`). Price Fraunces 1.5rem green. `h4` small uppercase muted Inter. List bullets: 10px rounded squares, post-it green with green border; `ul.give` yellow with `#c9a400` border. Button pushed to the bottom.
-- **On dark (`socrates #sponsoring`):** translucent card, sage highlight border, sage flag with green-deep text, sage price, muted sage text.
-- **JS:** home offers from `content/offers.json` (highlight uses `btn-green`, link preselects the formula in the host funnel). SoCraTes packages from `sponsoring.packages` ("Ce qui est inclus", `.limit` line, button "Choisir ce niveau" to `#sponsor-form` with `data-level`; click checks the matching radio in the sponsor form).
-- **Responsive `(max-width: 960px)`:** one column, max 560px centered, tagline min-height removed.
-- **Pages:** home (`#offres`), socrates (`#packages`).
-
-## Card and card grid
-
-- **React:** `CardGrid` (prop `columns: 2 | 3 | 4`), `Card`.
-- **Skeleton:** `<div class="cards c3"><article class="card reveal"><h3>…</h3><p>…</p><a class="more" href="…">En savoir plus →</a></article></div>`.
-- **Look:** white, 1px line, radius 14px, `padding: 24px 22px`; h3 1.15rem; p `.95rem` ink-soft; `.more` bold `.9rem` link with trailing arrow. On dark: translucent fill and border, `--on-dark` text.
-- **Grid logic:** `c3` on desktop uses a 6-track grid where each card spans 2 and an incomplete last row is centered; at 601 to 960px a lone last card spans the row. `c3`/`c4` become 2 columns at 960px, all become 1 column at 600px. External `href` gets `target="_blank" rel="noopener"`.
-- **Pages:** meetup (who, propose, rules), socrates (pillars, formats, values, arguments, in-kind card), association (mission, principles, contribute).
-
-## Meetup step rows with tips
-
-- **React:** `StepRows`, `StepRow`, `TipList`.
-- **Skeleton:** `<div class="step-row" id="{id}"><div class="step-media"><img alt="" loading="lazy"><span class="time-tag">9 h 30</span></div><div class="step-body"><div class="kicker">…</div><h3>…</h3><p>…</p><ul class="tips"><li>…</li></ul></div></div>`.
-- **Look:** 2 equal columns, gap 48px, 44px vertical padding, 1px top line (none on the first). Even rows put media on the right. Image 4/3, radius 14px, lifted. Time tag ink pill top left. Kicker Caveat 1.6rem green; h3 1.8rem. Tips are mini post-its: yellow (even green), Caveat 1.25rem, fit-content, `-.6deg` / `.8deg`.
-- **Responsive `(max-width: 860px)`:** one column, media first.
-- **Pages:** meetup (`#deroule`).
-
-## Zoom split with numbered list
-
-- **React:** `ZoomSplit`, `NumberedList`.
-- **Skeleton:** `<div class="wrap zoom"><img …><div>eyebrow, h2, <ol class="numbered"><li><div><strong>…</strong><span>…</span></div></li></ol></div></div>`.
-- **Look:** grid `1fr 1.1fr`, gap 48px; image 4/3 lifted at `-1.5deg`. List items `44px 1fr`; counter in a 40px green-outlined circle, Fraunces, `-6deg`.
-- **Responsive `(max-width: 860px)`:** one column.
-- **Pages:** meetup (`#marketplace`).
-
-## Open-space laws
-
-- **React:** `OpenSpaceLaws`.
-- **Skeleton:** `<ol class="laws"><li><h3>…</h3><p>…</p></li>…<li class="law-main">…</li></ol>`.
-- **Look:** 2 columns, gap 20px. Cards white, radius 14px, left padding 78px for a 38px green-outlined counter circle at `-8deg`. h3 italic 1.25rem. `.law-main` (last item, set by JS) spans both columns on green-deep with sage counter, white h3 1.7rem, `padding-right: 15%`.
-- **Responsive `(max-width: 760px)`:** one column, law-main `padding-right: 26px`.
-- **Pages:** socrates (`#regles`).
-
-## Day strip
-
-- **React:** `DayStrip`.
-- **Skeleton:** `<ol class="days"><li><span class="day">Jeudi</span><h3>…</h3><p>…</p></li></ol><p class="days-note">…</p>`.
-- **Look:** one bordered white block, radius 14px, 4 cells divided by 1px lines. Day name Caveat 1.7rem green.
-- **Responsive:** 2x2 at 900px, stacked at 560px (dividers switch to top borders).
-- **Pages:** socrates (`#deroule`).
-
-## Edition cards
-
-- **React:** `EditionGrid`, `EditionCard`.
-- **Skeleton:** `<article class="edition reveal"><div class="cover"><img …> or <span class="yr">2025</span><span class="yr-badge">4e édition</span></div><div class="body"><h3>2025 · City</h3><span class="where">Venue · Dates</span><div class="nums"><div><b>50</b><span>crafters</span></div><div><b>6</b><span>partenaires</span></div></div><p>…</p></div></article>`.
-- **Look:** 4 columns, gap 20px. Cover 4/3: without a photo, sage zellige pattern on green-deep with a radial vignette and the year inside a double khatam star (Fraunces, cream). `.yr-badge` yellow post-it label top left at `-4deg`. Numbers Fraunces 1.4rem green.
-- **Responsive:** 2 columns at 960px, 1 at 560px.
-- **Pages:** socrates (`#editions`).
-
-## SoCraTes family grid
-
-- **React:** `FamilyGrid`.
-- **Skeleton:** `<ul class="family"><li><img src="assets/img/socrates/{id}.png" alt="" loading="lazy"><b>{name}</b><span>{country}</span></li></ul>`.
-- **Look:** `repeat(auto-fill, minmax(120px, 1fr))`, gap 14px; centered white tiles, 72px logo.
-- **Pages:** socrates (`#famille`).
-
-## History timeline (association)
-
-- **React:** `HistoryTimeline`.
-- **Skeleton:** `<ol class="history"><li><span class="yr">2019</span><div><h3>…</h3><p>…</p></div></li></ol>`.
-- **Look:** vertical 2px line at `left: 70px`; each item `56px 1fr`, gap 36px; red-ringed paper dot (14px, 3px red border) on the line; year right-aligned Fraunces 1.5rem green.
-- **Responsive `(max-width: 600px)`:** line at 61px, columns `48px 1fr`, gap 28px, year 1.15rem.
-- **Pages:** association (`#histoire`).
-
-## Article cards and list
-
-- **React:** `ArticleGrid`, `ArticleCard` (prop `lead`).
-- **Skeleton:** `<a class="article-card [lead-card] reveal" href="actualites.html?a={slug}"><div class="cover"><img alt="" loading="lazy"></div><div class="body"><p class="meta"><b>Récap</b>24 octobre 2026</p><h3>…</h3><p>…</p><ul class="tags">…</ul></div></a>`.
-- **Look:** 3 columns, gap 24px; whole card is a link, white, `--shadow`, radius 14px. Cover 16/10 on paper-2. Kind label uppercase green `.72rem`. First (newest) card is `.lead-card`: full row, horizontal, cover 55% wide, h3 1.9rem, body padding `32px 34px`.
-- **States:** hover `translateY(-3px)` and `--shadow-lift`.
-- **Responsive:** 2 columns at 960px (lead card stacks, cover 16/9), 1 at 600px.
-- **Pages:** news (list view).
-
-## Article detail and prose
-
-- **React:** `ArticleView`, `Prose`.
-- **Skeleton:** `<article class="article"><a class="back" href="actualites.html">← Toutes les actualités</a><p class="meta"><b>{kind}</b>{date}</p><h1>…</h1><p class="lead">…</p><div class="cover"><img alt=""></div><div class="prose">…</div><ul class="tags">…</ul><div class="links">…</div></article>`.
-- **Look:** max 760px centered. Cover radius 14px, lifted, image max 520px high. `.links` bold row with top line. Prose 1.08rem/1.7; h2 1.6rem; h3 1.5rem; lists indented 1.3rem; blockquote with 3px sage left rule in Fraunces italic 1.25rem; code on paper-2; links underlined (offset 3px).
-- **JS:** current site uses `?a={slug}` on the same page and hides `#news-head` and the list. Markdown subset (`MSC.md`): `#`/`##`/`###` become h2/h3/h4, `-`/`*` lists, numbered lists, `>` quotes, `**bold**`, `*italic*`, `` `code` ``, links (open in a new tab). "Les N photos" link opens the lightbox on the linked event.
-- **Pages:** news (detail view).
-
-## FAQ accordion
-
-- **React:** `Faq`, `FaqItem`.
-- **Skeleton:** `<div class="faq"><details><summary>Question</summary><p>Answer</p></details></div>`.
-- **Look:** max 820px centered; items separated by 1px line; summary 600 1.05rem, flex with a green `+` at the end (marker hidden). Open: `+` rotates 45deg. On dark: translucent lines, `--on-dark` answers, sage `+`.
-- **Behavior:** native `<details>`; no JS.
-- **Pages:** home (`#faq`), meetup (`#faq`), socrates (sponsor FAQ beside the form).
-
-## CTA band
-
-- **React:** `CtaBand` (prop `variant: "default" | "green"`).
-- **Skeleton:** `<div class="cta-band [green]"><div><h2>…</h2><p>…</p></div><div class="actions"><a class="btn btn-primary">…</a><a class="btn btn-ghost">…</a></div></div>` inside a `.section` or `.section.tight`.
-- **Look:** green block, radius 22px, `padding: 56px 48px`, grid `1.4fr 1fr`. White h2, `#d9efe2` text. Primary button inverted: white fill with red text (hover paper, red-dark). Ghost: white outline, hover white fill green text. `.green` variant: same background, primary text green instead of red.
-- **Responsive `(max-width: 800px)`:** one column, `padding: 40px 24px`, actions left.
-- **Pages:** home (default), meetup (green), association (default).
-
-## Site footer
-
-- **React:** `SiteFooter`.
-- **Skeleton:** `<footer class="site-footer"><div class="wrap"><a class="brand" href="./"><img alt="" width="52" height="52"><span><strong>…</strong><small>{mission}</small></span></a><nav aria-label="Liens de pied de page" id="footer-nav"><a>…</a></nav><p class="legal">…</p></div></footer>`.
-- **Look:** green-deep, `.92rem` `--on-dark` text, flex wrap space-between, gap 32px. Brand white, 52px logo, muted sage tagline. Nav links cream, no underline; hover white and underlined. Legal line full width with translucent top border, `.84rem`.
-- **JS:** nav links from `site.footer.links` (static HTML on home); `http(s)` links open in a new tab.
-- **Pages:** all.
-
-## Host page layout
-
-- **React:** `HostHero`, `HostLayout`, `HostAside`, `ProcessSteps`, `ProofCard`.
-- **Skeleton:** `<section class="host-hero"><div class="wrap">eyebrow, h1, .lead</div></section><div class="wrap host-layout"><aside class="host-aside"><ol class="steps"><li><b>1</b><div><strong>…</strong><span>…</span></div></li></ol><div class="proof"><img …><p id="proof-text">…</p></div><p>…</p></aside><div class="funnel" id="funnel">…</div></div>`.
-- **Look:** host hero with zellige corner, `padding: 56px 0 24px`. Layout `.85fr 1.15fr`, gap 48px, bottom padding 88px. Aside sticky at `top: 100px`. Step numbers: 38px solid green circles, white Fraunces digits. Proof: white card with a 92x70 photo.
-- **JS:** proof text "Dernière édition : {host}, {date}, {n} inscrits." from the latest meetup.
-- **Responsive `(max-width: 960px)`:** one column, aside not sticky.
-- **Pages:** host.
-
-## Host funnel (4-step form)
-
-- **React:** `HostFunnel`, `FunnelProgress`, `FunnelStep`, `FunnelNav`, `Recap`, `SuccessPanel`, plus the form primitives below.
-- **Skeleton:**
-  ```html
-  <div class="funnel" id="funnel"><form id="host-form" novalidate>
-    <div class="progress" aria-hidden="true"><span class="done"></span><span></span><span></span><span></span></div>
-    <p class="progress-label" aria-live="polite">Étape 1 sur 4 · Formule</p>
-    <fieldset class="step" data-step="1"><legend>…</legend><p class="hint">…</p>…</fieldset>  <!-- steps 2 to 4 hidden -->
-    <div class="form-alert" role="alert"></div>
-    <div class="funnel-nav"><button type="button" class="btn btn-ghost" id="prev">Retour</button><button type="button" class="btn btn-primary" id="next">Continuer</button></div>
-  </form>
-  <div class="success" hidden tabindex="-1"><div class="postit green">…</div><h2>…</h2><p>…</p><p><a class="btn btn-ghost">…</a></p></div></div>
-  ```
-- **Look:** white panel, radius 20px, `--shadow-lift`, `padding: 32px`. Progress: 4 flexible 6px pill bars, `--line`, `.done` green. Legend Fraunces 1.55rem. Nav bar with top line; ghost button border is `--line`; primary pushed right.
-- **Steps:** 1 Formule (`.choice-cards` radios from `offers.json`). 2 L'événement (date with `min` = tomorrow and a help line that flags non-Saturday dates, optional alternative date, attendee pills, city select, capacity 10 to 1000, equipment checkbox pills, topics textarea). 3 Votre entreprise (name, sector, tech team size, URL, address). 4 Contact (recap, name, role, email, phone, contact preference pills, message, consent, honeypot).
-- **JS (`funnel.js`):** "Continuer" validates the current step; invalid fields get `.field.invalid` and `aria-invalid="true"`, focus goes to the first invalid control. On step change: bars and label update, "Retour" hidden on step 1, next label becomes "Envoyer ma demande" on step 4, recap renders, focus moves to the step `legend` (`tabindex="-1"`) and the funnel scrolls into view smoothly. Enter submits as "Continuer". Draft auto-saves to `localStorage` key `msc-host-draft-v1` (consent and honeypot excluded) and restores, step included. `?formule={id}` preselects the offer and opens step 2. While sending: button disabled, label "Envoi…". Success hides the form, shows and focuses `.success`, clears the draft. Delivery uses `MSC.sendLead` (JSON POST endpoint, else `mailto:`, else an alert with a LinkedIn link).
-- **Responsive:** `(max-width: 600px)` padding `22px 18px`; `(max-width: 480px)` nav buttons stack full width.
-- **Pages:** host.
-
-## Form primitives
-
-- **React:** `Field`, `TextInput`, `Select`, `TextArea`, `ChoiceCard`, `PillGroup`, `Pill`, `ConsentCheckbox`, `Honeypot`, `FormAlert`, `FieldRow`.
-- **Field:** `<div class="field [invalid]"><label for="x">Label <span class="opt">(facultatif)</span></label><input …><p class="help">…</p><p class="error" [data-empty="…"]>…</p></div>`. Label 600 `.93rem`; `.label` span for group labels referenced by `aria-labelledby`. Inputs full width, `.75rem .9rem` padding, 1.5px line border, radius 8px, white. Focus: green border + 3px green halo, no outline. Invalid: red border, `.error` shown (red `.84rem`). `.help` muted `.83rem`. Textarea min 96px, vertical resize. `.error[data-empty]` swaps between the empty message and the format message.
-- **Row:** `.row` 2 columns, gap 16px; 1 column at 600px.
-- **Choice card:** `<label class="choice-card"><input type="radio" name="formule" required><span class="dot"></span><span><strong>…</strong><small>…</small></span><span class="price">…</span></label>`. Grid `24px 1fr auto`, 1.5px border, radius 14px. Input visually hidden. Hover border `#cbbfa9`. Checked (`:has(input:checked)`): green border, `#f3faf5` fill, dot with green center. Keyboard focus: green outline on the card. At 520px the price moves under the text.
-- **Pills:** `<div class="pills" role="radiogroup|group" aria-labelledby="…"><label class="pill"><input type="radio|checkbox"><span>…</span></label></div>`. Pill span: `.55rem 1rem`, 1.5px line border, white, `500 .93rem`. Checked: ink fill, white text. Focus: green outline on the span.
-- **Consent:** `label.consent` grid `22px 1fr`, `.88rem` ink-soft; 20px checkbox with `accent-color: var(--green)`. Text cites law 09-08.
-- **Honeypot:** `.hp` off-screen with `aria-hidden="true"`, input `tabindex="-1"`, `autocomplete="off"`. A filled honeypot ends silently as success.
-- **Form alert:** `.form-alert` hidden until `.show`; `#fdecec` fill, red-dark text, radius 8px, `role="alert"`.
-- **Recap:** `.recap` paper box, `.86rem`, `dl` grid `max-content 1fr`; empty recap hidden.
-- **Success:** centered; green post-it 200px at `-3deg`; text max 46ch.
-
-## Sponsor form (single step)
-
-- **React:** `SponsorForm`, `SponsorLayout`.
-- **Skeleton:** `<div class="sponsor-layout"><div><h3>…</h3><p class="lead">…</p><div class="faq">…</div></div><div class="funnel" id="sponsor-funnel"><form id="sponsor-form" novalidate>fields, level pills, consent, honeypot, .form-alert, <button type="submit" class="btn btn-primary">Recevoir le dossier de partenariat</button></form><div class="success" hidden tabindex="-1">…</div></div></div>`.
-- **Look:** grid `.9fr 1.1fr`, gap 48px, inline `margin-top: 72px`; funnel padding 28px; button full width. Sits in `.section.dark`, the funnel stays white with ink text.
-- **JS (`pages.js simpleForm`):** validates required fields, email and phone (Moroccan `0[5-7]` + 8 digits, or international `+`/`00` + 8 to 15 digits) on submit; same invalid, focus, sending and success patterns as the host funnel. Level pills generated from packages plus "En nature" and "À discuter" (last one checked by default).
-- **Responsive `(max-width: 900px)`:** one column.
-- **Pages:** socrates (`#sponsoring`).
-
-## Reveal on scroll
-
-- **React:** `Reveal` wrapper or a `useReveal` hook that adds `in`.
-- **Classes:** `.reveal`, `.reveal.in`.
-- **Behavior (`initReveal`):** IntersectionObserver with `rootMargin: "0px 0px -60px 0px"` adds `.in` once and unobserves. Without IntersectionObserver every element gets `.in`. Reduced motion: always visible, no transition.
-- **Applied to:** `.feature-card`, `.offer`, `.card`, `.edition`, `.article-card`.
+Every component in `src/components/` (and the data layer in `src/content/` and `src/lib/`) with its real props and the classes that matter. Tokens are in `TOKENS.md`, Tailwind rules in `TAILWIND.md`. Update the entry in the same commit as the component.
+
+Conventions for every component:
+- A variant is a `tv()` variant (`@/lib/cn`); a caller `className` is merged with `cn()`.
+- Mobile first on the default breakpoints (`sm` 640, `md` 768, `lg` 1024, `xl` 1280). The "Responsive" line says what changes and from which breakpoint.
+- Rendered strings go through `frenchSpacing()` (`@/lib/french`), unless the primitive that renders them already does (`SectionHead`, `Eyebrow`, `Lead`, `HeroEm`). A link goes through `PageLink` (`Brand`, `ArticleTeaser`, the back link of `ArticleView` and the proof card of the host page use `next/link`, because their href is always a plain internal route), an image through `Photo`; the URL of a file in `public/` goes through `assetUrl()` (`@/lib/routes`) or a helper that calls it.
+- A component that needs state or events is a client component (`"use client"`); the rest stay server components.
+- No-JavaScript rule (progressive enhancement): the server HTML holds all the content. A control that does nothing without JavaScript (filter chips, "show more" buttons) hides with `not-js:hidden`. Content that JavaScript collapses (events and photos past the limit, steps of the funnel) hides with `js:hidden`, so a visitor without JavaScript sees everything. The variants are in `TOKENS.md`.
+- A decorative photo has `alt=""`.
+- A list with no item renders nothing, and so does a section whose only content is that list.
+- Pages: `home`, `meetup`, `socrates`, `association`, `news` (actualites), `host` (accueillir). `PageId` in `src/content/types.ts` names them.
+
+## Shell and shared helpers
+
+### Button
+`src/components/Button.tsx`. Exports `Button`. `buttonStyles` is a private `tv`.
+- Props: `variant: "primary" | "primary-flat" | "inverse" | "ghost" | "ghost-on-dark"` (default primary), `size: "md" | "sm"` (default md), `className`, plus native `<a>` props when `href` is set, native `<button>` props otherwise (`type` defaults to `button`).
+- Renders through `PageLink` when `href` is set, a `<button>` without `href`.
+- Classes that matter: pill (`rounded-full`), `border-2 border-transparent`, `font-body text-base leading-none font-semibold no-underline`, `motion-safe:` transition on `translate`, `background-color`, `box-shadow`, `hover:-translate-y-px`. Primary: `bg-red text-white` with the red shadow, `hover:bg-red-dark`. Ghost: `border-ink bg-transparent text-ink`, `hover:bg-ink hover:text-white`. `primary-flat`: primary without the red shadow. `inverse`: `bg-white text-red`, `hover:bg-paper hover:text-red-dark`, no shadow. `ghost-on-dark`: `border-white text-white`, `hover:bg-white hover:text-ink`. Size `sm` repeats `leading-none` after its font size (`TAILWIND.md`).
+- Busy and disabled: the base carries `aria-disabled:opacity-55 aria-disabled:cursor-not-allowed` (and the `disabled:` pair). A form sets `aria-disabled` while it sends, so the button keeps the focus.
+- Dark surfaces (SoCraTes hero and teaser, dark sections, CTA band) use the explicit variants: `primary-flat` for the primary action, `ghost-on-dark` for the secondary, `inverse` for the CTA band primary. Per-call differences go in `className` and win over the variant through `tailwind-merge` (the CTA band ghost sets `hover:text-green`, its green variant sets `text-green hover:text-green` on `inverse`).
+
+### PageLink
+`src/components/PageLink.tsx`. Props: `href` plus native `<a>` props. The one anchor of the site for an href that can be any of three things:
+- An internal route without a hash (`/meetup/`): `next/link`, which adds the base path.
+- An external `http(s)` URL: a plain `<a target="_blank" rel="noopener">`. A caller prop wins over these two.
+- A hash-only href (`#sponsor-form`): a plain `<a>`. A hash needs no base path, and `next/link` does not scroll again when the hash is already in the URL, so a second click on the same in-page link (the hero CTA, "Choisir ce niveau", the sticker) would do nothing.
+- A route with a hash (`/#offres`, `/#historique`): a plain `<a>` with the base path added by `assetUrl()`, for the same reason. A click from another page is a full page load.
+`Button`, `CardGrid`, `CtaBand`, `SiteHeader`, `SiteFooter`, `LogoWall`, `FeaturedEvents`, the links row of `ArticleView`, `md()` and the submit outcome use it. The `mailto:` link of the submit outcome is a plain `<a>`.
+
+### Photo
+`src/components/Photo.tsx`. Props: `alt` (required), `eager?: boolean`, native `<img>` props except `loading`. The one `<img>` of the site (the export has no image loader, so the Next image component adds nothing). Lazy and `decoding="async"` by default. `eager` omits the `loading` attribute: use it for an image in the first viewport (`PageHero`, `Polaroid`, the article cover, the brand logo). The single `eslint-disable` for `no-img-element` lives here.
+
+### Container
+`src/components/Container.tsx`. Props: native `<div>` props. Classes: `mx-auto w-[calc(100%-32px)] max-w-wrap`. Wraps the content of every section and the header and footer rows.
+
+### Brand
+`src/components/Brand.tsx`. Props: `site`, `line` (text under the name, default `site.tagline`; the footer passes `site.mission`), `size: "md" | "lg"` (logo 44px or 52px), `tone: "light" | "dark"`. A `tv` with slots `root`, `logo`, `name`, `line`. The tagline line is hidden below `sm` (`max-sm:hidden`). The name is `font-display` 600. Light tone hovers to `green-dark`; dark tone is white with `on-dark-muted` line. The logo is an eager `Photo`; `public/assets/img/logo.png` is 104 px wide (twice its largest rendered size).
+
+### SkipLink
+`src/components/SkipLink.tsx`. Props: `href` (default `#main`), `label` (default "Aller au contenu"). Off-screen at `-left-[999px]`, `focus:left-2`, ink background, white text, `z-100`. `PageFrame` forwards its optional `skip` prop (`{ href, label }`) to it; the host layout passes `{ href: "#funnel", label: "Aller au formulaire" }`. Every other page uses the defaults.
+
+### PageFrame
+`src/app/PageFrame.tsx`. Props: `page?: PageId`, `skip?`, `className?`, `children`. Renders a wrapper `<div data-page={page}>` with the skip link, `SiteHeader`, `main#main` and `SiteFooter`. Each segment `layout.tsx` renders it (see "Layouts and the current page" in `CLAUDE.md`). `className` carries a font variable class: it must sit on an ancestor of the text that uses the font (see "Fonts" in `TOKENS.md`). No CSS depends on `data-page`; it is for tests.
+
+### SiteHeader and NavToggle
+`SiteHeader.tsx` (server): props `site`, `page`. `NavToggle.tsx` (client): props `children` (the nav links and the panel button).
+- Header: `sticky top-0 z-50`, `bg-paper/90 backdrop-blur-[10px] backdrop-saturate-[1.4]`, `border-b border-line`, row `h-18` inside `Container`. Contains `Brand`, the mobile menu, the desktop row of links and a small header `Button`. The links are rendered twice (the panel and the row), like the CTA; one copy is hidden by CSS at each breakpoint, so the DOM holds two `navigation` landmarks both named "Navigation principale".
+- Per-page CTA (`headerCta`), shown twice (panel copy and header copy): `home`, `meetup`, `association`, `news` give the primary `site.cta`; `socrates` gives primary "Devenir partenaire" to `#sponsoring`; `host` gives ghost "Les formules" to `/#offres`.
+- Active link: `aria-current="page"` when the link has no `#` and its route equals the current page route. Home has no active link.
+- Nav links: `text-s95 font-medium text-ink-soft no-underline hover:text-red`; active red text on mobile, ink text with a red `border-b-2` from `lg`.
+- Mobile menu (below `lg`): `NavToggle` is a native `<details>` with a `<summary>` (`size-11`, an `sr-only` "Menu"). It opens and closes with no JavaScript and the browser exposes its state. JavaScript adds only two things: Escape closes it and returns the focus to the summary, and a click on a link inside closes it. A click on the panel outside a link keeps it open. The panel is `absolute inset-x-0 top-18` with `shadow-lift`, column links with 1px `border-line` separators and the panel button at the bottom. From `lg` the `<details>` is `lg:hidden` and the header shows its own row (`max-lg:hidden lg:ml-auto`).
+- Burger: three bars; `group-open:` utilities morph them into a cross (outer bars `group-open:translate-y-[7px]` and `group-open:rotate-45`, middle `group-open:opacity-0`).
+
+### SiteFooter
+`src/components/SiteFooter.tsx`. Props: `site`. `bg-green-deep text-on-dark`, `pt-14 pb-10`, `**:focus-visible:outline-sage`. `Container` is a wrapping flex row: `Brand` (size lg, tone dark, line = mission), a nav of `site.footer.links` (cream, no underline, hover white and underlined; links go through `PageLink`), and the legal line (full width, `border-t border-white/16`).
+
+### HeroEm
+`src/components/HeroEm.tsx`. Props: `text`. Turns `<em>word</em>` in a JSON title into a React `<em>` without `dangerouslySetInnerHTML`, and applies `frenchSpacing()`. The red italic and the underline come from the base layer (`h1 em`, `h2 em`). Trap: on `/accueillir/` and `/actualites/` an `<em>` in an `h1` or `h2` draws a slanted copy of the roman face, because those two routes do not load the italic font (see "Fonts" in `TOKENS.md`). No title uses an `<em>` there today.
+
+### Eyebrow, Lead, SectionHead, SectionFoot
+`Eyebrow.tsx`, `Lead.tsx`, `SectionHead.tsx`, `SectionFoot.tsx`.
+- `Eyebrow`: props `tone: "default" | "dark" | "cream"`, `marker: "rule" | "khatam" | "none"` (default rule), native `<p>` props. The marker is a `before:` pseudo-element (rule 22px by 2px, khatam 14px by `clip-path`); `default` is red, `dark` is sage, `cream` is cream (SoCraTes hero), and the marker takes the text color on the two dark tones. Marker `none` is `before:hidden`: the pseudo-element is out of the layout (an empty one would still be a flex item and shift the label). A string child goes through `frenchSpacing()`.
+- `Lead`: props `tone: "default" | "dark"`, native `<p>` props. `max-w-[60ch] text-s115`, soft ink or `text-on-dark`. The bottom margin comes from the base layer paragraph rule.
+- `SectionHead`: props `eyebrow?`, `title` (may hold one `<em>`, rendered by `HeroEm`), `lead?`, `align: "start" | "center"` (default start), `tone: "default" | "dark"`, `marker: "rule" | "khatam" | "none"` (default `rule`, or `none` when `align` is `center`), `titleId?`, `className`, `children` (after the lead). `mb-11 max-w-[760px]`; `align="center"` adds `mx-auto text-center` and centers the lead. The `h2` color on dark comes from the dark `Section`.
+- `SectionFoot`: native `<p>` props. `mt-9 flex flex-wrap justify-center gap-[0.8rem]`. Hide it with the `hidden` attribute (Preflight forces `display: none` for it) or with `not-js:hidden`.
+
+### Section
+`src/components/Section.tsx`. Props: `variant: "plain" | "alt" | "dark"` (default plain), `tight` (boolean), `containerClassName` (classes for the inner `Container`), native `<section>` props. Padding `py-22`, tight `py-14`. `alt` is `bg-sage-soft`; `dark` is `bg-green-deep text-cream **:focus-visible:outline-sage` with white `h2` and `h3`, and a sage `h2 em` without the hand-drawn mark (`[&_h2_em]:bg-none`). A `Button` on a dark section uses the `primary-flat` or `ghost-on-dark` variant. Anchor offset: the base layer sets `scroll-padding-top: 84px` on `html`.
+
+### PostIt
+`src/components/PostIt.tsx`. Props: `color: "yellow" | "pink" | "green" | "blue" | "orange"` (default yellow), `caption?` (small line in the body font, for the year on a topic note), `className`, native `<div>` props. Classes: `w-[170px] font-hand text-s135 [line-height:1.15] text-ink shadow-postit`, `bg-postit-*`. The line height is an arbitrary property on purpose (`TAILWIND.md`). The parent sets rotation, position and width with `className`.
+
+### TagList
+`src/components/TagList.tsx`. Props: `tags?: readonly string[]`, `max?`, native `<ul>` props. Renders nothing for a missing or empty list. `mt-[0.2rem] mb-4 flex list-none flex-wrap gap-1.5 p-0`; pills `rounded-full bg-paper-2 text-s76 text-ink-soft`. The timeline and article cards pass their own margins with `className`.
+
+### Monogram
+`src/components/Monogram.tsx`. Props: `initials` (from `monogram(name)` in `src/lib/derive.ts`), `label?`, `size: "lg" | "md" | "sm"` (default lg), native `<span>` props. Sizes: `lg` 84px box `size-21` (logo wall), `md` 60px `size-15` (compact wall), `sm` 56px `size-14` bordered `rounded-xl` square (logo row). Look: `bg-green-soft font-display font-semibold text-green-dark`, `rounded-card` for lg and md. A11y: `aria-hidden` by default; with `label`, `role="img"` and `aria-label` (use it when the name is not printed next to the tile).
+
+### Reveal
+`src/components/Reveal.tsx` (client). Props: `as: "div" | "li" | "article" | "section"` (default div), native `<div>` props. The server HTML carries no hidden state, so content shows without JavaScript. On mount a layout effect sets `data-reveal="waiting"` (instant, no fade out), except when the element already sits above the viewport bottom minus 60px: then it stays visible. An `IntersectionObserver` (`rootMargin: "0px 0px -60px 0px"`) sets `data-reveal="shown"` once and disconnects. Without `IntersectionObserver`, nothing is hidden. Both states sit behind `motion-safe:`: waiting is `translate-y-4 opacity-0`, shown adds `transition-[opacity,translate] duration-600 ease-standard`. Under reduced motion the content is always at rest. Applied to: feature cards, offers, cards, editions, article cards.
+
+### Lightbox, LightboxProvider, useLightbox
+`src/components/Lightbox.tsx` (client). Exports `LightboxProvider` (`{ children }`), `useLightbox()` returning `{ open(items, startIndex) }` (throws outside the provider) and the type `LightboxItem = { src: string; caption?: string }`. Mount the provider once around the page content (a server component can render it); it renders the dialog once after `children`. `src` is a final URL (callers use `assetUrl()`); the caption is optional and goes through `frenchSpacing()`.
+- Native `<dialog aria-label="Photo agrandie">` opened with `showModal()` (top layer, native Escape, focus trap, `::backdrop`; no `z-index`). Inside: close button, previous button, `<figure><img><figcaption>`, next button, labelled "Fermer", "Photo précédente", "Photo suivante". ArrowLeft and ArrowRight are handled by a `keydown` listener on `document`, added while the dialog is open (a click on the photo or caption moves focus out of the dialog, so a handler on the dialog would miss the keys). The `figcaption` is `aria-live="polite"` and stays mounted while the person steps, so a screen reader reads each new caption.
+- Classes that matter: dialog `m-0 size-full max-h-none max-w-none flex-col items-center justify-center bg-transparent px-4 py-10 text-white open:flex backdrop:bg-[rgba(15,13,12,0.94)] **:focus-visible:outline-sage` (see the dialog rule in `TAILWIND.md`). Round buttons `absolute size-12 rounded-full bg-white/12 hover:bg-white/25`; close top right, previous and next centered at the edges. Image `max-h-[calc(100vh-140px)] w-auto rounded-[6px]`; caption `text-s92 text-[#e8e2d9]` (no token for that color).
+- Behavior: several photos show "{caption} · 3 / 12" (the counter alone without a caption), step buttons and wraparound; one photo shows the caption only. Close button, Escape and a click on the dialog itself (backdrop and padding) all end in the native `close` event, whose handler clears the state, restores `document.body.style.overflow` and returns focus to the element active at `open()`. Opening focuses the close button and locks body scroll. `open()` clamps `startIndex` and ignores an empty list.
+- Tests: jsdom has no `showModal()` or `close()`, so the Lightbox opens and closes the dialog through the `ModalDialog` port; the tests pass the in-memory adapter with `renderWithPorts`. A closed dialog is not in the accessibility tree: query it by tag. Check the backdrop and the sage focus ring in a real browser.
+- Pages: home (gallery, feature cards), news.
+
+### FactList
+`src/components/FactList.tsx`. Exports `FactList`, the type `Fact = { value: string; label: string }`. `factListStyles` is a private `tv` with slots `list`, `item`, `value`, `label`.
+- Props: `items: readonly Fact[]`, `tone: "light" | "dark"` (default light), native `<ul>` props. Renders nothing for an empty list. `ul role="list"` with `li` cells holding a `<b>` value and a `<span>` label; strings go through `frenchSpacing()`.
+- Classes that matter: list `grid grid-cols-[repeat(2,1fr)] gap-3.5 sm:grid-cols-[repeat(4,1fr)]`. The tracks are `1fr`, not `grid-cols-2` (see `TAILWIND.md`): "9 h 30 → 14 h" must stay inside its cell at 375px. Cell `rounded-sm border px-4 py-3.5`; light `border-line bg-white`, value `font-display text-s160 font-semibold min-[360px]:whitespace-nowrap text-green` (below 360px the value may wrap, so the page does not scroll sideways on a 320px screen), label `text-s84 text-ink-soft`. Dark: `border-white/16 bg-white/5`, sage value, label `text-[#cfc7bb]`.
+- Inside `PageHero` the list gets `mt-8 sm:grid-cols-[repeat(2,1fr)]` through `className` (two columns at every width); in `DarkHero` it gets `mt-12`.
+- Pages: meetup, association, socrates.
+
+### PageHero
+`src/components/PageHero.tsx`. Props: `eyebrow`, `title` (may hold one `<em>`), `lead`, `facts?: readonly Fact[]`, `image: { src; alt; width?; height? }` (`src` is a final URL: `meetupPhotoUrl(name)` or `assetUrl(...)`; the photo is eager, 800 by 600 by default), `postit?: { color?; text }`, `titleId?` (sets the `h1` id and `aria-labelledby` on the section).
+- Server component. `<section className="zellige-corner pt-16 pb-10">` holding a `Container` grid `items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]` (the photo stacks under the text below `lg`). Left: `Eyebrow`, `h1` through `HeroEm`, `Lead`, `FactList`. Right: `<figure className="relative m-0">` with the photo `aspect-4/3 w-full rotate-[1.5deg] rounded-card object-cover shadow-lift` and the `PostIt` `absolute -bottom-4 -left-3.5 rotate-[-4deg]`.
+- Pages: meetup (yellow post-it "Vous fixez l'agenda."), association (green, "Depuis 2019").
+
+### DarkHero, StatusChip
+`src/components/DarkHero.tsx`. Exports `DarkHero` and `StatusChip`.
+- `DarkHero` props: `photo` (final URL), `eyebrow`, `title` (may hold one `<em>`), `lead`, `actions?: ReactNode` (the buttons, in a `flex flex-wrap gap-[0.8rem]` row: use `Button` `primary-flat` and `ghost-on-dark`), `status?: string`, `facts?: readonly Fact[]`, `titleId?`.
+- Section: `zellige-corner zellige-corner-dark overflow-hidden bg-green-deep pt-30 pb-18 text-cream **:focus-visible:outline-sage`. A dark hero needs both zellige classes: the plain `zellige-corner` draws its tile at `z-index: -1`, which is under the photo layer and the gradient (they are positioned layers in the same stacking context), so on this hero it would be invisible. `zellige-corner-dark` (`globals.css`) only sets `--zellige-image` (the sage tile) and `--zellige-z` (1) that `zellige-corner` reads; the content `Container` is `z-1` and comes later, so it stays above. Photo layer (`data-hero-photo`, `aria-hidden`, inline `background-image`): `absolute inset-0 bg-cover bg-[center_35%] opacity-45 saturate-85`, then a gradient layer (`from-green-deep/45 via-green-deep/78 via-60% to-green-deep`). Content in a `Container` `relative z-1`; text block `max-w-[820px]`. Eyebrow `tone="cream" marker="khatam"`. `h1`: `text-[clamp(2.6rem,6vw,4.8rem)] text-white`, emphasis sage with no underline and weight 520 (`[&_em]:bg-none [&_em]:font-[520] [&_em]:text-sage`): at the global 590 the SoCraTes title wraps to three lines at 1280 px ("sans programme" is 527.6 px wide, 3 px too much for the 820 px column), at 520 it is about 516 px and fits. Measure before you change either weight. Lead: `Lead tone="dark"` with `max-w-[64ch] text-s120 text-[#e4ddd2]`. Facts: `FactList tone="dark"` with `mt-12`.
+- `StatusChip` props: native `<p>` props. `mt-[1.4rem] inline-flex items-center gap-[0.55rem] rounded-[18px]`, fill `bg-green-deep/85`, border `border-sage/55`, cream `text-s92` text with `text-balance`, 14px sage khatam as `before:` (clip-path). `leading-[1.3]` follows the size on purpose.
+- Pages: socrates.
+
+### CardGrid, Card
+`src/components/CardGrid.tsx`. Exports `CardGrid`, `Card` and the type `CardItem = { title; text; href?; label? }`.
+- `CardGrid` props: `items: readonly CardItem[]`, `columns: 2 | 3 | 4`, `tone: "light" | "dark"` (default light), `className`. `Card` props: a `CardItem` plus `tone`, `className`; use `Card` alone for a single card (the in-kind card of the sponsoring section). An empty list renders nothing.
+- Columns, mobile first: one column; `columns=2` two from `sm`; `columns=4` two from `sm`, four from `lg`; `columns=3` two from `sm` (a lone last card takes the whole row, `sm:max-lg:[&>:last-child:nth-child(odd)]:col-span-full`) and six tracks from `lg` where each card spans two, so an incomplete last row is centered (`lg:*:col-span-2`, last card `col-start-3`, second to last `col-start-2`).
+- Card: `Reveal as="article"`, `rounded-card border border-line bg-white px-5.5 py-6`; `h3` `text-s115 mb-[0.4rem]`; text `m-0 text-s95 text-ink-soft`. Dark: `border-white/16 bg-white/5`, white title, `text-on-dark` text. Link (only with a non-empty `href`): `mt-3 inline-block text-s90 font-semibold`, text "{label} →" (an empty `label` gives "En savoir plus"); it goes through `PageLink`.
+- Pages: meetup, socrates, association.
+
+### StepRows, StepRow, TipList
+`src/components/StepRows.tsx`. Exports `StepRows`, `StepRow`, `TipList` and the type `Step = { id; time; title; kicker; image; text; tips? }`.
+- `StepRows` props: `steps: readonly Step[]`, `className`. `image` is a final URL (`meetupPhotoUrl(step.photo)`). `StepRow` props: `step`. `TipList` props: `tips: readonly string[]`, `className`; renders nothing when empty.
+- Row: `<article id={step.id} className="group grid items-center gap-5 border-t border-line py-8 first:border-t-0 first:pt-0 md:grid-cols-2 md:gap-12 md:py-11">`. The photo box comes first on mobile; `md:group-even:order-2` moves it to the right on even rows. Photo `aspect-4/3 rounded-card object-cover shadow-lift`, `alt=""`; time tag `absolute top-3.5 left-3.5 rounded-full bg-ink px-[11px] py-1.5 text-s82 font-semibold text-white`. Kicker `font-hand text-s160 leading-[1.1] text-green`; `h3` `text-s180`; text `text-ink-soft`.
+- Tips: `ul role="list"`, `mt-[1.2rem] grid gap-[0.6rem]`; each `li` is a mini post-it `w-fit max-w-full rotate-[-0.6deg] bg-postit-yellow font-hand text-s125 [line-height:1.2]`, even items `even:bg-postit-green even:rotate-[0.8deg]`.
+- Pages: meetup (`#deroule`).
+
+### Form primitives (Field, FieldError, FieldRow, TextInput, Select, TextArea, PillGroup, Pill, ChoiceGroup, ChoiceCard, ConsentCheckbox, Honeypot, FormAlert, FormPanel)
+One file per component in `src/components/`, `PillGroup.tsx` holds `Pill`, `ChoiceCard.tsx` holds `ChoiceGroup`, `Field.tsx` holds `FieldError`. All are native controls that work controlled or uncontrolled (they pass every native prop through, `ref` included) and are server-safe. Error messages are strings the form passes when a field is invalid.
+- `Field`: props `id` (the control id; help and error ids derive from it), `label?`, `optional?: boolean | string` (`true` adds "(facultatif)", a string adds that text), `help?`, `error?`, `group?`, `className`, exactly one child element. It clones the child with `id`, `aria-invalid` and `aria-describedby`, and keeps what the child already has: its own `id` (the label `htmlFor` points to it; the help and error ids still derive from the field `id`), an `aria-invalid` set to true (also true when `error` is set), and its own `aria-describedby` ids, which come first, then the help id, then the error id. With `group`, the label is a `<span id="{id}-label">` and the child gets `aria-labelledby`: use it around `PillGroup` and `ChoiceGroup`. Wrapper `mb-4.5`; label `mb-1.5 block text-s93 font-semibold`, suffix `font-normal text-muted`; help `mt-[5px] mb-[1em] text-[0.83rem] text-muted` (`help=""` keeps an empty paragraph without `aria-describedby`; `help` undefined renders none); error (`FieldError`, props `id`, `children: string`) `mt-[5px] mb-[1em] text-s84 text-red`, rendered only when invalid. `FieldError` is not a live region on purpose: focus moves to the first invalid field on submit and the control reads its message through `aria-describedby`, so a live region would read each message twice.
+- `TextInput`: native `<input>` props, `type` defaults to `text`. Exports `controlStyles` (a `tv`) shared with `Select` and `TextArea`: `w-full rounded-sm border-[1.5px] border-line bg-white px-[0.9rem] py-3`, `focus:border-green focus:ring-3 focus:ring-green/15`, `focus:outline-hidden`, `aria-invalid:border-red` (also while focused), `motion-safe:` transition. `type="date"` adds `min-h-12` (48px: Preflight removes the inner padding of a date field). `Select` takes `<option>` children. `TextArea` adds `min-h-24 resize-y`.
+- `FieldRow`: `grid gap-4 sm:grid-cols-2`.
+- `PillGroup`: props `role: "group" | "radiogroup"` (default group), native `<div>` props (pass `aria-labelledby` or `aria-label`); `flex flex-wrap gap-2`. `aria-invalid` stays on a `radiogroup` (ARIA allows it there) and is dropped on a plain `group`; the pills carry the state. `Pill`: props `type: "radio" | "checkbox"`, `children: string`, native `<input>` props. `<label className="relative">` around an input (`peer pointer-events-none absolute opacity-0`, still focusable) and a span `rounded-full border-[1.5px] border-line bg-white px-4 py-[0.55rem] text-s93 font-medium`; checked is `peer-checked:bg-ink peer-checked:text-white`, keyboard focus draws a green outline on the span.
+- `ChoiceGroup`: `role="radiogroup"`, `grid gap-3`. `ChoiceCard`: props `title`, `description?`, `price?`, native radio `<input>` props (`name`, `value`, `defaultChecked`, `required`...). `<label>` as `grid grid-cols-[24px_1fr] sm:grid-cols-[24px_1fr_auto]` (below `sm` the price sits under the text, `col-start-2`), `rounded-card border-[1.5px] border-line px-4.5 py-4`, hover border `#cbbfa9`, `has-checked:border-green has-checked:bg-[#f3faf5]`, `has-focus-visible:outline-3 has-focus-visible:outline-green` on the card. A 22px ring with a 10px green dot when checked; price `font-display text-green`.
+- `ConsentCheckbox`: props `children: string` (the sentence: cites Moroccan law 09-08, differs per form), `error?`, `id?` (generated when missing), native checkbox `<input>` props. Fixed attributes (`type`, `id`) come after the spread props, so a caller cannot override them. Grid `grid-cols-[22px_1fr]`, text `text-s88 text-ink-soft`, 20px box with `accent-green`; the error sits under it and describes the box (`aria-invalid`, `aria-describedby`).
+- `Honeypot`: props `id` (default `website_hp`), `name` (default `website_hp`), `label` (default "Ne pas remplir"), native input props except `type`. Fixed attributes come after the spread props. Wrapper `aria-hidden="true"` `absolute -left-[9999px] size-px overflow-hidden`; input `tabIndex={-1}` `autoComplete="off"`.
+- `FormAlert`: native `<div>` props, children are the message (a string or nodes with a link). Always in the page with `role="alert"`; carries the `hidden` attribute while it has no children, so a late message is announced. `mt-4 rounded-sm bg-[#fdecec] px-3.5 py-3 text-s92 text-red-dark`.
+- `FormPanel`: props `spacing: "roomy" | "snug"` (default roomy), native `<div>` props. The white card of a lead form: `rounded-[20px] bg-white text-ink shadow-lift`. The ink text stays on the card inside a dark section. The host funnel is `roomy`, the sponsor panel `snug`.
+
+### SuccessPanel
+`src/components/SuccessPanel.tsx` (client). Props `{ id, hidden, stamp, text, headingLevel?: 2 | 3, tone?: "default" | "ink", children? }`. Renders `role="status"` named by its title ("Demande bien reçue."), with the green post-it `stamp`, the `text` (through `frenchSpacing`) and `children` after it. Ids: `<id>`, `<id>-title`, `<id>-text`. It has `tabIndex={-1}` and focuses itself when `hidden` becomes false. `tone="ink"` keeps the title in the ink color of the panel when the panel sits in a dark section whose rule would turn every heading white (the class is `[&&]:text-ink`: the doubled selector wins without the important modifier). Used by `HostFunnel` and `SponsorForm`.
+
+## Data layer and page metadata
+
+Not components: typed loaders and pure derivations. A page loads the JSON once in a server component, derives plain props and passes them to the section components. A component never reads files.
+- Loaders (`src/content/load.ts`, schemas in `schemas.ts`, types in `types.ts`): `loadSite()`, `loadHome()`, `loadEvents()`, `loadCompanies()`, `loadOffers()`, `loadSponsoring()`, `loadMeetup()`, `loadAssociation()`, `loadSocrates()` (joins `socrates.json` with the events) and `loadArticles()`. Each reads `../content/*.json` with `fs` at build time and parses with zod; a broken edit throws `Invalid content in content/<file>.json: <path>: <message>`. The module starts with `import "server-only"`, as do `articles-server.ts`, `images-server.ts` and `page-metadata.ts`: a client file that imports them fails the build. Types are `z.infer` aliases of the schemas.
+- Derivations: `src/lib/derive.ts` (`fmtDate`, `fmtDayRange`, `place`, `photoItems`, `stats`, `companyStats`, `roleLabel`, `monogram`, `topicKey`, `TYPE_LABEL`, `meetupPhotoUrl`, `absoluteImageUrl`, `absoluteMeetupPhoto`, `logoUrl`, `logoWallTiles`), `src/lib/home-data.ts` (`heroNote`, `heroCollage`, `statItems`, `formatSteps`, `topicsFromEvents`, `featuredEvents`, `featuredMeta`, `eventLinks`, `timelineWhere`, `filterEvents`, `eventsByYear`, `timelineMoreLabel`, `galleryItems`, `socratesEditions`, `socratesPhoto`, `trustLogos`, `offerPrice`, `offerHref`, and the default limits), `src/lib/pages-data.ts` (the meetup, association, actualites and socrates pages), `src/lib/socrates.ts` (`resolveSocrates`, `socratesEvents`, `editionLabel`: the SoCraTes page reads the editions from `events.json`; an item of `socrates.json` keeps only the event id, an optional photo and its text). `derive.ts`, `home-data.ts` and `pages-data.ts` import no `node:` module and no loader; `src/lib/server-boundary.test.ts` checks it. Companies link to events by exact `name` match with `host` and `sponsors[]`. `PhotoItem` is `{ photo, src, caption, eventId }`; the lightbox uses `src`.
+- Server only helpers: `articles-server.ts` (`articleSlugs`, `articleBySlug`), `images-server.ts` (`requireMeetupPhoto(name)`: throws and names the photo when the file is missing), `page-metadata.ts`.
+- `pageMetadata({ path, title, description, share?, photo, type? })`: the `metadata` of a page (title, description, canonical URL, Open Graph, Twitter, the full photo URL). The root layout and every page use it, so each page repeats `type` and `url` (a page-level `openGraph` replaces the layout one). `articleMeta(article, site)` feeds it for an article.
+- `offerHref(offer)` builds `/accueillir/?formule={id}` from `pageRoute("host")`. `limit` values use `||` with the `DEFAULT_*_LIMIT` constants of `home-data.ts` (`home.history.limit || DEFAULT_HISTORY_LIMIT`, and the same for gallery and topics).
+- Rules the components must keep: timeline and gallery show the first `limit` items, and the "more" button shows when the total is larger than the limit; after the click, focus moves to the item at index `limit`; a filter click shows the first `limit` events again; the lightbox walks all gallery items. Strings come back with plain spaces: render them through `frenchSpacing()`. The logo wall sticker is not in `logoWallTiles`: read `companies.sticker.host`. The alt text of the SoCraTes group photo is written in the component, not in `home.json`: `socratesPhoto(home)` gives the URL.
+
+## Home sections (`src/components/home/`)
+The home page `src/app/(home)/page.tsx` is a server component: it calls the loaders and the derivations of `home-data.ts`, wraps the sections in `LightboxProvider` and renders `HomeHero`, `StatsBand`, `FormatAgenda` (`#format`), `HistorySection` (`#historique`), `PhotoGallery` (`#galerie`), `PartnersSection` (`#partenaires`), `SocratesTeaser` (`#socrates`), `OffersSection` (`#offres`), `Faq` (`#faq`), `CtaBand`. The skip link target `main#main` stays in the layout.
+
+### HomeHero, Polaroid
+`HomeHero.tsx` (server), `Polaroid.tsx` (server). Props: `HomeHero` (`hero: Home["hero"]`, `note: string` from `heroNote(home, events)`, `collage: { src, caption }[]` from `heroCollage(home)`; `hero.collage` is ignored); `Polaroid` (`index`, `src`, `caption`). `POLAROID_SLOTS` (exported by `Polaroid`) is the number of photos that have a slot: `HomeHero` shows `collage.slice(0, POLAROID_SLOTS)`.
+- Section `zellige-corner overflow-hidden pt-16 pb-10`; `Container` grid `items-center gap-12 lg:grid-cols-[1.05fr_1fr]`. Left column: `Eyebrow`, `h1` with `HeroEm`, `Lead` (`mb-[1.8rem]`), a primary and a ghost `Button`, and the hero note (`mt-[1.4rem] text-s90 text-muted`, only when not empty).
+- Collage box: `relative h-95 lg:h-120` with `aria-hidden="true"`. `Polaroid`: eager `figure` `absolute rounded-[3px] bg-white px-2.5 pt-2.5 pb-8.5 shadow-lift`, empty-alt `Photo` (`object-cover`), `figcaption` in `font-hand` ellipsized on one line. The index picks the slot (width, height, offset, tilt, layer): `-rotate-3` `z-2`, `rotate-4` `z-4`, `-rotate-[1.5deg]` `z-3`; heights grow from `lg`. The post-it (`hero.postit`) is a `PostIt` `absolute top-2.5 right-[6%] z-5 w-35 rotate-5`, `text-s115 lg:w-42.5 lg:text-s135`.
+
+### StatsBand
+`StatsBand.tsx` (server). Props: `items: StatItem[]` from `statItems(home, site, events)`; a stat with an empty value is dropped, and no item renders nothing. `<section aria-label="Chiffres clés">` `border-y border-line bg-paper-2 py-7`, a `ul` grid `grid-cols-2 gap-5 md:grid-cols-5 md:gap-4`; the last item spans the row below `md` (`last:col-span-full md:last:col-auto`). Value in a `b`: `font-display text-[length:clamp(1.8rem,3vw,2.4rem)] leading-[1.1] font-semibold text-green`; label `text-s88 text-ink-soft`.
+
+### FormatAgenda, TopicWall
+`FormatAgenda.tsx`, `TopicWall.tsx` (server). Props: `FormatAgenda` (`eyebrow`, `title`, `lead?`, `steps: FormatStepItem[]` from `formatSteps(home)`, `topics: TopicNote[]` from `topicsFromEvents(events, home.topics.limit)`, `topicsLabel`, `more?: Cta`); `TopicWall` (`label`, `topics: readonly TopicWallNote[]`, `variant?: "wall" | "board"`).
+- `Section id="format" aria-labelledby="format-title"`, `SectionHead`, then an `<ol>` `grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4` (no `ol` without steps). Card (`li`): `group flex flex-col overflow-hidden rounded-card border border-line bg-white`; optional photo (`aspect-16/10`, empty alt, `motion-safe:group-hover:scale-104` over 500ms through `transition-[scale]`); body `px-5.5 pt-4.5 pb-5.5` with the number `01` to `04` (`aria-hidden`, `font-display text-s190` red), time (`text-s78` uppercase green), `h3`, text. Then `TopicWall`, then a ghost `Button` in a `SectionFoot` when `more` is set.
+- `TopicWall`: `div role="group" aria-label` `mt-12 flex flex-wrap justify-center gap-3.5`; no topic renders nothing. One `PostIt` per topic (`w-auto max-w-60 text-s125`), color from the tone (`default` is yellow), the year as caption, tilt by index from 0 (even index `-rotate-2`, odd index `rotate-[1.5deg]`; indexes 2, 5, 8 and so on `-rotate-[0.5deg]`, which wins). `variant="board"` (meetup `#sujets`) is the cork board: same notes and tilts, `mt-0 justify-start rounded-card border-10 border-[#b58a55] bg-[#e9dcc3] px-7 py-9` with a dotted tile (`bg-[url(data:image/svg+xml,...)]`, spaces percent-encoded as `%20`, Tailwind does not turn `_` into a space inside `url()`) and an inner shadow `shadow-[inset_0_0_40px_rgba(0,0,0,0.12)]`. `TopicWallNote` is `TopicNote & { from? }`; with `from` the caption reads `year · from`. Feed the board with `meetupTopicBoard(events)` (every distinct topic, no limit; two topics that differ only by case or accents count once, see `topicKey`).
+
+### HistorySection, FeaturedEvents, FilterChips, EventTimeline, EventBadge
+All in `src/components/home/`, all client components. `HistorySection` must render inside `LightboxProvider` (it calls `useLightbox()`). With no event it renders nothing.
+- `HistorySection` props: `history` (`home.history`), `events` (`loadEvents()`). `Section id="historique" variant="alt"`: `SectionHead`, `FeaturedEvents`, `FilterChips` (label "Filtrer les événements"), a visually hidden status line `p role="status"` ("Meetups : 14 événements", `sr-only not-js:hidden`), `EventTimeline id="timeline"` and, while events are hidden, a `SectionFoot` with a ghost `Button` (`aria-controls="timeline" aria-expanded={false}`) labelled by `timelineMoreLabel(history.more, total)`. The server HTML lists every event (grouped by year) and no chip or button (both `not-js:hidden`). With JavaScript the timeline shows the events of the pressed chip (the first chip at start), the first `limit`; the others carry `js:hidden` from the first paint (no layout shift). State: the filter and the expanded flag.
+- `FeaturedEvents` props: `events` (`featuredEvents(events)`), `onOpenPhotos(event)` (the section opens the lightbox on `photoItems(event)` at index 0). List `mb-14 grid grid-cols-1 gap-6 lg:grid-cols-3`. Card (`Reveal as="article"`): `flex flex-col overflow-hidden rounded-card bg-white shadow-card sm:flex-row lg:flex-col`. The photo is a link to the first photo file (`aria-label="Voir les {n} photos de {title}"`, "Voir la photo de {title}" for one), so it works without JavaScript; with JavaScript a plain click opens the lightbox (`openPhoto` in `photoLink.ts`: a click with Ctrl, Meta, Shift, Alt or a non-left button stays with the browser; the link takes the focus first, because Safari does not focus a link on click, and the lightbox returns the focus to it). The photo link is `group relative aspect-16/10 cursor-zoom-in overflow-hidden no-underline`, from `sm` `sm:w-2/5 sm:aspect-auto`, from `lg` stacked again, with the first photo (`alt=""`, zoom `motion-safe:group-hover:scale-104`) and the count pill "{n} photos" (`countLabel`). Body: `featuredMeta(e)`, `h3`, summary, `TagList max={4}`, links from `eventLinks(e)` (`min-h-11`, opened in a new tab by `PageLink`): the name is the label plus the event title in a visually hidden span ("Récap LinkedIn, Meetup ...").
+- `FilterChips` props: `label`, `options: readonly HistoryFilter[]`, `value`, `onChange(value)`, `className`. `div role="group" aria-label` of `<button type="button" aria-pressed>`, hidden without JavaScript (`not-js:hidden` on the root); chip `rounded-full border-[1.5px] border-line bg-white px-[0.95rem] py-[0.45rem] text-s90 font-medium leading-[normal]`, pressed `aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-white`.
+- `EventTimeline` props: `groups: YearGroup[]` (`eventsByYear(events, "all")`), `shownIds?` (the events that stay visible with JavaScript), `id?`, `focusId?` (the item of that event gets `tabIndex={-1}` and takes the focus when it mounts). Exports `EventTimeline` and `EventBadge` (`kind: EventType`, label from `TYPE_LABEL`); `eventBadgeStyles` is private (a `tv`; meetup `bg-green-soft text-green-dark`, the other three badge colors are arbitrary values, see `TOKENS.md`). Each year `section` is named by its `h3` (`aria-labelledby`), and a year with no shown event collapses as a whole. Year group `grid grid-cols-1 gap-2 border-t border-line py-4.5 sm:grid-cols-[120px_1fr] sm:gap-6`, year `h3` `text-[2rem] text-green sm:sticky sm:top-22.5`; item `li` `rounded-sm border border-line bg-white px-4.5 py-3.5`, from `sm` `sm:grid-cols-[92px_1fr_auto] sm:gap-4`, with `<time dateTime>`, `h4`, `timelineWhere(e)`, `TagList max={6}` and the badge. The home timeline has no vertical line and no dots (they belong to `HistoryTimeline` on the association page).
+- Tests: jsdom loads no stylesheet, so `home/js-mode.ts` (`setJs(boolean)`) installs the two rules that `js:hidden` and `not-js:hidden` stand for and toggles `html.js`. Update it when the `js` variant of `globals.css` changes.
+
+### PhotoGallery
+`PhotoGallery.tsx` (client; inside `LightboxProvider`). Props: `eyebrow`, `title`, `more` (button label), `limit?` (`home.gallery.limit`; a missing or zero value means `DEFAULT_GALLERY_LIMIT`), `items: PhotoItem[]` from `galleryItems(events)`. No photo renders nothing (no section, no heading). `Section id="galerie"`, `SectionHead`, then a `div#gallery` of CSS columns `columns-2 gap-x-2.5 sm:gap-x-3.5 md:columns-3 lg:columns-4`. Every photo is in the HTML as a link to its file (`aria-label="Agrandir : {caption}, photo N sur M"`, N and M counted among the photos of the same event, `group relative mb-2.5 sm:mb-3.5 cursor-zoom-in overflow-hidden rounded-sm break-inside-avoid no-underline`) with a lazy `Photo` (`alt` = caption, zoom `motion-safe:group-hover:scale-103`) and a caption overlay (a scrim dark enough for white text from the first line, visible on `group-hover` and `group-focus-visible`). A plain click calls `lightbox.open(items, index)` on all items (`openPhoto`). Photos past `limit` carry `js:hidden`; the ghost "more" button (`aria-controls="gallery"`, `not-js:hidden`) shows them, disappears, and focuses the first added item through a ref.
+
+### PartnersSection, LogoWall, LogoTile, LogoSticker, LogoImage, Monogram
+`PartnersSection.tsx`, `LogoWall.tsx` (exports `LogoWall`, `LogoTile`, `LogoSticker`). Props: `PartnersSection` (`eyebrow`, `title`, `lead`, `tiles: LogoTile[]` from `logoWallTiles(companies.items, events)`, `sticker: Sticker` from `companies.sticker.host`); `LogoWall` (`tiles`, `sticker?`, `id?`, `compact?`); `LogoTile` (`tile`, `compact?`); `LogoSticker` (`sticker`, `compact?`). With no tile and no sticker the wall renders nothing.
+- Rules: show a logo only when the company has one and the partner agreed; an empty `logo`, or a logo file that fails to load, renders `Monogram`. Order by hosted plus sponsored count, descending (`logoWallTiles` does it). The SoCraTes wall shows sponsors only, with the years they sponsored (`sponsoredYears` of `companyStats()`, from the `sponsored` events only; `years` also counts hosted meetups).
+- `PartnersSection`: `Section variant="alt" id="partenaires"`, centered `SectionHead`, `LogoWall`, then a `SectionFoot` with a primary `Button` "Rejoindre les hôtes" (to the host page) and a ghost `Button` "Soutenir SoCraTes Maroc" (to `/socrates/#sponsoring`); both labels are literal copy.
+- `LogoWall`: one `tv()` with slots (`logoWallStyles`: wall, tile, box, logo, name, role, sticker and the sticker parts) driven by the `compact` variant. `flex flex-wrap justify-center gap-3.5`, fixed-width tiles so the last row stays centered. `LogoTile`: `w-42 rounded-card border border-line bg-white`, logo `size-21` in a `size-23` box (lazy) or a `Monogram` when the company has no logo; name `text-s88 leading-[1.25] font-semibold`, role `text-s74 text-muted`; an `<a>` through `PageLink` with lift on hover (`motion-safe:hover:-translate-y-0.75`, `shadow-lift`) only when the company has a LinkedIn page, else a `div`. The logo `alt` is empty and the tile has no `title`: the name is printed beside the logo, so a screen reader reads it once. `LogoSticker`: one `<a>` with the footprint of a tile, `bg-postit-yellow -rotate-2`, `font-hand`, named by `aria-labelledby`, described by `aria-describedby`; its arrow follows the last word of the call to action with a no-break space (U+00A0), so the label wraps as "Accueillir un" then "meetup →". `compact` (association `#entreprises`): wall `gap-2.5`; tile `w-28`, logo box `size-16`, logo `size-15`, `Monogram size="md"`, name `text-s80`, and the role line stays in the DOM as `sr-only` text (the link name is "name role"); sticker `w-28`.  No dark tone exists: the SoCraTes sponsors wall sits in a light section.
+- `LogoImage` (`LogoImage.tsx`, client): a lazy image; it swaps itself for a `Monogram` on the `error` event, and on mount when the load already failed (`complete` with `naturalWidth` 0). `LogoTile` and `LogoRow` use it.
+
+### SocratesTeaser, EditionChips, SponsorCall, LogoRow
+`SocratesTeaser.tsx` (exports `SocratesTeaser`, `EditionChips`, `SponsorCall`), `LogoRow.tsx`; all server components. Props: `SocratesTeaser` (`eyebrow`, `title`, `lead`, `cta`, `editions: SocratesEdition[]` from `socratesEditions(events)`, `photoSrc` from `socratesPhoto(home)`, `sponsor` (`home.socrates.sponsor`), `trust: TrustLogo[]` from `trustLogos(sponsoring, companies.items)`); `EditionChips` (`editions`, native `ul` props); `SponsorCall` (`sponsor`, `trust`, native `div` props); `LogoRow` (`logos: TrustLogo[]`, native `div` props). Editions sort by date, not by file order.
+- `Section variant="dark" id="socrates"` with `containerClassName="grid items-center gap-14 md:grid-cols-[1.05fr_0.95fr]"`. Left: khatam `Eyebrow`, `h2` with `HeroEm`, dark `Lead`, `EditionChips` (`grid-cols-2 gap-3`; cell `rounded-sm border border-white/16`, title in `font-display` white, detail `text-on-dark`; the year is `font-semibold`), a `Button` to the `cta`, then `SponsorCall` (`rounded-card border border-sage/35 bg-sage/10 px-6.5 py-6`: khatam `Eyebrow`, `h3`, text, `LogoRow` labelled "Partenaires présents à chaque édition", ghost button with white text and border). Right: the group photo `aspect-4/3 object-cover object-[center_75%]`, lazy, with a static French alt text.
+- `LogoRow`: `div role="group"` `flex flex-wrap items-center justify-center gap-3`; a lazy image `size-14 rounded-xl border border-line bg-white object-contain p-1` (`alt` and `title` = name) or a `Monogram size="sm"` with `label`.
+
+### OfferGrid, OffersSection
+`OfferGrid.tsx` (server; client boundary only through `Reveal`), `OffersSection.tsx` (server). One card is an `OfferCard` inside `OfferGrid`, with a `BulletList`; neither is exported. Props: `OfferGrid` (`items: Offer[]`, `tone?: "light" | "dark"`, default light); `OffersSection` (`eyebrow`, `title`, `lead`, `note`, `items`; no item renders nothing). The highlight and the badge come from each `Offer` (`highlight`, `badge`).
+- `OffersSection`: `Section id="offres" aria-labelledby="offres-title"`, centered `SectionHead`, the grid, then the note (`mt-7 text-center text-s92 text-muted`).
+- Grid `mx-auto grid max-w-140 items-stretch gap-5.5 lg:max-w-none lg:grid-cols-3`. Card (`Reveal as="article"`): `relative flex flex-col rounded-card border-[1.5px] px-6.5 py-7`; the highlighted card sets `data-highlighted`, which gives `data-highlighted:border-green data-highlighted:shadow-lift` (the dark tone `border-sage`), and the badge as a flag (`absolute -top-3.25 left-6.5`, green pill). Content: `h3` name, price `offerPrice()` (empty gives "Sur devis"; `text-s150`, not `text-2xl`, to keep the line height), tagline (`lg:min-h-[3em]`), two `h4` lists "Vous apportez" (yellow bullets, `#c9a400` border) and "Nous apportons" (green bullets), each bullet a 10px `before:` square (`before:content-['']`). The button is `mt-auto self-start`, solid for the highlighted card and ghost for the others, and links through `offerHref()` to `/accueillir/?formule={id}`. Its name is "Choisir cette formule" plus the offer name in a visually hidden span. Dark tone (unit-tested only, no dark section uses it yet): translucent card, sage border, flag and price, white ghost button.
+
+### Faq, FaqList
+`Faq.tsx` (server). Exports `Faq` and `FaqList`. Props: `Faq` (`eyebrow`, `title`, `items: { q, a }[]` from `home.faq.items`); `FaqList` (`items`, `tone?: "default" | "dark"`, native `div` props). `Faq` is `Section variant="alt" id="faq" aria-labelledby="faq-title"` with a centered `SectionHead` and the list; no question renders nothing. `FaqList`: `mx-auto max-w-[820px]`; native `<details>` and `<summary>` (no JS): summary `flex cursor-pointer list-none justify-between gap-4 py-4.5 text-s105 font-semibold`, plus sign in a `<span aria-hidden="true">` (not generated content, so every browser keeps it out of the accessible name) that turns 45 degrees under `group-open:`; only its transition sits behind `motion-safe:`. Default tone: `border-line`, green plus, `text-ink-soft` answers; dark tone: `border-white/16`, sage plus, `text-on-dark` answers.
+
+### CtaBand
+`CtaBand.tsx` (server). Props: `title`, `text`, `primary: Cta`, `secondary: Cta` (`home.cta`), `variant?: "default" | "green"`, `tight?: boolean` (the `Section` tight padding, `py-14` instead of `py-22`; used by the last band of meetup and association). `Section aria-labelledby="cta-title"` holding the band: `rounded-[22px] bg-green px-6 py-10 text-white md:grid-cols-[1.4fr_1fr] md:px-12 md:py-14 **:focus-visible:outline-sage`, white `h2`, text `text-[#d9efe2]`. Primary button inverted (white fill, hover paper, red text, or green text in the `green` variant), ghost button white outline (hover white fill, green text). A link goes through `PageLink` (an external one opens in a new tab). Pages: home, meetup (green, tight), association (tight; the labels "Écrire sur LinkedIn" and "Accueillir un meetup" are literal copy).
+
+## Meetup page (`/meetup/`)
+`src/app/meetup/page.tsx` (server; `metadata` from `pageMetadata`: title and description from `meetup.json`). Order and ids: `PageHero` (post-it "Vous fixez l'agenda."), `#pour-qui` (`CardsSection`, 4 cards, with a lead), `#deroule` (alt, `StepRows` fed by `meetupSteps(meetup)`), `#marketplace` (`ZoomSplit`), `#proposer` (`CardsSection` alt, 4 cards), `#regles` (`CardsSection`, 3 columns), `#sujets` (alt, `TopicWall variant="board"`), `#faq` (`SectionHead align="center"` and `FaqList` in a plain `Section`, because the home `Faq` is hard-wired to the alt background), then `CtaBand variant="green" tight`. Every section is named by its heading (`aria-labelledby`).
+
+### ZoomSplit, NumberedList
+`meetup/ZoomSplit.tsx`, `meetup/NumberedList.tsx` (server). Props: `ZoomSplit` (`id?`, `eyebrow`, `title`, `steps: {title,text}[]`, `image: {src, alt}` with the final URL from `meetupPhotoUrl()`; the photo is 800 by 600); `NumberedList` (`items`).
+- `ZoomSplit` is a plain `Section` (`id`, `aria-labelledby="{id}-title"`) whose container is `grid items-center gap-12 md:grid-cols-[1fr_1.1fr]`. Photo first: `aspect-4/3 -rotate-[1.5deg] rounded-card shadow-lift`, lazy. Then `Eyebrow`, `h2` and the list.
+- `NumberedList`: `<ol role="list">` `grid gap-4`; item `grid-cols-[44px_1fr] gap-3.5`; the counter is an `aria-hidden` 40px circle (`border-2 border-green`, `font-display text-s120`, `-rotate-6`); bold title (`strong`, block, `text-s105`) and text (`text-s95 text-ink-soft`). An empty list renders null.
+
+## Association page (`/association/`)
+`src/app/association/page.tsx` (server). It calls `loadAssociation()`, `loadSite()`, `loadEvents()`, `loadCompanies()`, `associationFacts()` and `hostsWall()` and renders `PageHero` (green post-it "Depuis 2019", alt "Photo de groupe d'un meetup", 800 by 450, facts from `associationFacts`), `CardsSection` `#mission` (3 columns), `CardsSection` `#principes` (alt, 3), `AssociationHistory` `#histoire`, `HostsSection` `#entreprises` (alt, compact wall), `CardsSection` `#contribuer` (4), then `CtaBand tight` (title and text from `association.contact`). The `metadata` export goes through `pageMetadata` (title and description from `association.json` `meta`). Every section is named by its heading.
+
+### CardsSection, HostsSection
+`CardsSection.tsx` (shared by the meetup and association pages and the SoCraTes page, in `src/components/`), `association/HostsSection.tsx` (server).
+- `CardsSection`: props `id`, `variant?: "plain" | "alt"`, `marker?: "rule" | "khatam" | "none"` (passed to `SectionHead`; `khatam` for SoCraTes), `eyebrow`, `title`, `lead?`, `titleId?`, `items: CardItem[]`, `columns: 2 | 3 | 4`. A `Section` with `SectionHead` and `CardGrid`; `SectionHead` renders the title (and applies the French spacing). With `titleId`, the `h2` gets that id and the section gets `aria-labelledby` (a named region); without it the section is no landmark. An empty `items` renders nothing. Used for `#mission`, `#principes`, `#contribuer` (association), `#pour-qui` (with a lead), `#proposer`, `#regles` (meetup) and the khatam bands of the SoCraTes page.
+- `HostsSection`: props `eyebrow`, `title` (from `companies.json`), `tiles: LogoTile[]`, `sticker: Sticker` (both from `hostsWall(companies, events)`). `Section id="entreprises" variant="alt"`, centered head with no lead, `LogoWall compact`.
+
+### HistoryTimeline, AssociationHistory
+`association/HistoryTimeline.tsx` (server). Props: `HistoryTimeline` (`items: {year,title,text}[]`; an empty list renders nothing); `AssociationHistory` (`history: loadAssociation().timeline`; `Section id="histoire"`; no milestone renders nothing). Native `<ol role="list">`.
+- The 2px `bg-line` vertical line is `before:` on the list (`left-[61px]`, `sm:before:left-17.5`, `top-2.5 bottom-2.5`); the 14px dot is `after:` on each `li` (`size-3.5 rounded-full border-3 border-red bg-paper`, `top-6`, `left-[55px]`, `sm:after:left-16`). Item `grid-cols-[48px_1fr] gap-7 py-3.5`, from `sm` `grid-cols-[56px_1fr] gap-9`. Year: `font-display` green, right aligned, `text-s115 sm:text-s150`. `h3` `text-s115`; text `text-s95` `text-ink-soft` `max-w-[62ch]`.
+- Pages: association (`#histoire`). Not the home `EventTimeline`.
+
+## Actualites pages (`/actualites/`, `/actualites/[slug]/`)
+Routes: `src/app/actualites/page.tsx` (`metadata` from `pageMetadata`: title and description from `articles.meta`) and `src/app/actualites/[slug]/page.tsx` (`dynamicParams = false`, a sync `generateStaticParams()` from `articleSlugs()`, async `generateMetadata({ params })` through `articleBySlug` and `articleMeta`, async page with `await params`, wrapped in `LightboxProvider` only when the article has photos). `sitemap.xml` lists one route per item of `loadArticles()` (not through `articleSlugs()`) with the article date as `lastModified`. The article page loads the italic Fraunces font; the list page does not.
+
+### ArticleGrid, ArticleTeaser, ArticleListSection
+`actualites/ArticleGrid.tsx`, `ArticleTeaser.tsx`, `ArticleListSection.tsx` (server). Props: `ArticleGrid` (`articles: ArticleCard[]` from `articleCards()`; renders nothing when empty), `ArticleTeaser` (`article`, whose `lead` flag marks the newest), `ArticleListSection` (`eyebrow`, `title`, `lead`, `articles`). The component is `ArticleTeaser` so that it does not share the name of its data type `ArticleCard` in `pages-data.ts`.
+- Section: `Section className="zellige-corner pt-14"`; the head is `Eyebrow`, `h1` and `Lead` in `mb-11 max-w-[760px]` (`SectionHead` renders an `h2`, the page needs the `h1`). The section is named by the `h1`. Grid `grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3`.
+- Teaser: one tv with slots and a `lead` variant. `Reveal as="article"` around one `next/link` `Link` to `/actualites/<slug>/` (the href is always an internal route) (`rounded-card bg-white shadow-card`, hover `shadow-lift` and `motion-safe:hover:-translate-y-0.75`), named by its title through `aria-labelledby`. The title is an `h2` (the list page is `h1` then `h2` cards) with `break-words`. Cover `aspect-16/10 bg-paper-2` with a decorative lazy image (none when the article has no cover). Body `px-5 pt-4.5 pb-5.5`: meta `text-s80 text-muted` with the kind in `text-s72 font-bold tracking-[0.05em] text-green uppercase`, title `text-s120`, excerpt `text-s93 text-ink-soft`, `TagList` pushed to the bottom.
+- Lead: `col-span-full`; cover `aspect-video` below `lg`, `lg:w-[55%] lg:aspect-auto lg:shrink-0` beside the text from `lg`; body `px-8.5 py-8 justify-center`; title `text-s190`.
+
+### ArticleView, ArticlePhotosLink, Prose
+`actualites/ArticleView.tsx` (server), `ArticlePhotosLink.tsx` (client), `Prose.tsx` (server). Props: `ArticleView` (`view` from `articleView(article, events, site)`; needs `LightboxProvider` above), `ArticlePhotosLink` (`label`, `photos: PhotoItem[]`; renders nothing without photos), `Prose` (native `div` props, children = `md(body)`).
+- `ArticleView`: `Section className="zellige-corner pt-14"` with `article.mx-auto.max-w-[760px]`, named by its `h1`. Order: back link to `pageRoute("news")`, meta line (kind in green uppercase, then the long date), `h1` `text-[length:clamp(2rem,4vw,3rem)] break-words`, `Lead`, cover (eager; `mt-7 mb-9 overflow-hidden rounded-card shadow-lift`, image `max-h-130 w-full object-cover`, `alt=""`), `Prose`, `TagList`, links row (`mt-8 flex flex-wrap gap-4 border-t border-line pt-5`) with the event links then the photos link. The row is absent without event links and photos.
+- `ArticlePhotosLink`: an `<a>` to the first photo file ("Les N photos"), so it works without JavaScript; with JavaScript a plain click calls `useLightbox().open(photos, 0)` through `openPhoto` (modifier clicks stay with the browser).
+- `Prose`: `text-[1.08rem] leading-[1.7]`; descendant variants on the wrapper: `md()` renders `#` and `##` as `h2` and `###` as `h3` (the page `h1` is the article title). The `h2` rule is `text-s150` with a `1.8rem` top margin (every article body opens with `##`), the `h3` rule is `text-s130`; `ul` and `ol` restored with `list-disc` and `list-decimal`, `blockquote` with a 3px sage left rule in `font-display-italic`, `code` on `paper-2`. Links keep the underline of the base layer. Spacing that is not a half step (0.4, 1.2, 1.3, 1.4 and 1.8 rem) is a rem literal.
+
+## SoCraTes page (`/socrates/`)
+Routes: `src/app/socrates/layout.tsx` (`PageFrame page="socrates"`) and `page.tsx` (server; `metadata` from `pageMetadata`: title and description from `socrates.meta`, url `/socrates/`). Section ids in order: `unconference`, `regles` (with `#formats`), `deroule`, `editions`, `famille`, `valeurs`, `sponsoring` (with `arguments`, `trust-logos`, `packages`, `in-kind`, `sponsor-faq`, `sponsor-funnel`, `sponsor-form`), `partenaires` (with `#sponsors-wall`). A section whose list is empty is not rendered (`regles`, `deroule`, `editions`, `famille`). Components are in `src/components/socrates/`. The numbers of the edition cards and the hero facts (editions, partners) come from `events.json`; see "Data layer".
+
+### OpenSpaceLaws, DayStrip, EditionGrid, FamilyGrid
+- `OpenSpaceLaws({ laws })`: `<ol role="list">`, one column, two from `md`; a CSS counter badge (rotated `-8deg`); the last law is the `bg-green-deep` band (`md:col-span-full`); its title uses `font-display-italic`. Data from `socratesLaws(s)`.
+- `DayStrip({ days, note? })`: bordered white panel, 1 column, 2 from `sm`, 4 from `lg`; the divider lines switch with the layout. `font-hand` day name.
+- `EditionGrid({ editions })` and `EditionCard({ edition })`: the photo, or the year in a khatam star over a green-deep cover (`var(--zellige-sage)` for the tile); yellow badge. The participants and partners numbers (`b`) are `font-bold`. Data from `socratesEditionCards(s)`.
+- `FamilyGrid({ items })`: `<ul role="list">` of auto-fill 120px tiles with a 72px logo. It keeps the browser list defaults (`pl-10 mb-[17px]`) for its geometry.
+- The khatam bands (`#unconference`, `#valeurs`) are `CardsSection marker="khatam"`.
+All four render nothing for an empty list.
+
+### PackageGrid, ChooseLevelLink, SponsorLayout, SponsorForm, SponsoringSection
+- `PackageGrid({ packages })` (`id="packages"`): three dark offer cards, one column below `lg`. "Choisir ce niveau" is a `ChooseLevelLink`.
+- `ChooseLevelLink({ packageId, name, variant?, className?, children })` (client): a `Button` link to `#sponsor-form` that also calls `choosePackage(packageId)`. `name` is the package name, added as hidden text (", {name}") so the three links have different accessible names. Without JavaScript the anchor still jumps to the form.
+- `package-choice.ts`: a small store between the package buttons and the form (two client components far apart in the page, so no context and no click listener on the document). `choosePackage(id)` announces a package; the form reads it with `useSyncExternalStore` and checks the matching level while it renders (no effect). Each call is a new announcement, so choosing the same package again after a manual change works. The exported HTML and the first client render have no choice.
+- `SponsorLayout({ title, lead, faq, children })`: `lg:grid-cols-[0.9fr_1.1fr]`; the FAQ (`#sponsor-faq`, dark) beside the white `#sponsor-funnel` panel (`FormPanel spacing="snug"`).
+- `SponsorForm({ site, levels, packageLevels, successText, submit? })` (client) is the view; `useSponsorForm({ site, levels, packageLevels, successText, submit })` holds the state, the validation, the send and the thanks. The `<form>` has `method="dialog"`, the submit button is `not-js:hidden` and `NoScriptNote` (`js:hidden`) sits under it: outside a `<dialog>`, a dialog-method submit does nothing, so without script neither the answers go into the URL nor the page navigates and loses the input. Single-step form (type "Sponsoring SoCraTes", subject "Partenariat SoCraTes · {entreprise} · {niveau}"). Validation: `validateContact` and `CONSENT_ERROR` from `lib/validation.ts`; the phone message is the funnel one ("Numéro invalide (ex. +212 6 12 34 56 78 ou 06 12 34 56 78)."). The send goes through `useLeadSubmit` (`lib/submit-outcome.tsx`): a guard ignores a second submit while one is in flight, and the button is `aria-disabled` while sending (not `disabled`, so it keeps the focus). The result goes through `outcomeOf` and the shared `SuccessPanel` (`id="s-success" stamp="Merci !" headingLevel={3} tone="ink"`: the panel sits inside the dark section, and the title stays ink on the white card). The submit button is `primary-flat`. `submit` defaults to `submitFormInBrowser`; tests inject a fake. Behavior: focus on a failed submit goes to the first invalid field in page order; the error alert follows `result.fallback` (mailto, LinkedIn or no link); mode `none` shows no LinkedIn link; the console message is `[MSC] Envoi du formulaire impossible :`. Field ids: `s-entreprise`, `s-nom`, `s-fonction`, `s-email`, `s-tel`, `s-message`, `s-consent`, `s-hp`, `s-alert`, `s-submit`, `s-success`.
+- `SponsoringSection({ sponsoring, trust, packages, levels, packageLevels, site })`: the whole `#sponsoring` band. The page builds `packageLevels` with `levelForPackage` and `site` with `formSite(site)` (`links.linkedin`, `contact` and `form`).
+
+## Host page (`/accueillir/`)
+Routes: `src/app/accueillir/layout.tsx` (`PageFrame page="host"` with `skip={{ href: "#funnel", label: "Aller au formulaire" }}`) and `page.tsx` (server; `pageMetadata`, url `/accueillir/`). Components are in `src/components/accueillir/`; the logic is pure in `src/lib/funnel-*.ts` and `src/lib/dates.ts`. The host page does not load the italic font (see the `<em>` trap in `HeroEm`).
+
+### HostLayout (HostHero, ProcessSteps, ProofCard)
+`HostLayout.tsx` (server). `HostHero({ eyebrow, title, lead })` (`zellige-corner pt-14 pb-6`), `ProcessSteps({ steps })` (`ol role="list"`, 38px green round digits in bold), `ProofCard({ src, alt, edition })` (92x70 lazy photo, `p#proof-text` "Dernière édition : {host}, {date longue}, {n} inscrits."; a null edition keeps the static sentence), `HostLayout({ aside, children })` (`Container` grid `gap-12 pb-22 lg:grid-cols-[0.85fr_1.15fr]`, the `aside` pinned at `lg:top-25` from `lg`).
+
+### HostFunnel (useHostFunnel, OfferStep, EventStep, CompanyStep, ContactStep, FunnelProgress, FunnelStep, FunnelNav, Recap, NoScriptNote)
+`HostFunnel.tsx` (client: the card, the form and the success panel). Props `offers: FunnelOffer[]` (id, name, tagline, price), `site: FormSite`, `submit?: Submit` (default `submitFormInBrowser`; tests pass a fake, so nothing posts). The card is a `FormPanel` `#funnel` with `tabIndex={-1}` (`outline-hidden`) so the skip link lands on it.
+- State: `useHostFunnel(offers, site, submit)` (`useHostFunnel.ts`: answers, step, draft, validation, submit; returns `formRef`, `values`, `step`, `minDate`, `errors`, `alert`, `busy`, `success`, `update`, `bind`, `onPrev`, `onSubmit`). Each step is a component with the shared props `StepProps = { active, values, errors, update, bind }`: `OfferStep` (also needs `offers`), `EventStep` (also needs `minDate`), `CompanyStep`, `ContactStep` (also needs `offers`, it holds the `Recap`). `bind(name)` is for free text fields only; a choice goes through `update(name, pick(OPTIONS, value))`, so a select cannot store a loose string.
+- Hydration: the first render is step 1 with empty answers, the same on the server and in the browser, so the static HTML shows the offers. `useHydrated()` (`useHydrated.ts`, a `useSyncExternalStore` pair) is false in the server render and during hydration, true after; the draft, `?formule=<id>` (`window.location.search`) and today's date are read then, with no effect. Do not move that to `useSearchParams`: it needs a Suspense boundary and the static HTML would hold only the fallback. The person's edits sit on top of the restored state, and a new `offers` array identity does not reset them.
+- Draft: key `msc-host-draft-v1`, written with a `_savedAt` timestamp, cleared on success. A draft older than 30 days (`DRAFT_MAX_AGE_DAYS`), or without a valid timestamp, is ignored and deleted. The `?formule=<id>` id wins over the saved offer, and opens step 2 only when the draft has no saved step; a saved step wins over it.
+- Submit: the primary button is `type="submit"`, so Continuer and Enter in a field both go through the form `onSubmit`. The last step runs `validateAll`: it jumps to the first invalid step (or stays on step 4 when only step 4 fails), shows the errors and focuses the field. The honeypot is read at submit and passed to the send function; a filled one shows success without a call. `useLeadSubmit` ignores a second submit while one is in flight and catches a thrown error. The result goes through `outcomeOf`; the failure alert links the prefilled `result.fallback.url` for the mail. Scrolling uses `scrollBehavior()` from `lib/motion.ts`. Result modes: endpoint and mailto success texts; LinkedIn or none shows the "pas encore relié" alert; error shows the alert with the mailto or LinkedIn fallback.
+- Without JavaScript: the server HTML shows every step (`FunnelStep` carries `js:hidden` on steps that are not current, and after hydration `hidden={hydrated && !active}` takes over, which also covers a blocked inline script), no progress bar and no navigation (`not-js:hidden`), and `NoScriptNote` (`js:hidden`): "Pour envoyer ce formulaire, activez JavaScript." plus the LinkedIn link from `site.links.linkedin` (plain text without a URL). The form tag has `method="dialog"` for the same reason as the sponsor form: a bare submit without script does nothing, so it never puts the answers in the URL and never navigates.
+- Subcomponents: `FunnelProgress({ step })` (one `tv` with a `reached` variant, the current bar has `aria-current="step"`, `not-js:hidden`), `FunnelStep({ step, active, title, hint? })` and `StepHint` (a `fieldset` with `<legend id="step-N-legend" tabIndex={-1}>` that holds an `h2`; the legend takes the focus when the step changes), `FunnelNav({ step, busy, onPrev })` (while busy the primary button is `aria-disabled="true"`; `not-js:hidden`), `Recap({ rows })` (`bg-paper` box, `dl` grid, hidden when empty), `NoScriptNote({ linkedin? })`. Every participants radio is `required`. The success panel is the shared `SuccessPanel` (`id="success" stamp="Merci ! On vous rappelle vite."` with the ghost link "Revoir les éditions passées" as `children`).
+- Option lists (cities, sectors, sizes, preferences, participant ranges, equipment) live in code (`lib/funnel-fields.ts`, `as const` tuples with union types), not in JSON.
+- Ids: `funnel`, `host-form`, `offer-choices`, `progress-label`, `date`, `date_alt`, `recap`, `form-alert`, `prev`, `next`, `success`, `success-text`, `website_hp`, `proof-text`.
+
+### Form modules in `src/lib`
+- `funnel-fields.ts` (steps, option tuples and union types, `pick()`, `FunnelValues`, `Lead`, `EMPTY_VALUES`), `funnel-validate.ts` (`validateStep`, `validateAll`), `funnel-draft.ts` (`readDraft`, `writeDraft`, `clearDraft`, `restoreDraft`, `toDraft`), `funnel-text.ts` (messages, `dateHelp`, `formatDay`, `collect`, `recapRows`, `emailBody`, `leadSubject`, labels), `dates.ts` (`parseIsoDay`: strict, local noon, null for a non-day; `tomorrowIso`). `funnel-test-utils.ts` holds the fixtures of their tests. There is no barrel: import the module you need.
+- `validation.ts`: `isValidEmail`, `normalizePhone`, `validPhone`, `validateContact(values, fields?)` (company, name, e-mail, phone, with `CONTACT_ERROR`; used by both forms), `CONSENT_ERROR`, `withoutError(errors, name)` (the one error-clearing helper). The caller owns the rest of the messages.
+- `forms.ts` (pure; takes its browser dependencies as arguments) and `forms-browser.ts` (`submitFormInBrowser`, which never throws): see "Forms" in `CLAUDE.md`. `formSite(site)` picks the part of `site.json` the submit code reads.
+- `submit-outcome.tsx`: `outcomeOf(result, { success, mailto, failure: { plain, mailLead, linkedinLead } })` returns `{ kind: "success", text }` or `{ kind: "alert", content }` and logs the console errors for the team; `useLeadSubmit(submit, texts)` is the hook both forms use (guard, `busy`, `send()`).
+- `motion.ts`: `scrollBehavior()` returns `"smooth"`, or `"auto"` with `prefers-reduced-motion: reduce` or without `matchMedia`. Read at call time, so call it from handlers and effects only.
+
+## Ports context and page views
+
+### PortsProvider, usePorts, renderWithPorts
+`src/lib/ports/index.tsx` (client). `Ports` = `{ clock, storage, errorReporter, motion, scroller, viewport, imageProbe, modalDialog }`, each a small interface in its own file of `src/lib/ports/`. `browserPorts` holds the real adapters and is the context default, so the app needs no provider. `PortsProvider({ ports: Partial<Ports>, children })` replaces some ports for its subtree; the others come from the parent. `usePorts()` returns the current `Ports`. Tests use `renderWithPorts(ui, ports)` (`src/test/ports.tsx`) with the in-memory adapters of `src/test/`; see "Tests use ports, not mocks" in `CLAUDE.md`.
+
+### AccueillirView, SocratesView
+Server components that take plain props; the route `page.tsx` only loads content and calls them.
+- `src/components/accueillir/AccueillirView.tsx`: `AccueillirView({ offers, events, site, today })`, `today` is `YYYY-MM-DD` (the page passes `systemClock.now()`). Renders `HostHero`, then `HostLayout` with `ProcessSteps`, `ProofCard` (edition from the latest meetup on or before `today`, else `null`) and a link to `/meetup/` in the aside, and `HostFunnel` in the main column.
+- `src/components/socrates/SocratesView.tsx`: `SocratesView({ socrates, sponsoring, companies, events, site })`. Renders the sections of the SoCraTes page in the order listed under "SoCraTes page".
+
+## Page-level notes
+
+- Site and page content come from `content/*.json` through the loaders in `src/content/load.ts`. Titles that contain `<em>` go through `HeroEm`.
+- Contexts that change a component (dark surface, hero, compact) are variants of that component, not selectors on a parent.
